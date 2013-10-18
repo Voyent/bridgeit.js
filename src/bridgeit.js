@@ -341,6 +341,20 @@ if (!window.console) {
         }
         return record;
     }
+    function getNamedObject(name)  {
+        var parts = name.split(".");
+        var theObject = window;
+        for (var i = 0; i < parts.length; i++) {
+            theObject = theObject[parts[i]];
+            if (!theObject) {
+                return null;
+            }
+        }
+        if (window == theObject)  {
+            return null;
+        }
+        return theObject;
+    }
     function addOnLoadListener(func)  {
         var oldonload = window.onload;
         window.onload = function() {
@@ -425,8 +439,9 @@ if (!window.console) {
                             restoreHash = echoed.h;
                         }
                         if (echoed.c)  {
-                            if (window[echoed.c])  {
-                                callback = window[echoed.c];
+                            var namedCallBack = getNamedObject(echoed.c);
+                            if (namedCallBack)  {
+                                callback = namedCallBack;
                             }
                         }
                     }
@@ -444,8 +459,8 @@ if (!window.console) {
                     try {
                         callback(sxEvent);
                     } catch (e)  {
-                        alert("Device function callback failed " + e);
-                        alert(e.stack);
+                        console.error("Device function callback failed " + e);
+                        console.error(e.stack);
                     }
                     bridgeit.deviceCommandCallback = null;
                 } else{
@@ -726,6 +741,18 @@ if (!window.console) {
      */
     b.goBridgeItURL = null;
 
+    var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
+    b.handleCloudPush = function ()  {
+        var callbacks = localStorage.getItem(CLOUD_CALLBACKS_KEY);
+        var parts = callbacks.split(" ");
+        var callback;
+        for (var i = 0; i < parts.length; i++) {
+            callback = getNamedObject(parts[i]);
+            if (callback) {
+                callback();
+            }
+        }
+    }
     /**
      * Configure Push service and connect to it.
      * @param uri the location of the service
@@ -748,6 +775,7 @@ if (!window.console) {
 
     /**
      * Add listner for notifications belonging to the specified group.
+     * Callbacks must be passed by name to receive cloud push notifications.
      * @param group
      * @param callback
      */
@@ -755,9 +783,29 @@ if (!window.console) {
         if (ice && ice.push && ice.push.configuration.contextPath) {
             var pushId = ice.push.createPushId();
             ice.push.addGroupMember(group, pushId);
+            if ("string" != typeof(callback))  {
+                console.error(
+                    "BridgeIt Cloud Push callbacks must be named in window scope");
+            } else {
+                var callbackName = callback;
+                callback = getNamedObject(callback);
+                if (!!callback)  {
+                    if (localStorage)  {
+                        var callbacks = localStorage
+                                .getItem(CLOUD_CALLBACKS_KEY);
+                        if (!callbacks)  {
+                            callbacks = " ";
+                        }
+                        if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
+                            callbacks += callbackName + " ";
+                        }
+                        localStorage.setItem(CLOUD_CALLBACKS_KEY, callbacks);
+                    }
+                }
+            }
             ice.push.register([ pushId ], callback);
         } else {
-            throw 'Push service is not setup';
+            console.error('Push service is not active');
         }
     };
 
@@ -784,7 +832,7 @@ if (!window.console) {
                 ice.push.notify(groupName, options);
             }
         } else {
-            throw 'Push service is not setup';
+            console.error('Push service is not active');
         }
     };
 
