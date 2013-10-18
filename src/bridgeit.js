@@ -580,7 +580,6 @@ if (!window.console) {
         var img = document.createElement('img');
         img.src = url;
         url = img.src;
-        img.src = null; //prevent server request
         return url;
     }
 
