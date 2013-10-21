@@ -529,7 +529,6 @@ if (!window.console) {
 
     };
 
-
     function httpGET(uri, query) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', uri, false);
@@ -582,6 +581,51 @@ if (!window.console) {
         url = img.src;
         return url;
     }
+
+    function loadPushService(uri, apiKey) {
+        if (ice && ice.push) {
+            console.log('Push service already loaded and configured');
+        } else {
+            var baseURI = uri + (endsWith(uri, '/') ? '' : '/');
+            var codeURI = baseURI + 'code.icepush';
+            var code = httpGET(codeURI, 'apiKey=' + apiKey);
+            eval(code);
+
+            ice.push.configuration.contextPath = baseURI;
+            ice.push.connection.startConnection();
+            findGoBridgeIt();
+        }
+    }
+
+    function addPushListenerImpl(group, callback) {
+        if (ice && ice.push && ice.push.configuration.contextPath) {
+            var pushId = ice.push.createPushId();
+            ice.push.addGroupMember(group, pushId);
+            if ("string" != typeof(callback))  {
+                console.error(
+                    "BridgeIt Cloud Push callbacks must be named in window scope");
+            } else {
+                var callbackName = callback;
+                callback = getNamedObject(callback);
+                if (!!callback)  {
+                    if (localStorage)  {
+                        var callbacks = localStorage
+                                .getItem(CLOUD_CALLBACKS_KEY);
+                        if (!callbacks)  {
+                            callbacks = " ";
+                        }
+                        if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
+                            callbacks += callbackName + " ";
+                        }
+                        localStorage.setItem(CLOUD_CALLBACKS_KEY, callbacks);
+                    }
+                }
+            }
+            ice.push.register([ pushId ], callback);
+        } else {
+            console.error('Push service is not active');
+        }
+    };
 
     /* *********************** PUBLIC **********************************/
     
@@ -758,18 +802,9 @@ if (!window.console) {
      * @param apiKey
      */
     b.usePushService = function(uri, apiKey) {
-        if (ice && ice.push) {
-            console.log('Push service already loaded and configured');
-        } else {
-            var baseURI = uri + (endsWith(uri, '/') ? '' : '/');
-            var codeURI = baseURI + 'code.icepush';
-            var code = httpGET(codeURI, 'apiKey=' + apiKey);
-            eval(code);
-
-            ice.push.configuration.contextPath = baseURI;
-            ice.push.connection.startConnection();
-            findGoBridgeIt();
-        }
+        window.setTimeout(function() {
+            loadPushService(uri, apiKey);
+        }, 1);
     };
 
     /**
@@ -779,33 +814,9 @@ if (!window.console) {
      * @param callback
      */
     b.addPushListener = function(group, callback) {
-        if (ice && ice.push && ice.push.configuration.contextPath) {
-            var pushId = ice.push.createPushId();
-            ice.push.addGroupMember(group, pushId);
-            if ("string" != typeof(callback))  {
-                console.error(
-                    "BridgeIt Cloud Push callbacks must be named in window scope");
-            } else {
-                var callbackName = callback;
-                callback = getNamedObject(callback);
-                if (!!callback)  {
-                    if (localStorage)  {
-                        var callbacks = localStorage
-                                .getItem(CLOUD_CALLBACKS_KEY);
-                        if (!callbacks)  {
-                            callbacks = " ";
-                        }
-                        if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
-                            callbacks += callbackName + " ";
-                        }
-                        localStorage.setItem(CLOUD_CALLBACKS_KEY, callbacks);
-                    }
-                }
-            }
-            ice.push.register([ pushId ], callback);
-        } else {
-            console.error('Push service is not active');
-        }
+        window.setTimeout(function() {
+            addPushListenerImpl(group, callback);
+        }, 1);
     };
 
     /**
