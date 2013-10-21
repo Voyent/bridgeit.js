@@ -12,9 +12,6 @@
  * express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-if (!window['ice']) {
-    window.ice = {};
-}
 if (!window['bridgeit']) {
     window.bridgeit = {};
     window.bridgeIt = window.bridgeit; //alias bridgeit and bridgeIt
@@ -777,10 +774,59 @@ if (!window.console) {
     b.allowAnonymousCallbacks = false;
 
     /**
+     * Is the current browser iOS
+     * @alias plugin.isIOS
+     */
+    b.isIOS = function(){
+        var i = 0,
+            iOS = false,
+            iDevice = ['iPad', 'iPhone', 'iPod'];
+
+        for ( ; i < iDevice.length ; i++ ) {
+            if( navigator.userAgent.indexOf(iDevice[i]) > -1 ){ 
+                iOS = true; break; 
+            }
+        }
+        return iOS;
+    }
+
+    /**
+     * Is the current browser Android
+     * @alias plugin.isAndroid
+     */
+    b.isAndroid = function(){
+        return navigator.userAgent.toLowerCase()
+            .indexOf("android") > -1; 
+    }
+
+    /**
+     * Is the current browser Windows Phone 8
+     * @alias plugin.isWindowsPhone8
+     */
+    b.isWindowsPhone8 = function(){
+        var ua = navigator.userAgent;
+        return ua.indexOf('IEMobile') > -1 
+            || ( ua.indexOf('MSIE 10') > -1 
+                && typeof window.orientation !== 'undefined');
+    }
+
+    /**
+     * Check if the current browser is supported by the BridgeIt Native Mobile app
+     * Currently iOS, Android, and Windows Phone 8 are supported.
+     * @alias plugin.isSupportedPlatform
+     */
+    b.isSupportedPlatform = function(){
+        var supported = b.isIOS() || b.isAndroid() || b.isWindowsPhone8();
+        console.log('bridgeIt supported platform: ' + supported);
+        return supported;
+    }
+
+    /**
      * Set goBridgeItURL to the URL of your goBridgeIt.html file
      * to allow Cloud Push to go back to the most recent page
      * The defaults of the host root and the current relative
      * directory URL do not need to be specified
+     * @alias plugin.goBridgeItURL
      */
     b.goBridgeItURL = null;
 
@@ -800,6 +846,7 @@ if (!window.console) {
      * Configure Push service and connect to it.
      * @param uri the location of the service
      * @param apiKey
+     * @alias plugin.usePushService
      */
     b.usePushService = function(uri, apiKey) {
         window.setTimeout(function() {
@@ -812,6 +859,7 @@ if (!window.console) {
      * Callbacks must be passed by name to receive cloud push notifications.
      * @param group
      * @param callback
+     * @alias plugin.addPushListener
      */
     b.addPushListener = function(group, callback) {
         window.setTimeout(function() {
@@ -823,6 +871,7 @@ if (!window.console) {
      * Push notification to the group.
      * @param groupName
      * @param options that a notification can carry
+     * @alias plugin.push
      */
     b.push = function(groupName, options) {
         if (!absoluteGoBridgeItURL)  {
