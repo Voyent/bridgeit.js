@@ -772,13 +772,14 @@ if (!window.console) {
     /**
      * Set allowAnonymousCallbacks to true to take advantage of persistent
      * callback functions currently supported on iOS.
-     * 
+     * @property {Boolean} [allowAnonymousCallbacks=false]
      */
     b.allowAnonymousCallbacks = false;
 
     /**
      * Is the current browser iOS
      * @alias plugin.isIOS
+     * @readonly
      */
     b.isIOS = function(){
         var i = 0,
@@ -795,7 +796,8 @@ if (!window.console) {
 
     /**
      * Is the current browser Android
-     * @alias plugin.isAndroid
+     * @property isAndroid
+     * @readonly
      */
     b.isAndroid = function(){
         return navigator.userAgent.toLowerCase()
@@ -804,7 +806,8 @@ if (!window.console) {
 
     /**
      * Is the current browser Windows Phone 8
-     * @alias plugin.isWindowsPhone8
+     * @property isWindowsPhone8
+     * @readonly
      */
     b.isWindowsPhone8 = function(){
         var ua = navigator.userAgent;
@@ -816,7 +819,8 @@ if (!window.console) {
     /**
      * Check if the current browser is supported by the BridgeIt Native Mobile app
      * Currently iOS, Android, and Windows Phone 8 are supported.
-     * @alias plugin.isSupportedPlatform
+     * @property isSupportedPlatform
+     * @readonly
      */
     b.isSupportedPlatform = function(){
         var supported = b.isIOS() || b.isAndroid() || b.isWindowsPhone8();
@@ -829,11 +833,15 @@ if (!window.console) {
      * to allow Cloud Push to go back to the most recent page
      * The defaults of the host root and the current relative
      * directory URL do not need to be specified
-     * @alias plugin.goBridgeItURL
+     * @property {String} [goBridgeItURL]
      */
     b.goBridgeItURL = null;
 
     var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
+
+    /**
+     * @alias plugin.handleCloudPush
+     */
     b.handleCloudPush = function ()  {
         var callbacks = localStorage.getItem(CLOUD_CALLBACKS_KEY);
         var parts = callbacks.split(" ");
@@ -844,12 +852,13 @@ if (!window.console) {
                 callback();
             }
         }
-    }
+    };
+
     /**
      * Configure Push service and connect to it.
+     * @alias plugin.usePushService
      * @param uri the location of the service
      * @param apiKey
-     * @alias plugin.usePushService
      */
     b.usePushService = function(uri, apiKey) {
         window.setTimeout(function() {

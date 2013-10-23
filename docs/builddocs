@@ -1,0 +1,5 @@
+#!/bin/sh
+cd ${0%/*}
+jsduck --config jsduck-conf.json -o out      
+wait
+cp images/ice-logo.png out/resources/images/ice-logo.png
