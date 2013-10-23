@@ -100,6 +100,11 @@ if (!window.console) {
         // concatenate the array
         return qString.join("");
     }
+    var useBase64 = false;
+    if (jQuery && jQuery.mobile)  {
+        //jquery mobile insists on parsing BridgeIt hashchange data
+        useBase64 = true;;
+    }
     function getDeviceCommand()  {
         var sxkey = "#icemobilesx";
         var sxlen = sxkey.length;
@@ -187,6 +192,16 @@ if (!window.console) {
             hashClause = "&h=" + escape(hashSubClause) + escape(callbackClause);
         }
 
+        deviceOptions = null;
+        if (useBase64)  {
+            //jquery mobile insists on parsing BridgeIt hashchange data
+            deviceOptions = "enc=base64";
+        }
+        var optionsClause = "";
+        if (!!deviceOptions)  {
+            optionsClause = "&o=" + escape(deviceOptions);
+        }
+
         if (params && ("" != params)) {
             params = "ub=" + escape(baseURL) + ampchar + params;
         }
@@ -210,6 +225,7 @@ if (!window.console) {
                 uploadURLClause + 
                 "&r=" + escape(returnURL) +
                 sessionidClause +
+                optionsClause +
                 hashClause +
                 serializedFormClause;
         console.log('sxURL=' + sxURL);
@@ -313,6 +329,11 @@ if (!window.console) {
     }
     function unpackDeviceResponse(data)  {
         var result = {};
+        if (useBase64)  {
+            data = data.replace(/~/g,"=");
+            data = data.replace(/\./g,"/");
+            data = unescape(atob(data));
+        }
         var params = data.split("&");
         var len = params.length;
         for (var i = 0; i < len; i++) {
