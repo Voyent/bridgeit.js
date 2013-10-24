@@ -730,6 +730,7 @@ if (!window.console) {
     b.fetchContact = function(id, callback, options)  {
         deviceCommand("fetchContacts", id, callback, options);
     };
+
     /**
      * Send an SMS message.
      * 
@@ -739,8 +740,38 @@ if (!window.console) {
      * @inheritdoc #scan
      * 
      */
-    b.sms = function(id, callback, options)  {
-        deviceCommand("sms", id, callback, options);
+    /**
+     * Send an SMS message.
+     * 
+     * The sms function will send an SMS message to a number on supported
+     * platforms. On iOS devices, a native SMS call is made through the
+     * BridgeIt app. On other platforms an SMS URL protocol is used in a
+     * DOM anchor element, which the browser may use to launch the device
+     * SMS functionality, if available.
+     * 
+     * @alias plugin.sms
+     * @param {String} number The phone number to send the message to
+     * @param {String} body The message
+     * @param {Function} callback The callback function.
+     * 
+     */
+    b.sms = function(number, body, callback)  {
+        if( number == 'undefined' || number == '')
+            return;
+        if( b.isIOS()){
+            deviceCommand("sms", id, callback, {n: number, body: message});
+        }
+        else{
+            var smsBtn = document.createElement('a');
+            var cleanNumber = number.replace(/[\s-\.\+]/g,'');
+            smsBtn.href = 'sms://+' + cleanNumber + '?body=' + encodeURI(body);
+            smsBtn.style = 'display:none';
+            document.body.appendChild(smsBtn);
+            smsBtn.click();
+            document.removeChild(smsBtn);
+            if( callback )
+                callBack();
+        }
     };
     /**
      * Activate and immerse yourself in a new and better world.
