@@ -101,7 +101,7 @@ if (!window.console) {
         return qString.join("");
     }
     var useBase64 = false;
-    if (jQuery && jQuery.mobile)  {
+    if (window.jQuery && jQuery.mobile)  {
         //jquery mobile insists on parsing BridgeIt hashchange data
         useBase64 = true;;
     }
