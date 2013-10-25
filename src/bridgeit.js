@@ -240,7 +240,11 @@ if (!window.console) {
         }
         return splashClause;
     }
+    var autoDetectUploadURL = false;
     function getUploadURL(element)  {
+        if (!autoDetectUploadURL)  {
+            return null;
+        }
         var uploadURL;
 
         var windowLocation = window.location;
