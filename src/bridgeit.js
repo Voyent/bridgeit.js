@@ -277,6 +277,10 @@ if (!window.console) {
     }
     var checkTimeout;
     function deviceCommand(command, id, callback, options)  {
+        if( !b.isSupportedPlatform(command) ){
+            b.notSupported(id, command);
+            return;
+        }
         if (navigator.userAgent.toLowerCase().indexOf('android') < 0)  {
             checkTimeout = setTimeout( function()  {
                 bridgeit.launchFailed(id);
@@ -667,6 +671,24 @@ if (!window.console) {
     b.launchFailed = function(id)  {
         alert("BridgeIt not available for " + id);
     };
+
+    /**
+     * Application provided callback to detect non-supported clients.
+     * This should be overridden with an implementation that informs the
+     * user the user that native mobile functionality is only available
+     * on supported platforms or potentially fallback with a different
+     * browser control such as input file, which would be available on 
+     * all browsers.
+     * @param {String} id The id of the invoking element TODO
+     * @param {String} command The BridgeIt api command that was launched
+     * @alias plugin.notSupported
+     * @template
+     */
+    b.notSupported = function(id, command)  {
+        alert('Sorry, the command ' + command + ' for BridgeIt is not supported on this platform');
+    };
+
+
     /**
      * Launch the device QR Code scanner. 
      * 
@@ -874,12 +896,15 @@ if (!window.console) {
 
     /**
      * Check if the current browser is supported by the BridgeIt Native Mobile app
-     * Currently iOS, Android, and Windows Phone 8 are supported.
-     * @property isSupportedPlatform
-     * @readonly
+     * Currently iOS, Android, and some features on Windows Phone 8 are supported.
+     * @param {String} command The BridgeIt API command that may or may not be supported
+     * @alias plugin.isSupportedPlatform
      */
-    b.isSupportedPlatform = function(){
-        var supported = b.isIOS() || b.isAndroid() || b.isWindowsPhone8();
+    b.isSupportedPlatform = function(command){
+        var supported = b.isIOS() || b.isAndroid();
+        if ( !supported && b.isWindowsPhone8() &&  command){
+            supported = ['camera', 'sms'].indexOf(command) > -1;
+        }
         console.log('bridgeIt supported platform: ' + supported);
         return supported;
     }
