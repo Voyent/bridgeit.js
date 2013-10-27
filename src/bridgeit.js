@@ -902,11 +902,24 @@ if (!window.console) {
      */
     b.isSupportedPlatform = function(command){
         var supported = b.isIOS() || b.isAndroid();
-        if ( !supported && b.isWindowsPhone8() &&  command){
+        if ( !supported && b.isWindowsPhone8()){
             supported = ['camera', 'sms'].indexOf(command) > -1;
         }
-        console.log('bridgeIt supported platform: ' + supported);
+        console.log("bridgeIt supported platform for '" + command + "' command: " + supported);
         return supported;
+    }
+
+    /**
+     * The app store link to BridgeIt for the appropirate platform
+     * @property appStoreLink
+     * @readonly
+     */
+    b.appStoreLink = function(){
+        if( b.isAndroid() )
+            return 'https://play.google.com/store/apps/details?id=org.icemobile.client.android.icemobilesx';
+        else if( b.isIOS() )
+            return 'http://itunes.apple.com/us/app/icemobile-sx/id485908934?mt=8';
+
     }
 
     /**
