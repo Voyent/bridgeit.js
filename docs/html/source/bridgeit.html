@@ -842,6 +842,16 @@ if (!window.console) {
         deviceCommand(&quot;register&quot;, id, callback, options);
     };
 
+<span id='bridgeit-method-isRegistered'>    /**
+</span>     * Verify that BridgeIt Cloud Push is registered.
+     * 
+     * @alias plugin.isRegistered
+     * 
+     */
+    b.isRegistered = function()  {
+        return !!(getCloudPushId());
+    };
+    
 
 <span id='bridgeit-method-url2Object'>    /**
 </span>     * Utility method to unpack url-encoded parameters into an object.
