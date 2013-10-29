@@ -766,6 +766,7 @@ if (!window.console) {
      * @inheritdoc #scan
      * 
      */
+
     /**
      * Send an SMS message.
      * 
@@ -778,14 +779,13 @@ if (!window.console) {
      * @alias plugin.sms
      * @param {String} number The phone number to send the message to
      * @param {String} body The message
-     * @param {Function} callback The callback function.
      * 
      */
-    b.sms = function(number, body, callback)  {
+    b.sms = function(number, body)  {
         if( number == 'undefined' || number == '')
             return;
         if( b.isIOS()){
-            deviceCommand("sms", id, callback, {n: number, body: message});
+            deviceCommand("sms", id, null, {n: number, body: message});
         }
         else{
             var smsBtn = document.createElement('a');
@@ -795,10 +795,9 @@ if (!window.console) {
             document.body.appendChild(smsBtn);
             smsBtn.click();
             document.removeChild(smsBtn);
-            if( callback )
-                callBack();
-        }
+         }
     };
+    
     /**
      * Activate and immerse yourself in a new and better world.
      * 
