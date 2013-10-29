@@ -118,7 +118,7 @@ if (!window.console) {
         return qString.join(&quot;&quot;);
     }
     var useBase64 = false;
-    if (jQuery &amp;&amp; jQuery.mobile)  {
+    if (window.jQuery &amp;&amp; jQuery.mobile)  {
         //jquery mobile insists on parsing BridgeIt hashchange data
         useBase64 = true;;
     }
@@ -257,7 +257,11 @@ if (!window.console) {
         }
         return splashClause;
     }
+    var autoDetectUploadURL = false;
     function getUploadURL(element)  {
+        if (!autoDetectUploadURL)  {
+            return null;
+        }
         var uploadURL;
 
         var windowLocation = window.location;
@@ -290,6 +294,10 @@ if (!window.console) {
     }
     var checkTimeout;
     function deviceCommand(command, id, callback, options)  {
+        if( !b.isSupportedPlatform(command) ){
+            b.notSupported(id, command);
+            return;
+        }
         if (navigator.userAgent.toLowerCase().indexOf(&#39;android&#39;) &lt; 0)  {
             checkTimeout = setTimeout( function()  {
                 bridgeit.launchFailed(id);
@@ -680,6 +688,24 @@ if (!window.console) {
     b.launchFailed = function(id)  {
         alert(&quot;BridgeIt not available for &quot; + id);
     };
+
+<span id='bridgeit-method-notSupported'>    /**
+</span>     * Application provided callback to detect non-supported clients.
+     * This should be overridden with an implementation that informs the
+     * user the user that native mobile functionality is only available
+     * on supported platforms or potentially fallback with a different
+     * browser control such as input file, which would be available on 
+     * all browsers.
+     * @param {String} id The id of the invoking element TODO
+     * @param {String} command The BridgeIt api command that was launched
+     * @alias plugin.notSupported
+     * @template
+     */
+    b.notSupported = function(id, command)  {
+        alert(&#39;Sorry, the command &#39; + command + &#39; for BridgeIt is not supported on this platform&#39;);
+    };
+
+
 <span id='bridgeit-method-scan'>    /**
 </span>     * Launch the device QR Code scanner. 
      * 
@@ -748,15 +774,6 @@ if (!window.console) {
         deviceCommand(&quot;fetchContacts&quot;, id, callback, options);
     };
 
-<span id='bridgeit-property-'>    /**
-</span>     * Send an SMS message.
-     * 
-     * The callback function will be called once the message is sent.
-     * 
-     * @alias plugin.sms
-     * @inheritdoc #scan
-     * 
-     */
 <span id='bridgeit-method-sms'>    /**
 </span>     * Send an SMS message.
      * 
@@ -769,14 +786,13 @@ if (!window.console) {
      * @alias plugin.sms
      * @param {String} number The phone number to send the message to
      * @param {String} body The message
-     * @param {Function} callback The callback function.
      * 
      */
-    b.sms = function(number, body, callback)  {
+    b.sms = function(number, body)  {
         if( number == &#39;undefined&#39; || number == &#39;&#39;)
             return;
         if( b.isIOS()){
-            deviceCommand(&quot;sms&quot;, id, callback, {n: number, body: message});
+            deviceCommand(&quot;sms&quot;, id, null, {n: number, body: message});
         }
         else{
             var smsBtn = document.createElement(&#39;a&#39;);
@@ -786,10 +802,9 @@ if (!window.console) {
             document.body.appendChild(smsBtn);
             smsBtn.click();
             document.removeChild(smsBtn);
-            if( callback )
-                callBack();
-        }
+         }
     };
+    
 <span id='bridgeit-method-augmentedReality'>    /**
 </span>     * Activate and immerse yourself in a new and better world.
      * 
@@ -836,7 +851,7 @@ if (!window.console) {
      */
     b.url2Object = function(encoded)  {
         return url2Object(encoded);
-    }
+    };
 
 <span id='bridgeit-property-allowAnonymousCallbacks'>    /**
 </span>     * Set allowAnonymousCallbacks to true to take advantage of persistent
@@ -861,7 +876,7 @@ if (!window.console) {
             }
         }
         return iOS;
-    }
+    };
 
 <span id='bridgeit-property-isAndroid'>    /**
 </span>     * Is the current browser Android
@@ -871,7 +886,7 @@ if (!window.console) {
     b.isAndroid = function(){
         return navigator.userAgent.toLowerCase()
             .indexOf(&quot;android&quot;) &gt; -1; 
-    }
+    };
 
 <span id='bridgeit-property-isWindowsPhone8'>    /**
 </span>     * Is the current browser Windows Phone 8
@@ -883,19 +898,36 @@ if (!window.console) {
         return ua.indexOf(&#39;IEMobile&#39;) &gt; -1 
             || ( ua.indexOf(&#39;MSIE 10&#39;) &gt; -1 
                 &amp;&amp; typeof window.orientation !== &#39;undefined&#39;);
-    }
+    };
 
-<span id='bridgeit-property-isSupportedPlatform'>    /**
-</span>     * Check if the current browser is supported by the BridgeIt Native Mobile app
-     * Currently iOS, Android, and Windows Phone 8 are supported.
-     * @property isSupportedPlatform
+<span id='bridgeit-method-isSupportedPlatform'>    /**
+</span>     * Check if the current browser is supported by the BridgeIt Native Mobile app.
+     *
+     * Currently iOS, Android, and some features on Windows Phone 8 are supported.
+     * @param {String} command The BridgeIt API command that may or may not be supported
+     * @alias plugin.isSupportedPlatform
+     */
+    b.isSupportedPlatform = function(command){
+        var supported = b.isIOS() || b.isAndroid();
+        if ( !supported &amp;&amp; b.isWindowsPhone8()){
+            supported = [&#39;camera&#39;, &#39;sms&#39;].indexOf(command) &gt; -1;
+        }
+        console.log(&quot;bridgeIt supported platform for &#39;&quot; + command + &quot;&#39; command: &quot; + supported);
+        return supported;
+    };
+
+<span id='bridgeit-property-appStoreLink'>    /**
+</span>     * The app store link to BridgeIt for the appropirate platform
+     * @property appStoreLink
      * @readonly
      */
-    b.isSupportedPlatform = function(){
-        var supported = b.isIOS() || b.isAndroid() || b.isWindowsPhone8();
-        console.log(&#39;bridgeIt supported platform: &#39; + supported);
-        return supported;
-    }
+    b.appStoreLink = function(){
+        if( b.isAndroid() )
+            return &#39;https://play.google.com/store/apps/details?id=org.icemobile.client.android.icemobilesx&#39;;
+        else if( b.isIOS() )
+            return &#39;http://itunes.apple.com/us/app/icemobile-sx/id485908934?mt=8&#39;;
+
+    };
 
 <span id='bridgeit-property-goBridgeItURL'>    /**
 </span>     * Set goBridgeItURL to the URL of your goBridgeIt.html file

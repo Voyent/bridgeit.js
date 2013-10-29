@@ -1,0 +1,25 @@
+#north-region {
+	background-color: #FFF;
+	background-image: none;
+	
+}
+#header-content {
+	color: #777878;
+	background: url(html/resources/images/bridgeIt-logo.png) 0 0 no-repeat;
+	padding-left: 138px;
+	line-height: 33px;
+	margin-top: 6px;
+	width: 250px;
+	background-size: 53%;
+	background-position: 0 0px;
+}
+#classindex > div:nth-child(3){
+	display: none;
+}
+#exampleindex, #videoindex, #guideindex, #classindex {
+	padding: 0px 10px 10px 10px;
+	margin-top: -15px !important;
+}
+#center-container h1, #center-container h1 .class-source-link{
+	color: #DD5734;
+}

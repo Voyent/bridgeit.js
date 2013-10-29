@@ -760,16 +760,6 @@ if (!window.console) {
     /**
      * Send an SMS message.
      * 
-     * The callback function will be called once the message is sent.
-     * 
-     * @alias plugin.sms
-     * @inheritdoc #scan
-     * 
-     */
-
-    /**
-     * Send an SMS message.
-     * 
      * The sms function will send an SMS message to a number on supported
      * platforms. On iOS devices, a native SMS call is made through the
      * BridgeIt app. On other platforms an SMS URL protocol is used in a
@@ -854,7 +844,7 @@ if (!window.console) {
      */
     b.url2Object = function(encoded)  {
         return url2Object(encoded);
-    }
+    };
 
     /**
      * Set allowAnonymousCallbacks to true to take advantage of persistent
@@ -879,7 +869,7 @@ if (!window.console) {
             }
         }
         return iOS;
-    }
+    };
 
     /**
      * Is the current browser Android
@@ -889,7 +879,7 @@ if (!window.console) {
     b.isAndroid = function(){
         return navigator.userAgent.toLowerCase()
             .indexOf("android") > -1; 
-    }
+    };
 
     /**
      * Is the current browser Windows Phone 8
@@ -901,10 +891,11 @@ if (!window.console) {
         return ua.indexOf('IEMobile') > -1 
             || ( ua.indexOf('MSIE 10') > -1 
                 && typeof window.orientation !== 'undefined');
-    }
+    };
 
     /**
-     * Check if the current browser is supported by the BridgeIt Native Mobile app
+     * Check if the current browser is supported by the BridgeIt Native Mobile app.
+     *
      * Currently iOS, Android, and some features on Windows Phone 8 are supported.
      * @param {String} command The BridgeIt API command that may or may not be supported
      * @alias plugin.isSupportedPlatform
@@ -916,7 +907,7 @@ if (!window.console) {
         }
         console.log("bridgeIt supported platform for '" + command + "' command: " + supported);
         return supported;
-    }
+    };
 
     /**
      * The app store link to BridgeIt for the appropirate platform
@@ -929,7 +920,7 @@ if (!window.console) {
         else if( b.isIOS() )
             return 'http://itunes.apple.com/us/app/icemobile-sx/id485908934?mt=8';
 
-    }
+    };
 
     /**
      * Set goBridgeItURL to the URL of your goBridgeIt.html file
