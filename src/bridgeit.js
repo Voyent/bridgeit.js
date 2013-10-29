@@ -835,6 +835,16 @@ if (!window.console) {
         deviceCommand("register", id, callback, options);
     };
 
+    /**
+     * Verify that BridgeIt Cloud Push is registered.
+     * 
+     * @alias plugin.isRegistered
+     * 
+     */
+    b.isRegistered = function()  {
+        return !!(getCloudPushId());
+    };
+    
 
     /**
      * Utility method to unpack url-encoded parameters into an object.
