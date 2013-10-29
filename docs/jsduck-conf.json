@@ -3,7 +3,7 @@
     "--images": "images",
     "--builtin-classes": true,
     "--seo": true,
-	"--title": "BridgeIt API",
+	"--title": "bridgeit.js API",
 	"--categories": "categories.json",
 	"--warnings": "-image_unused",
 	"--head-html": "<link rel='shortcut icon' type='image/ico' href='' />"
