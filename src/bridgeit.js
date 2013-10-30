@@ -552,7 +552,6 @@ if (!window.console) {
         }, false);
 
         window.addEventListener("load", function () {
-            setupCloudPush();
             storeLastPage();
         }, false);
 
@@ -624,6 +623,7 @@ if (!window.console) {
             ice.push.connection.startConnection();
             findGoBridgeIt();
         }
+        setupCloudPush();
     }
 
     function addPushListenerImpl(group, callback) {
