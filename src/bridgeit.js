@@ -780,7 +780,7 @@ if (!window.console) {
         else{
             var smsBtn = document.createElement('a');
             var cleanNumber = number.replace(/[\s-\.\+]/g,'');
-            smsBtn.href = 'sms://+' + cleanNumber + '?body=' + encodeURI(body);
+            smsBtn.href = 'sms:+' + cleanNumber + '?body=' + encodeURI(body);
             smsBtn.style = 'display:none';
             document.body.appendChild(smsBtn);
             smsBtn.click();
