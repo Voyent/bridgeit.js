@@ -18,8 +18,10 @@
 }
 #exampleindex, #videoindex, #guideindex, #classindex {
 	padding: 0px 10px 10px 10px;
-	margin-top: -15px !important;
 }
 #center-container h1, #center-container h1 .class-source-link{
 	color: #DD5734;
+}
+.x-container.x-border-item.x-box-item.x-container-default.x-border-layout-ct > .x-panel.x-border-item.x-box-item.x-panel-default{
+	border-top: 1px solid #CCC;
 }
