@@ -922,6 +922,34 @@ if (!window.console) {
 
     };
 
+    var jguid;
+
+    /**
+     * The id allows an application to persistently maintain information for
+     * an individual user without requiring a server-side session.
+     * @property getId
+     * @readonly
+     */
+    b.getId = function()  {
+        var JGUID_KEY = "bridgeit.jguid";
+        if (!jguid)  {
+            if (localStorage)  {
+                jguid = localStorage.getItem(JGUID_KEY);
+            }
+            if (!jguid)  {
+                jguid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, 
+                    function(c) {
+                        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+                        return v.toString(16);
+                    });
+                if (localStorage)  {
+                    localStorage.setItem(JGUID_KEY, jguid);
+                }
+            }
+
+        }
+        return jguid;
+    }
     /**
      * Set goBridgeItURL to the URL of your goBridgeIt.html file
      * to allow Cloud Push to go back to the most recent page
