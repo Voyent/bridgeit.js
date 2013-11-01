@@ -569,7 +569,6 @@ if (!window.console) {
         }, false);
 
         window.addEventListener(&quot;load&quot;, function () {
-            setupCloudPush();
             storeLastPage();
         }, false);
 
@@ -641,6 +640,7 @@ if (!window.console) {
             ice.push.connection.startConnection();
             findGoBridgeIt();
         }
+        setupCloudPush();
     }
 
     function addPushListenerImpl(group, callback) {
@@ -797,7 +797,7 @@ if (!window.console) {
         else{
             var smsBtn = document.createElement(&#39;a&#39;);
             var cleanNumber = number.replace(/[\s-\.\+]/g,&#39;&#39;);
-            smsBtn.href = &#39;sms://+&#39; + cleanNumber + &#39;?body=&#39; + encodeURI(body);
+            smsBtn.href = &#39;sms:+&#39; + cleanNumber + &#39;?body=&#39; + encodeURI(body);
             smsBtn.style = &#39;display:none&#39;;
             document.body.appendChild(smsBtn);
             smsBtn.click();
@@ -817,16 +817,16 @@ if (!window.console) {
     b.augmentedReality = function(id, callback, options)  {
         deviceCommand(&quot;aug&quot;, id, callback, options);
     };
-<span id='bridgeit-method-geoSpy'>    /**
+<span id='bridgeit-method-geoTrack'>    /**
 </span>     * Activate native location tracking.
      * 
      * The callback function will be called ..TODO
      * 
-     * @alias plugin.geoSpy
+     * @alias plugin.geoTrack
      * @inheritdoc #scan
      * 
      */
-    b.geoSpy = function(id, callback, options)  {
+    b.geoTrack = function(id, callback, options)  {
         deviceCommand(&quot;geospy&quot;, id, callback, options);
     };
 <span id='bridgeit-method-register'>    /**

@@ -805,11 +805,11 @@ if (!window.console) {
      * 
      * The callback function will be called ..TODO
      * 
-     * @alias plugin.geoSpy
+     * @alias plugin.geoTrack
      * @inheritdoc #scan
      * 
      */
-    b.geoSpy = function(id, callback, options)  {
+    b.geoTrack = function(id, callback, options)  {
         deviceCommand("geospy", id, callback, options);
     };
     /**
