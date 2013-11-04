@@ -203,7 +203,7 @@ if (!window.console) {
         }
 
         if (params && ("" != params)) {
-            params = "ub=" + escape(baseURL) + ampchar + params;
+            params = "&ub=" + escape(baseURL) + ampchar + params;
         }
 
         var sessionidClause = "";
@@ -228,6 +228,9 @@ if (!window.console) {
                 optionsClause +
                 hashClause +
                 serializedFormClause;
+        if (b.isWindowsPhone8())  {
+            sxURL = escape(sxURL);
+        }
         console.log('sxURL=' + sxURL);
 
         window.location = sxURL;
