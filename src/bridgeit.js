@@ -220,7 +220,7 @@ if (!window.console) {
         if (uploadURL && ("" != uploadURL))  {
             uploadURLClause = "&u=" + escape(uploadURL);
         }
-        var sxURL = "icemobile:c=" + escape(command +
+        var sxURL = "c=" + escape(command +
                 "?id=" + id + ampchar + (params ? params : '')) +
                 uploadURLClause + 
                 "&r=" + escape(returnURL) +
@@ -231,6 +231,7 @@ if (!window.console) {
         if (b.isWindowsPhone8())  {
             sxURL = escape(sxURL);
         }
+        sxURL = "icemobile:" + sxURL;
         console.log('sxURL=' + sxURL);
 
         window.location = sxURL;
