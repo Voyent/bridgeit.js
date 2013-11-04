@@ -918,7 +918,7 @@ if (!window.console) {
         if( b.isAndroid() )
             return 'https://play.google.com/store/apps/details?id=org.icemobile.client.android.icemobilesx';
         else if( b.isIOS() )
-            return 'http://itunes.apple.com/us/app/icemobile-sx/id485908934?mt=8';
+            return 'https://itunes.apple.com/app/bridgeit/id727736414';
 
     };
 
