@@ -563,7 +563,7 @@ if (!window.console) {
 
     function httpGET(uri, query) {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', uri, false);
+        xhr.open('GET', uri + "?" + query, false);
         xhr.send(query);
         if (xhr.status == 200) {
             return xhr.responseText;
@@ -614,16 +614,17 @@ if (!window.console) {
         return url;
     }
 
-    function loadPushService(uri, apiKey) {
+    function loadPushService(uri, apikey) {
         if (ice && ice.push) {
             console.log('Push service already loaded and configured');
         } else {
             var baseURI = uri + (endsWith(uri, '/') ? '' : '/');
             var codeURI = baseURI + 'code.icepush';
-            var code = httpGET(codeURI, 'apiKey=' + apiKey);
+            var code = httpGET(codeURI, 'apikey=' + apikey);
             eval(code);
 
             ice.push.configuration.contextPath = baseURI;
+            ice.push.configuration.apikey = apikey;
             ice.push.connection.startConnection();
             findGoBridgeIt();
         }
@@ -984,11 +985,11 @@ if (!window.console) {
      * Configure Push service and connect to it.
      * @alias plugin.usePushService
      * @param uri the location of the service
-     * @param apiKey
+     * @param apikey
      */
-    b.usePushService = function(uri, apiKey) {
+    b.usePushService = function(uri, apikey) {
         window.setTimeout(function() {
-            loadPushService(uri, apiKey);
+            loadPushService(uri, apikey);
         }, 1);
     };
 
