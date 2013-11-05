@@ -760,8 +760,9 @@ if (!window.console) {
      */
     b.fetchContact = function(id, callback, options)  {
         var ops = options || {};
-        if( !ops.fields ){
-            ops.fields = "name,email,phone";
+        if( !ops.parameters ){
+            ops.parameters = {};
+            ops.parameters.fields = "name,email,phone";
         }
         deviceCommand("fetchContacts", id, callback, ops);
     };
