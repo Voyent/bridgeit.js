@@ -758,7 +758,11 @@ if (!window.console) {
      * 
      */
     b.fetchContact = function(id, callback, options)  {
-        deviceCommand("fetchContacts", id, callback, options);
+        var ops = options || {};
+        if( !ops.fields ){
+            ops.fields = "name,email,phone";
+        }
+        deviceCommand("fetchContacts", id, callback, ops);
     };
 
     /**
