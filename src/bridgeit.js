@@ -341,7 +341,7 @@ if (!window.console) {
     }
     function unpackDeviceResponse(data)  {
         var result = {};
-        if (useBase64)  {
+        if (useBase64 && (data.indexOf("!") < 0))  {
             data = data.replace(/~/g,"=");
             data = data.replace(/\./g,"/");
             data = unescape(atob(data));
