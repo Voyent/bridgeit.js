@@ -787,10 +787,10 @@ if (!window.console) {
      * 
      * @alias plugin.sms
      * @param {String} number The phone number to send the message to
-     * @param {String} body The message
+     * @param {String} message The message
      * 
      */
-    b.sms = function(number, body)  {
+    b.sms = function(number, message)  {
         if( !b.isSupportedPlatform('sms') ){
             b.notSupported(null, 'sms');
             return;
