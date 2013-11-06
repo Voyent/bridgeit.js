@@ -985,7 +985,10 @@ if (!window.console) {
     var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
 
     /**
+     * Public callback used by Cloud Push implementation
+     * to relay push event to newly opened browser window
      * @alias plugin.handleCloudPush
+     * @private
      */
     b.handleCloudPush = function ()  {
         var callbacks = localStorage.getItem(CLOUD_CALLBACKS_KEY);
