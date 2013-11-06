@@ -749,13 +749,22 @@ if (!window.console) {
     b.microphone = function(id, callback, options)  {
         deviceCommand("microphone", id, callback, options);
     };
+    
     /**
      * Launch the native contact list.
      * 
      * The callback function will be called once the contact is retrieved.
      * 
      * @alias plugin.fetchContact
-     * @inheritdoc #scan
+     * @param {String} id The id of the invoking element TODO
+     * @param {Function} callback The callback function.
+     * @param {Object} options TODO
+     * @param {String} options.postURL TODO
+     * @param {String} options.JSESSIONID The Java Session id (optional)
+     * @param {Object} options.parameters Additional parameters
+     * @param {Object} options.parameters.fields The contact fields to retrieve, default = "name,email,phone"
+     * @param {HTMLElement} options.element The triggering element TODO
+     * @param {HTMLElement} options.form The form element to be serialized TODO 
      * 
      */
     b.fetchContact = function(id, callback, options)  {
@@ -782,10 +791,14 @@ if (!window.console) {
      * 
      */
     b.sms = function(number, body)  {
+        if( !b.isSupportedPlatform('sms') ){
+            b.notSupported(null, 'sms');
+            return;
+        }
         if( number == 'undefined' || number == '')
             return;
         if( b.isIOS()){
-            deviceCommand("sms", id, null, {n: number, body: message});
+            deviceCommand('sms', id, null, {n: number, body: message});
         }
         else{
             var smsBtn = document.createElement('a');
