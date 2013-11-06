@@ -798,7 +798,7 @@ if (!window.console) {
         if( number == 'undefined' || number == '')
             return;
         if( b.isIOS()){
-            deviceCommand('sms', '_sms', null, {n: number, body: message});
+            deviceCommand('sms', '_sms', null, {parameters:{n: number, body: message}});
         }
         else{
             var smsBtn = document.createElement('a');
