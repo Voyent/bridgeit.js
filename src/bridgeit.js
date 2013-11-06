@@ -670,7 +670,7 @@ if (!window.console) {
      * browser control such as input file.
      *   
      * @alias plugin.launchFailed
-     * @param {String} id The id of the invoking element TODO
+     * @param {String} id The id passed to the command that failed 
      * @template
      */
     b.launchFailed = function(id)  {
@@ -684,7 +684,7 @@ if (!window.console) {
      * on supported platforms or potentially fallback with a different
      * browser control such as input file, which would be available on 
      * all browsers.
-     * @param {String} id The id of the invoking element TODO
+     * @param {String} id The id passed to the command that failed
      * @param {String} command The BridgeIt api command that was launched
      * @alias plugin.notSupported
      * @template
@@ -700,7 +700,7 @@ if (!window.console) {
      * The callback function will be called once the scan is captured.
      * 
      * @alias plugin.scan
-     * @param {String} id The id of the invoking element TODO
+     * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options TODO
      * @param {String} options.postURL TODO
@@ -756,7 +756,7 @@ if (!window.console) {
      * The callback function will be called once the contact is retrieved.
      * 
      * @alias plugin.fetchContact
-     * @param {String} id The id of the invoking element TODO
+     * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options TODO
      * @param {String} options.postURL TODO
