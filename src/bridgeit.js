@@ -33,6 +33,24 @@ if (!window.console) {
 /**
  * The BridgeIt JavaScript API. Native Mobile integration for your web app.
  * 
+ * BridgeIt provides a variety of device commands that allow access to 
+ * device features from JavaScript, all while running in the stock browser
+ * such as Safari or Chrome. This is made possible by the BridgeIt App
+ * that runs alongside the browser and is available for each of the supported
+ * platforms (current Android, iOS, and Windows).
+ * 
+ * For example, bridgeit.camera('myCamera', 'myCallback') will allow the user
+ * to take a photo identified by 'myCamera' and this will be returned via an
+ * event to the function named myCallback.  For the best compatibility the
+ * callback is passed by name since the browser page may be refreshed when
+ * the callback returns.
+ * 
+ * Most device commands accept an options parameter object.  Options supported
+ * by a variety of commands are: options.postURL (the URL used to upload 
+ * the result of the command), options.JSESSIONID (the JSESSIONID cookie value
+ * that may be necessary to perform an upload in a specific user's server session),
+ * and options.parameters (extra parameters specific to the command)
+ * 
  * @class bridgeit
  */
 (function(b) {
