@@ -716,8 +716,16 @@ if (!window.console) {
      * Launch the device QR Code scanner. 
      * 
      * The callback function will be called once the scan is captured.
+     * The return value will be set to the text resulting from the scan.
+     * 
+     * The QR Code scanner does not currently accept additional parameters,
+     * but these may used in the future.
      * 
      * @alias plugin.scan
+     * @param {Object} options Additional command options
+     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
+     * @param {String} options.JSESSIONID The Java Session id (optional)
+     * @param {Object} options.parameters Additional command-specific parameters
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * 
