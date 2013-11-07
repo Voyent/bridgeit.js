@@ -720,12 +720,6 @@ if (!window.console) {
      * @alias plugin.scan
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
-     * @param {Object} options TODO
-     * @param {String} options.postURL TODO
-     * @param {String} options.JSESSIONID The Java Session id (optional)
-     * @param {Object} options.parameters Additional parameters TODO
-     * @param {HTMLElement} options.element The triggering element TODO
-     * @param {HTMLElement} options.form The form element to be serialized TODO 
      * 
      */
     b.scan = function(id, callback, options)  {
@@ -776,13 +770,7 @@ if (!window.console) {
      * @alias plugin.fetchContact
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
-     * @param {Object} options TODO
-     * @param {String} options.postURL TODO
-     * @param {String} options.JSESSIONID The Java Session id (optional)
-     * @param {Object} options.parameters Additional parameters
      * @param {Object} options.parameters.fields The contact fields to retrieve, default = "name,email,phone"
-     * @param {HTMLElement} options.element The triggering element TODO
-     * @param {HTMLElement} options.form The form element to be serialized TODO 
      * 
      */
     b.fetchContact = function(id, callback, options)  {
@@ -842,10 +830,22 @@ if (!window.console) {
         deviceCommand("aug", id, callback, options);
     };
     /**
-     * Activate native location tracking.
+     * Activate location tracking. 
      * 
-     * The callback function will be called ..TODO
+     * Location tracking will run in the
+     * background according to the specified strategy and duration, and will POST
+     * a geoJSON record to the specified postURL.
      * 
+     * Two strategies are currently supported: "continuous" where the location
+     * of the device will be uploaded as frequently as it changes (intended for
+     * testing only due to high power consumption), and "significant" where the
+     * location is uploaded when it changes significantly.
+     * 
+     * The callback function will be called once location tracking is activated.
+     * 
+     * @param {String} options.postURL The URL accepting the geoJSON POST
+     * @param {String} options.parameters.strategy The strategy, "continuous" or "significant"
+     * @param {String} options.parameters.duration The duration in hours
      * @alias plugin.geoTrack
      * @inheritdoc #scan
      * 
