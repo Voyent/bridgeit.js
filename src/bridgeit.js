@@ -47,9 +47,8 @@ if (!window.console) {
  * 
  * Most device commands accept an options parameter object.  Options supported
  * by a variety of commands are: options.postURL (the URL used to upload 
- * the result of the command), options.JSESSIONID (the JSESSIONID cookie value
- * that may be necessary to perform an upload in a specific user's server session),
- * and options.parameters (extra parameters specific to the command)
+ * the result of the command), and options.parameters (extra parameters 
+ * specific to the command)
  * 
  * @class bridgeit
  */
@@ -724,7 +723,6 @@ if (!window.console) {
      * @alias plugin.scan
      * @param {Object} options Additional command options
      * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
-     * @param {String} options.JSESSIONID The Java Session id (optional)
      * @param {Object} options.parameters Additional command-specific parameters
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
