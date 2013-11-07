@@ -818,11 +818,16 @@ if (!window.console) {
     };
     
     /**
-     * Activate and immerse yourself in a new and better world.
+     * Launch an Augmented Reality view.
      * 
-     * The callback function will be called once ...TODO
+     * The callback function will be called once the augmented reality
+     * view exits with the user-selected provided in the return value.
+     * The command is invoked with a locations parameter containing an
+     * array of named locations, each with a comma-separated latitude,
+     * longitude, altitude, direction, and icon URL
      * 
      * @alias plugin.augmentedReality
+     * @param {Object} options.parameters.locations The augmented reality locations to display
      * @inheritdoc #scan
      * 
      */
@@ -856,7 +861,12 @@ if (!window.console) {
     /**
      * Register BridgeIt integration and configure Cloud Push.
      * 
-     * The callback function will be called ..TODO
+     * This call is necessary to obtain the Cloud Push ID of the
+     * device so that notifications can be delivered when the
+     * user is not currently viewing your application in the browser.
+     * 
+     * The callback function will be called when Cloud Push registration
+     * completes.
      * 
      * @alias plugin.register
      * @inheritdoc #scan
