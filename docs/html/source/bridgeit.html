@@ -220,7 +220,7 @@ if (!window.console) {
         }
 
         if (params &amp;&amp; (&quot;&quot; != params)) {
-            params = &quot;ub=&quot; + escape(baseURL) + ampchar + params;
+            params = &quot;&amp;ub=&quot; + escape(baseURL) + ampchar + params;
         }
 
         var sessionidClause = &quot;&quot;;
@@ -237,7 +237,7 @@ if (!window.console) {
         if (uploadURL &amp;&amp; (&quot;&quot; != uploadURL))  {
             uploadURLClause = &quot;&amp;u=&quot; + escape(uploadURL);
         }
-        var sxURL = &quot;icemobile:c=&quot; + escape(command +
+        var sxURL = &quot;c=&quot; + escape(command +
                 &quot;?id=&quot; + id + ampchar + (params ? params : &#39;&#39;)) +
                 uploadURLClause + 
                 &quot;&amp;r=&quot; + escape(returnURL) +
@@ -245,6 +245,10 @@ if (!window.console) {
                 optionsClause +
                 hashClause +
                 serializedFormClause;
+        if (b.isWindowsPhone8())  {
+            sxURL = escape(sxURL);
+        }
+        sxURL = &quot;icemobile:&quot; + sxURL;
         console.log(&#39;sxURL=&#39; + sxURL);
 
         window.location = sxURL;
@@ -354,7 +358,7 @@ if (!window.console) {
     }
     function unpackDeviceResponse(data)  {
         var result = {};
-        if (useBase64)  {
+        if (useBase64 &amp;&amp; (data.indexOf(&quot;!&quot;) &lt; 0))  {
             data = data.replace(/~/g,&quot;=&quot;);
             data = data.replace(/\./g,&quot;/&quot;);
             data = unescape(atob(data));
@@ -576,7 +580,7 @@ if (!window.console) {
 
     function httpGET(uri, query) {
         var xhr = new XMLHttpRequest();
-        xhr.open(&#39;GET&#39;, uri, false);
+        xhr.open(&#39;GET&#39;, uri + &quot;?&quot; + query, false);
         xhr.send(query);
         if (xhr.status == 200) {
             return xhr.responseText;
@@ -627,16 +631,17 @@ if (!window.console) {
         return url;
     }
 
-    function loadPushService(uri, apiKey) {
+    function loadPushService(uri, apikey) {
         if (ice &amp;&amp; ice.push) {
             console.log(&#39;Push service already loaded and configured&#39;);
         } else {
             var baseURI = uri + (endsWith(uri, &#39;/&#39;) ? &#39;&#39; : &#39;/&#39;);
             var codeURI = baseURI + &#39;code.icepush&#39;;
-            var code = httpGET(codeURI, &#39;apiKey=&#39; + apiKey);
+            var code = httpGET(codeURI, &#39;apikey=&#39; + apikey);
             eval(code);
 
             ice.push.configuration.contextPath = baseURI;
+            ice.push.configuration.apikey = apikey;
             ice.push.connection.startConnection();
             findGoBridgeIt();
         }
@@ -761,17 +766,31 @@ if (!window.console) {
     b.microphone = function(id, callback, options)  {
         deviceCommand(&quot;microphone&quot;, id, callback, options);
     };
+    
 <span id='bridgeit-method-fetchContact'>    /**
 </span>     * Launch the native contact list.
      * 
      * The callback function will be called once the contact is retrieved.
      * 
      * @alias plugin.fetchContact
-     * @inheritdoc #scan
+     * @param {String} id The id of the invoking element TODO
+     * @param {Function} callback The callback function.
+     * @param {Object} options TODO
+     * @param {String} options.postURL TODO
+     * @param {String} options.JSESSIONID The Java Session id (optional)
+     * @param {Object} options.parameters Additional parameters
+     * @param {Object} options.parameters.fields The contact fields to retrieve, default = &quot;name,email,phone&quot;
+     * @param {HTMLElement} options.element The triggering element TODO
+     * @param {HTMLElement} options.form The form element to be serialized TODO 
      * 
      */
     b.fetchContact = function(id, callback, options)  {
-        deviceCommand(&quot;fetchContacts&quot;, id, callback, options);
+        var ops = options || {};
+        if( !ops.parameters ){
+            ops.parameters = {};
+            ops.parameters.fields = &quot;name,email,phone&quot;;
+        }
+        deviceCommand(&quot;fetchContacts&quot;, id, callback, ops);
     };
 
 <span id='bridgeit-method-sms'>    /**
@@ -789,10 +808,14 @@ if (!window.console) {
      * 
      */
     b.sms = function(number, body)  {
+        if( !b.isSupportedPlatform(&#39;sms&#39;) ){
+            b.notSupported(null, &#39;sms&#39;);
+            return;
+        }
         if( number == &#39;undefined&#39; || number == &#39;&#39;)
             return;
         if( b.isIOS()){
-            deviceCommand(&quot;sms&quot;, id, null, {n: number, body: message});
+            deviceCommand(&#39;sms&#39;, id, null, {n: number, body: message});
         }
         else{
             var smsBtn = document.createElement(&#39;a&#39;);
@@ -935,10 +958,38 @@ if (!window.console) {
         if( b.isAndroid() )
             return &#39;https://play.google.com/store/apps/details?id=org.icemobile.client.android.icemobilesx&#39;;
         else if( b.isIOS() )
-            return &#39;http://itunes.apple.com/us/app/icemobile-sx/id485908934?mt=8&#39;;
+            return &#39;https://itunes.apple.com/app/bridgeit/id727736414&#39;;
 
     };
 
+    var jguid;
+
+<span id='bridgeit-property-getId'>    /**
+</span>     * The id allows an application to persistently maintain information for
+     * an individual user without requiring a server-side session.
+     * @property getId
+     * @readonly
+     */
+    b.getId = function()  {
+        var JGUID_KEY = &quot;bridgeit.jguid&quot;;
+        if (!jguid)  {
+            if (localStorage)  {
+                jguid = localStorage.getItem(JGUID_KEY);
+            }
+            if (!jguid)  {
+                jguid = &#39;xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx&#39;.replace(/[xy]/g, 
+                    function(c) {
+                        var r = Math.random()*16|0, v = c == &#39;x&#39; ? r : (r&amp;0x3|0x8);
+                        return v.toString(16);
+                    });
+                if (localStorage)  {
+                    localStorage.setItem(JGUID_KEY, jguid);
+                }
+            }
+
+        }
+        return jguid;
+    }
 <span id='bridgeit-property-goBridgeItURL'>    /**
 </span>     * Set goBridgeItURL to the URL of your goBridgeIt.html file
      * to allow Cloud Push to go back to the most recent page
@@ -969,11 +1020,11 @@ if (!window.console) {
 </span>     * Configure Push service and connect to it.
      * @alias plugin.usePushService
      * @param uri the location of the service
-     * @param apiKey
+     * @param apikey
      */
-    b.usePushService = function(uri, apiKey) {
+    b.usePushService = function(uri, apikey) {
         window.setTimeout(function() {
-            loadPushService(uri, apiKey);
+            loadPushService(uri, apikey);
         }, 1);
     };
 
