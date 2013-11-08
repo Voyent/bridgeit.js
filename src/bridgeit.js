@@ -650,6 +650,8 @@ if (!window.console) {
 
     function addPushListenerImpl(group, callback) {
         if (ice && ice.push && ice.push.configuration.contextPath) {
+            ice.push.connection.resumeConnection();
+
             var pushId = ice.push.createPushId();
             ice.push.addGroupMember(group, pushId);
             if ("string" != typeof(callback))  {
