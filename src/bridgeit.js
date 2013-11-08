@@ -975,7 +975,7 @@ if (!window.console) {
      */
     b.appStoreLink = function(){
         if( b.isAndroid() )
-            return 'https://play.google.com/store/apps/details?id=org.icemobile.client.android.icemobilesx';
+            return 'https://play.google.com/store/apps/details?id=mobi.bridgeit';
         else if( b.isIOS() )
             return 'https://itunes.apple.com/app/bridgeit/id727736414';
 
