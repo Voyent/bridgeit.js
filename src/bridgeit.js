@@ -477,8 +477,8 @@ if (!window.console) {
                         sxEvent.preview = deviceParams.p;
                     }
                     if (deviceParams.c)  {
+                        setCloudPushId(deviceParams.c);
                         if (ice.push)  {
-                            setCloudPushId(deviceParams.c);
                             ice.push.parkInactivePushIds(
                                     deviceParams.c );
                         }
