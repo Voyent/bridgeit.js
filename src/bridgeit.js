@@ -245,15 +245,10 @@ if (!window.console) {
                 optionsClause +
                 hashClause +
                 serializedFormClause;
-        if (b.isWindowsPhone8() || b.isAndroid())  {
+        if (b.isWindowsPhone8())  {
             sxURL = escape(sxURL);
         }
-        if( b.isAndroid()){
-            sxURL = "http://bridgeit.mobi/detect/?command=" + sxURL;
-        }
-        else{
-            sxURL = "icemobile:" + sxURL;
-        }
+        sxURL = "icemobile:" + sxURL;
         console.log('sxURL=' + sxURL);
 
         window.location = sxURL;
