@@ -3,7 +3,7 @@ cd ${0%/*}
 jsduck --config jsduck-conf.json -o html      
 wait
 cp images/ice-logo.png html/resources/images/ice-logo.png
-cp images/bridgeIt-logo.png html/resources/images/bridgeIt-logo.png
+cp images/bridgeIt-logo.png html/resources/images/bridgeit-logo.png
 cp -f images/favicon.ico html/favicon.ico
 # add custom overrides css and remove troublesome mobile script
 cat ./html/template.html | sed 's/<\/head>/<link rel="stylesheet" href="..\/overrides.css"\/><\/head>/' | sed -n '/(function(a,b)/!p' > ./html/index.html

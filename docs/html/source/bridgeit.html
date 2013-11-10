@@ -50,6 +50,23 @@ if (!window.console) {
 <span id='bridgeit'>/**
 </span> * The BridgeIt JavaScript API. Native Mobile integration for your web app.
  * 
+ * BridgeIt provides a variety of device commands that allow access to 
+ * device features from JavaScript, all while running in the stock browser
+ * such as Safari or Chrome. This is made possible by the BridgeIt App
+ * that runs alongside the browser and is available for each of the supported
+ * platforms (current Android, iOS, and Windows).
+ * 
+ * For example, bridgeit.camera(&#39;myCamera&#39;, &#39;myCallback&#39;) will allow the user
+ * to take a photo identified by &#39;myCamera&#39; and this will be returned via an
+ * event to the function named myCallback.  For the best compatibility the
+ * callback is passed by name since the browser page may be refreshed when
+ * the callback returns.
+ * 
+ * Most device commands accept an options parameter object.  Options supported
+ * by a variety of commands are: options.postURL (the URL used to upload 
+ * the result of the command), and options.parameters (extra parameters 
+ * specific to the command)
+ * 
  * @class bridgeit
  */
 (function(b) {
@@ -477,8 +494,8 @@ if (!window.console) {
                         sxEvent.preview = deviceParams.p;
                     }
                     if (deviceParams.c)  {
+                        setCloudPushId(deviceParams.c);
                         if (ice.push)  {
-                            setCloudPushId(deviceParams.c);
                             ice.push.parkInactivePushIds(
                                     deviceParams.c );
                         }
@@ -650,6 +667,8 @@ if (!window.console) {
 
     function addPushListenerImpl(group, callback) {
         if (ice &amp;&amp; ice.push &amp;&amp; ice.push.configuration.contextPath) {
+            ice.push.connection.resumeConnection();
+
             var pushId = ice.push.createPushId();
             ice.push.addGroupMember(group, pushId);
             if (&quot;string&quot; != typeof(callback))  {
@@ -687,7 +706,7 @@ if (!window.console) {
      * browser control such as input file.
      *   
      * @alias plugin.launchFailed
-     * @param {String} id The id of the invoking element TODO
+     * @param {String} id The id passed to the command that failed 
      * @template
      */
     b.launchFailed = function(id)  {
@@ -701,7 +720,7 @@ if (!window.console) {
      * on supported platforms or potentially fallback with a different
      * browser control such as input file, which would be available on 
      * all browsers.
-     * @param {String} id The id of the invoking element TODO
+     * @param {String} id The id passed to the command that failed
      * @param {String} command The BridgeIt api command that was launched
      * @alias plugin.notSupported
      * @template
@@ -715,16 +734,17 @@ if (!window.console) {
 </span>     * Launch the device QR Code scanner. 
      * 
      * The callback function will be called once the scan is captured.
+     * The return value will be set to the text resulting from the scan.
+     * 
+     * The QR Code scanner does not currently accept additional parameters,
+     * but these may used in the future.
      * 
      * @alias plugin.scan
-     * @param {String} id The id of the invoking element TODO
+     * @param {Object} options Additional command options
+     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
+     * @param {Object} options.parameters Additional command-specific parameters
+     * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
-     * @param {Object} options TODO
-     * @param {String} options.postURL TODO
-     * @param {String} options.JSESSIONID The Java Session id (optional)
-     * @param {Object} options.parameters Additional parameters TODO
-     * @param {HTMLElement} options.element The triggering element TODO
-     * @param {HTMLElement} options.form The form element to be serialized TODO 
      * 
      */
     b.scan = function(id, callback, options)  {
@@ -773,15 +793,11 @@ if (!window.console) {
      * The callback function will be called once the contact is retrieved.
      * 
      * @alias plugin.fetchContact
-     * @param {String} id The id of the invoking element TODO
+     * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
-     * @param {Object} options TODO
-     * @param {String} options.postURL TODO
-     * @param {String} options.JSESSIONID The Java Session id (optional)
-     * @param {Object} options.parameters Additional parameters
+     * @param {Object} options Additional command options
+     * @param {Object} options.parameters parameters map
      * @param {Object} options.parameters.fields The contact fields to retrieve, default = &quot;name,email,phone&quot;
-     * @param {HTMLElement} options.element The triggering element TODO
-     * @param {HTMLElement} options.form The form element to be serialized TODO 
      * 
      */
     b.fetchContact = function(id, callback, options)  {
@@ -804,10 +820,10 @@ if (!window.console) {
      * 
      * @alias plugin.sms
      * @param {String} number The phone number to send the message to
-     * @param {String} body The message
+     * @param {String} message The message
      * 
      */
-    b.sms = function(number, body)  {
+    b.sms = function(number, message)  {
         if( !b.isSupportedPlatform(&#39;sms&#39;) ){
             b.notSupported(null, &#39;sms&#39;);
             return;
@@ -815,12 +831,12 @@ if (!window.console) {
         if( number == &#39;undefined&#39; || number == &#39;&#39;)
             return;
         if( b.isIOS()){
-            deviceCommand(&#39;sms&#39;, id, null, {n: number, body: message});
+            deviceCommand(&#39;sms&#39;, &#39;_sms&#39;, null, {parameters:{n: number, body: message}});
         }
         else{
             var smsBtn = document.createElement(&#39;a&#39;);
             var cleanNumber = number.replace(/[\s-\.\+]/g,&#39;&#39;);
-            smsBtn.href = &#39;sms:+&#39; + cleanNumber + &#39;?body=&#39; + encodeURI(body);
+            smsBtn.href = &#39;sms:+&#39; + cleanNumber + &#39;?body=&#39; + encodeURI(message);
             smsBtn.style = &#39;display:none&#39;;
             document.body.appendChild(smsBtn);
             smsBtn.click();
@@ -829,11 +845,18 @@ if (!window.console) {
     };
     
 <span id='bridgeit-method-augmentedReality'>    /**
-</span>     * Activate and immerse yourself in a new and better world.
+</span>     * Launch an Augmented Reality view.
      * 
-     * The callback function will be called once ...TODO
+     * The callback function will be called once the augmented reality
+     * view exits with the user-selected provided in the return value.
+     * The command is invoked with a locations parameter containing an
+     * array of named locations, each with a comma-separated latitude,
+     * longitude, altitude, direction, and icon URL
      * 
      * @alias plugin.augmentedReality
+     * @param {Object} options Additional command options
+     * @param {Object} options.parameters parameters map
+     * @param {Object} options.parameters.locations The augmented reality locations to display
      * @inheritdoc #scan
      * 
      */
@@ -841,10 +864,24 @@ if (!window.console) {
         deviceCommand(&quot;aug&quot;, id, callback, options);
     };
 <span id='bridgeit-method-geoTrack'>    /**
-</span>     * Activate native location tracking.
+</span>     * Activate location tracking. 
      * 
-     * The callback function will be called ..TODO
+     * Location tracking will run in the
+     * background according to the specified strategy and duration, and will POST
+     * a geoJSON record to the specified postURL.
      * 
+     * Two strategies are currently supported: &quot;continuous&quot; where the location
+     * of the device will be uploaded as frequently as it changes (intended for
+     * testing only due to high power consumption), and &quot;significant&quot; where the
+     * location is uploaded when it changes significantly.
+     * 
+     * The callback function will be called once location tracking is activated.
+     * 
+     * @param {Object} options Additional command options
+     * @param {String} options.postURL The URL accepting the geoJSON POST
+     * @param {String} options.parameters parameters map
+     * @param {String} options.parameters.strategy The strategy, &quot;continuous&quot; or &quot;significant&quot;
+     * @param {String} options.parameters.duration The duration in hours
      * @alias plugin.geoTrack
      * @inheritdoc #scan
      * 
@@ -855,7 +892,12 @@ if (!window.console) {
 <span id='bridgeit-method-register'>    /**
 </span>     * Register BridgeIt integration and configure Cloud Push.
      * 
-     * The callback function will be called ..TODO
+     * This call is necessary to obtain the Cloud Push ID of the
+     * device so that notifications can be delivered when the
+     * user is not currently viewing your application in the browser.
+     * 
+     * The callback function will be called when Cloud Push registration
+     * completes.
      * 
      * @alias plugin.register
      * @inheritdoc #scan
@@ -943,7 +985,7 @@ if (!window.console) {
     b.isSupportedPlatform = function(command){
         var supported = b.isIOS() || b.isAndroid();
         if ( !supported &amp;&amp; b.isWindowsPhone8()){
-            supported = [&#39;camera&#39;, &#39;sms&#39;].indexOf(command) &gt; -1;
+            supported = [&#39;camera&#39;, &#39;sms&#39;,&#39;fetchContacts&#39;].indexOf(command) &gt; -1;
         }
         console.log(&quot;bridgeIt supported platform for &#39;&quot; + command + &quot;&#39; command: &quot; + supported);
         return supported;
@@ -956,7 +998,7 @@ if (!window.console) {
      */
     b.appStoreLink = function(){
         if( b.isAndroid() )
-            return &#39;https://play.google.com/store/apps/details?id=org.icemobile.client.android.icemobilesx&#39;;
+            return &#39;https://play.google.com/store/apps/details?id=mobi.bridgeit&#39;;
         else if( b.isIOS() )
             return &#39;https://itunes.apple.com/app/bridgeit/id727736414&#39;;
 
@@ -1002,7 +1044,10 @@ if (!window.console) {
     var CLOUD_CALLBACKS_KEY = &quot;bridgeit.cloudcallbacks&quot;;
 
 <span id='bridgeit-method-handleCloudPush'>    /**
-</span>     * @alias plugin.handleCloudPush
+</span>     * Public callback used by Cloud Push implementation
+     * to relay push event to newly opened browser window
+     * @alias plugin.handleCloudPush
+     * @private
      */
     b.handleCloudPush = function ()  {
         var callbacks = localStorage.getItem(CLOUD_CALLBACKS_KEY);

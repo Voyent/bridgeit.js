@@ -778,6 +778,8 @@ if (!window.console) {
      * @alias plugin.fetchContact
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
+     * @param {Object} options Additional command options
+     * @param {Object} options.parameters parameters map
      * @param {Object} options.parameters.fields The contact fields to retrieve, default = "name,email,phone"
      * 
      */
@@ -835,6 +837,8 @@ if (!window.console) {
      * longitude, altitude, direction, and icon URL
      * 
      * @alias plugin.augmentedReality
+     * @param {Object} options Additional command options
+     * @param {Object} options.parameters parameters map
      * @param {Object} options.parameters.locations The augmented reality locations to display
      * @inheritdoc #scan
      * 
@@ -856,7 +860,9 @@ if (!window.console) {
      * 
      * The callback function will be called once location tracking is activated.
      * 
+     * @param {Object} options Additional command options
      * @param {String} options.postURL The URL accepting the geoJSON POST
+     * @param {String} options.parameters parameters map
      * @param {String} options.parameters.strategy The strategy, "continuous" or "significant"
      * @param {String} options.parameters.duration The duration in hours
      * @alias plugin.geoTrack
