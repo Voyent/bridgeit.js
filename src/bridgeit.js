@@ -248,7 +248,11 @@ if (!window.console) {
         if (b.isWindowsPhone8())  {
             sxURL = escape(sxURL);
         }
-        sxURL = "icemobile:" + sxURL;
+        var sxBase = "icemobile:";
+        if (b.isAndroid())  {
+            sxBase = "http://bridgeit.mobi/install/index.html#"
+        }
+        sxURL = sxBase + sxURL;
         console.log('sxURL=' + sxURL);
 
         window.location = sxURL;
