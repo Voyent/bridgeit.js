@@ -968,7 +968,7 @@ if (!window.console) {
     b.isSupportedPlatform = function(command){
         var supported = b.isIOS() || b.isAndroid();
         if ( !supported && b.isWindowsPhone8()){
-            supported = ['camera', 'sms','fetchContacts'].indexOf(command) > -1;
+            supported = ['camera', 'sms','fetchContacts','scan'].indexOf(command) > -1;
         }
         console.log("bridgeIt supported platform for '" + command + "' command: " + supported);
         return supported;
