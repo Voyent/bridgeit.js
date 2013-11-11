@@ -250,7 +250,7 @@ if (!window.console) {
         }
         var sxBase = "icemobile:";
         if (b.isAndroid())  {
-            sxBase = "http://bridgeit.mobi/install/index.html#"
+            sxBase = "http://bridgeit.mobi/android/install/index.html#"
         }
         sxURL = sxBase + sxURL;
         console.log('sxURL=' + sxURL);
