@@ -25,3 +25,9 @@
 .x-container.x-border-item.x-box-item.x-container-default.x-border-layout-ct > .x-panel.x-border-item.x-box-item.x-panel-default{
 	border-top: 1px solid #CCC;
 }
+#classtree-body table tr{
+	display: none;
+}
+#classtree-body table tr:nth-child(4){
+	display: table-row;
+}
