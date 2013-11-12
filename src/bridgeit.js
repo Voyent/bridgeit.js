@@ -37,7 +37,7 @@ if (!window.console) {
  * device features from JavaScript, all while running in the stock browser
  * such as Safari or Chrome. This is made possible by the BridgeIt App
  * that runs alongside the browser and is available for each of the supported
- * platforms (current Android, iOS, and Windows).
+ * platforms (currently Android, iOS, and Windows Phone 8).
  * 
  * For example, bridgeit.camera('myCamera', 'myCallback') will allow the user
  * to take a photo identified by 'myCamera' and this will be returned via an
@@ -867,7 +867,7 @@ if (!window.console) {
      * @param {Object} options Additional command options
      * @param {String} options.postURL The URL accepting the geoJSON POST
      * @param {String} options.parameters parameters map
-     * @param {String} options.parameters.strategy The strategy, "continuous" or "significant"
+     * @param {String} options.parameters.strategy The strategy, "continuous", "significant" or "stop"
      * @param {String} options.parameters.duration The duration in hours
      * @alias plugin.geoTrack
      * @inheritdoc #scan
@@ -1021,9 +1021,11 @@ if (!window.console) {
     }
     /**
      * Set goBridgeItURL to the URL of your goBridgeIt.html file
-     * to allow Cloud Push to go back to the most recent page
+     * to allow {@link bridgeit#push Cloud Push} to go back to the most recent page
      * The defaults of the host root and the current relative
-     * directory URL do not need to be specified
+     * directory URL do not need to be specified. For an example, see 
+     * http://bridgeit.mobi/demo/goBridgeIt.html
+     *
      * @property {String} [goBridgeItURL]
      */
     b.goBridgeItURL = null;
@@ -1032,7 +1034,7 @@ if (!window.console) {
 
     /**
      * Public callback used by Cloud Push implementation
-     * to relay push event to newly opened browser window
+     * to relay push event to a newly opened browser window
      * @alias plugin.handleCloudPush
      * @private
      */
@@ -1062,7 +1064,8 @@ if (!window.console) {
 
     /**
      * Add listner for notifications belonging to the specified group.
-     * Callbacks must be passed by name to receive cloud push notifications.
+     * Callbacks must be passed by name to receive cloud push notifications,
+     * regardless of bridgeit.allowAnonymousCallbacks setting
      * @param group
      * @param callback
      * @alias plugin.addPushListener
