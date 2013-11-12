@@ -584,7 +584,11 @@ if (!window.console) {
 
     function httpGET(uri, query) {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', uri + "?" + query, false);
+        var queryStr = "";
+        if (!!query)  {
+            queryStr = "?" + query;
+        }
+        xhr.open('GET', uri + queryStr, false);
         xhr.send(query);
         if (xhr.status == 200) {
             return xhr.responseText;
@@ -641,7 +645,7 @@ if (!window.console) {
         } else {
             var baseURI = uri + (endsWith(uri, '/') ? '' : '/');
             var codeURI = baseURI + 'code.icepush';
-            var code = httpGET(codeURI, 'apikey=' + apikey);
+            var code = httpGET(codeURI);
             eval(code);
 
             ice.push.configuration.contextPath = baseURI;
