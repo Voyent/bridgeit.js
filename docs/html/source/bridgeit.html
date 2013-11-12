@@ -601,7 +601,11 @@ if (!window.console) {
 
     function httpGET(uri, query) {
         var xhr = new XMLHttpRequest();
-        xhr.open(&#39;GET&#39;, uri + &quot;?&quot; + query, false);
+        var queryStr = &quot;&quot;;
+        if (!!query)  {
+            queryStr = &quot;?&quot; + query;
+        }
+        xhr.open(&#39;GET&#39;, uri + queryStr, false);
         xhr.send(query);
         if (xhr.status == 200) {
             return xhr.responseText;
@@ -658,7 +662,7 @@ if (!window.console) {
         } else {
             var baseURI = uri + (endsWith(uri, &#39;/&#39;) ? &#39;&#39; : &#39;/&#39;);
             var codeURI = baseURI + &#39;code.icepush&#39;;
-            var code = httpGET(codeURI, &#39;apikey=&#39; + apikey);
+            var code = httpGET(codeURI);
             eval(code);
 
             ice.push.configuration.contextPath = baseURI;
