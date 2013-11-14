@@ -44,7 +44,12 @@ if (!window.console) {
  * to take a photo identified by 'myCamera' and this will be returned via an
  * event to the function named myCallback.  For the best compatibility the
  * callback is passed by name since the browser page may be refreshed when
- * the callback returns.
+ * the callback returns. The callback will be passed an event where:
+ * 
+ * event.response: HTTP response from the server if the command makes an HTTP POST
+ * event.preview: data-uri containing any preview image resulting from the command
+ * event.name: id specified in the command call
+ * event.value: return value from the command
  * 
  * Most device commands accept an options parameter object.  Options supported
  * by a variety of commands are: options.postURL (the URL used to upload 
