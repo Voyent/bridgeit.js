@@ -310,7 +310,7 @@ if (!window.console) {
         if (navigator.userAgent.toLowerCase().indexOf('android') < 0)  {
             checkTimeout = setTimeout( function()  {
                 bridgeit.launchFailed(id);
-            }, 3000);
+            }, 2000);
         }
         if (!options)  {
             options = {};
