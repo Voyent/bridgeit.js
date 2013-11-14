@@ -1,0 +1,234 @@
+---
+---
+<!DOCTYPE html>
+<html>
+     <head>
+      <title>BridgeIt  API</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+      <meta name='apple-itunes-app' content="app-id=727736414, app-argument=icemobile://c=register&amp;r=./index.html"/>
+      <link rel="icon" type="image/png" href="favicon.png"/>
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      
+      <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,600,300,400' rel='stylesheet' type='text/css'/>
+      <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
+      <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css"/>
+      <link rel="stylesheet" href="css/mobile.css" type="text/css" />
+      <link rel="stylesheet" href="css/syntax.css" type="text/css" />
+      
+      <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true&libraries=geometry"></script>
+      <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+      <script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+       
+      <!-- APP ICONS -->
+      <link rel="apple-touch-icon" href="images/touch-icon-iphone.png"/>
+      <link rel="apple-touch-icon" sizes="76x76" href="images/touch-icon-ipad.png"/>
+      <link rel="apple-touch-icon" sizes="120x120" href="images/touch-icon-iphone-retina.png"/>
+      <link rel="apple-touch-icon" sizes="152x152" href="images/touch-icon-ipad-retina.png"/>
+      <link rel="apple-touch-startup-image" href="images/touch-startup-image.png"/>
+
+      <script>
+         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+         ga('create', 'UA-45568600-1', 'bridgeit.mobi');
+         ga('send', 'pageview');
+
+      </script>
+      
+   </head>
+<body>
+    <div data-role="page" id="home">  
+        <div data-role="header" class="hdr" data-position="fixed" data-id="header">
+            <h1><span class="bridge-font-color">BridgeIt API</span></h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" data-inset="false" id="menu" class="menu" id="menu">
+              <li>
+                <a data-transition="slide" href="#intro">
+                  <i class="icon-info-sign"></i>Intro
+                </a><i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a data-transition="slide" href="#globals">
+                  <i class="icon-globe"></i>Globals
+                </a><i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#camera" data-transition="slide" >
+                  <i class="icon-camera"></i>Camera
+                </a><i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#camcorder.html" data-transition="slide">
+                  <i class="icon-facetime-video"></i>Camcorder
+                </a><i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#scan" data-transition="slide">
+                  <i class="icon-qrcode"></i>Scan
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#microphone" data-transition="slide">
+                  <i class="icon-microphone"></i>Microphone
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#contact-list" data-transition="slide">
+                  <i class="icon-calendar-empty"></i>
+                  <i style="font-style:normal;position:absolute;margin-left: -32px;font-size: 9px;margin-top: 7px;">@</i>Contact List
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#geotrack" data-transition="slide">
+                  <i class="icon-location-arrow"></i>GeoTrack
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#augmented-reality" data-transition="slide" >
+                  <i class="augmented-reality-icon"></i>Augmented Reality
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#sms.html" data-transition="slide" >
+                  <i class="icon-comment"></i>SMS
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#cloud-push.html" data-transition="slide">
+                  <i class="icon-cloud-download"></i>Cloud Push
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="http://bridgeit.mobi/forum/" data-rel="external" data-ajax="false">
+                  <i class="icon-comments-alt"></i>Forums
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="http://bridgeit.mobi/" data-rel="external" data-ajax="false">
+                  <i class="icon-info-sign"></i>About
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+          </ul>
+        </div>
+          <div data-role="footer" data-id="footer" data-position="fixed"> 
+            <a href="#" class="icesoft-link" data-role="none">
+                <img src="images/icesoft-logo-bw-2x.png"/>
+            </a>
+          <div class="copyright">&copy;&nbsp;2002-2013 ICEsoft Technologies Inc. All rights reserved.</div>
+          <a href="https://github.com/bridgeit" data-role="none"><i class="icon-github"></i></a>
+          <a href="https://twitter.com/BridgeItApp" data-role="none"><i class="icon-twitter-sign"></i></a>
+          <i class="icon-facebook-sign"></i>
+        </div> 
+    </div>
+    <div data-role="page" id="intro"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2>The BridgeIt JavaScript API</h2>
+          <p>Native Mobile integration for your web app.</p>
+          <p>BridgeIt provides a variety of device commands that allow access to 
+          device features from JavaScript, all while running in the stock browser
+          such as Safari or Chrome. This is made possible by the BridgeIt App
+          that runs alongside the browser and is available for each of the supported
+          platforms (currently Android, iOS, and Windows Phone 8).</p>
+          <p>For example..</p>
+{% highlight javascript %}
+bridgeit.camera('myCamera', 'myCallback');
+{% endhighlight %}
+          <p>
+          will allow the user
+          to take a photo identified by <code>'myCamera'</code> and this will be returned via an
+          event to the function named myCallback.  For the best compatibility the
+          callback is passed by name since the browser page may be refreshed when
+          the callback returns.</p>
+          <p>Most device commands accept an options parameter object.  Options supported
+          by a variety of commands are: <code>options.postURL</code> (the URL used to upload 
+          the result of the command), and options.parameters (extra parameters 
+          specific to the command).</p>
+        </div>
+    </div>
+    <div data-role="page" id="globals"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt Globals</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.launchFailed</code></h2>
+          <p> Application provided callback to detect BridgeIt launch failure.
+              This should be overridden with an implementation that prompts the
+              user to download BridgeIt and potentially fallback with a different
+              browser control such as input file.</p>
+         <h4>Parameters</h4>
+         <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id: (String)</li>
+            <li>The id passed to the command that failed </li>
+         </ul>
+         <h2><code>bridgeit.notSupported</code></h2>
+         <p>
+            Application provided callback to detect non-supported clients.
+            This should be overridden with an implementation that informs the
+            user the user that native mobile functionality is only available
+            on supported platforms or potentially fallback with a different
+            browser control such as input file, which would be available on 
+            all browsers.
+         </p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id: (String)</li>
+            <li>The id passed to the command that failed </li>
+            <li data-role="list-divider">command: (String)</li>
+            <li>The BridgeIt api command that was launched </li>
+         </ul>
+        </div>
+    </div>
+    <div data-role="page" id="camera"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.camera</code></h2>
+          <p>Launch the native camera.</p>
+          <p>The callback function will be called once the photo is captured.</p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li>The unique id to identify the bridgeit call </li>
+            <li data-role="list-divider">options.postURL (String)</li>
+            <li>Server-side URL accepting POST of command result (optional)</li>
+            <li data-role="list-divider">options.parameters: (Map)</li>
+            <li>Additional command-specific parameters </li>
+            <li data-role="list-divider">callback: (Map)</li>
+            <li>The callback function that will be called by BridgeIt when the camera returns</li>
+         </ul>
+        </div>
+    </div>
+</body>
+</html>
+
+
+    
+    
