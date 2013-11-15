@@ -1050,7 +1050,8 @@ if (!window.console) {
 
     /**
      * Public callback used by Cloud Push implementation
-     * to relay push event to a newly opened browser window
+     * to relay push event to a newly opened browser window.
+     * This API is not for application use.
      * @alias plugin.handleCloudPush
      * @private
      */
@@ -1094,6 +1095,14 @@ if (!window.console) {
 
     /**
      * Push notification to the group.
+     * 
+     * This will result in an Ajax Push (and associated callback)
+     * to any web pages that have added a push listener to the
+     * specified group.  If Cloud Push options are provided
+     * (options.subject and options.detail) a Cloud Push will
+     * be dispatched as a home screen notification to any devices
+     * unable to recieve the Ajax Push via the web page.
+     * 
      * @param groupName
      * @param options that a notification can carry
      * @alias plugin.push
