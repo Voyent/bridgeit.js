@@ -844,8 +844,14 @@ if (!window.console) {
     /**
      * Launch an Augmented Reality view.
      * 
+     * The Augmented Reality view displays a set of geographic icons on
+     * a video overlay. The icons are positioned according to the 
+     * orientation of the device so that they appear in a line-of-sight
+     * with their physical geographic position.  The user can select an
+     * icon and this is relayed back to the application.
+     * 
      * The callback function will be called once the augmented reality
-     * view exits with the user-selected provided in the return value.
+     * view exits with the user selection provided in the return value.
      * The command is invoked with a locations parameter containing an
      * array of named locations, each with a comma-separated latitude,
      * longitude, altitude, direction, and icon URL
