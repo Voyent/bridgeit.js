@@ -995,11 +995,11 @@ if (!window.console) {
     };
 
     /**
-     * The app store link to BridgeIt for the appropirate platform
-     * @property appStoreLink
+     * The app store URL to BridgeIt for the appropirate platform
+     * @property appStoreURL
      * @readonly
      */
-    b.appStoreLink = function(){
+    b.appStoreURL = function(){
         if( b.isAndroid() )
             return 'https://play.google.com/store/apps/details?id=mobi.bridgeit';
         else if( b.isIOS() )
@@ -1103,8 +1103,10 @@ if (!window.console) {
      * be dispatched as a home screen notification to any devices
      * unable to recieve the Ajax Push via the web page.
      * 
-     * @param groupName
-     * @param options that a notification can carry
+     * @param {String} groupName The Ajax Push group name to push to
+     * @param {Object} options Options that a notification can carry
+     * @param {String} options.subject The subject heading for the cloud push message
+     * @param {String} options.message The 
      * @alias plugin.push
      */
     b.push = function(groupName, options) {

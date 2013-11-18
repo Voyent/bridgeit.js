@@ -50,9 +50,16 @@
                   <i class="icon-info-sign"></i>Intro
                 </a><i class="icon-chevron-right"></i>
               </li>
+              
               <li>
-                <a data-transition="slide" href="#globals">
-                  <i class="icon-globe"></i>Globals
+                <a href="#augmentedReality" data-transition="slide" >
+                  <i class="augmented-reality-icon"></i>Augmented Reality
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#camcorder" data-transition="slide">
+                  <i class="icon-facetime-video"></i>Camcorder
                 </a><i class="icon-chevron-right"></i>
               </li>
               <li>
@@ -61,13 +68,21 @@
                 </a><i class="icon-chevron-right"></i>
               </li>
               <li>
-                <a href="#camcorder.html" data-transition="slide">
-                  <i class="icon-facetime-video"></i>Camcorder
-                </a><i class="icon-chevron-right"></i>
+                <a href="#push" data-transition="slide">
+                  <i class="icon-cloud-download"></i>Cloud Push
+                </a>
+                <i class="icon-chevron-right"></i>
               </li>
               <li>
-                <a href="#scan" data-transition="slide">
-                  <i class="icon-qrcode"></i>Scan
+                <a href="#fetchContact" data-transition="slide">
+                  <i class="icon-calendar-empty"></i>
+                  <i style="font-style:normal;position:absolute;margin-left: -32px;font-size: 9px;margin-top: 7px;">@</i>Fetch Contact
+                </a>
+                <i class="icon-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#geoTrack" data-transition="slide">
+                  <i class="icon-location-arrow"></i>GeoTrack
                 </a>
                 <i class="icon-chevron-right"></i>
               </li>
@@ -78,35 +93,21 @@
                 <i class="icon-chevron-right"></i>
               </li>
               <li>
-                <a href="#contact-list" data-transition="slide">
-                  <i class="icon-calendar-empty"></i>
-                  <i style="font-style:normal;position:absolute;margin-left: -32px;font-size: 9px;margin-top: 7px;">@</i>Contact List
+                <a href="#scan" data-transition="slide">
+                  <i class="icon-qrcode"></i>Scan
                 </a>
                 <i class="icon-chevron-right"></i>
               </li>
               <li>
-                <a href="#geotrack" data-transition="slide">
-                  <i class="icon-location-arrow"></i>GeoTrack
-                </a>
-                <i class="icon-chevron-right"></i>
-              </li>
-              <li>
-                <a href="#augmented-reality" data-transition="slide" >
-                  <i class="augmented-reality-icon"></i>Augmented Reality
-                </a>
-                <i class="icon-chevron-right"></i>
-              </li>
-              <li>
-                <a href="#sms.html" data-transition="slide" >
+                <a href="#sms" data-transition="slide" >
                   <i class="icon-comment"></i>SMS
                 </a>
                 <i class="icon-chevron-right"></i>
               </li>
               <li>
-                <a href="#cloud-push.html" data-transition="slide">
-                  <i class="icon-cloud-download"></i>Cloud Push
-                </a>
-                <i class="icon-chevron-right"></i>
+                <a data-transition="slide" href="#globals">
+                  <i class="icon-globe"></i>Settings &amp; Utilities
+                </a><i class="icon-chevron-right"></i>
               </li>
               <li>
                 <a href="http://bridgeit.mobi/forum/" data-rel="external" data-ajax="false">
@@ -132,6 +133,7 @@
           <i class="icon-facebook-sign"></i>
         </div> 
     </div>
+
     <div data-role="page" id="intro"> 
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
@@ -164,16 +166,58 @@ bridgeit.camera('myCamera', 'myCallback');
           specific to the command).</p>
         </div>
     </div>
+
     <div data-role="page" id="globals"> 
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
               <i class="icon-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt Globals</span></h1>
+            <h1><span class="bridge-font-color">Settings &amp; Utilities</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.launchFailed</code></h2>
+
+         <h2><code>bridgeit.allowAnonymousCallbacks</code></h2>
+         <p>
+            Set allowAnonymousCallbacks to true to take advantage of persistent
+            callback functions currently supported on iOS (Default false).
+         </p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">allowAnonymousCallbacks: (Boolean)</li>
+            <li>If true, anonymous or unnamed callbacks will be used. </li>
+         </ul>
+
+         <h2><code>bridgeit.appStoreURL()</code></h2>
+         <p>
+            The app store URL to BridgeIt for the appropirate platform.
+         </p>
+  
+          <h2><code>bridgeit.isAndroid()</code></h2>
+          <p>Is the current browser Android?</p>
+
+          <h2><code>bridgeit.isIOS()</code></h2>
+          <p>Is the current browser iOS?</p>
+
+          <h2><code>bridgeit.isRegistered()</code></h2>
+          <p>Verify that BridgeIt Cloud Push is registered.</p>
+          
+
+           <h2><code>bridgeit.isSupportedPlatform(command)</code></h2>
+          <p>Check if the current browser is supported by the BridgeIt Native Mobile app.</p>
+          <p>Currently iOS, Android, and some features on Windows Phone 8 are supported.</p>
+          <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">command: (String)</li>
+            <li>The BridgeIt API command that may or may not be supported.</li>
+         </ul>
+
+          <h2><code>bridgeit.isWindowsPhone8()</code></h2>
+          <p>Is the current browser Windows Phone 8?</p>
+
+          
+
+          <h2><code>bridgeit.launchFailed(id)</code></h2>
           <p> Application provided callback to detect BridgeIt launch failure.
               This should be overridden with an implementation that prompts the
               user to download BridgeIt and potentially fallback with a different
@@ -183,7 +227,8 @@ bridgeit.camera('myCamera', 'myCallback');
             <li data-role="list-divider">id: (String)</li>
             <li>The id passed to the command that failed </li>
          </ul>
-         <h2><code>bridgeit.notSupported</code></h2>
+
+         <h2><code>bridgeit.notSupported(id, command)</code></h2>
          <p>
             Application provided callback to detect non-supported clients.
             This should be overridden with an implementation that informs the
@@ -199,8 +244,156 @@ bridgeit.camera('myCamera', 'myCallback');
             <li data-role="list-divider">command: (String)</li>
             <li>The BridgeIt api command that was launched </li>
          </ul>
+
+          <h2><code>bridgeit.register(id, callback, options)</code></h2>
+          <p>Register BridgeIt integration and configure Cloud Push.</p>
+          <p>
+            This call is necessary to obtain the Cloud Push ID of the
+            device so that notifications can be delivered when the
+            user is not currently viewing your application in the browser.
+          </p>
+          <p>
+            The callback function will be called when Cloud Push registration
+            completes.
+          </p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li>The unique id to identify the bridgeit call </li>
+            <li data-role="list-divider">callback: (Function)</li>
+            <li>The callback function that will be called by BridgeIt when the camera returns</li>
+            <li data-role="list-divider">options.postURL (String)</li>
+            <li>Server-side URL accepting POST of command result (optional)</li>
+            <li data-role="list-divider">options.parameters: (Map)</li>
+            <li>Additional command-specific parameters </li>
+         </ul>
+
+         <h2><code>bridgeit.url2Object(encoded)</code></h2>
+          <p>Utility method to unpack url-encoded parameters into an object.</p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">encoded (String)</li>
+            <li>The encoded URL string to unpack</li>
+         </ul>
         </div>
     </div>
+
+    <div data-role="page" id="augmentedReality"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.augmentedReality(id, callback, options)</code></h2>
+          <p>Launch an Augmented Reality view.</p>
+          <p>
+            The Augmented Reality view displays a set of geo-positioned images on
+            a video overlay. The images are positioned according to the 
+            orientation of the device so that they appear in a line-of-sight
+            with their physical geographic position.  The user can select an
+            icon and this is relayed back to the application.
+          </p>
+          <p>
+            The callback function will be called once the augmented reality
+            view exits with the user selection provided in the return value.
+            The command is invoked with a locations parameter containing an
+            array of named locations, each with a comma-separated latitude,
+            longitude, altitude, direction, and icon URL
+          </p>
+{% highlight html %}
+<script type="text/javascript">
+function handleAug(event)  {
+    var text = event.value;
+    if (event.response)  {
+        var len = "Aug".length;
+        var responseLoc = "" + JSON.parse(event.response)["_loc"][0];
+        var iconNum = responseLoc.substring(len, len + 1);
+        document.getElementById("selected")
+                .setAttribute("src",
+                "icons/icon" + iconNum + ".png");
+    }
+}
+var locations = {};
+locations['marker-a'] = "52.0,114.0,,,image-a.png";
+locations['marker-b'] = "27.0,130.0,,,image-b.png";
+var postURL = 'http://myserver/ar-post';
+
+</script>
+<button id="aug" class="overbutton" 
+    onclick="bridgeit.augmentedReality('_loc','handleAug', {postURL:postURL), parameters: locations});">
+    Reality View ... </button>
+{% endhighlight %}
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li>The unique id to identify the bridgeit call </li>
+            <li data-role="list-divider">callback: (Function)</li>
+            <li>The callback function that will be called by BridgeIt when the camera returns</li>
+            <li data-role="list-divider">options.postURL (String)</li>
+            <li>Server-side URL accepting POST of command result (optional)</li>
+            <li data-role="list-divider">options.parameters: (Map)</li>
+            <li>Additional command-specific parameters </li>
+            <li data-role="list-divider">options.parameters.locations: (Map)</li>
+            <li>The augmented reality locations to display </li>
+         </ul>
+        </div>
+    </div>
+
+    <div data-role="page" id="camcorder"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.camcorder(id, callback, options)</code></h2>
+          <p>Launch the native video recorder.</p>
+          <p>The callback function will be called once the video is captured.</p>
+{% highlight html %}
+<script type="text/javascript">
+function onAfterVideoCapture(event)  {
+    if (event.preview)  {
+        document.getElementById("videoThumbnail").setAttribute("src", event.preview);
+    }
+    if (event.response)  {
+        var videoURL = event.response;
+        var elem = document.getElementById('videos');
+        var vid = document.createElement('video');
+        vid.setAttribute('src',  videoURL);
+        vid.setAttribute('controls', 'controls');
+        vid.setAttribute('preload', 'auto');
+        vid.setAttribute('type', 'video/mp4');
+        vid.setAttribute('webkit-playsinline', 'yes');
+        elem.insertBefore(vid,elem.firstChild);
+    }
+}
+var postURL = 'http://myserver/video-upload';
+
+</script>
+<a id="camcorderBtn" type="button" class="btn"
+    onclick="bridgeit.camcorder('camcorderBtn','onAfterVideoCapture', {postURL: postURL});">
+    Record a Video</a>
+{% endhighlight %}
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li>The unique id to identify the bridgeit call </li>
+            <li data-role="list-divider">callback: (Function)</li>
+            <li>The callback function that will be called by BridgeIt when the video recorder returns</li>
+            <li data-role="list-divider">options.postURL (String)</li>
+            <li>Server-side URL accepting POST of command result (optional)</li>
+            <li data-role="list-divider">options.parameters: (Map)</li>
+            <li>Additional command-specific parameters </li>
+         </ul>
+        </div>
+    </div>
+
+
     <div data-role="page" id="camera"> 
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
@@ -210,22 +403,261 @@ bridgeit.camera('myCamera', 'myCallback');
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.camera</code></h2>
+          <h2><code>bridgeit.camera(id, callback, options)</code></h2>
           <p>Launch the native camera.</p>
           <p>The callback function will be called once the photo is captured.</p>
+{% highlight html %}
+<script type="text/javascript">
+function onAfterPhotoCapture(event)  {
+    if (event.preview)  {
+        document.getElementById("photoThumbnail").setAttribute("src", event.preview);
+    }
+    if (event.response)  {
+        var imageURL = event.response;
+        var elem = document.getElementById('photos');
+        var image = document.createElement('img');
+        image.setAttribute('src',  imageURL);
+        elem.insertBefore(image,elem.firstChild);
+    }
+}
+var postURL = 'http://myserver/photo-upload';
+
+</script>
+<a id="cameraBtn" type="button" class="btn"
+    onclick="bridgeit.camera('cameraBtn','onAfterPhotoCapture', {postURL: postURL});">
+    Take a photo</a>
+{% endhighlight %}
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">id (String)</li>
             <li>The unique id to identify the bridgeit call </li>
+            <li data-role="list-divider">callback: (Function)</li>
+            <li>The callback function that will be called by BridgeIt when the camera returns</li>
             <li data-role="list-divider">options.postURL (String)</li>
             <li>Server-side URL accepting POST of command result (optional)</li>
             <li data-role="list-divider">options.parameters: (Map)</li>
             <li>Additional command-specific parameters </li>
-            <li data-role="list-divider">callback: (Map)</li>
-            <li>The callback function that will be called by BridgeIt when the camera returns</li>
          </ul>
         </div>
     </div>
+
+    <div data-role="page" id="fetchContact"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.fetchContact(id, callback, options)</code></h2>
+          <p>Launch the native contact list app to select a contact.</p>
+          <p>The callback function will be called once a contact is seleted.</p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li>The unique id to identify the bridgeit call </li>
+            <li data-role="list-divider">callback: (Function)</li>
+            <li>TThe callback function will be called once location tracking is activated.</li>
+            <li data-role="list-divider">options.parameters: (Map)</li>
+            <li>Additional command-specific parameters </li>
+            <li data-role="list-divider">options.parameters.fields: (Map)</li>
+            <li>The contact fields to retrieve, default = "name,email,phone"</li>
+            
+         </ul>
+        </div>
+    </div>
+
+    <div data-role="page" id="geoTrack"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.geoTrack(id, callback, options)</code></h2>
+          <p>Activate location tracking. </p>
+          <p>
+            Location tracking will run in the
+            background according to the specified strategy and duration, and will POST
+            a geoJSON record to the specified postURL.
+          </p>
+          <p>
+            Two strategies are currently supported: "continuous" where the location
+            of the device will be uploaded as frequently as it changes (intended for
+            testing only due to high power consumption), and "significant" where the
+            location is uploaded when it changes significantly.
+          </p>
+          <p>
+            The callback function will be called once location tracking is activated.
+          </p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li>The unique id to identify the bridgeit call </li>
+            <li data-role="list-divider">callback: (Function)</li>
+            <li>The callback function that will be called by BridgeIt when the camera returns</li>
+            <li data-role="list-divider">options.postURL (String)</li>
+            <li>The URL accepting the geoJSON POST</li>
+            <li data-role="list-divider">options.parameters: (Map)</li>
+            <li>Additional command-specific parameters </li>
+            <li data-role="list-divider">options.parameters.strategy: (String)</li>
+            <li>The strategy, "continuous", "significant" or "stop" </li>
+            <li data-role="list-divider">options.parameters.duration: (Number)</li>
+            <li>The duration in hours</li>
+            
+         </ul>
+        </div>
+    </div>
+
+
+
+    <div data-role="page" id="microphone"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.microphone(id, callback, options)</code></h2>
+          <p>Launch the native audio recorder.</p>
+          <p>The callback function will be called once the audio is captured.</p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li>The unique id to identify the bridgeit call </li>
+            <li data-role="list-divider">callback: (Function)</li>
+            <li>The callback function that will be called by BridgeIt when the camera returns</li>
+            <li data-role="list-divider">options.postURL (String)</li>
+            <li>Server-side URL accepting POST of command result (optional)</li>
+            <li data-role="list-divider">options.parameters: (Map)</li>
+            <li>Additional command-specific parameters </li>
+         </ul>
+        </div>
+    </div>
+
+    <div data-role="page" id="push"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.push(groupName, options)</code></h2>
+          <p>Push a notification to the group.</p>
+          <p>
+              This will result in an Ajax Push (and associated callback)
+              to any web pages that have added a push listener to the
+              specified group.  If Cloud Push options are provided
+              (options.subject and options.detail) a Cloud Push will
+              be dispatched as a home screen notification to any devices
+              unable to recieve the Ajax Push via the web page.</p>
+              Push notification to the group.
+          </p>
+          
+{% highlight html %}
+<a id="regBtn" type="button" class="btn"
+    onclick="bridgeit.register('_reg', 'handlePushRegistration');">Enable Cloud Push</a>
+
+<a id="pushBtn" type="button" class="btn"
+    onclick="delayedPush();">Push in 10 seconds ...</a>
+<script type="text/javascript">
+function delayedPush()  {
+    bridgeit.push( bridgeit.getId(),
+        {subject:'BridgeIt Cloud Push',
+        detail:'You have been notified.', delay:10000} );
+}
+
+function handlePushRegistration(event)  {
+    if (bridgeit.isRegistered())  {
+        document.getElementById('regBtn').style.display = 'none';
+    }
+}
+
+function handlePush()  {
+    ...
+}
+//api key for push service available from bridgeit.mobi
+var apikey = 'xxx';
+var pushHub = 'http://api.bridgeit.mobi/push/';
+bridgeit.usePushService(pushHub, apikey);
+bridgeit.addPushListener(bridgeit.getId(), 'handlePush');
+
+</script>
+{% endhighlight %}
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">groupName (String)</li>
+            <li>The Ajax Push group name to push to</li>
+            <li data-role="list-divider">callback: (Function)</li>
+            <li>The callback function that will be called by BridgeIt when the video recorder returns</li>
+            <li data-role="list-divider">options.postURL (String)</li>
+            <li>Server-side URL accepting POST of command result (optional)</li>
+            <li data-role="list-divider">options.parameters: (Map)</li>
+            <li>Additional command-specific parameters </li>
+         </ul>
+        </div>
+    </div>
+
+
+    <div data-role="page" id="scan"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.scan(id, callback, options)</code></h2>
+          <p>Launch the native scanner.</p>
+          <p>The callback function will be called once the scan is captured.</p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li>The unique id to identify the bridgeit call </li>
+            <li data-role="list-divider">callback: (Function)</li>
+            <li>The callback function that will be called by BridgeIt when the camera returns</li>
+            <li data-role="list-divider">options.postURL (String)</li>
+            <li>Server-side URL accepting POST of command result (optional)</li>
+            <li data-role="list-divider">options.parameters: (Map)</li>
+            <li>Additional command-specific parameters </li>
+         </ul>
+        </div>
+    </div>
+
+    <div data-role="page" id="sms"> 
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="icon-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.sms(number, message)</code></h2>
+          <p>The sms function will send an SMS message to a number on supported
+             platforms. On iOS devices, a native SMS call is made through the
+             BridgeIt app. On other platforms an SMS URL protocol is used in a
+             DOM anchor element, which the browser may use to launch the device
+             SMS functionality, if available.</p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">number (String)</li>
+            <li>The phone number to send the message to</li>
+            <li data-role="list-divider">message (String)</li>
+            <li>The message</li>
+         </ul>
+        </div>
+    </div>
+
+
 </body>
 </html>
 
