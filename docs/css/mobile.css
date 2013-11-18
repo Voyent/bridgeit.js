@@ -423,3 +423,7 @@ span.ellipsis{
     background-size: 100%;
     margin: -5px auto -5px auto;
 }
+
+.ui-li-divider, .ui-li-static.ui-li  {
+    font-size: 13px;
+}
