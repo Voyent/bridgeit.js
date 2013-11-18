@@ -35,11 +35,15 @@
          ga('create', 'UA-45568600-1', 'bridgeit.mobi');
          ga('send', 'pageview');
 
+         if( $(window).width() > 768 ){
+            window.location = './html/#!/api/bridgeit';
+         }
+
       </script>
       
    </head>
 <body>
-    <div data-role="page" id="home">  
+      <div data-role="page" id="home">  
         <div data-role="header" class="hdr" data-position="fixed" data-id="header">
             <h1><span class="bridge-font-color">BridgeIt API</span></h1>
         </div>
