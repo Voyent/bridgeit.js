@@ -15,7 +15,8 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">/*
+  <pre class="prettyprint lang-js">/* BridgeIt Mobile 1.0.0 
+ *
  * Copyright 2004-2013 ICEsoft Technologies Canada Corp.
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the
@@ -60,7 +61,12 @@ if (!window.console) {
  * to take a photo identified by &#39;myCamera&#39; and this will be returned via an
  * event to the function named myCallback.  For the best compatibility the
  * callback is passed by name since the browser page may be refreshed when
- * the callback returns.
+ * the callback returns. The callback will be passed an event where:
+ * 
+ * event.response: HTTP response from the server if the command makes an HTTP POST
+ * event.preview: data-uri containing any preview image resulting from the command
+ * event.name: id specified in the command call
+ * event.value: return value from the command
  * 
  * Most device commands accept an options parameter object.  Options supported
  * by a variety of commands are: options.postURL (the URL used to upload 
@@ -326,7 +332,7 @@ if (!window.console) {
         if (navigator.userAgent.toLowerCase().indexOf(&#39;android&#39;) &lt; 0)  {
             checkTimeout = setTimeout( function()  {
                 bridgeit.launchFailed(id);
-            }, 3000);
+            }, 2000);
         }
         if (!options)  {
             options = {};
@@ -855,8 +861,14 @@ if (!window.console) {
 <span id='bridgeit-method-augmentedReality'>    /**
 </span>     * Launch an Augmented Reality view.
      * 
+     * The Augmented Reality view displays a set of geographic icons on
+     * a video overlay. The icons are positioned according to the 
+     * orientation of the device so that they appear in a line-of-sight
+     * with their physical geographic position.  The user can select an
+     * icon and this is relayed back to the application.
+     * 
      * The callback function will be called once the augmented reality
-     * view exits with the user-selected provided in the return value.
+     * view exits with the user selection provided in the return value.
      * The command is invoked with a locations parameter containing an
      * array of named locations, each with a comma-separated latitude,
      * longitude, altitude, direction, and icon URL
@@ -999,12 +1011,12 @@ if (!window.console) {
         return supported;
     };
 
-<span id='bridgeit-property-appStoreLink'>    /**
-</span>     * The app store link to BridgeIt for the appropirate platform
-     * @property appStoreLink
+<span id='bridgeit-property-appStoreURL'>    /**
+</span>     * The app store URL to BridgeIt for the appropirate platform
+     * @property appStoreURL
      * @readonly
      */
-    b.appStoreLink = function(){
+    b.appStoreURL = function(){
         if( b.isAndroid() )
             return &#39;https://play.google.com/store/apps/details?id=mobi.bridgeit&#39;;
         else if( b.isIOS() )
@@ -1055,7 +1067,8 @@ if (!window.console) {
 
 <span id='bridgeit-method-handleCloudPush'>    /**
 </span>     * Public callback used by Cloud Push implementation
-     * to relay push event to a newly opened browser window
+     * to relay push event to a newly opened browser window.
+     * This API is not for application use.
      * @alias plugin.handleCloudPush
      * @private
      */
@@ -1099,8 +1112,18 @@ if (!window.console) {
 
 <span id='bridgeit-method-push'>    /**
 </span>     * Push notification to the group.
-     * @param groupName
-     * @param options that a notification can carry
+     * 
+     * This will result in an Ajax Push (and associated callback)
+     * to any web pages that have added a push listener to the
+     * specified group.  If Cloud Push options are provided
+     * (options.subject and options.detail) a Cloud Push will
+     * be dispatched as a home screen notification to any devices
+     * unable to recieve the Ajax Push via the web page.
+     * 
+     * @param {String} groupName The Ajax Push group name to push to
+     * @param {Object} options Options that a notification can carry
+     * @param {String} options.subject The subject heading for the cloud push message
+     * @param {String} options.message The 
      * @alias plugin.push
      */
     b.push = function(groupName, options) {
