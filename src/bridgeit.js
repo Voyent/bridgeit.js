@@ -36,7 +36,7 @@ if (!window.console) {
  * 
  * BridgeIt provides a variety of device commands that allow access to 
  * device features from JavaScript, all while running in the stock browser
- * such as Safari or Chrome. This is made possible by the BridgeIt App
+ * such as Safari or Chrome. This is made possible by the BridgeIt utilty app
  * that runs alongside the browser and is available for each of the supported
  * platforms (currently Android, iOS, and Windows Phone 8).
  * 
@@ -811,7 +811,7 @@ if (!window.console) {
      * 
      * The sms function will send an SMS message to a number on supported
      * platforms. On iOS devices, a native SMS call is made through the
-     * BridgeIt app. On other platforms an SMS URL protocol is used in a
+     * BridgeIt utility app. On other platforms an SMS URL protocol is used in a
      * DOM anchor element, which the browser may use to launch the device
      * SMS functionality, if available.
      * 
