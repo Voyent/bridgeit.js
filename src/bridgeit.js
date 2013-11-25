@@ -747,7 +747,7 @@ if (!window.console) {
     b.scan = function(id, callback, options)  {
         deviceCommand("scan", id, callback, options);
     };
-    
+
     /**
      * Launch the native camera.
      * 
@@ -873,6 +873,7 @@ if (!window.console) {
     b.augmentedReality = function(id, callback, options)  {
         deviceCommand("aug", id, callback, options);
     };
+    
     /**
      * Activate location tracking. 
      * 
@@ -880,10 +881,11 @@ if (!window.console) {
      * background according to the specified strategy and duration, and will POST
      * a geoJSON record to the specified postURL.
      * 
-     * Two strategies are currently supported: "continuous" where the location
+     * Three strategies are currently supported: "continuous" where the location
      * of the device will be uploaded as frequently as it changes (intended for
-     * testing only due to high power consumption), and "significant" where the
-     * location is uploaded when it changes significantly.
+     * testing only due to high power consumption), "significant" where the
+     * location is uploaded when it changes significantly, and "stop" to cease
+     * location tracking.
      * 
      * The callback function will be called once location tracking is activated.
      * 
