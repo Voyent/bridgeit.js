@@ -747,13 +747,20 @@ if (!window.console) {
     b.scan = function(id, callback, options)  {
         deviceCommand("scan", id, callback, options);
     };
+    
     /**
      * Launch the native camera.
      * 
      * The callback function will be called once the photo is captured.
      * 
      * @alias plugin.camera
-     * @inheritdoc #scan
+     * @param {Object} options Additional command options
+     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
+     * @param {Object} options.parameters Additional command-specific parameters
+     * @param {Object} options.parameters.maxwidth The maxium width for the image in pixels
+     * @param {Object} options.parameters.maxheight The maxium height for the image in pixels
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
      * 
      */
     b.camera = function(id, callback, options)  {
