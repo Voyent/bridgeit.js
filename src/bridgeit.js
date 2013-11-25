@@ -1114,8 +1114,8 @@ if (!window.console) {
      * 
      * @param {String} groupName The Ajax Push group name to push to
      * @param {Object} options Options that a notification can carry
-     * @param {String} options.subject The subject heading for the cloud push message
-     * @param {String} options.message The 
+     * @param {String} options.subject The subject heading for the notification
+     * @param {String} options.message The message text to be sent in the notification body
      * @alias plugin.push
      */
     b.push = function(groupName, options) {
