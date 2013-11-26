@@ -967,7 +967,7 @@ if (!window.console) {
      * @readonly 
      */
     b.isIOS6 = function(){
-        return /(iPad|iPhone|iPod); CPU OS 6_/.test( navigator.userAgent );;
+        return /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
     };
 
     /**
@@ -986,7 +986,7 @@ if (!window.console) {
      * @readonly
      */
     b.isAndroidFroyo = function(){
-        return navigator.userAgent..indexOf("Android 2.2") > -1; 
+        return navigator.userAgent.indexOf("Android 2.2") > -1; 
     };
 
     /**
@@ -995,7 +995,7 @@ if (!window.console) {
      * @readonly
      */
     b.isAndroidGingerBreadOrGreater = function(){
-        return b.isAndroid() && b.isAndroidFroyo(); 
+        return b.isAndroid() && !b.isAndroidFroyo(); 
     };
 
 
@@ -1180,4 +1180,3 @@ if (!window.console) {
     addOnLoadListener(checkExecDeviceResponse);
     checkExecDeviceResponse();
 })(bridgeit);
-
