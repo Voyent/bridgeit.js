@@ -941,7 +941,7 @@ if (!window.console) {
      * callback functions currently supported on iOS.
      * @property {Boolean} [allowAnonymousCallbacks=false]
      */
-    b.allowAnonymousCallbacks = false;
+    b.allowAnonymousCallbacks = false;        
 
     /**
      * Is the current browser iOS
@@ -962,6 +962,15 @@ if (!window.console) {
     };
 
     /**
+     * Is the current browser iOS 6
+     * @alias plugin.isIOS6
+     * @readonly 
+     */
+    b.isIOS6 = function(){
+        return /(iPad|iPhone|iPod); CPU OS 6_/.test( navigator.userAgent );;
+    };
+
+    /**
      * Is the current browser Android
      * @property isAndroid
      * @readonly
@@ -970,6 +979,25 @@ if (!window.console) {
         return navigator.userAgent.toLowerCase()
             .indexOf("android") > -1; 
     };
+
+    /**
+     * Is the current browser Android
+     * @property isAndroidFroyo
+     * @readonly
+     */
+    b.isAndroidFroyo = function(){
+        return navigator.userAgent..indexOf("Android 2.2") > -1; 
+    };
+
+    /**
+     * Is the current browser Android
+     * @property isAndroidFroyo
+     * @readonly
+     */
+    b.isAndroidGingerBreadOrGreater = function(){
+        return b.isAndroid() && b.isAndroidFroyo(); 
+    };
+
 
     /**
      * Is the current browser Windows Phone 8
@@ -983,6 +1011,11 @@ if (!window.console) {
                 && typeof window.orientation !== 'undefined');
     };
 
+    var supportedAndroid = b.isAndroidGingerBreadOrGreater();
+    var iOS = b.isIOS();
+    var iOS6 = b.isIOS6();
+    var wp8 = b.isWindowsPhone8();
+
     /**
      * Check if the current browser is supported by the BridgeIt Native Mobile app.
      *
@@ -991,9 +1024,15 @@ if (!window.console) {
      * @alias plugin.isSupportedPlatform
      */
     b.isSupportedPlatform = function(command){
-        var supported = b.isIOS() || b.isAndroid();
-        if ( !supported && b.isWindowsPhone8()){
+        var supported = false;
+        if( iOS6 ){ //only scan not supported on iOS6
+            supported = 'scan' != command;
+        }
+        else if ( wp8 ){
             supported = ['camera', 'sms','fetchContacts','scan'].indexOf(command) > -1;
+        }
+        else if( supportedAndroid || iOS ){
+            supported = true;
         }
         console.log("bridgeIt supported platform for '" + command + "' command: " + supported);
         return supported;
