@@ -378,7 +378,8 @@ if (!window.console) {
         for (var i = 0; i < len; i++) {
             var splitIndex = params[i].indexOf("=");
             var paramName = unescape(params[i].substring(0, splitIndex));
-            var paramValue = unescape(params[i].substring(splitIndex + 1));
+            var paramValue = decodeURIComponent(
+                    params[i].substring(splitIndex + 1) );
             if ("!" === paramName.substring(0,1))  {
                 //ICEmobile parameters are set directly
                 result[paramName.substring(1)] = paramValue;
@@ -396,7 +397,7 @@ if (!window.console) {
         for (var i = 0; i < parts.length; i++) {
             if (!!parts[i])  {
                 var pair = parts[i].split("=");
-                record[unescape(pair[0])] = unescape(pair[1]);
+                record[unescape(pair[0])] = decodeURIComponent(pair[1]);
             }
         }
         return record;
