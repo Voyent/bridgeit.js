@@ -381,7 +381,7 @@ if (!window.console) {
             var paramValue = decodeURIComponent(
                     params[i].substring(splitIndex + 1) );
             if ("!" === paramName.substring(0,1))  {
-                //ICEmobile parameters are set directly
+                //BridgeIt parameters are set directly
                 result[paramName.substring(1)] = paramValue;
             } else  {
                 //only one user value is supported
