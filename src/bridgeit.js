@@ -312,7 +312,8 @@ if (!window.console) {
             b.notSupported(id, command);
             return;
         }
-        if (navigator.userAgent.toLowerCase().indexOf('android') < 0)  {
+        if (navigator.userAgent.toLowerCase().indexOf('android') < 0
+            && !hasInstalledToken())  {
             checkTimeout = setTimeout( function()  {
                 bridgeit.launchFailed(id);
             }, 2000);
@@ -510,6 +511,11 @@ if (!window.console) {
                 
                 isDataPending = false;
                 pendingData = null;
+
+                if( !hasInstalledToken() ){
+                    setInstalledToken();
+                }
+
                 if (callback)  {
                     try {
                         callback(sxEvent);
@@ -689,6 +695,26 @@ if (!window.console) {
             console.error('Push service is not active');
         }
     };
+
+    var BRIDGEIT_INSTALLED_KEY = "bridgeit.installed";
+    
+    function hasInstalledToken(){
+        var result = false;
+        if( window.localStorage && localStorage.getItem(BRIDGEIT_INSTALLED_KEY)){
+            console.log('bridgeit installed ' 
+                + new Date( parseInt(localStorage.getItem(BRIDGEIT_INSTALLED_KEY))).toGMTString());
+            result = true;
+        }
+        return result;
+    }
+    
+    function setInstalledToken(){
+        if( window.localStorage ){
+            localStorage.setItem(BRIDGEIT_INSTALLED_KEY, '' + new Date().getTime());
+        }
+    }
+
+
 
     /* *********************** PUBLIC **********************************/
     
