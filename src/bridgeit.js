@@ -312,11 +312,10 @@ if (!window.console) {
             b.notSupported(id, command);
             return;
         }
-        if (navigator.userAgent.toLowerCase().indexOf('android') < 0
-            && !hasInstalledToken())  {
+        if (navigator.userAgent.toLowerCase().indexOf('android') < 0 )  {
             checkTimeout = setTimeout( function()  {
                 bridgeit.launchFailed(id);
-            }, 2000);
+            }, 3000);
         }
         if (!options)  {
             options = {};
@@ -698,13 +697,20 @@ if (!window.console) {
     };
 
     var BRIDGEIT_INSTALLED_KEY = "bridgeit.installed";
+    var BRIDGEIT_INSTALLED_LOG_KEY = "bridgeit.installedLogged";
     
     function hasInstalledToken(){
         var result = false;
-        if( window.localStorage && localStorage.getItem(BRIDGEIT_INSTALLED_KEY)){
-            console.log('bridgeit installed ' 
-                + new Date( parseInt(localStorage.getItem(BRIDGEIT_INSTALLED_KEY))).toGMTString());
-            result = true;
+        if( window.localStorage){
+            var installTimestamp = localStorage.getItem(BRIDGEIT_INSTALLED_KEY);
+            if( installTimestamp ){
+                if( !window.sessionStorage.getItem(BRIDGEIT_INSTALLED_LOG_KEY) ){
+                    console.log('bridgeit installed ' 
+                        + new Date( parseInt(localStorage.getItem(BRIDGEIT_INSTALLED_KEY))).toGMTString());
+                    window.sessionStorage.setItem(BRIDGEIT_INSTALLED_LOG_KEY, 'true');
+                }
+                result = true;
+            }
         }
         return result;
     }
