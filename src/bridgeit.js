@@ -1108,7 +1108,7 @@ if (!window.console) {
     var wp8 = b.isWindowsPhone8();
     var iPhone = b.isIPhone();
 
-    var commands = ['camera','camcorder','microphone','fetchContacts','augmentedReality','push','scan','geospy','sms'];
+    var commands = ['camera','camcorder','microphone','fetchContacts','aug','push','scan','geospy','sms'];
     var fullySupported = [true, true, true, true, true, true, true, true, true];
     
     var supportMatrix = {
@@ -1139,7 +1139,7 @@ if (!window.console) {
         var supported = false;
         if( android ){
             if( supportedAndroid ){
-                if( 'augmentedReality' == command ){
+                if( 'aug' == command ){
                     supported = b.overrideAugmentedRealityAlphaLevel;
                 }
                 else{
