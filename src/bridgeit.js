@@ -1133,6 +1133,9 @@ if (!window.console) {
      * @alias plugin.isSupportedPlatform
      */
     b.isSupportedPlatform = function(command){
+        if( 'register' == command ){
+            return true; //do not check platform for cloud push registration
+        }
         var supported = false;
         if( android ){
             if( supportedAndroid ){
