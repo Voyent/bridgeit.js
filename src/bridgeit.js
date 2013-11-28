@@ -554,6 +554,25 @@ if (!window.console) {
             }
         }
     }
+    //move pause and resume to ICEpush when ready
+    function pausePush()  {
+       if (window.ice && ice.push)  {
+           ice.push.connection.pauseConnection();
+       }
+    }
+    function resumePush()  {
+       if (window.ice && ice.push)  {
+           ice.push.connection.resumeConnection();
+           resumePushGroups();
+       }
+    }
+    function resumePushGroups()  {
+        for (var pushID in pushListeners) {
+            var pushListener = pushListeners[pushID];
+            console.log("rejoining push group with old pushid " + pushListener.group );
+            ice.push.addGroupMember(pushListener.group, pushID);
+        }
+    }
 
     function storeLastPage()  {
         var LAST_PAGE_KEY = "bridgeit.lastpage";
@@ -587,6 +606,22 @@ if (!window.console) {
         window.addEventListener("load", function () {
             storeLastPage();
         }, false);
+
+        document.addEventListener("webkitvisibilitychange", function () {
+            if (document.webkitHidden)  {
+                pausePush();
+            } else {
+                resumePush();
+            }
+        });
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.hidden)  {
+                pausePush();
+            } else {
+                resumePush();
+            }
+        });
 
     };
 
@@ -664,11 +699,14 @@ if (!window.console) {
         setupCloudPush();
     }
 
+    var pushListeners = {};
+
     function addPushListenerImpl(group, callback) {
         if (ice && ice.push && ice.push.configuration.contextPath) {
             ice.push.connection.resumeConnection();
 
             var pushId = ice.push.createPushId();
+            pushListeners[pushId] = {group: group, callback: callback};
             ice.push.addGroupMember(group, pushId);
             if ("string" != typeof(callback))  {
                 console.error(
