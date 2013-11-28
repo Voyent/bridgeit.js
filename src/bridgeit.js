@@ -1156,7 +1156,7 @@ if (!window.console) {
                     return supportMatrix['iPhone']['7'][commands.indexOf(command)];
                 }
             }
-            else if( iPhone ){
+            else {
                 if( iOS6 ){
                     return supportMatrix['iPad-iPod']['6'][commands.indexOf(command)];
                 }
