@@ -995,12 +995,30 @@ if (!window.console) {
     };
 
     /**
+     * Is the current client an iPhone
+     * @alias plugin.isIPhone
+     * @readonly
+     */
+    b.isIPhone = function(){
+        return navigator.userAgent.indexOf('iPhone') > -1;
+    };
+
+    /**
      * Is the current browser iOS 6
      * @alias plugin.isIOS6
      * @readonly 
      */
     b.isIOS6 = function(){
         return /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
+    };
+
+    /**
+     * Is the current browser iOS 7
+     * @alias plugin.isIOS7
+     * @readonly 
+     */
+    b.isIOS7 = function(){
+        return /(iPad|iPhone|iPod).*OS 7_/.test( navigator.userAgent );
     };
 
     /**
@@ -1044,10 +1062,30 @@ if (!window.console) {
                 && typeof window.orientation !== 'undefined');
     };
 
+    var android = b.isAndroid();
     var supportedAndroid = b.isAndroidGingerBreadOrGreater();
     var iOS = b.isIOS();
     var iOS6 = b.isIOS6();
+    var iOS7 = b.isIOS7();
     var wp8 = b.isWindowsPhone8();
+    var iPhone = b.isIPhone();
+
+    var commands = ['camera','camcorder','microphone','fetchContacts','augmentedReality','push','scan','geospy','sms'];
+    var fullySupported = [true, true, true, true, true, true, true, true, true];
+    
+    var supportMatrix = {
+        'iPhone':{
+            '6':   [true, true, true, true, true, true, false, true, true],
+            '7':   fullySupported
+        },
+        'iPad-iPod':{
+            '6':   [true, true, true, true, true, true, false, true, false],
+            '7':   [true, true, true, true, true, true, true,  true, false]
+        },
+        'wp8':     [true, false, false, true, false, false, true, false, true],
+        'android': [true, true,  true,  true, false, true,  true, true,  true]
+    }
+    b.overrideAugmentedRealityAlphaLevel = false;
 
     /**
      * Check if the current browser is supported by the BridgeIt Native Mobile app.
@@ -1058,14 +1096,36 @@ if (!window.console) {
      */
     b.isSupportedPlatform = function(command){
         var supported = false;
-        if( iOS6 ){ //only scan not supported on iOS6
-            supported = 'scan' != command;
+        if( android ){
+            if( supportedAndroid ){
+                if( 'augmentedReality' == command ){
+                    supported = b.overrideAugmentedRealityAlphaLevel;
+                }
+                else{
+                    supported = true;
+                }
+            }
         }
-        else if ( wp8 ){
-            supported = ['camera', 'sms','fetchContacts','scan'].indexOf(command) > -1;
+        else if( wp8 ){
+            return supportMatrix['wp8'][commands.indexOf(command)];
         }
-        else if( supportedAndroid || iOS ){
-            supported = true;
+        else if( iOS ){
+            if( iPhone ){
+                if( iOS6 ){
+                    return supportMatrix['iPhone']['6'][commands.indexOf(command)];
+                }
+                else if( iOS7 ){ 
+                    return supportMatrix['iPhone']['7'][commands.indexOf(command)];
+                }
+            }
+            else if( iPhone ){
+                if( iOS6 ){
+                    return supportMatrix['iPad-iPod']['6'][commands.indexOf(command)];
+                }
+                else if( iOS7 ){ 
+                    return supportMatrix['iPad-iPod']['7'][commands.indexOf(command)];
+                }
+            }
         }
         console.log("bridgeIt supported platform for '" + command + "' command: " + supported);
         return supported;
