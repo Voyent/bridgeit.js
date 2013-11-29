@@ -563,13 +563,14 @@ if (!window.console) {
     function resumePush()  {
        if (window.ice && ice.push)  {
            ice.push.connection.resumeConnection();
-           resumePushGroups();
+            resumePushGroups();
        }
     }
     function resumePushGroups()  {
         for (var pushID in pushListeners) {
             var pushListener = pushListeners[pushID];
-            console.log("rejoining push group with old pushid " + pushListener.group );
+            console.log("rejoining push group with old pushid " +
+                    pushListener.group + " " + pushID );
             ice.push.addGroupMember(pushListener.group, pushID);
         }
     }
@@ -588,13 +589,13 @@ if (!window.console) {
             //BridgeIt or the url scheme invocation has succeeded
             clearTimeout(checkTimeout);
             if (ice.push && ice.push.connection) {
-                ice.push.connection.pauseConnection();
+                pausePush();
             }
         }, false);
 
         window.addEventListener("pageshow", function () {
             if (ice.push && ice.push.connection) {
-                ice.push.connection.resumeConnection();
+                resumePush();
             }
         }, false);
 
