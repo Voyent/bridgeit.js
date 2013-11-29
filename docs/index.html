@@ -166,8 +166,8 @@ bridgeit.camera('myCamera', 'myCallback');
           the callback returns.</p>
           <p>Most device commands accept an options parameter object.  Options supported
           by a variety of commands are: <code>options.postURL</code> (the URL used to upload 
-          the result of the command), and options.parameters (extra parameters 
-          specific to the command).</p>
+          the result of the command), and extra parameters specific to the command may 
+          be added to the options argument.</p>
         </div>
     </div>
 
@@ -268,8 +268,6 @@ bridgeit.camera('myCamera', 'myCallback');
             <li>The callback function will be called when Cloud Push registration completes.</li>
             <li data-role="list-divider">options.postURL (String)</li>
             <li>Server-side URL accepting POST of command result (optional)</li>
-            <li data-role="list-divider">options.parameters (Object)</li>
-            <li>Additional command-specific parameters </li>
          </ul>
 
          <h2><code>bridgeit.url2Object(encoded)</code></h2>
@@ -326,8 +324,7 @@ locations['marker-b'] = "27.0,130.0,,,image-b.png";
 var postURL = 'http://myserver/ar-post';
 
 </script>
-<button id="aug" class="overbutton" 
-    onclick="bridgeit.augmentedReality('_loc','handleAug', {postURL:postURL), parameters: locations});">
+<button id="aug" onclick="bridgeit.augmentedReality('_loc','handleAug', {postURL:postURL, locations: locations});">
     Reality View ... </button>
 {% endhighlight %}
          <h4>Parameters</h4>
@@ -338,9 +335,7 @@ var postURL = 'http://myserver/ar-post';
             <li>The callback function will be called once the augmented reality view exits with the user selection provided in the return value. The command is invoked with a locations parameter containing an array of named locations, each with a comma-separated latitude, longitude, altitude, direction, and icon URL.</li>
             <li data-role="list-divider">options.postURL (String)</li>
             <li>Server-side URL accepting POST of command result (optional)</li>
-            <li data-role="list-divider">options.parameters (Object)</li>
-            <li>Additional command-specific parameters </li>
-            <li data-role="list-divider">options.parameters.locations (Object)</li>
+            <li data-role="list-divider">options.locations (Object)</li>
             <li>The augmented reality locations to display </li>
          </ul>
         </div>
@@ -437,11 +432,9 @@ var postURL = 'http://myserver/photo-upload';
             <li>The callback function that will be called by BridgeIt when the camera returns</li>
             <li data-role="list-divider">options.postURL (String)</li>
             <li>Server-side URL accepting POST of command result (optional)</li>
-            <li data-role="list-divider">options.parameters (Object)</li>
-            <li>Additional command-specific parameters </li>
-            <li data-role="list-divider">options.parameters.maxwidth (Number)</li>
+            <li data-role="list-divider">options.maxwidth (Number)</li>
             <li>Specify the maximum width of the captured image in pixels (optional)</li>
-            <li data-role="list-divider">options.parameters.maxlength (Number)</li>
+            <li data-role="list-divider">options.maxlength (Number)</li>
             <li>Specify the maximum length of the captured image in pixels(optional)</li>
          </ul>
         </div>
@@ -464,10 +457,7 @@ var postURL = 'http://myserver/photo-upload';
             <li data-role="list-divider">id (String)</li>
             <li>The unique id to identify the bridgeit call </li>
             <li data-role="list-divider">callback (Function)</li>
-            <li>The callback function will be called once the contact is retrieved.</li>
-            <li data-role="list-divider">options.parameters (Object)</li>
-            <li>Additional command-specific parameters </li>
-            
+            <li>The callback function will be called once the contact is retrieved.</li>            
          </ul>
         </div>
     </div>
@@ -506,11 +496,9 @@ var postURL = 'http://myserver/photo-upload';
             <li>The callback function will be called once location tracking is activated.</li>
             <li data-role="list-divider">options.postURL (String)</li>
             <li>The URL accepting the geoJSON POST</li>
-            <li data-role="list-divider">options.parameters (Object)</li>
-            <li>Additional command-specific parameters </li>
-            <li data-role="list-divider">options.parameters.strategy (String)</li>
+            <li data-role="list-divider">options.strategy (String)</li>
             <li>The strategy, "continuous", "significant" or "stop" </li>
-            <li data-role="list-divider">options.parameters.duration (Number)</li>
+            <li data-role="list-divider">options.duration (Number)</li>
             <li>The duration in hours</li>
             
          </ul>
