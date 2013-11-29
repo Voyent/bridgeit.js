@@ -53,8 +53,8 @@ if (!window.console) {
  * 
  * Most device commands accept an options parameter object.  Options supported
  * by a variety of commands are: options.postURL (the URL used to upload 
- * the result of the command), and options.parameters (extra parameters 
- * specific to the command)
+ * the result of the command), and extra parameters 
+ * specific to the command may be added to the options argument.
  * 
  * @class bridgeit
  */
@@ -151,16 +151,7 @@ if (!window.console) {
             if (options.postURL)  {
                 uploadURL = options.postURL;
             }
-            if (options.JSESSIONID)  {
-                sessionid = options.JSESSIONID;
-            }
-            if (options.parameters)  {
-                if ("string" === typeof options.parameters)  {
-                    params = options.parameters;
-                } else {
-                    params = packObject(options.parameters);
-                }
-            }
+            params = packObject(options);
             if (options.deviceCommandCallback)  {
                 callback = options.deviceCommandCallback;
                 if ("string" != typeof(callback))  {
@@ -228,6 +219,7 @@ if (!window.console) {
         if (params && ("" != params)) {
             params = "&ub=" + escape(baseURL) + ampchar + params;
         }
+        console.log('params = ' + params);
 
         var sessionidClause = "";
         if (sessionid && ("" != sessionid)) {
@@ -357,12 +349,20 @@ if (!window.console) {
             parent = parent.parentNode;
         }
     }
+    var reservedParams = ['postURL', 'element', 'form', 'deviceCommandCallback'];
+
     function packObject(params)  {
+
         var packed = "";
         var sep = "";
         for (var key in params)  {
-            packed += sep + escape(key) + "=" + escape(params[key]);
-            sep = "&";
+            if( reservedParams.indexOf(key) < 0 ){
+                if( key == 'locations'){
+                    packed += packObject(params.locations);
+                }
+                packed += sep + escape(key) + "=" + escape(params[key]);
+                sep = "&";
+            }
         }
         return packed;
     }
@@ -807,7 +807,6 @@ if (!window.console) {
      * @alias plugin.scan
      * @param {Object} options Additional command options
      * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
-     * @param {Object} options.parameters Additional command-specific parameters
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * 
@@ -824,9 +823,8 @@ if (!window.console) {
      * @alias plugin.camera
      * @param {Object} options Additional command options
      * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
-     * @param {Object} options.parameters Additional command-specific parameters
-     * @param {Object} options.parameters.maxwidth The maxium width for the image in pixels
-     * @param {Object} options.parameters.maxheight The maxium height for the image in pixels
+     * @param {Object} options.maxwidth The maxium width for the image in pixels
+     * @param {Object} options.maxheight The maxium height for the image in pixels
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * 
@@ -868,7 +866,7 @@ if (!window.console) {
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
-     * @param {Object} options.parameters parameters map
+     * @param {Object} options.fields The contact fields to retrieve, default = "name,email,phone"
      * 
      */
     b.fetchContact = function(id, callback, options)  {
@@ -899,7 +897,7 @@ if (!window.console) {
         if( number == 'undefined' || number == '')
             return;
         if( b.isIOS()){
-            deviceCommand('sms', '_sms', null, {parameters:{n: number, body: message}});
+            deviceCommand('sms', '_sms', null, {n: number, body: message});
         }
         else{
             var smsBtn = document.createElement('a');
@@ -929,8 +927,7 @@ if (!window.console) {
      * 
      * @alias plugin.augmentedReality
      * @param {Object} options Additional command options
-     * @param {Object} options.parameters parameters map
-     * @param {Object} options.parameters.locations The augmented reality locations to display
+     * @param {Object} options.locations The augmented reality locations to display
      * @inheritdoc #scan
      * 
      */
@@ -955,9 +952,8 @@ if (!window.console) {
      * 
      * @param {Object} options Additional command options
      * @param {String} options.postURL The URL accepting the geoJSON POST
-     * @param {String} options.parameters parameters map
-     * @param {String} options.parameters.strategy The strategy, "continuous", "significant" or "stop"
-     * @param {String} options.parameters.duration The duration in hours
+     * @param {String} options.strategy The strategy, "continuous", "significant" or "stop"
+     * @param {String} options.duration The duration in hours
      * @alias plugin.geoTrack
      * @inheritdoc #scan
      * 
