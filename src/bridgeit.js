@@ -1073,7 +1073,7 @@ if (!window.console) {
 
     /**
      * Is the current browser Android
-     * @property isAndroidFroyo
+     * @property isAndroidGingerBreadOrGreater
      * @readonly
      */
     b.isAndroidGingerBreadOrGreater = function(){
