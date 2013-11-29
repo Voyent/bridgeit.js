@@ -869,15 +869,11 @@ if (!window.console) {
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {Object} options.parameters parameters map
-     * @param {Object} options.parameters.fields The contact fields to retrieve, default = "name,email,phone"
      * 
      */
     b.fetchContact = function(id, callback, options)  {
         var ops = options || {};
-        if( !ops.parameters ){
-            ops.parameters = {};
-            ops.parameters.fields = "name,email,phone";
-        }
+        ops.fields = "name,email,phone";
         deviceCommand("fetchContacts", id, callback, ops);
     };
 
