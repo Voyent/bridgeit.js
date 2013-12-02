@@ -137,6 +137,9 @@ if (!window.console) {
         }
         return null;
     }
+
+    var reservedParams = ['postURL', 'element', 'form', 'deviceCommandCallback'];
+
     function deviceCommandExec(command, id, options)  {
         console.log("deviceCommandExec('" + command + "', '" + id + ", " + JSON.stringify(options));
         var ampchar = String.fromCharCode(38);
@@ -151,7 +154,7 @@ if (!window.console) {
             if (options.postURL)  {
                 uploadURL = options.postURL;
             }
-            params = packObject(options);
+            params = packObject(options, reservedParams);
             if (options.deviceCommandCallback)  {
                 callback = options.deviceCommandCallback;
                 if ("string" != typeof(callback))  {
@@ -349,17 +352,12 @@ if (!window.console) {
             parent = parent.parentNode;
         }
     }
-    var reservedParams = ['postURL', 'element', 'form', 'deviceCommandCallback'];
 
-    function packObject(params)  {
-
+    function packObject(params, exclude)  {
         var packed = "";
         var sep = "";
         for (var key in params)  {
-            if( reservedParams.indexOf(key) < 0 ){
-                if( key == 'locations'){
-                    packed += packObject(params.locations);
-                }
+            if (exclude.indexOf(key) < 0)  {
                 packed += sep + escape(key) + "=" + escape(params[key]);
                 sep = "&";
             }
@@ -932,6 +930,18 @@ if (!window.console) {
      * 
      */
     b.augmentedReality = function(id, callback, options)  {
+        //copy locations directly into options. The JavaScript API
+        //will not change, but the future deviceCommand will accept
+        //the locations as a subparameter to avoid this copying
+        if (options && options.locations)  {
+            for (var key in options.locations)  {
+                if (reservedParams.indexOf(key) < 0)  {
+                    options[key] = options.locations[key];
+                }
+            }
+            delete options.locations;
+        }
+
         deviceCommand("aug", id, callback, options);
     };
     
