@@ -506,7 +506,6 @@ if (!window.console) {
                     }
                 }
                 var loc = window.location;
-                
                 isDataPending = false;
                 pendingData = null;
 
@@ -517,7 +516,12 @@ if (!window.console) {
                 if (callback)  {
                     try {
                         callback(sxEvent);
-                        window.history.back();
+                        setTimeout(function(){
+                            history.replaceState("", document.title,
+                                loc.pathname + loc.search + restoreHash);
+                            console.log('bridgeit history push: ' + window.location.href);
+                        },100);
+                        
                     } catch (e)  {
                         console.error("Device function callback failed " + e);
                         console.error(e.stack);
