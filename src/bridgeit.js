@@ -129,13 +129,20 @@ if (!window.console) {
         useBase64 = true;;
     }
     function getDeviceCommand()  {
+        var commandData = null;
         var sxkey = "#icemobilesx";
         var sxlen = sxkey.length;
         var locHash = "" + window.location.hash;
         if (sxkey === locHash.substring(0, sxlen))  {
-            return locHash.substring(sxlen + 1);
+            commandData = locHash.substring(sxlen + 1);
+            var dupIndex = commandData.indexOf(sxkey);
+            if (dupIndex > 0)  {
+                commandData = commandData.substring(0, dupIndex);
+                console.error("trimmed corrupt " + locHash + " to " 
+                        + commandData);
+            }
         }
-        return null;
+        return commandData;
     }
 
     var reservedParams = ['postURL', 'element', 'form', 'deviceCommandCallback'];
@@ -598,6 +605,7 @@ if (!window.console) {
         }
         if (localStorage)  {
             localStorage.setItem(LAST_PAGE_KEY, lastPage);
+            console.log("bridgeit storeLastPage " + lastPage);
         }
     }
     /* Page event handling */
