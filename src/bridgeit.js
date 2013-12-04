@@ -204,9 +204,12 @@ if (!window.console) {
             callbackClause = "&c=" + escape(callback);
         }
 
+        seqClause = "&seq=" + (new Date()).getTime();
+
         var hashClause = "";
         if (!!hashSubClause || !!callbackClause)  {
-            hashClause = "&h=" + escape(hashSubClause) + escape(callbackClause);
+            hashClause = "&h=" + escape(hashSubClause) + escape(callbackClause)
+                    + escape(seqClause);
         }
 
         deviceOptions = null;
@@ -476,7 +479,8 @@ if (!window.console) {
                     value : value
                 };
                 var callback = bridgeit.deviceCommandCallback;
-                console.log('sxEvent: ' + sxEvent);
+                console.log('sxEvent: ' + JSON.stringify(sxEvent) + " " +
+                        JSON.stringify(deviceParams));
                 var restoreHash = "";
                 if (deviceParams)  {
                     if (deviceParams.r)  {
@@ -517,9 +521,12 @@ if (!window.console) {
                     try {
                         callback(sxEvent);
                         setTimeout(function(){
+                            var restoreLocation = 
+                                    loc.pathname + loc.search + restoreHash;
                             history.replaceState("", document.title,
-                                loc.pathname + loc.search + restoreHash);
-                            console.log('bridgeit history push: ' + window.location.href);
+                                    restoreLocation);
+                            console.log('bridgeit history replaceState: ' +
+                                    restoreLocation);
                         },100);
                         
                     } catch (e)  {
@@ -577,10 +584,20 @@ if (!window.console) {
         }
     }
 
-    function storeLastPage()  {
+    function storeLastPage(lastPage)  {
+        if (!lastPage)  {
+            var sxkey = "#icemobilesx";
+            var sxlen = sxkey.length;
+            var locHash = "" + window.location.hash;
+            lastPage = "" + document.location;
+            if (sxkey === locHash.substring(0, sxlen))  {
+                lastPage = lastPage.substring(0, 
+                        lastPage.length - locHash.length)
+            } 
+        }
         var LAST_PAGE_KEY = "bridgeit.lastpage";
         if (localStorage)  {
-            localStorage.setItem(LAST_PAGE_KEY, document.location);
+            localStorage.setItem(LAST_PAGE_KEY, lastPage);
         }
     }
     /* Page event handling */
