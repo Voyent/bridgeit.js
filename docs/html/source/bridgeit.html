@@ -146,14 +146,24 @@ if (!window.console) {
         useBase64 = true;;
     }
     function getDeviceCommand()  {
+        var commandData = null;
         var sxkey = &quot;#icemobilesx&quot;;
         var sxlen = sxkey.length;
         var locHash = &quot;&quot; + window.location.hash;
         if (sxkey === locHash.substring(0, sxlen))  {
-            return locHash.substring(sxlen + 1);
+            commandData = locHash.substring(sxlen + 1);
+            var dupIndex = commandData.indexOf(sxkey);
+            if (dupIndex &gt; 0)  {
+                commandData = commandData.substring(0, dupIndex);
+                console.error(&quot;trimmed corrupt &quot; + locHash + &quot; to &quot; 
+                        + commandData);
+            }
         }
-        return null;
+        return commandData;
     }
+
+    var reservedParams = [&#39;postURL&#39;, &#39;element&#39;, &#39;form&#39;, &#39;deviceCommandCallback&#39;];
+
     function deviceCommandExec(command, id, options)  {
         console.log(&quot;deviceCommandExec(&#39;&quot; + command + &quot;&#39;, &#39;&quot; + id + &quot;, &quot; + JSON.stringify(options));
         var ampchar = String.fromCharCode(38);
@@ -168,7 +178,7 @@ if (!window.console) {
             if (options.postURL)  {
                 uploadURL = options.postURL;
             }
-            params = packObject(options);
+            params = packObject(options, reservedParams);
             if (options.deviceCommandCallback)  {
                 callback = options.deviceCommandCallback;
                 if (&quot;string&quot; != typeof(callback))  {
@@ -218,9 +228,12 @@ if (!window.console) {
             callbackClause = &quot;&amp;c=&quot; + escape(callback);
         }
 
+        seqClause = &quot;&amp;seq=&quot; + (new Date()).getTime();
+
         var hashClause = &quot;&quot;;
         if (!!hashSubClause || !!callbackClause)  {
-            hashClause = &quot;&amp;h=&quot; + escape(hashSubClause) + escape(callbackClause);
+            hashClause = &quot;&amp;h=&quot; + escape(hashSubClause) + escape(callbackClause)
+                    + escape(seqClause);
         }
 
         deviceOptions = null;
@@ -366,17 +379,12 @@ if (!window.console) {
             parent = parent.parentNode;
         }
     }
-    var reservedParams = [&#39;postURL&#39;, &#39;element&#39;, &#39;form&#39;, &#39;deviceCommandCallback&#39;];
 
-    function packObject(params)  {
-
+    function packObject(params, exclude)  {
         var packed = &quot;&quot;;
         var sep = &quot;&quot;;
         for (var key in params)  {
-            if( reservedParams.indexOf(key) &lt; 0 ){
-                if( key == &#39;locations&#39;){
-                    packed += packObject(params.locations);
-                }
+            if (exclude.indexOf(key) &lt; 0)  {
                 packed += sep + escape(key) + &quot;=&quot; + escape(params[key]);
                 sep = &quot;&amp;&quot;;
             }
@@ -495,7 +503,8 @@ if (!window.console) {
                     value : value
                 };
                 var callback = bridgeit.deviceCommandCallback;
-                console.log(&#39;sxEvent: &#39; + sxEvent);
+                console.log(&#39;sxEvent: &#39; + JSON.stringify(sxEvent) + &quot; &quot; +
+                        JSON.stringify(deviceParams));
                 var restoreHash = &quot;&quot;;
                 if (deviceParams)  {
                     if (deviceParams.r)  {
@@ -525,7 +534,6 @@ if (!window.console) {
                     }
                 }
                 var loc = window.location;
-                
                 isDataPending = false;
                 pendingData = null;
 
@@ -536,7 +544,15 @@ if (!window.console) {
                 if (callback)  {
                     try {
                         callback(sxEvent);
-                        window.history.back();
+                        setTimeout(function(){
+                            var restoreLocation = 
+                                    loc.pathname + loc.search + restoreHash;
+                            history.replaceState(&quot;&quot;, document.title,
+                                    restoreLocation);
+                            console.log(&#39;bridgeit history replaceState: &#39; +
+                                    restoreLocation);
+                        },100);
+                        
                     } catch (e)  {
                         console.error(&quot;Device function callback failed &quot; + e);
                         console.error(e.stack);
@@ -592,10 +608,21 @@ if (!window.console) {
         }
     }
 
-    function storeLastPage()  {
-        var LAST_PAGE_KEY = &quot;bridgeit.lastpage&quot;;
+    var LAST_PAGE_KEY = &quot;bridgeit.lastpage&quot;;
+    function storeLastPage(lastPage)  {
+        if (!lastPage)  {
+            var sxkey = &quot;#icemobilesx&quot;;
+            var sxlen = sxkey.length;
+            var locHash = &quot;&quot; + window.location.hash;
+            lastPage = &quot;&quot; + document.location;
+            if (sxkey === locHash.substring(0, sxlen))  {
+                lastPage = lastPage.substring(0, 
+                        lastPage.length - locHash.length)
+            } 
+        }
         if (localStorage)  {
-            localStorage.setItem(LAST_PAGE_KEY, document.location);
+            localStorage.setItem(LAST_PAGE_KEY, lastPage);
+            console.log(&quot;bridgeit storeLastPage &quot; + lastPage);
         }
     }
     /* Page event handling */
@@ -949,6 +976,18 @@ if (!window.console) {
      * 
      */
     b.augmentedReality = function(id, callback, options)  {
+        //copy locations directly into options. The JavaScript API
+        //will not change, but the future deviceCommand will accept
+        //the locations as a subparameter to avoid this copying
+        if (options &amp;&amp; options.locations)  {
+            for (var key in options.locations)  {
+                if (reservedParams.indexOf(key) &lt; 0)  {
+                    options[key] = options.locations[key];
+                }
+            }
+            delete options.locations;
+        }
+
         deviceCommand(&quot;aug&quot;, id, callback, options);
     };
     
@@ -1130,7 +1169,7 @@ if (!window.console) {
             &#39;6&#39;:   [true, true, true, true, true, true, false, true, false],
             &#39;7&#39;:   [true, true, true, true, true, true, true,  true, false]
         },
-        &#39;wp8&#39;:     [true, false, false, true, false, false, true, false, true],
+        &#39;wp8&#39;:     [true, true, true, true, false, false, true, false, true],
         &#39;android&#39;: [true, true,  true,  true, false, true,  true, true,  true]
     }
     b.overrideAugmentedRealityAlphaLevel = false;
@@ -1281,6 +1320,31 @@ if (!window.console) {
         }, 1);
     };
 
+<span id='bridgeit-method-cloudPushReturnURL'>    /**
+</span>     * Augment a URL so that callbacks will be invoked upon Cloud Push
+     * return. 
+     * If called with no argument, the current URL is used. 
+     * @param url
+     * @alias plugin.cloudPushReturnURL
+     */
+    b.cloudPushReturnURL = function(url) {
+        if (!url)  {
+            if (localStorage)  {
+                url = localStorage[LAST_PAGE_KEY];
+            }
+        }
+        if (!url)  {
+            url = window.location.href;
+        }
+        var seq = (new Date()).getTime();
+        var urlExtra = 
+            btoa(&quot;!h=&quot; + escape(&quot;c=bridgeit.handleCloudPush&amp;seq=&quot; + seq));
+        urlExtra = urlExtra.replace(/=/g,&quot;~&quot;);
+        urlExtra = urlExtra.replace(/\//g,&quot;.&quot;);
+        var returnURL = url + &quot;#icemobilesx_&quot; + urlExtra;
+        return returnURL; 
+    };
+
 <span id='bridgeit-method-push'>    /**
 </span>     * Push notification to the group.
      * 
@@ -1309,6 +1373,7 @@ if (!window.console) {
             }
         }
         if (ice &amp;&amp; ice.push &amp;&amp; ice.push.configuration.contextPath) {
+            console.log(&quot;bridgeit.push &quot; + JSON.stringify(options));
             if (options &amp;&amp; options.delay)  {
                 ice.push.notify(groupName, options, options);
             } else {
