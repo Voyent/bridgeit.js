@@ -584,6 +584,7 @@ if (!window.console) {
         }
     }
 
+    var LAST_PAGE_KEY = "bridgeit.lastpage";
     function storeLastPage(lastPage)  {
         if (!lastPage)  {
             var sxkey = "#icemobilesx";
@@ -595,7 +596,6 @@ if (!window.console) {
                         lastPage.length - locHash.length)
             } 
         }
-        var LAST_PAGE_KEY = "bridgeit.lastpage";
         if (localStorage)  {
             localStorage.setItem(LAST_PAGE_KEY, lastPage);
         }
@@ -1296,6 +1296,31 @@ if (!window.console) {
     };
 
     /**
+     * Augment a URL so that callbacks will be invoked upon Cloud Push
+     * return. 
+     * If called with no argument, the current URL is used. 
+     * @param url
+     * @alias plugin.cloudPushReturnURL
+     */
+    b.cloudPushReturnURL = function(url) {
+        if (!url)  {
+            if (localStorage)  {
+                url = localStorage[LAST_PAGE_KEY];
+            }
+        }
+        if (!url)  {
+            url = window.location.href;
+        }
+        var seq = (new Date()).getTime();
+        var urlExtra = 
+            btoa("!h=" + escape("c=bridgeit.handleCloudPush&seq=" + seq));
+        urlExtra = urlExtra.replace(/=/g,"~");
+        urlExtra = urlExtra.replace(/\//g,".");
+        var returnURL = url + "#icemobilesx_" + urlExtra;
+        return returnURL; 
+    };
+
+    /**
      * Push notification to the group.
      * 
      * This will result in an Ajax Push (and associated callback)
@@ -1323,6 +1348,7 @@ if (!window.console) {
             }
         }
         if (ice && ice.push && ice.push.configuration.contextPath) {
+            console.log("bridgeit.push " + JSON.stringify(options));
             if (options && options.delay)  {
                 ice.push.notify(groupName, options, options);
             } else {
