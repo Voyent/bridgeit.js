@@ -1155,6 +1155,11 @@ if (!window.console) {
         'wp8':     [true, true, true, true, false, false, true, false, true],
         'android': [true, true,  true,  true, false, true,  true, true,  true]
     }
+
+    /**
+     * Set to true to have Augmented Reality (in experimental status) be used on Android (default false)
+     * @property overrideAugmentedRealityAlphaLevel
+     */
     b.overrideAugmentedRealityAlphaLevel = false;
 
     /**
