@@ -1066,7 +1066,6 @@ if (!window.console) {
 <span id='bridgeit-method-isIOS'>    /**
 </span>     * Is the current browser iOS
      * @alias plugin.isIOS
-     * @readonly
      */
     b.isIOS = function(){
         var i = 0,
@@ -1084,7 +1083,6 @@ if (!window.console) {
 <span id='bridgeit-method-isIPhone'>    /**
 </span>     * Is the current client an iPhone
      * @alias plugin.isIPhone
-     * @readonly
      */
     b.isIPhone = function(){
         return navigator.userAgent.indexOf(&#39;iPhone&#39;) &gt; -1;
@@ -1093,7 +1091,6 @@ if (!window.console) {
 <span id='bridgeit-method-isIOS6'>    /**
 </span>     * Is the current browser iOS 6
      * @alias plugin.isIOS6
-     * @readonly 
      */
     b.isIOS6 = function(){
         return /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
@@ -1102,45 +1099,40 @@ if (!window.console) {
 <span id='bridgeit-method-isIOS7'>    /**
 </span>     * Is the current browser iOS 7
      * @alias plugin.isIOS7
-     * @readonly 
      */
     b.isIOS7 = function(){
         return /(iPad|iPhone|iPod).*OS 7_/.test( navigator.userAgent );
     };
 
-<span id='bridgeit-property-isAndroid'>    /**
+<span id='bridgeit-method-isAndroid'>    /**
 </span>     * Is the current browser Android
-     * @property isAndroid
-     * @readonly
+     * @alias plugin.isAndroid
      */
     b.isAndroid = function(){
         return navigator.userAgent.toLowerCase()
             .indexOf(&quot;android&quot;) &gt; -1; 
     };
 
-<span id='bridgeit-property-isAndroidFroyo'>    /**
+<span id='bridgeit-method-isAndroidFroyo'>    /**
 </span>     * Is the current browser Android
-     * @property isAndroidFroyo
-     * @readonly
+     * @alias plugin.isAndroidFroyo
      */
     b.isAndroidFroyo = function(){
         return navigator.userAgent.indexOf(&quot;Android 2.2&quot;) &gt; -1; 
     };
 
-<span id='bridgeit-property-isAndroidGingerBreadOrGreater'>    /**
+<span id='bridgeit-method-isAndroidGingerBreadOrGreater'>    /**
 </span>     * Is the current browser Android
-     * @property isAndroidGingerBreadOrGreater
-     * @readonly
+     * @alias plugin.isAndroidGingerBreadOrGreater
      */
     b.isAndroidGingerBreadOrGreater = function(){
         return b.isAndroid() &amp;&amp; !b.isAndroidFroyo(); 
     };
 
 
-<span id='bridgeit-property-isWindowsPhone8'>    /**
+<span id='bridgeit-method-isWindowsPhone8'>    /**
 </span>     * Is the current browser Windows Phone 8
-     * @property isWindowsPhone8
-     * @readonly
+     * @alias plugin.isWindowsPhone8
      */
     b.isWindowsPhone8 = function(){
         var ua = navigator.userAgent;
@@ -1226,10 +1218,9 @@ if (!window.console) {
         return supported;
     };
 
-<span id='bridgeit-property-appStoreURL'>    /**
-</span>     * The app store URL to BridgeIt for the appropirate platform
-     * @property appStoreURL
-     * @readonly
+<span id='bridgeit-method-appStoreURL'>    /**
+</span>     * Returns the app store URL to BridgeIt for the appropirate platform
+     * @alias plugin.appStoreURL
      */
     b.appStoreURL = function(){
         if( b.isAndroid() )
@@ -1241,11 +1232,10 @@ if (!window.console) {
 
     var jguid;
 
-<span id='bridgeit-property-getId'>    /**
-</span>     * The id allows an application to persistently maintain information for
+<span id='bridgeit-method-getId'>    /**
+</span>     * Returns a persistent id that allows an application to persistently maintain information for
      * an individual user without requiring a server-side session.
-     * @property getId
-     * @readonly
+     * @alias plugin.getId
      */
     b.getId = function()  {
         var JGUID_KEY = &quot;bridgeit.jguid&quot;;

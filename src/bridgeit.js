@@ -1049,7 +1049,6 @@ if (!window.console) {
     /**
      * Is the current browser iOS
      * @alias plugin.isIOS
-     * @readonly
      */
     b.isIOS = function(){
         var i = 0,
@@ -1067,7 +1066,6 @@ if (!window.console) {
     /**
      * Is the current client an iPhone
      * @alias plugin.isIPhone
-     * @readonly
      */
     b.isIPhone = function(){
         return navigator.userAgent.indexOf('iPhone') > -1;
@@ -1076,7 +1074,6 @@ if (!window.console) {
     /**
      * Is the current browser iOS 6
      * @alias plugin.isIOS6
-     * @readonly 
      */
     b.isIOS6 = function(){
         return /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
@@ -1085,7 +1082,6 @@ if (!window.console) {
     /**
      * Is the current browser iOS 7
      * @alias plugin.isIOS7
-     * @readonly 
      */
     b.isIOS7 = function(){
         return /(iPad|iPhone|iPod).*OS 7_/.test( navigator.userAgent );
@@ -1093,8 +1089,7 @@ if (!window.console) {
 
     /**
      * Is the current browser Android
-     * @property isAndroid
-     * @readonly
+     * @alias plugin.isAndroid
      */
     b.isAndroid = function(){
         return navigator.userAgent.toLowerCase()
@@ -1103,8 +1098,7 @@ if (!window.console) {
 
     /**
      * Is the current browser Android
-     * @property isAndroidFroyo
-     * @readonly
+     * @alias plugin.isAndroidFroyo
      */
     b.isAndroidFroyo = function(){
         return navigator.userAgent.indexOf("Android 2.2") > -1; 
@@ -1112,8 +1106,7 @@ if (!window.console) {
 
     /**
      * Is the current browser Android
-     * @property isAndroidGingerBreadOrGreater
-     * @readonly
+     * @alias plugin.isAndroidGingerBreadOrGreater
      */
     b.isAndroidGingerBreadOrGreater = function(){
         return b.isAndroid() && !b.isAndroidFroyo(); 
@@ -1122,8 +1115,7 @@ if (!window.console) {
 
     /**
      * Is the current browser Windows Phone 8
-     * @property isWindowsPhone8
-     * @readonly
+     * @alias plugin.isWindowsPhone8
      */
     b.isWindowsPhone8 = function(){
         var ua = navigator.userAgent;
@@ -1210,9 +1202,8 @@ if (!window.console) {
     };
 
     /**
-     * The app store URL to BridgeIt for the appropirate platform
-     * @property appStoreURL
-     * @readonly
+     * Returns the app store URL to BridgeIt for the appropirate platform
+     * @alias plugin.appStoreURL
      */
     b.appStoreURL = function(){
         if( b.isAndroid() )
@@ -1225,10 +1216,9 @@ if (!window.console) {
     var jguid;
 
     /**
-     * The id allows an application to persistently maintain information for
+     * Returns a persistent id that allows an application to persistently maintain information for
      * an individual user without requiring a server-side session.
-     * @property getId
-     * @readonly
+     * @alias plugin.getId
      */
     b.getId = function()  {
         var JGUID_KEY = "bridgeit.jguid";
