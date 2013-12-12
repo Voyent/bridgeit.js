@@ -379,7 +379,7 @@ if (!window.console) {
         if (useBase64 && (data.indexOf("!") < 0))  {
             data = data.replace(/~/g,"=");
             data = data.replace(/\./g,"/");
-            data = unescape(atob(data));
+            data = decodeURIComponent(atob(data));
         }
         var params = data.split("&");
         var len = params.length;
