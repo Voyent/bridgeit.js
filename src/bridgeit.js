@@ -1206,10 +1206,15 @@ if (!window.console) {
      * @alias plugin.appStoreURL
      */
     b.appStoreURL = function(){
-        if( b.isAndroid() )
+        if( b.isAndroid() ) {
             return 'https://play.google.com/store/apps/details?id=mobi.bridgeit';
-        else if( b.isIOS() )
+        }
+        else if( b.isIOS() ) {
             return 'https://itunes.apple.com/app/bridgeit/id727736414';
+        }
+        else if( b.isWindowsPhone8() ) {
+            return 'http://www.windowsphone.com/en-ca/store/app/bridgeit/b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1';				
+        }
 
     };
 
