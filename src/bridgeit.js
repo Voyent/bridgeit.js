@@ -1213,7 +1213,7 @@ if (!window.console) {
             return 'https://itunes.apple.com/app/bridgeit/id727736414';
         }
         else if( b.isWindowsPhone8() ) {
-            return 'http://www.windowsphone.com/en-ca/store/app/bridgeit/b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1';				
+            return 'http://windowsphone.com/s?appId=b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1';				
         }
 
     };
