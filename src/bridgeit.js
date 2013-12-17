@@ -317,7 +317,7 @@ if (!window.console) {
             b.notSupported(id, command);
             return;
         }
-        if (navigator.userAgent.toLowerCase().indexOf('android') < 0 )  {
+        if (b.isIOS())  {
             checkTimeout = setTimeout( function()  {
                 bridgeit.launchFailed(id);
             }, 3000);
