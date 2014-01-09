@@ -334,7 +334,7 @@ if (!window.console) {
             b.notSupported(id, command);
             return;
         }
-        if (navigator.userAgent.toLowerCase().indexOf(&#39;android&#39;) &lt; 0 )  {
+        if (b.isIOS())  {
             checkTimeout = setTimeout( function()  {
                 bridgeit.launchFailed(id);
             }, 3000);
@@ -396,7 +396,7 @@ if (!window.console) {
         if (useBase64 &amp;&amp; (data.indexOf(&quot;!&quot;) &lt; 0))  {
             data = data.replace(/~/g,&quot;=&quot;);
             data = data.replace(/\./g,&quot;/&quot;);
-            data = unescape(atob(data));
+            data = decodeURIComponent(atob(data));
         }
         var params = data.split(&quot;&amp;&quot;);
         var len = params.length;
@@ -849,10 +849,10 @@ if (!window.console) {
      * but these may used in the future.
      * 
      * @alias plugin.scan
-     * @param {Object} options Additional command options
-     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
+     * @param {Object} options Additional command options
+     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
      * 
      */
     b.scan = function(id, callback, options)  {
@@ -865,12 +865,12 @@ if (!window.console) {
      * The callback function will be called once the photo is captured.
      * 
      * @alias plugin.camera
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
      * @param {Object} options.maxwidth The maxium width for the image in pixels
      * @param {Object} options.maxheight The maxium height for the image in pixels
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
      * 
      */
     b.camera = function(id, callback, options)  {
@@ -882,19 +882,24 @@ if (!window.console) {
      * The callback function will be called once the video has been captured.
      * 
      * @alias plugin.camcorder
-     * @inheritdoc #scan
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
+     * @param {Object} options Additional command options
      * 
      */
     b.camcorder = function(id, callback, options)  {
         deviceCommand(&quot;camcorder&quot;, id, callback, options);
     };
+
 <span id='bridgeit-method-microphone'>    /**
 </span>     * Launch the native audio recorder.
      * 
      * The callback function will be called once the audio is captured.
      * 
      * @alias plugin.microphone
-     * @inheritdoc #scan
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
+     * @param {Object} options Additional command options
      * 
      */
     b.microphone = function(id, callback, options)  {
@@ -970,9 +975,11 @@ if (!window.console) {
      * longitude, altitude, direction, and icon URL
      * 
      * @alias plugin.augmentedReality
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {Object} options.locations The augmented reality locations to display
-     * @inheritdoc #scan
+     
      * 
      */
     b.augmentedReality = function(id, callback, options)  {
@@ -1006,17 +1013,19 @@ if (!window.console) {
      * 
      * The callback function will be called once location tracking is activated.
      * 
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {String} options.postURL The URL accepting the geoJSON POST
      * @param {String} options.strategy The strategy, &quot;continuous&quot;, &quot;significant&quot; or &quot;stop&quot;
      * @param {String} options.duration The duration in hours
      * @alias plugin.geoTrack
-     * @inheritdoc #scan
      * 
      */
     b.geoTrack = function(id, callback, options)  {
         deviceCommand(&quot;geospy&quot;, id, callback, options);
     };
+
 <span id='bridgeit-method-register'>    /**
 </span>     * Register BridgeIt integration and configure Cloud Push.
      * 
@@ -1223,10 +1232,15 @@ if (!window.console) {
      * @alias plugin.appStoreURL
      */
     b.appStoreURL = function(){
-        if( b.isAndroid() )
+        if( b.isAndroid() ) {
             return &#39;https://play.google.com/store/apps/details?id=mobi.bridgeit&#39;;
-        else if( b.isIOS() )
+        }
+        else if( b.isIOS() ) {
             return &#39;https://itunes.apple.com/app/bridgeit/id727736414&#39;;
+        }
+        else if( b.isWindowsPhone8() ) {
+            return &#39;http://windowsphone.com/s?appId=b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1&#39;;				
+        }
 
     };
 

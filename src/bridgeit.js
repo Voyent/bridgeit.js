@@ -832,10 +832,10 @@ if (!window.console) {
      * but these may used in the future.
      * 
      * @alias plugin.scan
-     * @param {Object} options Additional command options
-     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
+     * @param {Object} options Additional command options
+     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
      * 
      */
     b.scan = function(id, callback, options)  {
@@ -848,12 +848,12 @@ if (!window.console) {
      * The callback function will be called once the photo is captured.
      * 
      * @alias plugin.camera
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
      * @param {Object} options.maxwidth The maxium width for the image in pixels
      * @param {Object} options.maxheight The maxium height for the image in pixels
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
      * 
      */
     b.camera = function(id, callback, options)  {
@@ -865,19 +865,24 @@ if (!window.console) {
      * The callback function will be called once the video has been captured.
      * 
      * @alias plugin.camcorder
-     * @inheritdoc #scan
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
+     * @param {Object} options Additional command options
      * 
      */
     b.camcorder = function(id, callback, options)  {
         deviceCommand("camcorder", id, callback, options);
     };
+
     /**
      * Launch the native audio recorder.
      * 
      * The callback function will be called once the audio is captured.
      * 
      * @alias plugin.microphone
-     * @inheritdoc #scan
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
+     * @param {Object} options Additional command options
      * 
      */
     b.microphone = function(id, callback, options)  {
@@ -953,9 +958,11 @@ if (!window.console) {
      * longitude, altitude, direction, and icon URL
      * 
      * @alias plugin.augmentedReality
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {Object} options.locations The augmented reality locations to display
-     * @inheritdoc #scan
+     
      * 
      */
     b.augmentedReality = function(id, callback, options)  {
@@ -989,17 +996,19 @@ if (!window.console) {
      * 
      * The callback function will be called once location tracking is activated.
      * 
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {String} options.postURL The URL accepting the geoJSON POST
      * @param {String} options.strategy The strategy, "continuous", "significant" or "stop"
      * @param {String} options.duration The duration in hours
      * @alias plugin.geoTrack
-     * @inheritdoc #scan
      * 
      */
     b.geoTrack = function(id, callback, options)  {
         deviceCommand("geospy", id, callback, options);
     };
+
     /**
      * Register BridgeIt integration and configure Cloud Push.
      * 
