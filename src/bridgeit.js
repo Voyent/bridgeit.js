@@ -130,12 +130,11 @@ if (!window.console) {
     }
     function getDeviceCommand()  {
         var commandData = null;
-        var sxkey = "#icemobilesx";
-        var sxlen = sxkey.length;
         var locHash = "" + window.location.hash;
-        if (sxkey === locHash.substring(0, sxlen))  {
-            commandData = locHash.substring(sxlen + 1);
-            var dupIndex = commandData.indexOf(sxkey);
+        var hashMark = isDeviceCommandHash(locHash);
+        if (hashMark)  {
+            commandData = locHash.substring(hashMark.length + 1);
+            var dupIndex = commandData.indexOf(hashMark);
             if (dupIndex > 0)  {
                 commandData = commandData.substring(0, dupIndex);
                 console.error("trimmed corrupt " + locHash + " to " 
@@ -143,6 +142,18 @@ if (!window.console) {
             }
         }
         return commandData;
+    }
+
+    function isDeviceCommandHash(fullHash)  {
+        var sxkey = "#icemobilesx";
+        if (sxkey === fullHash.substring(0, sxkey.length))  {
+            return sxkey;
+        }
+        var brkey = "#bridgeit";
+        if (brkey === fullHash.substring(0, brkey.length))  {
+            return brkey;
+        }
+        return null;
     }
 
     var reservedParams = ['postURL', 'element', 'form', 'deviceCommandCallback'];
