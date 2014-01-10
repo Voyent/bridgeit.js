@@ -603,21 +603,20 @@ if (!window.console) {
 
                 if (callback)  {
                     try {
-                        callback(sxEvent);
-                        setTimeout(function(){
-                            var restoreLocation = 
-                                    loc.pathname + loc.search + restoreHash;
-                            history.replaceState("", document.title,
-                                    restoreLocation);
-                            console.log('bridgeit history replaceState: ' +
-                                    restoreLocation);
-                        },100);
-                        
+                        callback(sxEvent);                        
                     } catch (e)  {
                         console.error("Device function callback failed " + e);
                         console.error(e.stack);
                     }
                     bridgeit.deviceCommandCallback = null;
+                    setTimeout(function(){
+                        var restoreLocation = 
+                                loc.pathname + loc.search + restoreHash;
+                        history.replaceState("", document.title,
+                                restoreLocation);
+                        console.log('bridgeit history replaceState: ' +
+                                restoreLocation);
+                    }, 100);
                 } else{
                     console.log('no deviceCommandCallback registered :(');
                 }
