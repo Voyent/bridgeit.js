@@ -148,6 +148,67 @@ if (!window.console) {
     var reservedParams = ['postURL', 'element', 'form', 'deviceCommandCallback'];
 
     function deviceCommandExec(command, id, options)  {
+        var payload = options;
+        if (!payload)  {
+            payload = { };
+        }
+
+        payload._version = "1.0.3";
+
+        if (payload.postURL)  {
+            payload._postURL = payload.postURL;
+            delete payload.postURL;
+        }
+
+        payload._command = command;
+        payload._id = id;
+        payload._seq = (new Date()).getTime();
+
+        if (payload._callback)  {
+            if ("string" != typeof(payload._callback))  {
+                if (bridgeit.allowAnonymousCallbacks)  {
+                    payload._callback = "!anon";
+                } else  {
+                    console.error(
+                        "BridgeIt callbacks must be named in window scope");
+                    delete payload._callback;
+                }
+            }
+        }
+
+        var returnURL = "" + window.location;
+        var lastHash = returnURL.lastIndexOf("#");
+        var theHash = "";
+        var theURL = returnURL;
+        if (lastHash > 0)  {
+            theHash = returnURL.substring(lastHash);
+            theURL = returnURL.substring(0, lastHash);
+        }
+        returnURL = theURL + "#bridgeit";
+
+        payload._returnURL = returnURL;
+        payload._restoreHash = theHash;
+
+        payload._splashImageURL = bridgeit.splashImageURL;
+        payload._splashImage = bridgeit.splashImage;
+
+        var encodedCommand = btoa(JSON.stringify(payload))
+            .replace(/=/g,"~")
+            .replace(/\//g,".");
+
+        var commandBase = "bridgeit:";
+        if (b.isAndroid())  {
+            commandBase = "http://bridgeit.mobi/android/install/index.html#"
+        }
+
+        var commandURL = commandBase + encodedCommand;
+        console.log("commandURL " + commandURL);
+
+        window.location = commandURL;
+
+    }
+
+    function deviceCommandURLExec(command, id, options)  {
         console.log("deviceCommandExec('" + command + "', '" + id + ", " + JSON.stringify(options));
         var ampchar = String.fromCharCode(38);
         var uploadURL;
@@ -327,8 +388,13 @@ if (!window.console) {
         }
         console.log(command + " " + id);
         bridgeit.deviceCommandCallback = callback;
-        options.deviceCommandCallback = callback;
-        deviceCommandExec(command, id, options);
+        if (bridgeit.useJSON64)  {
+            options._callback = callback;
+            deviceCommandExec(command, id, options);
+        } else {
+            options.deviceCommandCallback = callback;
+            deviceCommandURLExec(command, id, options);
+        }
     }
     function setInput(target, name, value, vtype)  {
         console.log('setInput(target=' + target + ', name=' + name + ', value=' + value + ', vtype=' + vtype);
@@ -1053,7 +1119,16 @@ if (!window.console) {
      * callback functions currently supported on iOS.
      * @property {Boolean} [allowAnonymousCallbacks=false]
      */
-    b.allowAnonymousCallbacks = false;        
+    b.allowAnonymousCallbacks = false;
+
+    /**
+     * Set useJSON64 to true to take advantage of Base64 JSON
+     * data interchange between the browser and BridgeIt App.
+     * This property may be removed and become the default with
+     * legacy applications required to import an older copy of bridgeit.js.
+     * @property {Boolean} [useJSON64=false]
+     */
+    b.useJSON64 = false;
 
     /**
      * Is the current browser iOS
