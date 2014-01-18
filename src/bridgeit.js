@@ -919,6 +919,27 @@ if (!window.console) {
     };
 
     /**
+     * Detect nearby iBeacons. 
+     * 
+     * The callback function will be called when an iBeacon is detected.
+     * The return value will be set to the range, major, and minor values
+     * if available.
+     * 
+     * This is currently a pre-alpha feature and is being developed initially
+     * on iOS. 
+     * 
+     * @alias plugin.beacons
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
+     * @param {Object} options Additional command options
+     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
+     * 
+     */
+    b.beacons = function(id, callback, options)  {
+        deviceCommand("beacons", id, callback, options);
+    };
+
+    /**
      * Launch the native camera.
      * 
      * The callback function will be called once the photo is captured.
@@ -1226,20 +1247,20 @@ if (!window.console) {
     var wp8 = b.isWindowsPhone8();
     var iPhone = b.isIPhone();
 
-    var commands = ['camera','camcorder','microphone','fetchContacts','aug','push','scan','geospy','sms'];
-    var fullySupported = [true, true, true, true, true, true, true, true, true];
+    var commands = ['camera','camcorder','microphone','fetchContacts','aug','push','scan','geospy','sms','beacons'];
+    var fullySupported = [true, true, true, true, true, true, true, true, true,true];
     
     var supportMatrix = {
         'iPhone':{
-            '6':   [true, true, true, true, true, true, false, true, true],
+            '6':   [true, true, true, true, true, true, false, true, true,false],
             '7':   fullySupported
         },
         'iPad-iPod':{
-            '6':   [true, true, true, true, true, true, false, true, false],
-            '7':   [true, true, true, true, true, true, true,  true, false]
+            '6':   [true, true, true, true, true, true, false, true, false,false],
+            '7':   [true, true, true, true, true, true, true,  true, false,true]
         },
-        'wp8':     [true, true, true, true, false, false, true, false, true],
-        'android': [true, true,  true,  true, false, true,  true, true,  true]
+        'wp8':     [true, true, true, true, false, false, true, false, true,false],
+        'android': [true, true,  true,  true, false, true,  true, true,  true,false]
     }
 
     /**
