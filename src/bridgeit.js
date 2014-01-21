@@ -252,6 +252,9 @@ if (!window.console) {
             if (options.form)  {
                 formID = options.form.getAttribute("id");
             }
+            if (options.cookies)  {
+                sessionid = options.cookies['JSESSIONID'];
+            }
         }
 
         if (!uploadURL)  {
