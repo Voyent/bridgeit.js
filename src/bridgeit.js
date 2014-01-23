@@ -456,11 +456,16 @@ if (!window.console) {
     }
     function unpackDeviceResponse(data)  {
         var result = {};
-        if (useBase64 && (data.indexOf("!") < 0))  {
+        var un64 = bridgeit.useJSON64 || 
+                (useBase64 && (data.indexOf("!") < 0));
+        if (un64)  {
             data = data.replace(/~/g,"=");
             data = data.replace(/\./g,"/");
             data = decodeURIComponent(atob(data));
         }
+//        if (bridgeit.useJSON64)  {
+//            return unpackJSON64Response(data);
+//        }
         var params = data.split("&");
         var len = params.length;
         for (var i = 0; i < len; i++) {
@@ -478,6 +483,10 @@ if (!window.console) {
             }
         }
         return result;
+    }
+    function unpackJSON64Response(data)  {
+        //response is not yet JSON encoded
+        return JSON.parse(data);
     }
     function url2Object(encoded)  {
         var parts = encoded.split("&");
