@@ -156,7 +156,7 @@ if (!window.console) {
         return null;
     }
 
-    var reservedParams = ['postURL', 'element', 'form', 'deviceCommandCallback'];
+    var reservedParams = ['postURL', 'element', 'form', 'deviceCommandCallback', 'cookies'];
 
     function deviceCommandExec(command, id, options)  {
         var payload = options;
