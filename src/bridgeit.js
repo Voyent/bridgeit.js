@@ -580,6 +580,13 @@ if (!window.console) {
                     console.log("checkExecDeviceResponse is done, exiting");
                     return;
                 }
+                if (bridgeit.useJSON64)  {
+                    try {
+                        value = JSON.parse(value);
+                    } catch (e)  {
+                        console.error("non-JSON BridgeIt return " + value);
+                    }
+                }
                 var sxEvent = {
                     name : name,
                     value : value
