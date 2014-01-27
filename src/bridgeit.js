@@ -163,12 +163,22 @@ if (!window.console) {
         if (!payload)  {
             payload = { };
         }
+        var windowLocation = window.location;
 
-        payload._version = "1.0.3";
+        payload._version = "1.0.4";
 
         if (payload.postURL)  {
             payload._postURL = payload.postURL;
             delete payload.postURL;
+        }
+        if (payload.ub)  {
+            payload._urlBase = payload.ub;
+            delete payload.ub;
+        } else {
+            var barURL = windowLocation.toString();
+            var baseURL = 
+                    barURL.substring(0, barURL.lastIndexOf("/")) + "/";
+            payload._urlBase = baseURL;
         }
 
         payload._command = command;
@@ -187,7 +197,7 @@ if (!window.console) {
             }
         }
 
-        var returnURL = "" + window.location;
+        var returnURL = "" + windowLocation;
         var lastHash = returnURL.lastIndexOf("#");
         var theHash = "";
         var theURL = returnURL;
@@ -1078,7 +1088,7 @@ if (!window.console) {
         //copy locations directly into options. The JavaScript API
         //will not change, but the future deviceCommand will accept
         //the locations as a subparameter to avoid this copying
-        if (options && options.locations)  {
+        if (!bridgeit.useJSON64 && options && options.locations)  {
             for (var key in options.locations)  {
                 if (reservedParams.indexOf(key) < 0)  {
                     options[key] = options.locations[key];
