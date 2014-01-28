@@ -480,6 +480,7 @@ if (!window.console) {
             data.p = data.preview;
             data.c = data.cloud;
             data.h = data.echo;
+            data.v = data.version;
             return data;
         } else {
             data = decodeURIComponent(data);
@@ -595,6 +596,9 @@ if (!window.console) {
                 if (deviceParams)  {
                     if (deviceParams.r)  {
                         sxEvent.response = deviceParams.r;
+                    }
+                    if (deviceParams.v)  {
+                        sxEvent.version = deviceParams.v;
                     }
                     if (deviceParams.p)  {
                         sxEvent.preview = deviceParams.p;
