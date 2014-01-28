@@ -471,11 +471,19 @@ if (!window.console) {
         if (un64)  {
             data = data.replace(/~/g,"=");
             data = data.replace(/\./g,"/");
-            data = decodeURIComponent(atob(data));
+            data = atob(data);
         }
-//        if (bridgeit.useJSON64)  {
-//            return unpackJSON64Response(data);
-//        }
+        if (bridgeit.useJSON64)  {
+            //clone these for now
+            data = JSON.parse(data)
+            data.name = data.id;
+            data.p = data.preview;
+            data.c = data.cloud;
+            data.h = data.echo;
+            return data;
+        } else {
+            data = decodeURIComponent(data);
+        }
         var params = data.split("&");
         var len = params.length;
         for (var i = 0; i < len; i++) {
@@ -493,10 +501,6 @@ if (!window.console) {
             }
         }
         return result;
-    }
-    function unpackJSON64Response(data)  {
-        //response is not yet JSON encoded
-        return JSON.parse(data);
     }
     function url2Object(encoded)  {
         var parts = encoded.split("&");
@@ -579,13 +583,6 @@ if (!window.console) {
                 if (!isDataPending)  {
                     console.log("checkExecDeviceResponse is done, exiting");
                     return;
-                }
-                if (bridgeit.useJSON64)  {
-                    try {
-                        value = JSON.parse(value);
-                    } catch (e)  {
-                        console.error("non-JSON BridgeIt return " + value);
-                    }
                 }
                 var sxEvent = {
                     name : name,
