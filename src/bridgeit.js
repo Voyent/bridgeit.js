@@ -165,7 +165,7 @@ if (!window.console) {
         }
         var windowLocation = window.location;
 
-        payload._version = "1.0.4";
+        payload._version = bridgeit.version;
 
         if (payload.postURL)  {
             payload._postURL = payload.postURL;
@@ -892,6 +892,12 @@ if (!window.console) {
 
 
     /* *********************** PUBLIC **********************************/
+
+    /**
+     * The version of bridgeit.js
+     * @property {String}
+     */
+    b.version = "1.0.4";
     
     /**
      * Application provided callback to detect BridgeIt launch failure.
