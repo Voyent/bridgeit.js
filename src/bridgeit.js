@@ -599,6 +599,7 @@ if (!window.console) {
                     }
                     if (deviceParams.v)  {
                         sxEvent.version = deviceParams.v;
+                        setLastAppVersion(deviceParams.v);
                     }
                     if (deviceParams.p)  {
                         sxEvent.preview = deviceParams.p;
@@ -893,6 +894,14 @@ if (!window.console) {
         }
     }
 
+    var LASTVERSION_KEY = "bridgeit.lastappversion";
+
+    function setLastAppVersion(version)  {
+        if (window.localStorage)  {
+            localStorage.setItem(LASTVERSION_KEY, version);
+        }
+    }
+
 
 
     /* *********************** PUBLIC **********************************/
@@ -902,6 +911,17 @@ if (!window.console) {
      * @property {String}
      */
     b.version = "1.0.4";
+
+    /**
+     * The last detected version of tje BridgeIt App
+     * @alias plugin.lastAppVersion
+     */
+    b.lastAppVersion = function()  {
+        if (localStorage)  {
+            return(localStorage.getItem(LASTVERSION_KEY));
+        }
+        return null;
+    };
     
     /**
      * Application provided callback to detect BridgeIt launch failure.
