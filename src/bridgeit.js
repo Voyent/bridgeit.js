@@ -925,7 +925,7 @@ if (!window.console) {
     
     /**
      * Application provided callback to detect BridgeIt launch failure.
-     * This should be overridden with an implementation that prompts the
+     * This can be overridden with an implementation that prompts the
      * user to download BridgeIt and potentially fallback with a different
      * browser control such as input file.
      *   
@@ -934,7 +934,29 @@ if (!window.console) {
      * @template
      */
     b.launchFailed = function(id)  {
-        alert("BridgeIt not available for " + id);
+        console.log("BridgeIt not available for " + id);
+
+        var popDiv = document.createElement("div");
+        popDiv.setAttribute(
+            "style","height:auto;min-height:100px;" + 
+            "position:absolute;border:20px solid #EE8043;" + 
+            "border-radius:10px;padding:20px;text-align:center;" +
+            "margin:20px;box-sizing:border-box;" +
+            "top: 50px;" +
+            "background-color:#F8F8F8;" +
+            "transition:opacity 5s ease-in-out;" +
+            "z-index:999;display:block;opacity:0.95;");
+        popDiv.innerHTML = 
+            '<a style="float:right;" '+
+            'onclick="document.body.removeChild(this.parentNode)">'+
+            '&times;</a>' +
+            '<p>The BridgeIt App is missing ... would you like to download ' + 
+            'it?</p>' +
+            '<a href="' + bridgeit.appStoreURL() + '"'+
+            ' onclick="document.body.removeChild(this.parentNode)" ' +
+            'target="_blank">Download the utility app now</a>';
+        document.body.appendChild(popDiv);
+
     };
 
     /**
