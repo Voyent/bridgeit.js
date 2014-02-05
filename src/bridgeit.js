@@ -927,7 +927,8 @@ if (!window.console) {
      * Application provided callback to detect BridgeIt launch failure.
      * This can be overridden with an implementation that prompts the
      * user to download BridgeIt and potentially fallback with a different
-     * browser control such as input file.
+     * browser control such as input file.  The displayed dialog is returned
+     * to allow basic customization.
      *   
      * @alias plugin.launchFailed
      * @param {String} id The id passed to the command that failed 
@@ -956,6 +957,8 @@ if (!window.console) {
             ' onclick="document.body.removeChild(this.parentNode)" ' +
             'target="_blank">Download the utility app now</a>';
         document.body.appendChild(popDiv);
+        
+        return popDiv;
 
     };
 
