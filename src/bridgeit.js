@@ -939,14 +939,20 @@ if (!window.console) {
 
         var popDiv = document.createElement("div");
         popDiv.setAttribute(
-            "style","height:auto;min-height:100px;" + 
-            "position:absolute;border:20px solid #EE8043;" + 
-            "border-radius:10px;padding:20px;text-align:center;" +
-            "margin:20px;box-sizing:border-box;" +
+            "style",
+            "height:auto;" +
+            "min-height:100px;" + 
+            "position:fixed;" +
+            "border:5px solid #9193A0;" + 
+            "border-radius:8px;" +
+            "padding:10px;" +
+            "text-align:center;" +
+            "box-sizing:border-box;" +
             "top: 50px;" +
             "background-color:#F8F8F8;" +
             "transition:opacity 5s ease-in-out;" +
-            "z-index:999;display:block;opacity:0.95;");
+            "z-index:999;" +
+            "opacity:0.95;");
         popDiv.innerHTML = 
             '<a style="float:right;" '+
             'onclick="document.body.removeChild(this.parentNode)">'+
@@ -957,6 +963,18 @@ if (!window.console) {
             ' onclick="document.body.removeChild(this.parentNode)" ' +
             'target="_blank">Download the utility app now</a>';
         document.body.appendChild(popDiv);
+
+        var centerDiv = function(){
+            if( window.innerWidth ){
+                var leftPos = (window.innerWidth - popDiv.offsetWidth) /2;
+                popDiv.style.left = ''+leftPos + 'px';
+            }
+        }
+        centerDiv();
+        if( window.addEventListener ){
+            window.addEventListener('orientationchange', centerDiv, false);
+            window.addEventListener('resize', centerDiv, false);
+        }
         
         return popDiv;
 
@@ -1409,7 +1427,7 @@ if (!window.console) {
             return 'https://itunes.apple.com/app/bridgeit/id727736414';
         }
         else if( b.isWindowsPhone8() ) {
-            return 'http://windowsphone.com/s?appId=b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1';				
+            return 'http://windowsphone.com/s?appId=b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1';
         }
 
     };
