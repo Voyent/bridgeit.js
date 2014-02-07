@@ -31,4 +31,4 @@ Find everything you need at [bridgeit.mobi](http://bridgeit.mobi).
 The BridgeIt utility app must be installed on devices that access your application, but it is not necessary for BridgeIt to be pre-installed for your application to work.  BridgeIt is designed to initiate the installation of the BridgeIt utility app on the users mobile device if it is not already installed.  If you prefer to install it manually, you can get the utility app for your device from your favourite app store. 
 * [Apple App Store](https://itunes.apple.com/app/bridgeit/id727736414)
 * [Google Play](https://play.google.com/store/apps/details?id=mobi.bridgeit)
-* Window Phone
+* [Window Phone](http://www.windowsphone.com/en-ca/store/app/bridgeit/b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1)
