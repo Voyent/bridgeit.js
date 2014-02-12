@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 if (!window['ice']) {
-    window.ice = {};s
+    window.ice = {};
 }
 if (!window['bridgeit']) {
     window.bridgeit = {};
