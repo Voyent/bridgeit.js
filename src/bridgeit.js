@@ -14,7 +14,7 @@
  * governing permissions and limitations under the License.
  */
 if (!window['ice']) {
-    window.ice = {};
+    window.ice = {};s
 }
 if (!window['bridgeit']) {
     window.bridgeit = {};
@@ -1134,7 +1134,7 @@ if (!window.console) {
             smsBtn.style = 'display:none';
             document.body.appendChild(smsBtn);
             smsBtn.click();
-            document.removeChild(smsBtn);
+            document.body.removeChild(smsBtn);
          }
     };
     
