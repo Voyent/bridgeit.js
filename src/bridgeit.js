@@ -640,17 +640,17 @@ if (!window.console) {
                         console.error(e.stack);
                     }
                     bridgeit.deviceCommandCallback = null;
-                    setTimeout(function(){
-                        var restoreLocation = 
-                                loc.pathname + loc.search + restoreHash;
-                        history.replaceState("", document.title,
-                                restoreLocation);
-                        console.log('bridgeit history replaceState: ' +
-                                restoreLocation);
-                    }, 100);
                 } else{
                     console.log('no deviceCommandCallback registered :(');
                 }
+                setTimeout(function(){
+                    var restoreLocation = 
+                        loc.pathname + loc.search + restoreHash;
+                    history.replaceState("", document.title,
+                        restoreLocation);
+                    console.log('bridgeit history replaceState: ' +
+                        restoreLocation);
+                }, 100);
             }, 1);
         }
     }
