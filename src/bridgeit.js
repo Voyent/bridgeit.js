@@ -168,7 +168,8 @@ if (!window.console) {
         payload._version = bridgeit.version;
 
         if (payload.postURL)  {
-            payload._postURL = payload.postURL;
+            var postURL = getAbsoluteURL(payload.postURL);
+            payload._postURL = postURL;
             delete payload.postURL;
         }
         if (payload.ub)  {
@@ -241,7 +242,8 @@ if (!window.console) {
 
         if (options)  {
             if (options.postURL)  {
-                uploadURL = options.postURL;
+            var postURL = getAbsoluteURL(options.postURL);
+                uploadURL = postURL;
             }
             params = packObject(options, reservedParams);
             if (options.deviceCommandCallback)  {
