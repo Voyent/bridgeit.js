@@ -592,6 +592,10 @@ if (!window.console) {
                     value : value
                 };
                 var callback = bridgeit.deviceCommandCallback;
+                var namedCallBack = getNamedObject(callback);
+                if (namedCallBack)  {
+                    callback = namedCallBack;
+                }
                 console.log('sxEvent: ' + JSON.stringify(sxEvent) + " " +
                         JSON.stringify(deviceParams));
                 var restoreHash = "";
