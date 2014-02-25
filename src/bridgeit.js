@@ -517,6 +517,9 @@ if (!window.console) {
         return record;
     }
     function getNamedObject(name)  {
+        if (!name)  {
+            return null;
+        }
         var parts = name.split(".");
         var theObject = window;
         for (var i = 0; i < parts.length; i++) {
