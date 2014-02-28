@@ -826,7 +826,7 @@ if (!window.console) {
         return url;
     }
 
-    function loadPushService(uri, apikey, realm) {
+    function loadPushService(uri, apikey, options) {
         if (ice && ice.push) {
             console.log('Push service already loaded and configured');
         } else {
@@ -837,7 +837,13 @@ if (!window.console) {
 
             ice.push.configuration.contextPath = baseURI;
             ice.push.configuration.apikey = apikey;
-            ice.push.configuration.realm = realm;
+            if (options)  {
+                ice.push.configuration.realm = options.realm;
+                if (options.auth)  {
+                    ice.push.configuration.access_token = 
+                            options.auth.access_token;
+                }
+            }
             ice.push.connection.startConnection();
             findGoBridgeIt();
         }
@@ -1552,9 +1558,8 @@ if (!window.console) {
      * @param uri the location of the service
      * @param apikey
      */
-    b.usePushService = function(uri, apikey) {
-        var realm = bridgeitServiceDefaults.realm;
-        var auth = bridgeitServiceDefaults.auth;
+    b.usePushService = function(uri, apikey, options) {
+        options = overlayOptions(bridgeitServiceDefaults, options);
 
         if (0 == arguments.length)  {
             uri = bridgeitServiceDefaults.serviceBase + "/push";
@@ -1573,7 +1578,7 @@ if (!window.console) {
         }
 
         window.setTimeout(function() {
-            loadPushService(uri, apikey, realm);
+            loadPushService(uri, apikey, options);
         }, 1);
     };
 
