@@ -826,7 +826,7 @@ if (!window.console) {
         return url;
     }
 
-    function loadPushService(uri, apikey) {
+    function loadPushService(uri, apikey, realm) {
         if (ice && ice.push) {
             console.log('Push service already loaded and configured');
         } else {
@@ -837,6 +837,7 @@ if (!window.console) {
 
             ice.push.configuration.contextPath = baseURI;
             ice.push.configuration.apikey = apikey;
+            ice.push.configuration.realm = realm;
             ice.push.connection.startConnection();
             findGoBridgeIt();
         }
@@ -911,7 +912,21 @@ if (!window.console) {
         }
     }
 
+    function overlayOptions(defaults, options)  {
+        var merged = {};
+        for (var prop in defaults)  {
+            merged[prop] = defaults[prop];
+        }
+        for (var prop in options)  {
+            merged[prop] = options[prop];
+        }
+        return merged;
+    }
 
+    var bridgeitServiceDefaults = {
+        realm: "demo.bridgeit.mobi",
+        serviceBase: "http://api.bridgeit.mobi/"
+    };
 
     /* *********************** PUBLIC **********************************/
 
@@ -1501,14 +1516,64 @@ if (!window.console) {
     };
 
     /**
+     * BridgeIt Services login.
+     * @alias login
+     * @param username User name
+     * @param password User password
+     * @param options Additional options
+     */
+    b.login = function(username, password, options) {
+        var auth = {};
+        options = overlayOptions(bridgeitServiceDefaults, options);
+        //save default authorization if default realm
+        if (options.realm === bridgeitServiceDefaults.realm)  {
+            bridgeitServiceDefaults.auth = auth;
+        }
+        return auth;
+    }
+
+    /**
+     * Set up BridgeIt Services.
+     * @alias useServices
+     * @param param String realm name or object with named parameters
+     */
+    b.useServices = function(param) {
+        if ("object" === typeof arguments[0])  {
+            bridgeitServiceDefaults.realm = param;
+        } else {
+            bridgeitServiceDefaults = 
+                    overlayOptions(bridgeitServiceDefaults, param);
+        }
+    }
+
+    /**
      * Configure Push service and connect to it.
      * @alias plugin.usePushService
      * @param uri the location of the service
      * @param apikey
      */
     b.usePushService = function(uri, apikey) {
+        var realm = bridgeitServiceDefaults.realm;
+        var auth = bridgeitServiceDefaults.auth;
+
+        if (0 == arguments.length)  {
+            uri = bridgeitServiceDefaults.serviceBase + "/push";
+        } else if ("object" === typeof arguments[0])  {
+            if (!!arguments[0].realm)  {
+                realm = arguments[0].realm;
+            }
+            if (!!arguments[0].serviceBase)  {
+                uri = arguments[0].serviceBase + "/push";
+            }
+            if (!!arguments[0].auth)  {
+                auth = arguments[0].auth;
+            }
+        } else {
+            //legacy uri,apikey
+        }
+
         window.setTimeout(function() {
-            loadPushService(uri, apikey);
+            loadPushService(uri, apikey, realm);
         }, 1);
     };
 
