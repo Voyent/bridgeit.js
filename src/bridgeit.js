@@ -1545,10 +1545,10 @@ if (!window.console) {
      */
     b.useServices = function(param) {
         if ("object" === typeof arguments[0])  {
-            bridgeitServiceDefaults.realm = param;
-        } else {
             bridgeitServiceDefaults = 
                     overlayOptions(bridgeitServiceDefaults, param);
+        } else {
+            bridgeitServiceDefaults.realm = param;
         }
     }
 
