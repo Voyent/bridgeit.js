@@ -769,6 +769,19 @@ if (!window.console) {
 
     };
 
+    function jsonPOST(uri, payload) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', uri, false);
+        xhr.setRequestHeader(
+                "Content-Type", "application/json;charset=UTF-8");
+        xhr.send(JSON.stringify(payload));
+        if (xhr.status == 200) {
+            return JSON.parse(xhr.responseText);
+        } else {
+            throw xhr.statusText + '[' + xhr.status + ']';
+        }
+    }
+
     function httpGET(uri, query) {
         var xhr = new XMLHttpRequest();
         var queryStr = "";
@@ -1531,6 +1544,15 @@ if (!window.console) {
     b.login = function(username, password, options) {
         var auth = {};
         options = overlayOptions(bridgeitServiceDefaults, options);
+        //need to also allow specified auth URL in options
+        var uri = bridgeitServiceDefaults.serviceBase + "/auth/";
+        var loginURI = uri + options.realm + "/token/local";
+        var loginRequest = {
+            username: username,
+            password: password
+        }
+        auth = jsonPOST(loginURI, loginRequest);
+
         //save default authorization if default realm
         if (options.realm === bridgeitServiceDefaults.realm)  {
             bridgeitServiceDefaults.auth = auth;
