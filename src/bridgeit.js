@@ -123,10 +123,10 @@ if (!window.console) {
         // concatenate the array
         return qString.join("");
     }
-    var useBase64 = false;
+
     if (window.jQuery && jQuery.mobile)  {
         //jquery mobile insists on parsing BridgeIt hashchange data
-        useBase64 = true;;
+        bridgeit.useBase64 = true;;
     }
     function getDeviceCommand()  {
         var commandData = null;
@@ -307,7 +307,7 @@ if (!window.console) {
         }
 
         deviceOptions = null;
-        if (useBase64)  {
+        if (bridgeit.useBase64)  {
             //jquery mobile insists on parsing BridgeIt hashchange data
             deviceOptions = "enc=base64";
         }
@@ -469,7 +469,7 @@ if (!window.console) {
     function unpackDeviceResponse(data)  {
         var result = {};
         var un64 = bridgeit.useJSON64 || 
-                (useBase64 && (data.indexOf("!") < 0));
+                (bridgeit.useBase64 && (data.indexOf("!") < 0));
         if (un64)  {
             data = data.replace(/~/g,"=");
             data = data.replace(/\./g,"/");
@@ -499,6 +499,8 @@ if (!window.console) {
                 result[paramName.substring(1)] = paramValue;
             } else  {
                 //only one user value is supported
+                console.log("deviceResponse value " + 
+                        paramName + " " + paramValue);
                 result.name = paramName;
                 result.value = paramValue;
             }
@@ -1325,6 +1327,15 @@ if (!window.console) {
     b.useJSON64 = false;
 
     /**
+     * Set useBase64 to true to take advantage of Base64 
+     * encoding in the return URL from the BridgeIt App.
+     * This property may be removed with
+     * legacy applications required to import an older copy of bridgeit.js.
+     * @property {Boolean} [useBase64=true]
+     */
+    b.useBase64 = true;
+
+    /**
      * Is the current browser iOS
      * @alias plugin.isIOS
      */
@@ -1417,11 +1428,11 @@ if (!window.console) {
     var supportMatrix = {
         'iPhone':{
             '6':   [true, true, true, true, true, true, false, true, true, false, false],
-            '7':   [true, true, true, true, true, true, true, true, true, true, false],
+            '7':   [true, true, true, true, true, true, true, true, true, true, true],
         },
         'iPad-iPod':{
             '6':   [true, true, true, true, true, true, false, true, false, false, false],
-            '7':   [true, true, true, true, true, true, true,  true, false, true, false]
+            '7':   [true, true, true, true, true, true, true,  true, false, true, true]
         },
         'wp8':     [true, true, true, true, false, false, true, false, true, false, false],
         'android': [true, true,  true,  true, false, true,  true, true,  true, false, true]
