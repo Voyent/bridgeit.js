@@ -1275,6 +1275,27 @@ if (!window.console) {
     b.isRegistered = function()  {
         return !!(getCloudPushId());
     };
+
+    /**
+     * Text-to-speech 
+     * 
+     * 
+     * @param {String} id The id of the return value
+     * @param {Function} callback The callback function.
+     * @param {Object} options Additional command options
+     * @param {String} options.text The text to be spoken
+     * @param {Boolean} options.respond Determines if voice response is required. default=false
+     * @param {String} options.voice Type of voice to be used
+     * @param {Number} options.rate The rate of speaking. > 0 default=1.0
+     * @param {Number} options.pitch The  pitch of voice. > 0 default=1.2 
+     * @param {Number} options.volume The  0.0 < volume <=1.0 default=device setting
+     * @alias plugin.speech
+     * 
+     */
+    b.speech = function(id, callback, options){
+        deviceCommand("speech", id, callback, options);
+    };
+
     
 
     /**
@@ -1389,20 +1410,21 @@ if (!window.console) {
     var wp8 = b.isWindowsPhone8();
     var iPhone = b.isIPhone();
 
-    var commands = ['camera','camcorder','microphone','fetchContacts','aug','push','scan','geospy','sms','beacons'];
-    var fullySupported = [true, true, true, true, true, true, true, true, true,true];
-    
+    b.commands = ['camera','camcorder','microphone','fetchContacts','aug','push','scan','geospy','sms',
+        'beacons', 'speech'];
+    var fullySupported = [true, true, true, true, true, true, true, true, true, true, true];
+
     var supportMatrix = {
         'iPhone':{
-            '6':   [true, true, true, true, true, true, false, true, true,false],
-            '7':   fullySupported
+            '6':   [true, true, true, true, true, true, false, true, true, false, false],
+            '7':   [true, true, true, true, true, true, true, true, true, true, false],
         },
         'iPad-iPod':{
-            '6':   [true, true, true, true, true, true, false, true, false,false],
-            '7':   [true, true, true, true, true, true, true,  true, false,true]
+            '6':   [true, true, true, true, true, true, false, true, false, false, false],
+            '7':   [true, true, true, true, true, true, true,  true, false, true, false]
         },
-        'wp8':     [true, true, true, true, false, false, true, false, true,false],
-        'android': [true, true,  true,  true, false, true,  true, true,  true,false]
+        'wp8':     [true, true, true, true, false, false, true, false, true, false, false],
+        'android': [true, true,  true,  true, false, true,  true, true,  true, false, true]
     }
 
     /**
@@ -1434,23 +1456,23 @@ if (!window.console) {
             }
         }
         else if( wp8 ){
-            return supportMatrix['wp8'][commands.indexOf(command)];
+            return supportMatrix['wp8'][b.commands.indexOf(command)];
         }
         else if( iOS ){
             if( iPhone ){
                 if( iOS6 ){
-                    return supportMatrix['iPhone']['6'][commands.indexOf(command)];
+                    return supportMatrix['iPhone']['6'][b.commands.indexOf(command)];
                 }
                 else if( iOS7 ){ 
-                    return supportMatrix['iPhone']['7'][commands.indexOf(command)];
+                    return supportMatrix['iPhone']['7'][b.commands.indexOf(command)];
                 }
             }
             else {
                 if( iOS6 ){
-                    return supportMatrix['iPad-iPod']['6'][commands.indexOf(command)];
+                    return supportMatrix['iPad-iPod']['6'][b.commands.indexOf(command)];
                 }
                 else if( iOS7 ){ 
-                    return supportMatrix['iPad-iPod']['7'][commands.indexOf(command)];
+                    return supportMatrix['iPad-iPod']['7'][b.commands.indexOf(command)];
                 }
             }
         }
