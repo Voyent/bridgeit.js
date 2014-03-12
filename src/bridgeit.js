@@ -1167,7 +1167,7 @@ if (!window.console) {
         }
         if( number == 'undefined' || number == '')
             return;
-        if( b.isIOS()){
+        if( b.isIOS() || b.isAndroid() ){
             deviceCommand('sms', '_sms', null, {n: number, body: message});
         }
         else{
