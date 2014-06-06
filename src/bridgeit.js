@@ -842,10 +842,10 @@ if (!window.console) {
     }
 
     function loadPushService(uri, apikey, options) {
+        var baseURI = uri + (endsWith(uri, '/') ? '' : '/');
         if (ice && ice.push) {
             console.log('Push service already loaded and configured');
         } else {
-            var baseURI = uri + (endsWith(uri, '/') ? '' : '/');
             var codeURI = baseURI + 'code.icepush';
             var code = httpGET(codeURI);
             eval(code);
