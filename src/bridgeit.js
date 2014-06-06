@@ -850,18 +850,19 @@ if (!window.console) {
             var code = httpGET(codeURI);
             eval(code);
 
-            ice.push.configuration.contextPath = baseURI;
-            ice.push.configuration.apikey = apikey;
-            if (options)  {
-                ice.push.configuration.realm = options.realm;
-                if (options.auth)  {
-                    ice.push.configuration.access_token = 
-                            options.auth.access_token;
-                }
-            }
-            ice.push.connection.startConnection();
             findGoBridgeIt();
         }
+        ice.push.configuration.contextPath = baseURI;
+        ice.push.configuration.apikey = apikey;
+        if (options)  {
+            ice.push.configuration.realm = options.realm;
+            if (options.auth)  {
+                ice.push.configuration.access_token = 
+                        options.auth.access_token;
+            }
+        }
+        ice.push.connection.startConnection();
+
         setupCloudPush();
     }
 
