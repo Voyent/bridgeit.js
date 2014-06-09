@@ -1,4 +1,4 @@
-/* BridgeIt Mobile 1.0.0 
+/* BridgeIt Mobile 1.0.4 
  *
  * Copyright 2004-2013 ICEsoft Technologies Canada Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -8,7 +8,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an 
+ * software distributed under the License is distributed on an
  * 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
@@ -33,33 +33,33 @@ if (!window.console) {
 }
 /**
  * The BridgeIt JavaScript API. Native Mobile integration for your web app.
- * 
- * BridgeIt provides a variety of device commands that allow access to 
+ *
+ * BridgeIt provides a variety of device commands that allow access to
  * device features from JavaScript, all while running in the stock browser
  * such as Safari or Chrome. This is made possible by the BridgeIt utilty app
  * that runs alongside the browser and is available for each of the supported
  * platforms (currently Android, iOS, and Windows Phone 8).
- * 
+ *
  * For example, bridgeit.camera('myCamera', 'myCallback') will allow the user
  * to take a photo identified by 'myCamera' and this will be returned via an
  * event to the function named myCallback.  For the best compatibility the
  * callback is passed by name since the browser page may be refreshed when
  * the callback returns. The callback will be passed an event where:
- * 
+ *
  * event.response: HTTP response from the server if the command makes an HTTP POST
  * event.preview: data-uri containing any preview image resulting from the command
  * event.name: id specified in the command call
  * event.value: return value from the command
- * 
+ *
  * Most device commands accept an options parameter object.  Options supported
- * by a variety of commands are: options.postURL (the URL used to upload 
- * the result of the command), and extra parameters 
+ * by a variety of commands are: options.postURL (the URL used to upload
+ * the result of the command), and extra parameters
  * specific to the command may be added to the options argument.
- * 
+ *
  * @class bridgeit
  */
 (function(b) {
-    
+
     /* *********************** PRIVATE ******************************/
     function serializeForm(formId, typed) {
         var form = document.getElementById(formId);
@@ -137,7 +137,7 @@ if (!window.console) {
             var dupIndex = commandData.indexOf(hashMark);
             if (dupIndex > 0)  {
                 commandData = commandData.substring(0, dupIndex);
-                console.error("trimmed corrupt " + locHash + " to " 
+                console.error("trimmed corrupt " + locHash + " to "
                         + commandData);
             }
         }
@@ -177,7 +177,7 @@ if (!window.console) {
             delete payload.ub;
         } else {
             var barURL = windowLocation.toString();
-            var baseURL = 
+            var baseURL =
                     barURL.substring(0, barURL.lastIndexOf("/")) + "/";
             payload._urlBase = baseURL;
         }
@@ -287,7 +287,7 @@ if (!window.console) {
             theURL = returnURL.substring(0, lastHash);
         }
         returnURL = theURL + "#icemobilesx";
- 
+
         var hashSubClause = "";
         if (!!theHash)  {
             hashSubClause = "&h=" + escape(theHash);
@@ -337,7 +337,7 @@ if (!window.console) {
         }
         var sxURL = "c=" + escape(command +
                 "?id=" + id + ampchar + (params ? params : '')) +
-                uploadURLClause + 
+                uploadURLClause +
                 "&r=" + escape(returnURL) +
                 sessionidClause +
                 optionsClause +
@@ -385,7 +385,7 @@ if (!window.console) {
             if (!uploadURL) {
                 uploadURL = element.getAttribute("data-posturl");
             }
-            if (!uploadURL) {        
+            if (!uploadURL) {
                 if (0 === formAction.indexOf("/")) {
                     uploadURL = window.location.origin + formAction;
                 } else if ((0 === formAction.indexOf("http://")) ||
@@ -468,7 +468,7 @@ if (!window.console) {
     }
     function unpackDeviceResponse(data)  {
         var result = {};
-        var un64 = bridgeit.useJSON64 || 
+        var un64 = bridgeit.useJSON64 ||
                 (bridgeit.useBase64 && (data.indexOf("!") < 0));
         if (un64)  {
             data = data.replace(/~/g,"=");
@@ -499,7 +499,7 @@ if (!window.console) {
                 result[paramName.substring(1)] = paramValue;
             } else  {
                 //only one user value is supported
-                console.log("deviceResponse value " + 
+                console.log("deviceResponse value " +
                         paramName + " " + paramValue);
                 result.name = paramName;
                 result.value = paramValue;
@@ -645,7 +645,7 @@ if (!window.console) {
 
                 if (callback)  {
                     try {
-                        callback(sxEvent);                        
+                        callback(sxEvent);
                     } catch (e)  {
                         console.error("Device function callback failed " + e);
                         console.error(e.stack);
@@ -655,7 +655,7 @@ if (!window.console) {
                     console.log('no deviceCommandCallback registered :(');
                 }
                 setTimeout(function(){
-                    var restoreLocation = 
+                    var restoreLocation =
                         loc.pathname + loc.search + restoreHash;
                     history.replaceState("", document.title,
                         restoreLocation);
@@ -717,9 +717,9 @@ if (!window.console) {
             var locHash = "" + window.location.hash;
             lastPage = "" + document.location;
             if (sxkey === locHash.substring(0, sxlen))  {
-                lastPage = lastPage.substring(0, 
+                lastPage = lastPage.substring(0,
                         lastPage.length - locHash.length)
-            } 
+            }
         }
         if (localStorage)  {
             localStorage.setItem(LAST_PAGE_KEY, lastPage);
@@ -812,7 +812,7 @@ if (!window.console) {
                 if (200 == xhr.status)  {
                     if (!absoluteGoBridgeItURL)  {
                         absoluteGoBridgeItURL = getAbsoluteURL(url);
-                        console.log("Cloud Push return via goBridgeIt: " + 
+                        console.log("Cloud Push return via goBridgeIt: " +
                                 absoluteGoBridgeItURL);
                     }
                 }
@@ -857,7 +857,7 @@ if (!window.console) {
         if (options)  {
             ice.push.configuration.realm = options.realm;
             if (options.auth)  {
-                ice.push.configuration.access_token = 
+                ice.push.configuration.access_token =
                         options.auth.access_token;
             }
         }
@@ -903,14 +903,14 @@ if (!window.console) {
 
     var BRIDGEIT_INSTALLED_KEY = "bridgeit.installed";
     var BRIDGEIT_INSTALLED_LOG_KEY = "bridgeit.installedLogged";
-    
+
     function hasInstalledToken(){
         var result = false;
         if( window.localStorage){
             var installTimestamp = localStorage.getItem(BRIDGEIT_INSTALLED_KEY);
             if( installTimestamp ){
                 if( !window.sessionStorage.getItem(BRIDGEIT_INSTALLED_LOG_KEY) ){
-                    console.log('bridgeit installed ' 
+                    console.log('bridgeit installed '
                         + new Date( parseInt(localStorage.getItem(BRIDGEIT_INSTALLED_KEY))).toGMTString());
                     window.sessionStorage.setItem(BRIDGEIT_INSTALLED_LOG_KEY, 'true');
                 }
@@ -919,7 +919,7 @@ if (!window.console) {
         }
         return result;
     }
-    
+
     function setInstalledToken(){
         if( window.localStorage ){
             localStorage.setItem(BRIDGEIT_INSTALLED_KEY, '' + new Date().getTime());
@@ -968,16 +968,16 @@ if (!window.console) {
         }
         return null;
     };
-    
+
     /**
      * Application provided callback to detect BridgeIt launch failure.
      * This can be overridden with an implementation that prompts the
      * user to download BridgeIt and potentially fallback with a different
      * browser control such as input file.  The displayed dialog is returned
      * to allow basic customization.
-     *   
+     *
      * @alias plugin.launchFailed
-     * @param {String} id The id passed to the command that failed 
+     * @param {String} id The id passed to the command that failed
      * @template
      */
     b.launchFailed = function(id)  {
@@ -987,9 +987,9 @@ if (!window.console) {
         popDiv.setAttribute(
             "style",
             "height:auto;" +
-            "min-height:100px;" + 
+            "min-height:100px;" +
             "position:fixed;" +
-            "border:5px solid #9193A0;" + 
+            "border:5px solid #9193A0;" +
             "border-radius:8px;" +
             "padding:10px;" +
             "text-align:center;" +
@@ -999,11 +999,11 @@ if (!window.console) {
             "transition:opacity 5s ease-in-out;" +
             "z-index:999;" +
             "opacity:0.95;");
-        popDiv.innerHTML = 
+        popDiv.innerHTML =
             '<a style="float:right;" '+
             'onclick="document.body.removeChild(this.parentNode)">'+
             '&times;</a>' +
-            '<p>The BridgeIt App is missing ... would you like to download ' + 
+            '<p>The BridgeIt App is missing ... would you like to download ' +
             'it?</p>' +
             '<a href="' + bridgeit.appStoreURL() + '"'+
             ' onclick="document.body.removeChild(this.parentNode)" ' +
@@ -1021,7 +1021,7 @@ if (!window.console) {
             window.addEventListener('orientationchange', centerDiv, false);
             window.addEventListener('resize', centerDiv, false);
         }
-        
+
         return popDiv;
 
     };
@@ -1031,7 +1031,7 @@ if (!window.console) {
      * This should be overridden with an implementation that informs the
      * user the user that native mobile functionality is only available
      * on supported platforms or potentially fallback with a different
-     * browser control such as input file, which would be available on 
+     * browser control such as input file, which would be available on
      * all browsers.
      * @param {String} id The id passed to the command that failed
      * @param {String} command The BridgeIt api command that was launched
@@ -1044,41 +1044,41 @@ if (!window.console) {
 
 
     /**
-     * Launch the device QR Code scanner. 
-     * 
+     * Launch the device QR Code scanner.
+     *
      * The callback function will be called once the scan is captured.
      * The return value will be set to the text resulting from the scan.
-     * 
+     *
      * The QR Code scanner does not currently accept additional parameters,
      * but these may used in the future.
-     * 
+     *
      * @alias plugin.scan
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
-     * 
+     *
      */
     b.scan = function(id, callback, options)  {
         deviceCommand("scan", id, callback, options);
     };
 
     /**
-     * Detect nearby iBeacons. 
-     * 
+     * Detect nearby iBeacons.
+     *
      * The callback function will be called when an iBeacon is detected.
      * The return value will be set to the range, major, and minor values
      * if available.
-     * 
+     *
      * This is currently a pre-alpha feature and is being developed initially
-     * on iOS. 
-     * 
+     * on iOS.
+     *
      * @alias plugin.beacons
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
-     * 
+     *
      */
     b.beacons = function(id, callback, options)  {
         deviceCommand("beacons", id, callback, options);
@@ -1086,9 +1086,9 @@ if (!window.console) {
 
     /**
      * Launch the native camera.
-     * 
+     *
      * The callback function will be called once the photo is captured.
-     * 
+     *
      * @alias plugin.camera
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
@@ -1096,21 +1096,21 @@ if (!window.console) {
      * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
      * @param {Object} options.maxwidth The maxium width for the image in pixels
      * @param {Object} options.maxheight The maxium height for the image in pixels
-     * 
+     *
      */
     b.camera = function(id, callback, options)  {
         deviceCommand("camera", id, callback, options);
     };
     /**
      * Launch the native video recorder.
-     * 
+     *
      * The callback function will be called once the video has been captured.
-     * 
+     *
      * @alias plugin.camcorder
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
-     * 
+     *
      */
     b.camcorder = function(id, callback, options)  {
         deviceCommand("camcorder", id, callback, options);
@@ -1118,30 +1118,30 @@ if (!window.console) {
 
     /**
      * Launch the native audio recorder.
-     * 
+     *
      * The callback function will be called once the audio is captured.
-     * 
+     *
      * @alias plugin.microphone
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
-     * 
+     *
      */
     b.microphone = function(id, callback, options)  {
         deviceCommand("microphone", id, callback, options);
     };
-    
+
     /**
      * Launch the native contact list.
-     * 
+     *
      * The callback function will be called once the contact is retrieved.
-     * 
+     *
      * @alias plugin.fetchContact
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {Object} options.fields The contact fields to retrieve, default = "name,email,phone"
-     * 
+     *
      */
     b.fetchContact = function(id, callback, options)  {
         var ops = options || {};
@@ -1153,17 +1153,17 @@ if (!window.console) {
 
     /**
      * Send an SMS message.
-     * 
+     *
      * The sms function will send an SMS message to a number on supported
      * platforms. On iOS devices, a native SMS call is made through the
      * BridgeIt utility app. On other platforms an SMS URL protocol is used in a
      * DOM anchor element, which the browser may use to launch the device
      * SMS functionality, if available.
-     * 
+     *
      * @alias plugin.sms
      * @param {String} number The phone number to send the message to
      * @param {String} message The message
-     * 
+     *
      */
     b.sms = function(number, message)  {
         if( !b.isSupportedPlatform('sms') ){
@@ -1185,29 +1185,29 @@ if (!window.console) {
             document.body.removeChild(smsBtn);
          }
     };
-    
+
     /**
      * Launch an Augmented Reality view.
-     * 
+     *
      * The Augmented Reality view displays a set of geographic icons on
-     * a video overlay. The icons are positioned according to the 
+     * a video overlay. The icons are positioned according to the
      * orientation of the device so that they appear in a line-of-sight
      * with their physical geographic position.  The user can select an
      * icon and this is relayed back to the application.
-     * 
+     *
      * The callback function will be called once the augmented reality
      * view exits with the user selection provided in the return value.
      * The command is invoked with a locations parameter containing an
      * array of named locations, each with a comma-separated latitude,
      * longitude, altitude, direction, and icon URL
-     * 
+     *
      * @alias plugin.augmentedReality
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
      * @param {Object} options.locations The augmented reality locations to display
-     
-     * 
+
+     *
      */
     b.augmentedReality = function(id, callback, options)  {
         //copy locations directly into options. The JavaScript API
@@ -1224,22 +1224,22 @@ if (!window.console) {
 
         deviceCommand("aug", id, callback, options);
     };
-    
+
     /**
-     * Activate location tracking. 
-     * 
+     * Activate location tracking.
+     *
      * Location tracking will run in the
      * background according to the specified strategy and duration, and will POST
      * a geoJSON record to the specified postURL.
-     * 
+     *
      * Three strategies are currently supported: "continuous" where the location
      * of the device will be uploaded as frequently as it changes (intended for
      * testing only due to high power consumption), "significant" where the
      * location is uploaded when it changes significantly, and "stop" to cease
      * location tracking.
-     * 
+     *
      * The callback function will be called once location tracking is activated.
-     * 
+     *
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
@@ -1247,7 +1247,7 @@ if (!window.console) {
      * @param {String} options.strategy The strategy, "continuous", "significant" or "stop"
      * @param {String} options.duration The duration in hours
      * @alias plugin.geoTrack
-     * 
+     *
      */
     b.geoTrack = function(id, callback, options)  {
         deviceCommand("geospy", id, callback, options);
@@ -1255,17 +1255,17 @@ if (!window.console) {
 
     /**
      * Register BridgeIt integration and configure Cloud Push.
-     * 
+     *
      * This call is necessary to obtain the Cloud Push ID of the
      * device so that notifications can be delivered when the
      * user is not currently viewing your application in the browser.
-     * 
+     *
      * The callback function will be called when Cloud Push registration
      * completes.
-     * 
+     *
      * @alias plugin.register
      * @inheritdoc #scan
-     * 
+     *
      */
     b.register = function(id, callback, options)  {
         deviceCommand("register", id, callback, options);
@@ -1273,18 +1273,18 @@ if (!window.console) {
 
     /**
      * Verify that BridgeIt Cloud Push is registered.
-     * 
+     *
      * @alias plugin.isRegistered
-     * 
+     *
      */
     b.isRegistered = function()  {
         return !!(getCloudPushId());
     };
 
     /**
-     * Text-to-speech 
-     * 
-     * 
+     * Text-to-speech
+     *
+     *
      * @param {String} id The id of the return value
      * @param {Function} callback The callback function.
      * @param {Object} options Additional command options
@@ -1292,20 +1292,20 @@ if (!window.console) {
      * @param {Boolean} options.respond Determines if voice response is required. default=false
      * @param {String} options.voice Type of voice to be used
      * @param {Number} options.rate The rate of speaking. > 0 default=1.0
-     * @param {Number} options.pitch The  pitch of voice. > 0 default=1.2 
+     * @param {Number} options.pitch The  pitch of voice. > 0 default=1.2
      * @param {Number} options.volume The  0.0 < volume <=1.0 default=device setting
      * @alias plugin.speech
-     * 
+     *
      */
     b.speech = function(id, callback, options){
         deviceCommand("speech", id, callback, options);
     };
 
-    
+
 
     /**
      * Utility method to unpack url-encoded parameters into an object.
-     * 
+     *
      * @alias plugin.url2Object
      * @param {String} encoded The encoded URL string to unpack
      */
@@ -1330,7 +1330,7 @@ if (!window.console) {
     b.useJSON64 = false;
 
     /**
-     * Set useBase64 to true to take advantage of Base64 
+     * Set useBase64 to true to take advantage of Base64
      * encoding in the return URL from the BridgeIt App.
      * This property may be removed with
      * legacy applications required to import an older copy of bridgeit.js.
@@ -1348,8 +1348,8 @@ if (!window.console) {
             iDevice = ['iPad', 'iPhone', 'iPod'];
 
         for ( ; i < iDevice.length ; i++ ) {
-            if( navigator.userAgent.indexOf(iDevice[i]) > -1 ){ 
-                iOS = true; break; 
+            if( navigator.userAgent.indexOf(iDevice[i]) > -1 ){
+                iOS = true; break;
             }
         }
         return iOS;
@@ -1385,7 +1385,7 @@ if (!window.console) {
      */
     b.isAndroid = function(){
         return navigator.userAgent.toLowerCase()
-            .indexOf("android") > -1; 
+            .indexOf("android") > -1;
     };
 
     /**
@@ -1393,7 +1393,7 @@ if (!window.console) {
      * @alias plugin.isAndroidFroyo
      */
     b.isAndroidFroyo = function(){
-        return navigator.userAgent.indexOf("Android 2.2") > -1; 
+        return navigator.userAgent.indexOf("Android 2.2") > -1;
     };
 
     /**
@@ -1401,7 +1401,7 @@ if (!window.console) {
      * @alias plugin.isAndroidGingerBreadOrGreater
      */
     b.isAndroidGingerBreadOrGreater = function(){
-        return b.isAndroid() && !b.isAndroidFroyo(); 
+        return b.isAndroid() && !b.isAndroidFroyo();
     };
 
 
@@ -1411,8 +1411,8 @@ if (!window.console) {
      */
     b.isWindowsPhone8 = function(){
         var ua = navigator.userAgent;
-        return ua.indexOf('IEMobile') > -1 
-            || ( ua.indexOf('MSIE 10') > -1 
+        return ua.indexOf('IEMobile') > -1
+            || ( ua.indexOf('MSIE 10') > -1
                 && typeof window.orientation !== 'undefined');
     };
 
@@ -1477,7 +1477,7 @@ if (!window.console) {
                 if( iOS6 ){
                     return supportMatrix['iPhone']['6'][b.commands.indexOf(command)];
                 }
-                else if( iOS7 ){ 
+                else if( iOS7 ){
                     return supportMatrix['iPhone']['7'][b.commands.indexOf(command)];
                 }
             }
@@ -1485,7 +1485,7 @@ if (!window.console) {
                 if( iOS6 ){
                     return supportMatrix['iPad-iPod']['6'][b.commands.indexOf(command)];
                 }
-                else if( iOS7 ){ 
+                else if( iOS7 ){
                     return supportMatrix['iPad-iPod']['7'][b.commands.indexOf(command)];
                 }
             }
@@ -1525,7 +1525,7 @@ if (!window.console) {
                 jguid = localStorage.getItem(JGUID_KEY);
             }
             if (!jguid)  {
-                jguid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, 
+                jguid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
                     function(c) {
                         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                         return v.toString(16);
@@ -1542,7 +1542,7 @@ if (!window.console) {
      * Set goBridgeItURL to the URL of your goBridgeIt.html file
      * to allow {@link bridgeit#push Cloud Push} to go back to the most recent page
      * The defaults of the host root and the current relative
-     * directory URL do not need to be specified. For an example, see 
+     * directory URL do not need to be specified. For an example, see
      * http://bridgeit.mobi/demo/goBridgeIt.html
      *
      * @property {String} [goBridgeItURL]
@@ -1603,7 +1603,7 @@ if (!window.console) {
      */
     b.useServices = function(param) {
         if ("object" === typeof arguments[0])  {
-            bridgeitServiceDefaults = 
+            bridgeitServiceDefaults =
                     overlayOptions(bridgeitServiceDefaults, param);
         } else {
             bridgeitServiceDefaults.realm = param;
@@ -1656,8 +1656,8 @@ if (!window.console) {
 
     /**
      * Augment a URL so that callbacks will be invoked upon Cloud Push
-     * return. 
-     * If called with no argument, the current URL is used. 
+     * return.
+     * If called with no argument, the current URL is used.
      * @param url
      * @alias plugin.cloudPushReturnURL
      */
@@ -1671,24 +1671,24 @@ if (!window.console) {
             url = window.location.href;
         }
         var seq = (new Date()).getTime();
-        var urlExtra = 
+        var urlExtra =
             btoa("!h=" + escape("c=bridgeit.handleCloudPush&seq=" + seq));
         urlExtra = urlExtra.replace(/=/g,"~");
         urlExtra = urlExtra.replace(/\//g,".");
         var returnURL = url + "#icemobilesx_" + urlExtra;
-        return returnURL; 
+        return returnURL;
     };
 
     /**
      * Push notification to the group.
-     * 
+     *
      * This will result in an Ajax Push (and associated callback)
      * to any web pages that have added a push listener to the
      * specified group.  If Cloud Push options are provided
      * (options.subject and options.detail) a Cloud Push will
      * be dispatched as a home screen notification to any devices
      * unable to recieve the Ajax Push via the web page.
-     * 
+     *
      * @param {String} groupName The Ajax Push group name to push to
      * @param {Object} options Options that a notification can carry
      * @param {String} options.subject The subject heading for the notification
