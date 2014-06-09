@@ -8,7 +8,7 @@
 .ui-title{
     font-family: GoodTimes, Arial;
 }
-h2{ 
+h2{
     margin: -15px -15px 0 -15px;
     padding: 9px 15px 5px 15px;
     background-color: #FFF;
@@ -51,7 +51,7 @@ h2{
     white-space: normal;
     vertical-align: top;
 }
-.highlightPlaceholder::-webkit-input-placeholder, .highlightPlaceholder:-moz-placeholder, 
+.highlightPlaceholder::-webkit-input-placeholder, .highlightPlaceholder:-moz-placeholder,
 .highlightPlaceholder::-moz-placeholder, .highlightPlaceholder:-ms-input-placeholder{
    color: red;
 }
@@ -261,7 +261,7 @@ body .hdr.demo, body .hdr.demo a{
     background: transparent;
     background-image: none;
 }
-#home .icon-chevron-right{
+#home .fa-chevron-right{
     float: right;
     margin-top: -27px;
 }
@@ -348,27 +348,27 @@ fieldset.desc{
     text-shadow: none;
     margin-left: 15px;
 }
-.ui-footer .icon-twitter-sign, .ui-footer .icon-facebook-sign, .ui-footer .icon-github{
+.ui-footer .fa-twitter-square, .ui-footer .fa-facebook-square, .ui-footer .fa-github{
     color: #EB6135;
     font-size: 39px;
     text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
     position: absolute;
     top: 10px;
-    
+
 }
-.ui-footer .icon-twitter-sign, .ui-footer .icon-facebook-sign, .ui-footer .icon-github,
-.ui-footer .icon-twitter-sign:hover, .ui-footer .icon-facebook-sign:hover, .ui-footer .icon-github:hover{
+.ui-footer .fa-twitter-square, .ui-footer .fa--facebook-square, .ui-footer .fa-github,
+.ui-footer .fa-twitter-square:hover, .ui-footer .fa-facebook-square:hover, .ui-footer .fa-github:hover{
     text-decoration: none;
 }
-.ui-footer .icon-twitter-sign{
+.ui-footer .fa-twitter-square{
     right: 60px;
     top: 5px;
 }
-.ui-footer .icon-facebook-sign{
+.ui-footer .fa-facebook-square{
     right: 15px;
     top: 5px;
 }
-.ui-footer .icon-github{
+.ui-footer .fa-github{
     right: 105px;
     top: 5px;
 }
@@ -394,10 +394,10 @@ fieldset.desc{
     text-align: center;
 }
 span.ellipsis{
-    max-width: 100%; 
+    max-width: 100%;
     overflow: hidden;
     padding: 10px;
-    text-overflow:ellipsis; 
+    text-overflow:ellipsis;
     white-space:nowrap;
     display: inline-block;
 }
@@ -426,4 +426,77 @@ span.ellipsis{
 
 .ui-li-divider, .ui-li-static.ui-li  {
     font-size: 13px;
+}
+.icon-beacon-signal{
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    top: 11px;
+    right: 0px;
+    bottom: 13px;
+    left: -8px !important;
+    font-size: 12px !important;
+}
+.icon-beacon-circle{
+    margin-top: 10px !important;
+    line-height: initial !important;
+    font-size: 34px !important;
+    margin-left: -2px;
+}
+@media screen and (max-width: 767px) {
+    .icon-beacon{
+        position: absolute;
+        top: 5px;
+        left: 14px;
+    }
+    .icon-beacon-signal {
+        top: -7px;
+        left: -1px !important;
+    }
+    .icon-beacon-circle{
+        font-size: 28px !important;
+        margin-top: 0px !important;
+    }
+}
+@media (max-width:505px) {
+    .icon-beacon-signal{
+        left: -6px !important;
+    }
+}
+#beacons-link{
+    padding-left: 43px;
+}
+.fa-stack{
+    width: 1.6em;
+}
+.icon-speech{
+    top: 5px;
+}
+.icon-speech i{
+    font-size: 23px !important;
+}
+.icon-speech .fa-microphone{
+    top: 10px;
+}
+.icon-speech .fa-rss{
+    top: -15px;
+    left: 0px;
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+@media screen and (max-width: 767px) {
+    .icon-speech i{
+        font-size: 17px !important;
+    }
+    .icon-speech .fa-microphone{
+        top: -2px;
+    }
+    .icon-speech .fa-rss{
+        top: -19px;
+    }
 }

@@ -8,17 +8,17 @@
       <meta name='apple-itunes-app' content="app-id=727736414, app-argument=icemobile://c=register&amp;r=./index.html"/>
       <link rel="icon" type="image/png" href="favicon.png"/>
       <meta name="apple-mobile-web-app-capable" content="yes" />
-      
+
       <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,600,300,400' rel='stylesheet' type='text/css'/>
       <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
-      <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css"/>
+      <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css"/>
       <link rel="stylesheet" href="css/mobile.css" type="text/css" />
       <link rel="stylesheet" href="css/syntax.css" type="text/css" />
-      
+
       <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true&libraries=geometry"></script>
       <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
       <script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
-       
+
       <!-- APP ICONS -->
       <link rel="apple-touch-icon" href="images/touch-icon-iphone.png"/>
       <link rel="apple-touch-icon" sizes="76x76" href="images/touch-icon-ipad.png"/>
@@ -40,10 +40,10 @@
          }
 
       </script>
-      
+
    </head>
 <body>
-      <div data-role="page" id="home">  
+      <div data-role="page" id="home">
         <div data-role="header" class="hdr" data-position="fixed" data-id="header">
             <h1><span class="bridge-font-color">BridgeIt API</span></h1>
         </div>
@@ -51,105 +51,125 @@
             <ul data-role="listview" data-inset="false" id="menu" class="menu" id="menu">
               <li>
                 <a data-transition="slide" href="#intro">
-                  <i class="icon-info-sign"></i>Intro
-                </a><i class="icon-chevron-right"></i>
+                  <i class="fa fa-info-circle"></i>Intro
+                </a><i class="fa fa-chevron-right"></i>
               </li>
-              
+
               <li>
                 <a href="#augmentedReality" data-transition="slide" >
                   <i class="augmented-reality-icon"></i>Augmented Reality
                 </a>
-                <i class="icon-chevron-right"></i>
+                <i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="#camcorder" data-transition="slide">
-                  <i class="icon-facetime-video"></i>Camcorder
-                </a><i class="icon-chevron-right"></i>
+                  <i class="fa fa-video-camera"></i>Camcorder
+                </a><i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="#camera" data-transition="slide" >
-                  <i class="icon-camera"></i>Camera
-                </a><i class="icon-chevron-right"></i>
+                  <i class="fa fa-camera"></i>Camera
+                </a><i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="#push" data-transition="slide">
-                  <i class="icon-cloud-download"></i>Cloud Push
+                  <i class="fa fa-cloud-download"></i>Cloud Push
                 </a>
-                <i class="icon-chevron-right"></i>
+                <i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="#fetchContact" data-transition="slide">
-                  <i class="icon-calendar-empty"></i>
+                  <i class="fa fa-calendar-o"></i>
                   <i style="font-style:normal;position:absolute;margin-left: -32px;font-size: 9px;margin-top: 7px;">@</i>Fetch Contact
                 </a>
-                <i class="icon-chevron-right"></i>
+                <i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="#geoTrack" data-transition="slide">
-                  <i class="icon-location-arrow"></i>GeoTrack
+                  <i class="fa fa-location-arrow"></i>GeoTrack
                 </a>
-                <i class="icon-chevron-right"></i>
+                <i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="#microphone" data-transition="slide">
-                  <i class="icon-microphone"></i>Microphone
+                  <i class="fa fa-microphone"></i>Microphone
                 </a>
-                <i class="icon-chevron-right"></i>
+                <i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="#scan" data-transition="slide">
-                  <i class="icon-qrcode"></i>Scan
+                  <i class="fa fa-qrcode"></i>Scan
                 </a>
-                <i class="icon-chevron-right"></i>
+                <i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="#sms" data-transition="slide" >
-                  <i class="icon-comment"></i>SMS
+                  <i class="fa fa-comment"></i>SMS
                 </a>
-                <i class="icon-chevron-right"></i>
+                <i class="fa fa-chevron-right"></i>
+              </li>
+              <li>
+                <a href="#speech" data-transition="slide" >
+                  <span class="fa-stack icon-speech">
+                      <i class="fa fa-microphone fa-stack-1x"></i>
+                      <i class="fa fa-rss fa-stack-1x"></i>
+                  </span>
+                  Speech
+                </a>
+                <i class="fa fa-chevron-right"></i>
+              </li>
+              <li>
+                <a id="beacons-link" href="#beacons" data-transition="slide" >
+                  <span class="fa-stack fa fa-lg icon-beacon">
+                      <i class="fa fa-rss fa-stack-1x icon-beacon-signal"></i>
+                      <i class="fa fa-circle-thin fa-stack-3x icon-beacon-circle"></i>
+                  </span>
+                  Beacons
+                </a>
+                <i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a data-transition="slide" href="#globals">
-                  <i class="icon-globe"></i>Settings &amp; Utilities
-                </a><i class="icon-chevron-right"></i>
+                  <i class="fa fa-globe"></i>Settings &amp; Utilities
+                </a><i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="http://bridgeit.mobi/forum/" data-rel="external" data-ajax="false">
-                  <i class="icon-comments-alt"></i>Forums
+                  <i class="fa fa-comments-o"></i>Forums
                 </a>
-                <i class="icon-chevron-right"></i>
+                <i class="fa fa-chevron-right"></i>
               </li>
               <li>
                 <a href="http://bridgeit.mobi/" data-rel="external" data-ajax="false">
-                  <i class="icon-info-sign"></i>About
+                  <i class="fa fa-info-circle"></i>About
                 </a>
-                <i class="icon-chevron-right"></i>
+                <i class="fa fa-chevron-right"></i>
               </li>
           </ul>
         </div>
-          <div data-role="footer" data-id="footer" data-position="fixed"> 
+          <div data-role="footer" data-id="footer" data-position="fixed">
             <a href="#" class="icesoft-link" data-role="none">
                 <img src="images/icesoft-logo-bw-2x.png"/>
             </a>
           <div class="copyright">&copy;&nbsp;2002-2013 ICEsoft Technologies Inc. All rights reserved.</div>
-          <a href="https://github.com/bridgeit" data-role="none"><i class="icon-github"></i></a>
-          <a href="https://twitter.com/BridgeItApp" data-role="none"><i class="icon-twitter-sign"></i></a>
-          <i class="icon-facebook-sign"></i>
-        </div> 
+          <a href="https://github.com/bridgeit" data-role="none"><i class="fa fa-github"></i></a>
+          <a href="https://twitter.com/BridgeItApp" data-role="none"><i class="fa fa-twitter-square"></i></a>
+          <i class="fa fa-facebook-square"></i>
+        </div>
     </div>
 
-    <div data-role="page" id="intro"> 
+    <div data-role="page" id="intro">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
         <div data-role="content">
           <h2>The BridgeIt JavaScript API</h2>
           <p>Native Mobile integration for your web app.</p>
-          <p>BridgeIt provides a variety of device commands that allow access to 
+          <p>BridgeIt provides a variety of device commands that allow access to
           device features from JavaScript, all while running in the stock browser
           such as Safari or Chrome. This is made possible by the BridgeIt utility app
           that runs alongside the browser and is available for each of the supported
@@ -165,17 +185,17 @@ bridgeit.camera('myCamera', 'myCallback');
           callback is passed by name since the browser page may be refreshed when
           the callback returns.</p>
           <p>Most device commands accept an options parameter object.  Options supported
-          by a variety of commands are: <code>options.postURL</code> (the URL used to upload 
-          the result of the command), and extra parameters specific to the command may 
+          by a variety of commands are: <code>options.postURL</code> (the URL used to upload
+          the result of the command), and extra parameters specific to the command may
           be added to the options argument.</p>
         </div>
     </div>
 
-    <div data-role="page" id="globals"> 
+    <div data-role="page" id="globals">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">Settings &amp; Utilities</span></h1>
         </div>
@@ -196,7 +216,7 @@ bridgeit.camera('myCamera', 'myCallback');
          <p>
             The app store URL to BridgeIt for the appropirate platform.
          </p>
-  
+
           <h2><code>bridgeit.isAndroid()</code></h2>
           <p>Is the current browser Android?</p>
 
@@ -205,7 +225,7 @@ bridgeit.camera('myCamera', 'myCallback');
 
           <h2><code>bridgeit.isRegistered()</code></h2>
           <p>Verify that BridgeIt Cloud Push is registered.</p>
-          
+
 
            <h2><code>bridgeit.isSupportedPlatform(command)</code></h2>
           <p>Check if the current browser is supported by the BridgeIt Native Mobile app.</p>
@@ -219,7 +239,7 @@ bridgeit.camera('myCamera', 'myCallback');
           <h2><code>bridgeit.isWindowsPhone8()</code></h2>
           <p>Is the current browser Windows Phone 8?</p>
 
-          
+
 
           <h2><code>bridgeit.launchFailed(id)</code></h2>
           <p> Application provided callback to detect BridgeIt launch failure.
@@ -238,7 +258,7 @@ bridgeit.camera('myCamera', 'myCallback');
             This should be overridden with an implementation that informs the
             user the user that native mobile functionality is only available
             on supported platforms or potentially fallback with a different
-            browser control such as input file, which would be available on 
+            browser control such as input file, which would be available on
             all browsers.
          </p>
          <h4>Parameters</h4>
@@ -293,11 +313,11 @@ bridgeit.camera('myCamera', 'myCallback');
         </div>
     </div>
 
-    <div data-role="page" id="augmentedReality"> 
+    <div data-role="page" id="augmentedReality">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
@@ -306,7 +326,7 @@ bridgeit.camera('myCamera', 'myCallback');
           <p>Launch an Augmented Reality view.</p>
           <p>
             The Augmented Reality view displays a set of geo-positioned images on
-            a video overlay. The images are positioned according to the 
+            a video overlay. The images are positioned according to the
             orientation of the device so that they appear in a line-of-sight
             with their physical geographic position.  The user can select an
             icon and this is relayed back to the application.
@@ -354,11 +374,11 @@ var postURL = 'http://myserver/ar-post';
         </div>
     </div>
 
-    <div data-role="page" id="camcorder"> 
+    <div data-role="page" id="camcorder">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
@@ -404,11 +424,11 @@ var postURL = 'http://myserver/video-upload';
     </div>
 
 
-    <div data-role="page" id="camera"> 
+    <div data-role="page" id="camera">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
@@ -453,11 +473,11 @@ var postURL = 'http://myserver/photo-upload';
         </div>
     </div>
 
-    <div data-role="page" id="fetchContact"> 
+    <div data-role="page" id="fetchContact">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
@@ -470,16 +490,16 @@ var postURL = 'http://myserver/photo-upload';
             <li data-role="list-divider">id (String)</li>
             <li>The unique id to identify the bridgeit call </li>
             <li data-role="list-divider">callback (Function)</li>
-            <li>The callback function will be called once the contact is retrieved.</li>            
+            <li>The callback function will be called once the contact is retrieved.</li>
          </ul>
         </div>
     </div>
 
-    <div data-role="page" id="geoTrack"> 
+    <div data-role="page" id="geoTrack">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
@@ -513,18 +533,18 @@ var postURL = 'http://myserver/photo-upload';
             <li>The strategy, "continuous", "significant" or "stop" </li>
             <li data-role="list-divider">options.duration (Number)</li>
             <li>The duration in hours</li>
-            
+
          </ul>
         </div>
     </div>
 
 
 
-    <div data-role="page" id="microphone"> 
+    <div data-role="page" id="microphone">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
@@ -544,11 +564,11 @@ var postURL = 'http://myserver/photo-upload';
         </div>
     </div>
 
-    <div data-role="page" id="push"> 
+    <div data-role="page" id="push">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
@@ -564,7 +584,7 @@ var postURL = 'http://myserver/photo-upload';
               unable to recieve the Ajax Push via the web page.</p>
               Push notification to the group.
           </p>
-          
+
 {% highlight html %}
 <a id="regBtn" type="button" class="btn"
     onclick="bridgeit.register('_reg', 'handlePushRegistration');">Enable Cloud Push</a>
@@ -608,11 +628,11 @@ bridgeit.addPushListener(bridgeit.getId(), 'handlePush');
     </div>
 
 
-    <div data-role="page" id="scan"> 
+    <div data-role="page" id="scan">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
@@ -632,11 +652,11 @@ bridgeit.addPushListener(bridgeit.getId(), 'handlePush');
         </div>
     </div>
 
-    <div data-role="page" id="sms"> 
+    <div data-role="page" id="sms">
         <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
             <a href="index.html" class="btnBack" data-dom-cache="true"
               data-transition="slide" data-direction="reverse">
-              <i class="icon-chevron-left"></i>
+              <i class="fa fa-chevron-left"></i>
             </a>
             <h1><span class="bridge-font-color">BridgeIt</span></h1>
         </div>
@@ -657,10 +677,72 @@ bridgeit.addPushListener(bridgeit.getId(), 'handlePush');
         </div>
     </div>
 
+    <div data-role="page" id="speech">
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="fa fa-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.speech(id, callback, options)</code></h2>
+          <p>Text-to-speech.</p>
+         <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li> The id of the return value</li>
+            <li data-role="list-divider">callback (Function)</li>
+            <li>The callback function.</li>
+            <li data-role="list-divider">options (Object)</li>
+            <li>Additional command options.</li>
+            <li data-role="list-divider">options.text (String)</li>
+            <li>The text to be spoken.</li>
+            <li data-role="list-divider">options.respond (Boolean)</li>
+            <li>Determines if voice response is required. default=false</li>
+            <li data-role="list-divider">options.voice (String)</li>
+            <li>Type of voice to be used</li>
+            <li data-role="list-divider">options.rate (Number)</li>
+            <li>The rate of speaking. > 0 default=1.0</li>
+            <li data-role="list-divider">options.pitch (Number)</li>
+            <li>The  pitch of voice. > 0 default=1.2</li>
+            <li data-role="list-divider">options.volume (Number)</li>
+            <li>The  0.0 < volume <=1.0 default=device setting</li>
+         </ul>
+        </div>
+    </div>
+
+    <div data-role="page" id="beacons">
+        <div data-role="header" class="hdr demo" data-position="fixed" data-id="header">
+            <a href="index.html" class="btnBack" data-dom-cache="true"
+              data-transition="slide" data-direction="reverse">
+              <i class="fa fa-chevron-left"></i>
+            </a>
+            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+        </div>
+        <div data-role="content">
+          <h2><code>bridgeit.beacons(id, callback, options)</code></h2>
+          <p>Detect nearby iBeacons.</p>
+          <p>The callback function will be called when an iBeacon is detected.
+              The return value will be set to the range, major, and minor values
+              if available.
+          </p>
+          <p>This is currently a pre-alpha feature and is being developed initially on iOS.</p>
+
+          <h4>Parameters</h4>
+          <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">id (String)</li>
+            <li> The id of the return value</li>
+            <li data-role="list-divider">callback (Function)</li>
+            <li>The callback function.</li>
+            <li data-role="list-divider">options (Object)</li>
+            <li>Additional command options.</li>
+            <li data-role="list-divider">options.postURL (String)</li>
+            <li>Server-side URL accepting POST of command result (optional)</li>
+         </ul>
+        </div>
+    </div>
+
 
 </body>
 </html>
-
-
-    
-    
