@@ -1473,11 +1473,13 @@ if (!window.console) {
             return supportMatrix['wp8'][b.commands.indexOf(command)];
         }
         else if( iOS ){
+            //if a future iOS version requires specific checking, additional
+            //cases will be added
             if( iPhone ){
                 if( iOS6 ){
                     return supportMatrix['iPhone']['6'][b.commands.indexOf(command)];
                 }
-                else if( iOS7 ){
+                else /* if( iOS7 ) */ {
                     return supportMatrix['iPhone']['7'][b.commands.indexOf(command)];
                 }
             }
@@ -1485,7 +1487,7 @@ if (!window.console) {
                 if( iOS6 ){
                     return supportMatrix['iPad-iPod']['6'][b.commands.indexOf(command)];
                 }
-                else if( iOS7 ){
+                else /* if( iOS7 ) */ {
                     return supportMatrix['iPad-iPod']['7'][b.commands.indexOf(command)];
                 }
             }
