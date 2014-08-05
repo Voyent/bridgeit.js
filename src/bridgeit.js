@@ -973,8 +973,12 @@ if (!window.console) {
         var successes = [];
         var fails = [];
         this.then = function(success, fail)  {
-            successes.push(success);
-            fails.push(fail);
+            if (success)  {
+                successes.push(success);
+            }
+            if (fail)  {
+                fails.push(fail);
+            }
         }
         function callall(funcs, args)  {
             for (var i = 0; i < funcs.length; i++) {
