@@ -1486,7 +1486,7 @@ if (!window.console) {
             '6':   [true, true, true, true, true, true, false, true, false, false, false],
             '7':   [true, true, true, true, true, true, true,  true, false, true, true]
         },
-        'wp8':     [true, true, true, true, false, false, true, false, true, false, false],
+        'wp8':     [true, true, true, true, false, true, true, false, true, false, false],
         'android': [true, true,  true,  true, false, true,  true, true,  true, false, true]
     }
 
