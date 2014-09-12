@@ -1485,6 +1485,7 @@ if (!window.console) {
         iPhone = b.isIPhone();
 
     b.commands = [ 'camera', 'camcorder','microphone','fetchContacts','aug', 'push','scan','geospy','sms',  'beacons', 'speech'];
+    var supportMatrix = {
         'iPhone':{
             '6':   [true,     true,       true,        true,           true,  true,  false, true,    true,   false,     false],
             '7':   [true,     true,       true,        true,           true,  true,  true,  true,    true,   true,      true],
