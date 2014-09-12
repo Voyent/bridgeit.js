@@ -1493,12 +1493,12 @@ if (!window.console) {
         },
         'iPad-iPod':{
             '6':   [true,     true,       true,        true,           true,  true,  false, true,    false,  false,     false],
-            '7':   [true,     true,       true,        true,           true,  true,  true,  true,    false,  true,      true]
+            '7':   [true,     true,       true,        true,           true,  true,  true,  true,    false,  true,      true],
             '8':   [true,     true,       true,        true,           true,  true,  true,  true,    false,  true,      true]
         },
         'wp8':     [true,     true,       true,        true,           false, false, true,  false,   true,   false,     false],
         'android': [true,     true,       true,        true,           false, true,  true,  true,    true,   false,     true]
-    }
+    };
 
     /**
      * Set to true to have Augmented Reality (in experimental status) be used on Android (default false)
