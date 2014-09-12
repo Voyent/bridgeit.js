@@ -1,4 +1,4 @@
-/* BridgeIt Mobile 1.0.4 
+/* BridgeIt Mobile 1.0.4
  *
  * Copyright 2004-2013 ICEsoft Technologies Canada Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -647,8 +647,10 @@ if (!window.console) {
                     try {
                         callback(sxEvent);
                     } catch (e)  {
-                        console.error("Device function callback failed " + e);
+                        var msg = "BridgeIt Device function callback failed, make sure that the callback function is in window scope.";
+                        console.error(msg);
                         console.error(e.stack);
+                        alert(msg);
                     }
                     bridgeit.deviceCommandCallback = null;
                 } else{
@@ -997,7 +999,7 @@ if (!window.console) {
                 fail.apply(thePromiz, arguments);
             }
         }
-    } 
+    }
 
     /* *********************** PUBLIC **********************************/
 
@@ -1429,6 +1431,14 @@ if (!window.console) {
     };
 
     /**
+     * Is the current browser iOS 7
+     * @alias plugin.isIOS8
+     */
+    b.isIOS8 = function(){
+        return /(iPad|iPhone|iPod).*OS 8_/.test( navigator.userAgent );
+    };
+
+    /**
      * Is the current browser Android
      * @alias plugin.isAndroid
      */
@@ -1465,29 +1475,28 @@ if (!window.console) {
                 && typeof window.orientation !== 'undefined');
     };
 
-    var android = b.isAndroid();
-    var supportedAndroid = b.isAndroidGingerBreadOrGreater();
-    var iOS = b.isIOS();
-    var iOS6 = b.isIOS6();
-    var iOS7 = b.isIOS7();
-    var wp8 = b.isWindowsPhone8();
-    var iPhone = b.isIPhone();
+    var android = b.isAndroid(),
+        supportedAndroid = b.isAndroidGingerBreadOrGreater(),
+        iOS = b.isIOS(),
+        iOS6 = b.isIOS6(),
+        iOS7 = b.isIOS7(),
+        iOS8 = b.isIOS8(),
+        wp8 = b.isWindowsPhone8(),
+        iPhone = b.isIPhone();
 
-    b.commands = ['camera','camcorder','microphone','fetchContacts','aug','push','scan','geospy','sms',
-        'beacons', 'speech'];
-    var fullySupported = [true, true, true, true, true, true, true, true, true, true, true];
-
-    var supportMatrix = {
+    b.commands = [ 'camera', 'camcorder','microphone','fetchContacts','aug', 'push','scan','geospy','sms',  'beacons', 'speech'];
         'iPhone':{
-            '6':   [true, true, true, true, true, true, false, true, true, false, false],
-            '7':   [true, true, true, true, true, true, true, true, true, true, true],
+            '6':   [true,     true,       true,        true,           true,  true,  false, true,    true,   false,     false],
+            '7':   [true,     true,       true,        true,           true,  true,  true,  true,    true,   true,      true],
+            '8':   [true,     true,       true,        true,           true,  true,  true,  true,    true,   true,      true],
         },
         'iPad-iPod':{
-            '6':   [true, true, true, true, true, true, false, true, false, false, false],
-            '7':   [true, true, true, true, true, true, true,  true, false, true, true]
+            '6':   [true,     true,       true,        true,           true,  true,  false, true,    false,  false,     false],
+            '7':   [true,     true,       true,        true,           true,  true,  true,  true,    false,  true,      true]
+            '8':   [true,     true,       true,        true,           true,  true,  true,  true,    false,  true,      true]
         },
-        'wp8':     [true, true, true, true, false, true, true, false, true, false, false],
-        'android': [true, true,  true,  true, false, true,  true, true,  true, false, true]
+        'wp8':     [true,     true,       true,        true,           false, false, true,  false,   true,   false,     false],
+        'android': [true,     true,       true,        true,           false, true,  true,  true,    true,   false,     true]
     }
 
     /**
