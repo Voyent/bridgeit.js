@@ -1790,6 +1790,27 @@ if (!window.console) {
 		}
 	};
 
+	b.pushQuery = function(docServiceQuery, docServiceFields, docServiceOptions, options) {
+		if (!absoluteGoBridgeItURL)  {
+			if (!!bridgeit.goBridgeItURL)  {
+				absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
+			}
+		}
+		if (!!absoluteGoBridgeItURL)  {
+			if (options && !options.url)  {
+				options.url = absoluteGoBridgeItURL;
+			}
+		}
+		if (ice && ice.push && ice.push.configuration.contextPath) {
+			if (options) {
+				console.log("bridgeit.push " + JSON.stringify(options));
+			}
+			ice.push.notifyQuery(docServiceQuery, docServiceFields, docServiceOptions, options);
+		} else {
+			console.error('Push service is not active');
+		}
+	};
+
 	//android functions as full page load
 	addOnLoadListener(loadComplete);
 	addOnLoadListener(checkExecDeviceResponse);
