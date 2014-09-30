@@ -963,12 +963,10 @@ if (!window.console) {
 		return merged;
 	}
 
-	var anonAuth = new Promiz();
-	anonAuth.resolve();
 	var bridgeitServiceDefaults = {
 		realm: "demo.bridgeit.mobi",
 		serviceBase: "http://api.bridgeit.mobi/",
-		auth: anonAuth
+		auth: {}
 	};
 
 	//Real Promise support stalled by IE
