@@ -757,6 +757,7 @@ if (!window.console) {
 
 		document.addEventListener("webkitvisibilitychange", function () {
 			if (document.webkitHidden)  {
+                clearTimeout(checkTimeout);
 				pausePush();
 			} else {
 				resumePush();
@@ -765,6 +766,7 @@ if (!window.console) {
 
 		document.addEventListener("visibilitychange", function () {
 			if (document.hidden)  {
+                clearTimeout(checkTimeout);
 				pausePush();
 			} else {
 				resumePush();
