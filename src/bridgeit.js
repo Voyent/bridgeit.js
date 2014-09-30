@@ -776,22 +776,16 @@ if (!window.console) {
 	};
 
 	function jsonPOST(uri, payload) {
-		var prom = new Promiz();
 		var xhr = new XMLHttpRequest();
-		xhr.open('POST', uri, true);
+		xhr.open('POST', uri, false);
 		xhr.setRequestHeader(
 				"Content-Type", "application/json;charset=UTF-8");
-		xhr.onreadystatechange = function() {
-			if (4 == xhr.readyState)  {
-				if (200 == xhr.status)  {
-					prom.resolve(JSON.parse(xhr.responseText));
-				} else {
-					prom.reject({message:xhr.statusText, status: xhr.status});
-			   }
-			}
-		};
 		xhr.send(JSON.stringify(payload));
-		return prom;
+		if (xhr.status == 200) {
+	            return JSON.parse(xhr.responseText);
+	        } else {
+	            throw xhr.statusText + '[' + xhr.status + ']';
+	        }
 	}
 
 	function httpGET(uri, query) {
@@ -851,8 +845,6 @@ if (!window.console) {
 		return url;
 	}
 
-	var pushPromise = new Promiz();
-
 	function loadPushService(uri, apikey, options) {
 		var baseURI = uri + (endsWith(uri, '/') ? '' : '/');
 		if (ice && ice.push) {
@@ -876,7 +868,6 @@ if (!window.console) {
 		ice.push.connection.startConnection();
 
 		setupCloudPush();
-		pushPromise.resolve();
 	}
 
 	var pushListeners = {};
@@ -947,59 +938,22 @@ if (!window.console) {
 		}
 	}
 
-	function addOptions(base, options)  {
-		for (var prop in options)  {
-			base[prop] = options[prop];
-		}
-		return base;
-	}
-
 	function overlayOptions(defaults, options)  {
-		var merged = {};
-
-		addOptions(merged, defaults);
-		addOptions(merged, options);
-
+	        var merged = {};
+	        for (var prop in defaults)  {
+        		merged[prop] = defaults[prop];
+        	}
+		for (var prop in options)  {
+			merged[prop] = options[prop];
+		}
 		return merged;
-	}
+        }
 
 	var bridgeitServiceDefaults = {
 		realm: "demo.bridgeit.mobi",
-		serviceBase: "http://api.bridgeit.mobi/",
-		auth: {}
+		serviceBase: "http://api.bridgeit.mobi/"
 	};
 
-	//Real Promise support stalled by IE
-	function Promiz()  {
-		var thePromiz = this;
-		var successes = [];
-		var fails = [];
-		this.then = function(success, fail)  {
-			if (success)  {
-				successes.push(success);
-			}
-			if (fail)  {
-				fails.push(fail);
-			}
-		}
-		function callall(funcs, args)  {
-			for (var i = 0; i < funcs.length; i++) {
-				funcs[i].apply(thePromiz, args);
-			}
-		}
-		this.resolve = function()  {
-			callall(successes, arguments);
-			thePromiz.then = function(success, fail)  {
-				success.apply(thePromiz, arguments);
-			}
-		}
-		this.reject = function()  {
-			callall(fails, arguments);
-			thePromiz.then = function(success, fail)  {
-				fail.apply(thePromiz, arguments);
-			}
-		}
-	}
 
 	/* *********************** PUBLIC **********************************/
 
@@ -1640,7 +1594,7 @@ if (!window.console) {
 	 * @param options Additional options
 	 */
 	b.login = function(username, password, options) {
-		var auth = new Promiz();
+		var auth = {};
 
 		options = overlayOptions(bridgeitServiceDefaults, options);
 		//need to also allow specified auth URL in options
@@ -1650,16 +1604,7 @@ if (!window.console) {
 			username: username,
 			password: password
 		}
-
-		jsonPOST(loginURI, loginRequest).then(
-			function(jsonResult) {
-				addOptions(auth, jsonResult);
-				auth.resolve(auth);
-			},
-			function(err) {
-				auth.reject(err);
-			}
-		);
+		auth = jsonPOST(loginURI, loginRequest);
 
 		//save default authorization if default realm
 		if (options.realm === bridgeitServiceDefaults.realm)  {
@@ -1707,9 +1652,9 @@ if (!window.console) {
 			//legacy uri,apikey
 		}
 
-		bridgeitServiceDefaults.auth.then(function() {
+		window.setTimeout(function() {
 			loadPushService(uri, apikey, options);
-		});
+		}, 1);
 	};
 
 	/**
@@ -1721,9 +1666,9 @@ if (!window.console) {
 	 * @alias plugin.addPushListener
 	 */
 	b.addPushListener = function(group, callback) {
-		pushPromise.then(function() {
+		window.setTimeout(function() {
 			addPushListenerImpl(group, callback);
-		});
+		}, 1);
 	};
 
 	/**
