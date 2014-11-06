@@ -1796,7 +1796,28 @@ if (!window.console) {
 		}
 	};
 
-	b.pushQuery = function(docServiceQuery, docServiceFields, docServiceOptions, options) {
+	/**
+	 * Push notification to one or more groups resulting from a
+	 * query to the Doc Service.  The query is to be in MongoDB
+	 * format.
+	 *
+	 * This will result in an Ajax Push (and associated callback)
+	 * to any web pages that have added a push listener to a group
+	 * that resulted from the query sent to the Doc Service.  If
+	 * Cloud Push options are provided (options.subject and
+	 * options.detail) a Cloud Push will be dispatched as a home
+	 * screen notification to any devices unable to receive the
+	 * Ajax Push via the web page.
+	 *
+	 * @param {String} docServiceQuery The query to be sent to the Doc Service.
+	 * @param {String} docServiceFields The fields to be sent to the Doc Service.
+	 * @param {String} docServiceOptions The options to be sent to the Doc Service.
+	 * @param {Object} options Options that a notification can carry
+	 * @param {String} options.subject The subject heading for the notification
+	 * @param {String} options.message The message text to be sent in the notification body
+	 * @alias plugin.pushQuery
+	 */
+ 	b.pushQuery = function(docServiceQuery, docServiceFields, docServiceOptions, options) {
 		if (!absoluteGoBridgeItURL)  {
 			if (!!bridgeit.goBridgeItURL)  {
 				absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
