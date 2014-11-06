@@ -776,16 +776,22 @@ if (!window.console) {
 	};
 
 	function jsonPOST(uri, payload) {
+		var prom = new Promiz();
 		var xhr = new XMLHttpRequest();
-		xhr.open('POST', uri, false);
+		xhr.open('POST', uri, true);
 		xhr.setRequestHeader(
 				"Content-Type", "application/json;charset=UTF-8");
+		xhr.onreadystatechange = function() {
+			if (4 == xhr.readyState)  {
+				if (200 == xhr.status)  {
+					prom.resolve(JSON.parse(xhr.responseText));
+				} else {
+					prom.reject({message:xhr.statusText, status: xhr.status});
+			   }
+			}
+		};
 		xhr.send(JSON.stringify(payload));
-		if (xhr.status == 200) {
-	            return JSON.parse(xhr.responseText);
-	        } else {
-	            throw xhr.statusText + '[' + xhr.status + ']';
-	        }
+		return prom;
 	}
 
 	function httpGET(uri, query) {
@@ -845,6 +851,8 @@ if (!window.console) {
 		return url;
 	}
 
+	var pushPromise = new Promiz();
+
 	function loadPushService(uri, apikey, options) {
 		var baseURI = uri + (endsWith(uri, '/') ? '' : '/');
 		if (ice && ice.push) {
@@ -869,6 +877,7 @@ if (!window.console) {
 		ice.push.connection.startConnection();
 
 		setupCloudPush();
+		pushPromise.resolve();
 	}
 
 	var pushListeners = {};
@@ -939,22 +948,63 @@ if (!window.console) {
 		}
 	}
 
-	function overlayOptions(defaults, options)  {
-	        var merged = {};
-	        for (var prop in defaults)  {
-        		merged[prop] = defaults[prop];
-        	}
+	function addOptions(base, options)  {
 		for (var prop in options)  {
-			merged[prop] = options[prop];
+			base[prop] = options[prop];
 		}
+		return base;
+	}
+
+	function overlayOptions(defaults, options)  {
+		var merged = {};
+
+		addOptions(merged, defaults);
+		addOptions(merged, options);
+
 		return merged;
-        }
+	}
+
+	var anonAuth = new Promiz();
+	anonAuth.resolve();
 
 	var bridgeitServiceDefaults = {
 		account: "icesoft_technologies_inc",
 		realm: "demo.bridgeit.mobi",
-		serviceBase: "http://api.bridgeit.mobi/"
+		serviceBase: "http://api.bridgeit.mobi/",
+		auth: anonAuth
 	};
+
+	//Real Promise support stalled by IE
+	function Promiz()  {
+		var thePromiz = this;
+		var successes = [];
+		var fails = [];
+		this.then = function(success, fail)  {
+			if (success)  {
+				successes.push(success);
+			}
+			if (fail)  {
+				fails.push(fail);
+			}
+		}
+		function callall(funcs, args)  {
+			for (var i = 0; i < funcs.length; i++) {
+				funcs[i].apply(thePromiz, args);
+			}
+		}
+		this.resolve = function()  {
+			callall(successes, arguments);
+			thePromiz.then = function(success, fail)  {
+				success.apply(thePromiz, arguments);
+			}
+		}
+		this.reject = function()  {
+			callall(fails, arguments);
+			thePromiz.then = function(success, fail)  {
+				fail.apply(thePromiz, arguments);
+			}
+		}
+	}
 
 
 	/* *********************** PUBLIC **********************************/
@@ -1596,7 +1646,7 @@ if (!window.console) {
 	 * @param options Additional options
 	 */
 	b.login = function(username, password, options) {
-		var auth = {};
+		var auth = new Promiz();
 
 		options = overlayOptions(bridgeitServiceDefaults, options);
 		//need to also allow specified auth URL in options
@@ -1606,7 +1656,15 @@ if (!window.console) {
 			username: username,
 			password: password
 		}
-		auth = jsonPOST(loginURI, loginRequest);
+		jsonPOST(loginURI, loginRequest).then(
+			function(jsonResult) {
+				addOptions(auth, jsonResult);
+				auth.resolve(auth);
+			},
+			function(err) {
+				auth.reject(err);
+			}
+		);
 
 		//save default authorization if default realm
 		if (options.account == bridgeitServiceDefaults.account && options.realm === bridgeitServiceDefaults.realm)  {
@@ -1655,9 +1713,9 @@ if (!window.console) {
 			//legacy uri,apikey
 		}
 
-		window.setTimeout(function() {
+		bridgeitServiceDefaults.auth.then(function() {
 			loadPushService(uri, apikey, options);
-		}, 1);
+		});
 	};
 
 	/**
@@ -1669,9 +1727,9 @@ if (!window.console) {
 	 * @alias plugin.addPushListener
 	 */
 	b.addPushListener = function(group, callback) {
-		window.setTimeout(function() {
+		pushPromise.then(function() {
 			addPushListenerImpl(group, callback);
-		}, 1);
+		});
 	};
 
 	/**
@@ -1733,6 +1791,27 @@ if (!window.console) {
 			} else {
 				ice.push.notify(groupName, options);
 			}
+		} else {
+			console.error('Push service is not active');
+		}
+	};
+
+	b.pushQuery = function(docServiceQuery, docServiceFields, docServiceOptions, options) {
+		if (!absoluteGoBridgeItURL)  {
+			if (!!bridgeit.goBridgeItURL)  {
+				absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
+			}
+		}
+		if (!!absoluteGoBridgeItURL)  {
+			if (options && !options.url)  {
+				options.url = absoluteGoBridgeItURL;
+			}
+		}
+		if (ice && ice.push && ice.push.configuration.contextPath) {
+			if (options) {
+				console.log("bridgeit.push " + JSON.stringify(options));
+			}
+			ice.push.notifyQuery(docServiceQuery, docServiceFields, docServiceOptions, options);
 		} else {
 			console.error('Push service is not active');
 		}
