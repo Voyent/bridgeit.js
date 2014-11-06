@@ -859,6 +859,7 @@ if (!window.console) {
 		ice.push.configuration.contextPath = baseURI;
 		ice.push.configuration.apikey = apikey;
 		if (options)  {
+			ice.push.configuration.account = options.account;
 			ice.push.configuration.realm = options.realm;
 			if (options.auth)  {
 				ice.push.configuration.access_token =
@@ -950,6 +951,7 @@ if (!window.console) {
         }
 
 	var bridgeitServiceDefaults = {
+		account: "icesoft_technologies_inc",
 		realm: "demo.bridgeit.mobi",
 		serviceBase: "http://api.bridgeit.mobi/"
 	};
@@ -1599,7 +1601,7 @@ if (!window.console) {
 		options = overlayOptions(bridgeitServiceDefaults, options);
 		//need to also allow specified auth URL in options
 		var uri = bridgeitServiceDefaults.serviceBase + "/auth/";
-		var loginURI = uri + options.realm + "/token/local";
+		var loginURI = uri + options.account + "/realms/" + options.realm + "/token";
 		var loginRequest = {
 			username: username,
 			password: password
@@ -1607,7 +1609,7 @@ if (!window.console) {
 		auth = jsonPOST(loginURI, loginRequest);
 
 		//save default authorization if default realm
-		if (options.realm === bridgeitServiceDefaults.realm)  {
+		if (options.account == bridgeitServiceDefaults.account && options.realm === bridgeitServiceDefaults.realm)  {
 			bridgeitServiceDefaults.auth = auth;
 		}
 		return auth;
@@ -1616,14 +1618,12 @@ if (!window.console) {
 	/**
 	 * Set up BridgeIt Services.
 	 * @alias useServices
-	 * @param param String realm name or object with named parameters
+	 * @param param object with named parameters
 	 */
 	b.useServices = function(param) {
 		if ("object" === typeof arguments[0])  {
 			bridgeitServiceDefaults =
 					overlayOptions(bridgeitServiceDefaults, param);
-		} else {
-			bridgeitServiceDefaults.realm = param;
 		}
 	}
 
@@ -1639,6 +1639,9 @@ if (!window.console) {
 		if (0 == arguments.length)  {
 			uri = bridgeitServiceDefaults.serviceBase + "/push";
 		} else if ("object" === typeof arguments[0])  {
+			if (!!arguments[0].account)  {
+				account = arguments[0].account;
+			}
 			if (!!arguments[0].realm)  {
 				realm = arguments[0].realm;
 			}
