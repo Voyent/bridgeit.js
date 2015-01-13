@@ -41,6 +41,28 @@
 		}
 	}
 
+	/* Locate */
+	function validateRequiredRegion(params, reject){
+		if( !params.region ){
+			reject(Error('The region parameter is required'));
+			return;
+		}
+	}
+
+	function validateRequiredMonitor(params, reject){
+		if( !params.monitor ){
+			reject(Error('The monitor parameter is required'));
+			return;
+		}
+	}
+
+	function validateRequiredPOI(params, reject){
+		if( !params.poi ){
+			reject(Error('The poi parameter is required'));
+			return;
+		}
+	}
+
 	/* Misc */
 	function validateRequiredId(params, reject){
 		if( !params.id ){
@@ -424,7 +446,7 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-		 * @returns {String} The resource location
+		 * @returns {String} The resource URI
 		 */
 		createDocument: function(params){
 			return new Promise(
@@ -470,7 +492,7 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-		 * @returns {String} The resource location
+		 * @returns {String} The resource URI
 		 */
 		updateDocument: function(params){
 			return new Promise(
@@ -516,7 +538,7 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-		 * @returns {String} The resource location
+		 * @returns {Object} The document
 		 */
 		 getDocument: function(params){
 			return new Promise(
@@ -559,6 +581,52 @@
 		},
 
 		/**
+		 * Fetch a document
+		 *
+		 * @alias getDocument
+		 * @param {Object} params params
+		 * @param {String} params.query A mongo query for the documents
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		 findDocuments: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/documents/?' + 
+						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') + 
+						'&access_token=' + b.services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(doc){
+								resolve(doc);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);			
+		},
+
+		/**
 		 * Delete a new document
 		 *
 		 * @alias deleteDocument
@@ -569,7 +637,7 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-		 * @returns {String} The resource location
+		 * @returns {String} The resource URI
 		 */
 		deleteDocument: function(params){
 			return new Promise(
@@ -607,7 +675,543 @@
 	};
 
 	/* LOCATE SERVICE */
-	b.services.location = {};
+	services.location = {
+
+		/**
+		 * Create a new region
+		 *
+		 * @alias createRegion
+		 * @param {Object} params params
+		 * @param {String} params.id The region id. If not provided, the service will return a new id
+		 * @param {Object} params.region The region geoJSON document that describes the region to be created
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource URI
+		 */
+		 createRegion: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredRegion(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/regions/' + (params.id ? params.id : '') + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.post(url, params.region)
+						.then(
+							function(response){
+								resolve(response.uri);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Delete a new region
+		 *
+		 * @alias deleteRegion
+		 * @param {Object} params params
+		 * @param {String} params.id The region id. 
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource URI
+		 */
+		 deleteRegion: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredId(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/regions/' + params.id + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.delete(url)
+						.then(
+							function(response){
+								resolve();
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Fetches all saved regions for the realm
+		 *
+		 * @alias getAllRegions
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		 getAllRegions: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/regions/' +  
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Searches for regions in a realm based on a query
+		 *
+		 * @alias findRegions
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		 findRegions: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/regions/?' + 
+						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
+						'&access_token=' + services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Searches for monitors in a realm based on a query
+		 *
+		 * @alias findMonitors
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		 findMonitors: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/monitors/?' + 
+						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
+						'&access_token=' + services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Create a new location monitor
+		 *
+		 * @alias createMonitor
+		 * @param {Object} params params
+		 * @param {String} params.id The monitor id. If not provided, the service will return a new id
+		 * @param {Object} params.monitor The monitor document that describes the monitor to be created
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource URI
+		 */
+		 createMonitor: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredMonitor(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/monitors/' + (params.id ? params.id : '') + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.post(url, params.monitor)
+						.then(
+							function(response){
+								resolve(response.uri);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Delete a new monitor
+		 *
+		 * @alias deleteMonitor
+		 * @param {Object} params params
+		 * @param {String} params.id The region id. 
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource URI
+		 */
+		 deleteMonitor: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredId(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/monitors/' + params.id + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.delete(url)
+						.then(
+							function(response){
+								resolve();
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Fetches all saved monitors for the realm
+		 *
+		 * @alias getAllMonitors
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		 getAllMonitors: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/monitors/' +  
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Create a new location point of interest
+		 *
+		 * @alias createPOI
+		 * @param {Object} params params
+		 * @param {String} params.id The POI id. If not provided, the service will return a new id
+		 * @param {Object} params.poi The POI document that describes the POI to be created
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource URI
+		 */
+		 createPOI: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredPOI(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/poi/' + (params.id ? params.id : '') + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.post(url, params.poi)
+						.then(
+							function(response){
+								resolve(response.uri);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Searches for POIs in a realm based on a query
+		 *
+		 * @alias findPOIs
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		 findPOIs: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/poi/?' + 
+						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
+						'&access_token=' + services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Delete a new POI
+		 *
+		 * @alias deletePOI
+		 * @param {Object} params params
+		 * @param {String} params.id The POI id. 
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource URI
+		 */
+		 deletePOI: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredId(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/poi/' + params.id + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.delete(url)
+						.then(
+							function(response){
+								resolve();
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Fetches all saved POIs for the realm
+		 *
+		 * @alias getAllPOIs
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		 getAllPOIs: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/poi/' +  
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+	};
 
 	/* METRICS SERVICE */
 	b.services.metrics = {};
