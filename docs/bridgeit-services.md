@@ -43,3 +43,52 @@ Promise with the following argument:
          expires_in: 1420574793844
      }
 ```
+
+### connect
+```javascript
+function bridgeit.services.auth.connect(params)
+```
+
+Connect to bridgeit services. 
+
+This function will connect to the BridgeIt services, and maintain the connection for the specified 
+timeout period (default 20 minutes). By default, the BridgeIt push service is also activated, so the client
+may send and receive push notifications after connecting.
+
+After connecting to BridgeIt Services, any BridgeIt service API may be used without needing to re-authenticate.
+After successfully connecting, an authentication token will be stored in session storage and available through 
+`bridgeit.services.auth.getAccessToken()`. This authentication information will automatically be used by other BridgeIt API
+calls, so the token does not be included in subsequent calls, but is available if desired.
+
+A simple example of connecting to the BridgeIt Services and then making a service call is the following:
+
+```javascript
+bridgeit.connect({
+          account: 'my_account', 
+          realm: 'realmA', 
+          user: 'user', 
+          password: 'secret'})
+  .then( function(){
+      console.log("successfully connnected to BridgeIt Services");
+      //now we can fetch some docs
+      return bridgeit.docService.get('documents');
+   })
+   .then( function(docs){
+      for( var d in docs ){ ... };
+   })
+   .catch( function(error){
+      console.log("error connecting to BridgeIt Services: " + error);
+   });
+```
+
+In order to automatically reconnect, the `storeCredentials` parameter must be set to true (default), otherwise user credentials will not be available and bridgeit will not be able to reconnect automatically. Credentials are stored in the browser sessionStorage in encoded form for both key and value. These credentials are not easily retrievable from the browser, and will be removed when the browser session expires, although it is possible that credentials, when stored, may be retrieved and decoded without permission. Thus it is recommended that this feature not be used when stricter security measures are required.
+
+## Tests
+
+The BridgetIt JS API Mocha integration tests can be run from the test directory either through the `TestRunner.html` file or with PhantomJS.
+
+```
+mocha-phantomjs TestRunner.html
+```
+
+Mocha and PhantomJS are both required.

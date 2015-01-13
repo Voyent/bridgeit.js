@@ -6,11 +6,50 @@
 
 	var services = b.services;
 
-	//Service defaults
-	services.tokenKey = 'bridgeitToken';
-	services.tokenExpiresKey = 'bridgeitTokenExpires';
+	//internal keys
+	var tokenKey = 'bridgeitToken';
+	var tokenExpiresKey = 'bridgeitTokenExpires';
+	var tokenSetKey = 'bridgeitTokenSet';
+	var connectSettingsKey = 'bridgeitConnectSettingsKey';
+	var lastActiveTimestampKey = 'bridgeitLastActiveTimestamp';
+	var accountKey = 'bridgeitAccount';
+	var realmKey = 'bridgeitRealm';
+	var usernameKey = 'bridgeitUsername';
+	var passwordKey = 'bridgeitPassword';
 
-	b.util = {
+	/************************* Private ********************/
+
+	/* Auth */
+	function validateRequiredAccount(params, reject){
+		if( !params.account ){
+			reject(Error('BridgeIt account is required'));
+			return;
+		}
+	}
+
+	function validateRequiredRealm(params, reject){
+		if( !params.realm ){
+			reject(Error('BridgeIt realm is required'));
+			return;
+		}
+	}
+
+	function validateRequiredAccessToken(reject){
+		if( !b.services.auth.getAccessToken() ){
+			reject(Error('BridgeIt access token is required'));
+			return;
+		}
+	}
+
+	/* Misc */
+	function validateRequiredId(params, reject){
+		if( !params.id ){
+			reject(Error('The id is required'));
+			return;
+		}
+	}
+
+	b.$ = {
 
 		serializePostData: function(data){
 			//TODO
@@ -37,8 +76,8 @@
 			);
 			
 		},
-		post: function(url, data){
 
+		post: function(url, data){
 			return new Promise(
 				function(resolve, reject) {
 					console.log('sending post to ' + url);
@@ -51,7 +90,14 @@
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
-						  		resolve(JSON.parse(this.responseText));
+								var json = null;
+								try{
+									json = JSON.parse(this.responseText);
+									resolve(json);
+								}
+								catch(e){
+									reject(e);
+								}
 							} else {
 						  		reject(Error(this.status));
 							}
@@ -61,11 +107,43 @@
 					request = null;
 				}
 			);
-			
+		},
+
+		delete: function(url){
+			return new Promise(
+				function(resolve, reject) {
+					console.log('sending delete to ' + url);
+					var request = new XMLHttpRequest();
+					//request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+					request.open('DELETE', url, true);
+					//request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+					//request.setRequestHeader("Content-type", "application/json");
+   					//request.setRequestHeader("Connection", "close");
+					request.onreadystatechange = function() {
+						if (this.readyState === 4) {
+							if (this.status >= 200 && this.status < 400) {
+								resolve();
+							} else {
+						  		reject(Error(this.status));
+							}
+						}
+					};
+					request.send();
+					request = null;
+				}
+			);
+		},
+
+		updateLastActiveTimestamp: function(){
+			sessionStorage.setItem(btoa(lastActiveTimestampKey), new Date().getTime());
+		},
+		getLastActiveTimestamp: function(){
+			sessionStorage.getItem(btoa(lastActiveTimestampKey));
 		}
 	};
 
 	services.configureHosts = function(url){
+		var isLocal = url == 'localhost' || '127.0.0.1';
 		if( !url ){
 			services.baseURL = 'dev.bridgeit.io';
 		}
@@ -73,77 +151,25 @@
 			services.baseURL = url;
 		}
 		var baseURL = services.baseURL;
-		services.authURL = baseURL + '/auth';
-		services.authAdminURL = baseURL + '/authadmin';
-		services.locateURL = baseURL + '/locate';
-		services.documentsURL = baseURL + '/docs';
-		services.storageURL = baseURL + '/storage';
-		services.metricsURL = baseURL + '/metrics';
+		services.authURL = baseURL + (isLocal ? ':55010' : '') + '/auth';
+		services.authAdminURL = baseURL + (isLocal ? ':55010' : '') + '/authadmin';
+		services.locateURL = baseURL + (isLocal ? ':55020' : '') + '/locate';
+		services.documentsURL = baseURL + (isLocal ? ':55080' : '') + '/docs';
+		services.storageURL = baseURL + (isLocal ? ':55030' : '') + '/storage';
+		services.metricsURL = baseURL + (isLocal ? ':55040' : '') + '/metrics';
 	};
 
 	services.checkHost = function(params){
+		//TODO use last configured host if available
 		if( params.host ){
 			services.configureHosts(params.host);
 		}
 	};
 
-	/**
-	 * Connect to bridgeit services. 
-	 *
-	 * This function will connect to the BridgeIt services, and maintain the connection for the specified 
-	 * timeout period (default 30 minutes). By default, the BridgeIt push service is also activated, so the client
-	 * may send and receive push notifications after connecting.
-	 *
-	 * After connecting to BridgeIt Services, any BridgeIt service API may be used without needing to re-authenticate.
-	 * After successfully connection an authentication will be stored in session storage and available through 
-	 * sessionStorage.bridgeitToken. This authentication information will automatically be used by other BridgeIt API
-	 * calls, so the token does not be included in subsequent calls, but is available if desired.
-	 *
-	 * A simple example of connecting to the BridgeIt Services and then making a service call is the following:
-	 *
-	 * bridgeit.connect({
-	 *           account: 'my_account', 
-	 *           realm: 'realmA', 
-	 *           user: 'user', 
-	 *           password: 'secret'})
-	 *   .then( function(){
-	 *      console.log("successfully connnected to BridgeIt Services");
-	 *      //now we can fetch some docs
-	 *      return bridgeit.docService.get('documents');
-	 *   })
-	 *   .then( function(docs){
-	 *      for( var d in docs ){ ... };
-	 *   })
-	 *   .catch( function(error){
-	 *      console.log("error connecting to BridgeIt Services: " + error);
-	 *   });
-	 *
-	 * @alias connect
-	 * @param {Object} params params
-	 * @param {String} params.account BridgeIt Services account name
-	 * @param {String} params.realm BridgeIt Services realm
-	 * @param {Boolean} params.admin Whether the user is an admin (default false), (if true, 'realm' is ignored)
-	 * @param {String} params.username User name
-	 * @param {String} params.password User password
-	 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io
-	 * @param {Boolean} params.usePushService Open and connect to the BridgeIt push service, default true
-	 * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the BridgeIt login will last during inactivity. Default 30 minutes.
-	 * @param {Boolean} params.useSecureChannels (default false) Whether to use SSL for network traffic.
-	 * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session storage. If set to false, attempts to reconnect will depend of the storage of encyrpted credentials in page scope, and refreshing the browser, clearing the credentials, will prevent the client from refreshing an expired authentication token.
-	 * @param {Function} params.done Success callback for clients that do not support ES6 Promises
-	 * @param {Function} params.fail Failure callback for clients that do not support ES6 Promises
-	 * @param {Function} params.onSessionTimeout Function callback to be called on session expiry
-	 * @returns Promise with service definitions
-	 *
-	 */
-	services.connect = function(params){
-
-	};
+	
 
 	
-	services.disconnect = function(account, realm, username){
-
-	};
+	
 
 	/* AUTH SERVICE */
 	services.auth = {
@@ -203,7 +229,7 @@
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + b.services.authURL + '/' + encodeURI(params.account) + '/realms/' + encodeURI(params.realm) + '/token/';
 
-					b.util.post(url, {strategy: 'query', username: params.username, password: params.password})
+					b.$.post(url, {strategy: 'query', username: params.username, password: params.password})
 						.then(
 							function(response){
 								resolve(response);
@@ -218,17 +244,367 @@
 			);
 		},
 
+		/**
+		 * Connect to bridgeit services. 
+		 *
+		 * This function will connect to the BridgeIt services, and maintain the connection for the specified 
+		 * timeout period (default 20 minutes). By default, the BridgeIt push service is also activated, so the client
+		 * may send and receive push notifications after connecting.
+		 *
+		 * After connecting to BridgeIt Services, any BridgeIt service API may be used without needing to re-authenticate.
+		 * After successfully connection an authentication will be stored in session storage and available through 
+		 * sessionStorage.bridgeitToken. This authentication information will automatically be used by other BridgeIt API
+		 * calls, so the token does not be included in subsequent calls, but is available if desired.
+		 *
+		 * A simple example of connecting to the BridgeIt Services and then making a service call is the following:
+		 *
+		 * bridgeit.connect({
+		 *           account: 'my_account', 
+		 *           realm: 'realmA', 
+		 *           user: 'user', 
+		 *           password: 'secret'})
+		 *   .then( function(){
+		 *      console.log("successfully connnected to BridgeIt Services");
+		 *      //now we can fetch some docs
+		 *      return bridgeit.docService.get('documents');
+		 *   })
+		 *   .then( function(docs){
+		 *      for( var d in docs ){ ... };
+		 *   })
+		 *   .catch( function(error){
+		 *      console.log("error connecting to BridgeIt Services: " + error);
+		 *   });
+		 *
+		 * @alias connect
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name
+		 * @param {String} params.realm BridgeIt Services realm
+		 * @param {Boolean} params.admin Whether the user is an admin (default false), (if true, 'realm' is ignored)
+		 * @param {String} params.username User name
+		 * @param {String} params.password User password
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io
+		 * @param {Boolean} params.usePushService Open and connect to the BridgeIt push service, default true
+		 * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the BridgeIt login will last during inactivity. Default 20 minutes.
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session storage. If set to false, bridgeit will not attempt to relogin before the session expires.
+		 * @param {Function} params.onSessionTimeout Function callback to be called on session expiry
+		 * @returns Promise with service definitions
+		 *
+		 */
+		connect: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					
+					//defaults
+					b.services.checkHost(params);
+					if( !'storeCredentials' in params){
+						params.storeCredentials = true;
+					}
+
+					//store connect settings
+					var settings = {
+						host: services.baseURL,
+						userPushService: params.usePushService,
+						connectionTimeout: params.connectionTimeout || 20,
+						ssl: params.ssl,
+						storeCredentials: params.storeCredentials,
+						onSessionTimeout: params.onSessionTimeout
+					};
+					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));
+					
+
+					console.log('connect logging in');
+					var loggedInAt = new Date().getTime();
+					services.auth.login(params)
+						.then(function(authResponse){
+							console.log('connect received auth response: ' + JSON.stringify(authResponse));
+
+							b.$.updateLastActiveTimestamp();
+
+							sessionStorage.setItem(btoa(tokenKey), authResponse.access_token);
+							sessionStorage.setItem(btoa(tokenExpiresKey), authResponse.expires_in);
+							sessionStorage.setItem(btoa(tokenSetKey), loggedInAt);
+
+							//store creds
+							if( params.storeCredentials ){
+								
+								sessionStorage.setItem(btoa(accountKey), btoa(params.account));
+								sessionStorage.setItem(btoa(realmKey), btoa(params.realm));
+								sessionStorage.setItem(btoa(usernameKey), btoa(params.username));
+								sessionStorage.setItem(btoa(passwordKey), btoa(params.password));
+
+								function reloginBeforeTimeout(){
+									//first check if connectionTimeout has expired
+									var now = new Date().getTime();
+									if( now - b.$.getLastActiveTimestamp() < params.connectionTimeout * 60 * 1000 ){
+										//we have not exceeded the connection timeout
+										var loginParams = services.auth.getConnectSettings();
+										loginParams.account = sessionStorage.getItem(btoa(accountKey));
+										loginParams.realm = sessionStorage.getItem(btoa(realmKey));
+										loginParams.username = sessionStorage.getItem(btoa(usernameKey));
+										loginParams.password = sessionStorage.getItem(btoa(passwordKey));
+
+										services.auth.login(loginParams)
+											.then(function(authResponse){
+												setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
+											})
+											.catch(function(error){
+												throw new Error('error relogging in: ' + error);
+											});
+
+									}
+								}
+								//set a timeout for 200 ms before expires to attempt to relogin
+								setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
+								
+							}
+							resolve(authResponse);
+						})
+						.catch(function(error){
+							reject(error);
+						});
+					
+					
+				}
+			);
+
+		},
+
+		disconnect: function(){
+			//TODO
+		},
+
 		getAccessToken: function(){
-			return sessionStorage.getItem(btoa(services.tokenKey));
+			return sessionStorage.getItem(btoa(tokenKey));
 		},
 
 		getExpiresIn: function(){
-			return sessionStorage.getItem(btoa(services.tokenExpiresKey));
+			return sessionStorage.getItem(btoa(tokenExpiresKey));
+		},
+
+		getTimeRemainingBeforeExpiry: function(){
+			var expiresIn = services.auth.getExpiresIn();
+			var token = services.auth.getExpiresIn();
+			if( expiresIn && token ){
+				var loggedInAt = sessionStorage.getItem(btoa(tokenSetKey));
+				var now = new Date().getTime();
+				return (loggedInAt + expiresIn) - now;
+			}
+		},
+
+		getConnectSettings: function(){
+			var settingsStr = sessionStorage.getItem(btoa(connectSettingsKey));
+			if( settingsStr ){
+				return JSON.parse(settingsStr);
+			}
+		},
+
+		isLoggedIn: function(){
+			var token = sessionStorage.getItem(btoa(tokenKey)),
+				tokenExpiresStr = sessionStorage.getItem(btoa(tokenExpiresKey)),
+				tokenExpires = tokenExpiresStr ? parseInt(tokenExpiresStr) : null,
+				expiresIn = tokenExpires ? tokenExpires - new Date().getTime() : null,
+				result = expiresIn > 0;
+			return result;
 		}
 	};
 
 	/* DOC SERVICE */
-	b.services.documents = {};
+	b.services.documents = {
+
+		/**
+		 * Create a new document
+		 *
+		 * @alias createDocument
+		 * @param {Object} params params
+		 * @param {String} params.id The document id. If not provided, the service will return a new id
+		 * @param {Object} params.document The document to be created
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource location
+		 */
+		createDocument: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/documents/' + (params.id ? params.id : '') + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.post(url, params.document)
+						.then(
+							function(response){
+								resolve(response.uri);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);			
+		},
+
+		/**
+		 * Update a document
+		 *
+		 * @alias createDocument
+		 * @param {Object} params params
+		 * @param {String} params.id The document id. 
+		 * @param {Object} params.document The document to be created
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource location
+		 */
+		updateDocument: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredId(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.post(url, params.document)
+						.then(
+							function(response){
+								resolve(response.uri);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);			
+		},
+
+		/**
+		 * Fetch a document
+		 *
+		 * @alias getDocument
+		 * @param {Object} params params
+		 * @param {String} params.id The document id. If not provided, the service will return a new id
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource location
+		 */
+		 getDocument: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredId(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(doc){
+								//the document service always returns a list, so 
+								//check if we have a list of one, and if so, return the single item
+								if( doc.length && doc.length === 1 ){
+									resolve(doc[0]);
+								}
+								else{
+									resolve(doc);
+								}	
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);			
+		},
+
+		/**
+		 * Delete a new document
+		 *
+		 * @alias deleteDocument
+		 * @param {Object} params params
+		 * @param {String} params.id The document id. If not provided, the service will return a new id
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {String} The resource location
+		 */
+		deleteDocument: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredId(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
+						'?access_token=' + b.services.auth.getAccessToken();
+
+					b.$.delete(url)
+						.then(
+							function(response){
+								resolve();
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);
+		}
+
+	};
 
 	/* LOCATE SERVICE */
 	b.services.location = {};
