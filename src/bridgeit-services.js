@@ -5,10 +5,6 @@
 	/************************* Private ********************/
 
 	/* Auth */
-	function validateRequiredAccount(params, reject){
-		validateParameter('account', 'The BridgeIt account is required', params, reject);
-	}
-
 	function validateRequiredRealm(params, reject){
 		validateParameter('realm', 'The BridgeIt realm is required', params, reject);
 	}
@@ -19,7 +15,29 @@
 			return token;
 		}
 		else{
-			reject(Error('BridgeIt access token is required'));
+			reject(Error('A BridgeIt access token is required'));
+		}
+	}
+
+	function validateAndReturnRequiredRealm(params, reject){
+		var realm = params.realm || b.services.auth.getLastKnownRealm();
+		if( realm ){
+			sessionStorage.setItem(btoa(realmKey), btoa(realm));
+			return realm;
+		}
+		else{
+			reject(Error('The BridgeIt realm is required'));
+		}
+	}
+
+	function validateAndReturnRequiredAccount(params, reject){
+		var account = params.account || b.services.auth.getLastKnownAccount();
+		if( account ){
+			sessionStorage.setItem(btoa(accountKey), btoa(account));
+			return account;
+		}
+		else{
+			reject(Error('The BridgeIt account is required'));
 		}
 	}
 
@@ -500,6 +518,20 @@
 				expiresIn = tokenExpires ? tokenExpires - new Date().getTime() : null,
 				result = expiresIn > 0;
 			return result;
+		},
+
+		getLastKnownAccount: function(){
+			var accountCipher = sessionStorage.getItem(btoa(accountKey));
+			if( accountCipher ){
+				return atob(accountCipher);
+			}
+		},
+
+		getLastKnownRealm: function(){
+			var realmCipher = sessionStorage.getItem(btoa(realmKey));
+			if( realmCipher ){
+				return atob(realmCipher);
+			}
 		}
 	};
 
@@ -527,13 +559,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/documents/' + (params.id ? params.id : '') + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/documents/' + (params.id ? params.id : '') + 
 						'?access_token=' + token;
 
 					b.$.post(url, params.document)
@@ -573,14 +605,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
 						'?access_token=' + token;
 
 					b.$.post(url, params.document)
@@ -619,14 +651,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
 						'?access_token=' + token;
 
 					b.$.getJSON(url)
@@ -672,13 +704,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/documents/?' + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/documents/?' + 
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') + 
 						'&access_token=' + token;
 
@@ -717,14 +749,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
 						'?access_token=' + token;
 
 					b.$.delete(url)
@@ -769,14 +801,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredRegion(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/regions/' + (params.id ? params.id : '') + 
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/regions/' + (params.id ? params.id : '') + 
 						'?access_token=' + token;
 
 					b.$.post(url, params.region)
@@ -813,14 +845,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/regions/' + params.id + 
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/regions/' + params.id + 
 						'?access_token=' + token;
 
 					b.$.delete(url)
@@ -857,13 +889,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/regions/' +  
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/regions/' +  
 						'?access_token=' + token;
 
 					b.$.getJSON(url)
@@ -901,13 +933,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/regions/?' + 
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/regions/?' + 
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
 						'&access_token=' + token;
 
@@ -945,13 +977,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/monitors/?' + 
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/monitors/?' + 
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
 						'&access_token=' + token;
 
@@ -991,14 +1023,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredMonitor(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/monitors/' + (params.id ? params.id : '') + 
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/monitors/' + (params.id ? params.id : '') + 
 						'?access_token=' + token;
 
 					b.$.post(url, params.monitor)
@@ -1035,14 +1067,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/monitors/' + params.id + 
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/monitors/' + params.id + 
 						'?access_token=' + token;
 
 					b.$.delete(url)
@@ -1079,13 +1111,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/monitors/' +  
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/monitors/' +  
 						'?access_token=' + token;
 
 					b.$.getJSON(url)
@@ -1124,14 +1156,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredPOI(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/poi/' + (params.id ? params.id : '') + 
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/poi/' + (params.id ? params.id : '') + 
 						'?access_token=' + token;
 
 					b.$.post(url, params.poi)
@@ -1169,13 +1201,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/poi/?' + 
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/poi/?' + 
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
 						'&access_token=' + token;
 
@@ -1213,14 +1245,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/poi/' + params.id + 
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/poi/' + params.id + 
 						'?access_token=' + token;
 
 					b.$.delete(url)
@@ -1257,13 +1289,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/poi/' +  
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/poi/' +  
 						'?access_token=' + token;
 
 					b.$.getJSON(url)
@@ -1306,13 +1338,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.metricsURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/stats/?' + 
+					var url = protocol + services.metricsURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/stats/?' + 
 						(params.expression ? 'expression=' + encodeURIComponent(JSON.stringify(params.expression)) : '') +
 						'&access_token=' + token;
 
@@ -1365,14 +1397,14 @@
 					httpMethod = httpMethod.toLowerCase();
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredFlow(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/meta?scope=all&access_token=' + token;
+					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/meta?scope=all&access_token=' + token;
 
 					if( 'get' === httpMethod ){
 						//TODO encode params.data into URL?
@@ -1429,13 +1461,13 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/meta?scope=all&access_token=' + token;
+					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/meta?scope=all&access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -1473,14 +1505,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredBlob(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/blobs/' +
+					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/blobs/' +
 						(params.id ? params.id : '') +
 						'?access_token=' + token;
 					var formData = new FormData();
@@ -1522,14 +1554,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredFile(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/blobs/' +
+					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/blobs/' +
 						(params.id ? params.id : '') +
 						'?access_token=' + token;
 					var formData = new FormData();
@@ -1570,14 +1602,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/blobs/' + params.id + '?access_token=' + token;
+					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/blobs/' + params.id + '?access_token=' + token;
 
 					b.$.getBlob(url)
 						.then(
@@ -1613,14 +1645,14 @@
 					services.checkHost(params);
 
 					//validate
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/blobs/' + params.id + '?access_token=' + token;
+					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/blobs/' + params.id + '?access_token=' + token;
 
 					b.$.delete(url)
 						.then(

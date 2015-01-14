@@ -179,9 +179,6 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						account: accountId,
-						realm: realmId,
-						host: host,
 						document: newDoc
 					});
 				}).then(function(docURI){
@@ -206,9 +203,6 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						account: accountId,
-						realm: realmId,
-						host: host,
 						document: newDoc
 					});
 				}).then(function(docURI){
@@ -243,9 +237,6 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						account: accountId,
-						realm: realmId,
-						host: host,
 						document: newDoc
 					});
 				}).then(function(docURI){
@@ -254,9 +245,6 @@ describe('bridgeit.js tests', function () {
 					var docId = uriParts[uriParts.length-1];
 					newDoc.test = false;
 					return bridgeit.services.documents.updateDocument({
-						account: accountId,
-						realm: realmId,
-						host: host,
 						id: docId,
 						document: newDoc
 					})
@@ -282,9 +270,6 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						account: accountId,
-						realm: realmId,
-						host: host,
 						document: newDoc
 					});
 				}).then(function(docURI){
@@ -292,9 +277,6 @@ describe('bridgeit.js tests', function () {
 					var uriParts = docURI.split('/');
 					var docId = uriParts[uriParts.length-1];
 					return bridgeit.services.documents.getDocument({
-						account: accountId,
-						realm: realmId,
-						host: host,
 						id: docId
 					})
 				}).then(function(doc){
@@ -323,9 +305,6 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						account: accountId,
-						realm: realmId,
-						host: host,
 						document: newDoc
 					});
 				}).then(function(docURI){
@@ -333,9 +312,6 @@ describe('bridgeit.js tests', function () {
 					var uriParts = docURI.split('/');
 					var docId = uriParts[uriParts.length-1];
 					return bridgeit.services.documents.findDocuments({
-						account: accountId,
-						realm: realmId,
-						host: host,
 						query: {key: key}
 					})
 				}).then(function(results){
