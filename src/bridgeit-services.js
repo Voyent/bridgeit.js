@@ -1,5 +1,55 @@
 (function(b) {
-	
+
+	"use strict";
+
+	/************************* Private ********************/
+
+	/* Auth */
+	function validateRequiredAccount(params, reject){
+		validateParameter('account', 'The BridgeIt account is required', params, reject);
+	}
+
+	function validateRequiredRealm(params, reject){
+		validateParameter('realm', 'The BridgeIt realm is required', params, reject);
+	}
+
+	function validateRequiredAccessToken(reject){
+		if( !b.services.auth.getAccessToken() ){
+			reject(Error('BridgeIt access token is required'));
+			return;
+		}
+	}
+
+	/* Locate */
+	function validateRequiredRegion(params, reject){
+		validateParameter('region', 'The region parameter is required', params, reject);
+	}
+
+	function validateRequiredMonitor(params, reject){
+		validateParameter('monitor', 'The monitor parameter is required', params, reject);
+	}
+
+	function validateRequiredPOI(params, reject){
+		validateParameter('poi', 'The poi parameter is required', params, reject);
+	}
+
+	/* Storage */
+	function validateRequiredBlob(params, reject){
+		validateParameter('blob', 'The blob parameter is required', params, reject);
+	}
+
+	/* Misc */
+	function validateRequiredId(params, reject){
+		validateParameter('id', 'The id is required', params, reject);
+	}
+
+	function validateParameter(name, msg, params, reject){
+		if( !params[name] ){
+			reject(Error(msg));
+			return;
+		}
+	}
+
 	if (!b['services']) {
 		b.services = {};
 	}
@@ -16,60 +66,6 @@
 	var realmKey = 'bridgeitRealm';
 	var usernameKey = 'bridgeitUsername';
 	var passwordKey = 'bridgeitPassword';
-
-	/************************* Private ********************/
-
-	/* Auth */
-	function validateRequiredAccount(params, reject){
-		if( !params.account ){
-			reject(Error('BridgeIt account is required'));
-			return;
-		}
-	}
-
-	function validateRequiredRealm(params, reject){
-		if( !params.realm ){
-			reject(Error('BridgeIt realm is required'));
-			return;
-		}
-	}
-
-	function validateRequiredAccessToken(reject){
-		if( !b.services.auth.getAccessToken() ){
-			reject(Error('BridgeIt access token is required'));
-			return;
-		}
-	}
-
-	/* Locate */
-	function validateRequiredRegion(params, reject){
-		if( !params.region ){
-			reject(Error('The region parameter is required'));
-			return;
-		}
-	}
-
-	function validateRequiredMonitor(params, reject){
-		if( !params.monitor ){
-			reject(Error('The monitor parameter is required'));
-			return;
-		}
-	}
-
-	function validateRequiredPOI(params, reject){
-		if( !params.poi ){
-			reject(Error('The poi parameter is required'));
-			return;
-		}
-	}
-
-	/* Misc */
-	function validateRequiredId(params, reject){
-		if( !params.id ){
-			reject(Error('The id is required'));
-			return;
-		}
-	}
 
 	b.$ = {
 
@@ -99,15 +95,17 @@
 			
 		},
 
-		post: function(url, data){
+		post: function(url, data, isFormData, contentType){
 			return new Promise(
 				function(resolve, reject) {
 					console.log('sending post to ' + url);
+					contentType = contentType || "application/json";
 					var request = new XMLHttpRequest();
-					//request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 					request.open('POST', url, true);
-					//request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-					request.setRequestHeader("Content-type", "application/json");
+					request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+					if( !isFormData ){
+						request.setRequestHeader("Content-type", contentType);
+					}
    					//request.setRequestHeader("Connection", "close");
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
@@ -339,6 +337,29 @@
 					var loggedInAt = new Date().getTime();
 					services.auth.login(params)
 						.then(function(authResponse){
+
+							function reloginBeforeTimeout(){
+								//first check if connectionTimeout has expired
+								var now = new Date().getTime();
+								if( now - b.$.getLastActiveTimestamp() < params.connectionTimeout * 60 * 1000 ){
+									//we have not exceeded the connection timeout
+									var loginParams = services.auth.getConnectSettings();
+									loginParams.account = sessionStorage.getItem(btoa(accountKey));
+									loginParams.realm = sessionStorage.getItem(btoa(realmKey));
+									loginParams.username = sessionStorage.getItem(btoa(usernameKey));
+									loginParams.password = sessionStorage.getItem(btoa(passwordKey));
+
+									services.auth.login(loginParams)
+										.then(function(authResponse){
+											setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
+										})
+										.catch(function(error){
+											throw new Error('error relogging in: ' + error);
+										});
+
+								}
+							}
+
 							console.log('connect received auth response: ' + JSON.stringify(authResponse));
 
 							b.$.updateLastActiveTimestamp();
@@ -355,27 +376,7 @@
 								sessionStorage.setItem(btoa(usernameKey), btoa(params.username));
 								sessionStorage.setItem(btoa(passwordKey), btoa(params.password));
 
-								function reloginBeforeTimeout(){
-									//first check if connectionTimeout has expired
-									var now = new Date().getTime();
-									if( now - b.$.getLastActiveTimestamp() < params.connectionTimeout * 60 * 1000 ){
-										//we have not exceeded the connection timeout
-										var loginParams = services.auth.getConnectSettings();
-										loginParams.account = sessionStorage.getItem(btoa(accountKey));
-										loginParams.realm = sessionStorage.getItem(btoa(realmKey));
-										loginParams.username = sessionStorage.getItem(btoa(usernameKey));
-										loginParams.password = sessionStorage.getItem(btoa(passwordKey));
-
-										services.auth.login(loginParams)
-											.then(function(authResponse){
-												setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
-											})
-											.catch(function(error){
-												throw new Error('error relogging in: ' + error);
-											});
-
-									}
-								}
+								
 								//set a timeout for 200 ms before expires to attempt to relogin
 								setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
 								
@@ -1214,10 +1215,151 @@
 	};
 
 	/* METRICS SERVICE */
-	b.services.metrics = {};
+	b.services.metrics = {
+
+		/**
+		 * Searches for Metrics in a realm based on a query
+		 *
+		 * @alias findMetrics
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {Object} params.expression The expression for the metrics query TODO
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		findMetrics: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.metricsURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/stats/?' + 
+						(params.expression ? 'expression=' + encodeURIComponent(JSON.stringify(params.expression)) : '') +
+						'&access_token=' + services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+
+	};
 
 	/* STORAGE SERVICE */
-	b.services.storage = {};
+	b.services.storage = {
+
+		/**
+		 * Retrieve the storage meta info for the realm
+		 *
+		 * @alias getMetaInfo
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		getMetaInfo: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					b.services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/meta?scope=all&access_token=' + services.auth.getAccessToken();
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Stores a blob
+		 *
+		 * @alias uploadBlob
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.id The blob id. If not provided, the service will return a new id
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Object} params.blob The Blob to store
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		uploadBlob: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+
+					validateRequiredBlob(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/blobs/' +
+						(params.id ? params.id : '') +
+						'?access_token=' + services.auth.getAccessToken();
+					var formData = new FormData();
+					formData.append('file', params.blob);
+
+					b.$.post(url, formData, true)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		}
+	};
 
 	/* Initialization */
 	b.services.configureHosts();
