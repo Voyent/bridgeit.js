@@ -1478,6 +1478,7 @@ if (!window.console) {
 		var ua = navigator.userAgent;
 		return ua.indexOf('IEMobile') > -1
 			|| ( ua.indexOf('MSIE 10') > -1
+			|| ( ua.indexOf('Windows Phone') > -1)
 				&& typeof window.orientation !== 'undefined');
 	};
 
