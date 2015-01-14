@@ -17,7 +17,7 @@ Create a new region in the location service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The region id. If not provided, the service will return a new id. | String |  | false |
 | region | The region geoJSON document that describes the region to be created | Object |  | false |
@@ -68,7 +68,7 @@ Delete a region in the location service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The region id. | String |  | true |
 
@@ -236,7 +236,7 @@ Create a new monitor in the location service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The region id. If not provided, the service will return a new id. | String |  | false |
 | monitor | The monitor JSON document that describes the monitor to be created | Object |  | false |
@@ -309,7 +309,7 @@ Delete a monitor in the location service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The monitor id. | String |  | true |
 
@@ -348,7 +348,7 @@ Fetches all saved monitors for the realm from the location service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 
 #### Return value
@@ -385,7 +385,7 @@ Creates a new Point of Interest in the location service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | poi | A JSON Object describing the Point of Interest. | Boolean | false | false |
 
@@ -438,7 +438,7 @@ Searches for Points of Interest in a realm based on a Mongo DB query.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | query | The Mongo DB query | Object |  | false |
 
@@ -483,7 +483,7 @@ Delete a POI in the location service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The POI id. | String |  | true |
 
@@ -522,7 +522,7 @@ Fetches all saved POIs for the realm from the location service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 
 #### Return value

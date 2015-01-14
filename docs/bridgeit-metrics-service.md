@@ -17,7 +17,7 @@ Searches for Metrics in a realm based on an expression
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | expression | The expression for the metrics query TODO document expression format | String |  | false |
 

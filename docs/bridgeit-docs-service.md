@@ -17,7 +17,7 @@ Create and store a new JSON document in the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | document | The JSON document to be created | Object |  | false |
 
@@ -62,7 +62,7 @@ Update a JSON document in the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The document id | String |  | true |
 | document | The JSON document to be created | Object |  | false |
@@ -109,7 +109,7 @@ Fetch a JSON document from the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The document id | String |  | true |
 
@@ -148,7 +148,7 @@ Create and store a new JSON document in the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | query | A Mongo DB query for the documents | Object |  | false |
 
@@ -200,7 +200,7 @@ Delete a JSON document in the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The document id | String |  | true |
 
