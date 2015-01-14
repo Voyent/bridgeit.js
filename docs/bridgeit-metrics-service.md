@@ -16,8 +16,7 @@ Searches for Metrics in a realm based on an expression
 | ---- | ----------- | ---- | ------- | -------- |
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
-| username | User name | String | | true |
-| password | User password | String | | true |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | expression | The expression for the metrics query TODO document expression format | String |  | false |
@@ -29,16 +28,11 @@ Promise with the query results.
 #### Example
 
 ```javascript
-bridgeit.services.auth.login({
-	account: accountId,
-	username: adminId,
-	password: adminPassword,
-	host: host
-}).then(function(){
-	return bridgeit.services.metrics.findMetrics({
+bridgeit.services.metrics.findMetrics({
 		account: accountId,
 		realm: realmId,
-		host: host
+		host: host,
+		accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
 	})
 }).then(function(results){
 	console.log('found ' + results.length + ' metrics');

@@ -16,8 +16,7 @@ Create and store a new JSON document in the document service.
 | ---- | ----------- | ---- | ------- | -------- |
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
-| username | User name | String | | true |
-| password | User password | String | | true |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | document | The JSON document to be created | Object |  | false |
@@ -35,16 +34,11 @@ http://api.bridgeit.io/docs/demox_corporate/realms/nargles.net/documents/88b9a1f
 ```javascript
 var doc = {test: true};
         
-bridgeit.services.auth.login({
-  account: accountId,
-  username: adminId,
-  password: adminPassword,
-  host: host
-}).then(function(authResponse){
-  return bridgeit.services.documents.createDocument({
+bridgeit.services.documents.createDocument({
     account: accountId,
     realm: realmId,
     host: host,
+    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     document: doc
   });
 }).then(function(uri){
@@ -68,8 +62,7 @@ Update a JSON document in the document service.
 | ---- | ----------- | ---- | ------- | -------- |
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
-| username | User name | String | | true |
-| password | User password | String | | true |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The document id | String |  | true |
@@ -88,16 +81,11 @@ http://api.bridgeit.io/docs/demox_corporate/realms/nargles.net/documents/88b9a1f
 ```javascript
 var doc = {test: true};
         
-bridgeit.services.auth.login({
-  account: accountId,
-  username: adminId,
-  password: adminPassword,
-  host: host
-}).then(function(authResponse){
-  return bridgeit.services.documents.updateDocument({
+bridgeit.services.documents.updateDocument({
     account: accountId,
     realm: realmId,
     host: host,
+    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     id: '1234',
     document: doc
   })
@@ -122,8 +110,7 @@ Fetch a JSON document from the document service.
 | ---- | ----------- | ---- | ------- | -------- |
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
-| username | User name | String | | true |
-| password | User password | String | | true |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The document id | String |  | true |
@@ -135,19 +122,11 @@ Promise with the document JSON object.
 #### Example
 
 ```javascript
-bridgeit.services.auth.login({
-  account: accountId,
-  username: adminId,
-  password: adminPassword,
-  host: host
-}).then(function(authResponse){
-  newDocURI = '1234';
-  var uriParts = docURI.split('/');
-  var docId = uriParts[uriParts.length-1];
-  return bridgeit.services.documents.getDocument({
+bridgeit.services.documents.getDocument({
     account: accountId,
     realm: realmId,
     host: host,
+    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     id: docId
   })
 }).then(function(doc){
@@ -171,8 +150,7 @@ Create and store a new JSON document in the document service.
 | ---- | ----------- | ---- | ------- | -------- |
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
-| username | User name | String | | true |
-| password | User password | String | | true |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | query | A Mongo DB query for the documents | Object |  | false |
@@ -193,16 +171,11 @@ Promise with the query results
 ```javascript
 var key = new Date().getTime();
 
-bridgeit.services.auth.login({
-  account: accountId,
-  username: adminId,
-  password: adminPassword,
-  host: host
-}).then(function(authResponse){
-   return bridgeit.services.documents.findDocuments({
+bridgeit.services.documents.findDocuments({
     account: accountId,
     realm: realmId,
     host: host,
+    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     query: {key: key}
   })
 }).then(function(results){
@@ -230,8 +203,7 @@ Delete a JSON document in the document service.
 | ---- | ----------- | ---- | ------- | -------- |
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
-| username | User name | String | | true |
-| password | User password | String | | true |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The document id | String |  | true |
@@ -243,16 +215,11 @@ Promise with an empty response
 #### Example
 
 ```javascript
-bridgeit.services.auth.login({
-  account: accountId,
-  username: adminId,
-  password: adminPassword,
-  host: host
-}).then(function(authResponse){
-  return bridgeit.services.documents.deleteDocument({
+bridgeit.services.documents.deleteDocument({
     account: accountId,
     realm: realmId,
     host: host,
+    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     id: '1234'
   })
 }).then(function(){
