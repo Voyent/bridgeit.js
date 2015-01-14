@@ -265,7 +265,7 @@
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.username User name (required)
 		 * @param {String} params.password User password (required)
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns Promise with the following argument:
 		 *      {
@@ -455,7 +455,7 @@
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.username User name (required)
 		 * @param {String} params.password User password (required)
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns Promise with the following argument:
 		 *      {
@@ -516,7 +516,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {String} The resource URI
 		 */
@@ -562,7 +562,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {String} The resource URI
 		 */
@@ -608,7 +608,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The document
 		 */
@@ -661,7 +661,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The results
 		 */
@@ -707,7 +707,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 */
 		deleteDocument: function(params){
@@ -758,7 +758,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {String} The resource URI
 		 */
@@ -803,7 +803,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 */
 		 deleteRegion: function(params){
@@ -846,7 +846,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The results
 		 */
@@ -889,7 +889,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @param {Object} params.query The query
 		 * @returns {Object} The results
@@ -934,7 +934,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The results
 		 */
@@ -980,7 +980,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {String} The resource URI
 		 */
@@ -1025,7 +1025,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 */
 		 deleteMonitor: function(params){
@@ -1068,7 +1068,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The results
 		 */
@@ -1113,7 +1113,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {String} The resource URI
 		 */
@@ -1157,7 +1157,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @params {Object} params.query The mongo db query
 		 * @returns {Object} The results
@@ -1203,7 +1203,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 */
 		 deletePOI: function(params){
@@ -1246,7 +1246,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The results
 		 */
@@ -1295,7 +1295,7 @@
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {Object} params.expression The expression for the metrics query TODO document expression format
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The results
 		 */
@@ -1350,7 +1350,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @param {String} params.httpMethod (default 'post') 'get' or 'post'
 		 * @param {String} params.flow The code flow name
@@ -1418,7 +1418,7 @@
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The results
 		 */
@@ -1461,7 +1461,7 @@
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.id The blob id. If not provided, the service will return a new id
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Object} params.blob The Blob to store
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The results
@@ -1510,7 +1510,7 @@
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.id The blob id. If not provided, the service will return a new id
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Object} params.file The Blob to store
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The results
@@ -1559,7 +1559,7 @@
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.id The blob id. 
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {Object} The blob arraybuffer
 		 */
@@ -1603,7 +1603,7 @@
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 * @param {String} params.id The blob id. 
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
-		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 */
 		deleteBlob: function(params){

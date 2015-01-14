@@ -17,7 +17,7 @@ Create and store a new JSON document in the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | document | The JSON document to be created | Object |  | false |
 
@@ -37,7 +37,6 @@ var doc = {test: true};
 bridgeit.services.documents.createDocument({
     account: accountId,
     realm: realmId,
-    host: host,
     accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     document: doc
   });
@@ -63,7 +62,7 @@ Update a JSON document in the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The document id | String |  | true |
 | document | The JSON document to be created | Object |  | false |
@@ -84,7 +83,6 @@ var doc = {test: true};
 bridgeit.services.documents.updateDocument({
     account: accountId,
     realm: realmId,
-    host: host,
     accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     id: '1234',
     document: doc
@@ -111,7 +109,7 @@ Fetch a JSON document from the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The document id | String |  | true |
 
@@ -125,7 +123,6 @@ Promise with the document JSON object.
 bridgeit.services.documents.getDocument({
     account: accountId,
     realm: realmId,
-    host: host,
     accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     id: docId
   })
@@ -151,7 +148,7 @@ Create and store a new JSON document in the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | query | A Mongo DB query for the documents | Object |  | false |
 
@@ -174,7 +171,6 @@ var key = new Date().getTime();
 bridgeit.services.documents.findDocuments({
     account: accountId,
     realm: realmId,
-    host: host,
     accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     query: {key: key}
   })
@@ -204,7 +200,7 @@ Delete a JSON document in the document service.
 | account | BridgeIt Services account name | String | | true |
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | id | The document id | String |  | true |
 
@@ -218,7 +214,6 @@ Promise with an empty response
 bridgeit.services.documents.deleteDocument({
     account: accountId,
     realm: realmId,
-    host: host,
     accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
     id: '1234'
   })

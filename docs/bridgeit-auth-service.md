@@ -33,7 +33,7 @@ Which contains the access token and the time, in milliseconds that the session w
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | username | User name | String | | true |
 | password | User password | String | | true |
-| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 
 #### Return value
@@ -94,7 +94,7 @@ In order to automatically reconnect, the `storeCredentials` parameter must be se
 | realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
 | username | User name | String | | true |
 | password | User password | String | | true |
-| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | usePushService | Open and connect to the BridgeIt push service TODO | Boolean | true | false |
 | connectionTimeout | The timeout duration, in minutes, that the BridgeIt login will last during inactivity | Number | 20 | false |
