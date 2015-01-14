@@ -38,6 +38,15 @@
 		validateParameter('blob', 'The blob parameter is required', params, reject);
 	}
 
+	function validateRequiredFile(params, reject){
+		validateParameter('file', 'The file parameter is required', params, reject);
+	}
+
+	/* Code */
+	function validateRequiredFlow(params, reject){
+		validateParameter('flow', 'The flow parameter is required', params, reject);
+	}
+
 	/* Misc */
 	function validateRequiredId(params, reject){
 		validateParameter('id', 'The id is required', params, reject);
@@ -73,8 +82,27 @@
 			//TODO
 		},
 
-		getJSON: function(url, done, fail){
+		get: function(url){
+			return new Promise(
+				function(resolve, reject) {
+					var request = new XMLHttpRequest();
+					request.open('GET', url, true);
+					request.onreadystatechange = function() {
+						if (this.readyState === 4) {
+							if (this.status >= 200 && this.status < 400) {
+						  		resolve(this.responseText);
+							} else {
+						  		reject(Error(this.status));
+							}
+						}
+					};
+					request.send();
+					request = null;
+				}
+			);
+		},
 
+		getJSON: function(url){
 			return new Promise(
 				function(resolve, reject) {
 					var request = new XMLHttpRequest();
@@ -92,7 +120,26 @@
 					request = null;
 				}
 			);
-			
+		},
+
+		getBlob: function(url){
+			return new Promise(
+				function(resolve, reject){
+					var request = new XMLHttpRequest();
+					request.onreadystatechange = function(){
+						if (this.readyState === 4 && this.status === 200){
+							resolve(new Uint8Array(this.response));
+						}
+						else{
+							reject(Error(this.status));
+						}
+					};
+					request.open('GET', url);
+					request.responseType = 'arraybuffer';
+					request.send();
+					request = null;
+				}
+			);
 		},
 
 		post: function(url, data, isFormData, contentType){
@@ -433,7 +480,7 @@
 	};
 
 	/* DOC SERVICE */
-	b.services.documents = {
+	services.documents = {
 
 		/**
 		 * Create a new document
@@ -453,7 +500,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -461,9 +508,9 @@
 					validateRequiredAccessToken(reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/' + (params.id ? params.id : '') + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.post(url, params.document)
 						.then(
@@ -499,7 +546,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -508,9 +555,9 @@
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.post(url, params.document)
 						.then(
@@ -545,7 +592,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -554,9 +601,9 @@
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.getJSON(url)
 						.then(
@@ -598,7 +645,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -606,10 +653,10 @@
 					validateRequiredAccessToken(reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/?' + 
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') + 
-						'&access_token=' + b.services.auth.getAccessToken();
+						'&access_token=' + services.auth.getAccessToken();
 
 					b.$.getJSON(url)
 						.then(
@@ -638,13 +685,12 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-		 * @returns {String} The resource URI
 		 */
 		deleteDocument: function(params){
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -653,9 +699,9 @@
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.documentsURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.delete(url)
 						.then(
@@ -696,7 +742,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -705,9 +751,9 @@
 					validateRequiredRegion(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/regions/' + (params.id ? params.id : '') + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.post(url, params.region)
 						.then(
@@ -735,13 +781,12 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-		 * @returns {String} The resource URI
 		 */
 		 deleteRegion: function(params){
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -750,9 +795,9 @@
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/regions/' + params.id + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.delete(url)
 						.then(
@@ -785,7 +830,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -793,9 +838,9 @@
 					validateRequiredAccessToken(reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/regions/' +  
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.getJSON(url)
 						.then(
@@ -828,7 +873,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -872,7 +917,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -918,7 +963,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -927,9 +972,9 @@
 					validateRequiredMonitor(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/monitors/' + (params.id ? params.id : '') + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.post(url, params.monitor)
 						.then(
@@ -957,13 +1002,12 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-		 * @returns {String} The resource URI
 		 */
 		 deleteMonitor: function(params){
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -972,9 +1016,9 @@
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/monitors/' + params.id + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.delete(url)
 						.then(
@@ -1007,7 +1051,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -1015,9 +1059,9 @@
 					validateRequiredAccessToken(reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/monitors/' +  
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.getJSON(url)
 						.then(
@@ -1052,7 +1096,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -1061,9 +1105,9 @@
 					validateRequiredPOI(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/poi/' + (params.id ? params.id : '') + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.post(url, params.poi)
 						.then(
@@ -1096,7 +1140,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -1135,13 +1179,12 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-		 * @returns {String} The resource URI
 		 */
 		 deletePOI: function(params){
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -1150,9 +1193,9 @@
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/poi/' + params.id + 
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.delete(url)
 						.then(
@@ -1185,7 +1228,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -1193,9 +1236,9 @@
 					validateRequiredAccessToken(reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.locateURL + '/' + encodeURI(params.account) + 
+					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/poi/' +  
-						'?access_token=' + b.services.auth.getAccessToken();
+						'?access_token=' + services.auth.getAccessToken();
 
 					b.$.getJSON(url)
 						.then(
@@ -1215,7 +1258,7 @@
 	};
 
 	/* METRICS SERVICE */
-	b.services.metrics = {
+	services.metrics = {
 
 		/**
 		 * Searches for Metrics in a realm based on a query
@@ -1224,7 +1267,7 @@
 		 * @param {Object} params params
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
-		 * @param {Object} params.expression The expression for the metrics query TODO
+		 * @param {Object} params.expression The expression for the metrics query TODO document expression format
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1234,7 +1277,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -1265,8 +1308,81 @@
 
 	};
 
+	/* CONTEXT SERVICE */
+	services.context = {
+
+	};
+
+	/* CODE SERVICE */
+	services.code = {
+
+		/**
+		 * Executes a code flow
+		 *
+		 * @alias executeFlow
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @param {String} params.httpMethod (default 'post') 'get' or 'post'
+		 * @param {String} params.flow The code flow name
+		 * @param {Object} params.data The data to send with the flow
+		 */
+		executeFlow: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					services.checkHost(params);
+					var httpMethod = params.httpMethod || 'post';
+					httpMethod = httpMethod.toLowerCase();
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredFlow(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/meta?scope=all&access_token=' + services.auth.getAccessToken();
+
+					if( 'get' === httpMethod ){
+						//TODO encode params.data into URL?
+						b.$.get(url)
+							.then(
+								function(response){
+									resolve();
+								}
+							)
+							.catch(
+								function(error){
+									reject(error);
+								}
+							);
+					}
+					else if( 'post' === httpMethod ){
+						b.$.post(url, params.data)
+							.then(
+								function(response){
+									resolve();
+								}
+							)
+							.catch(
+								function(error){
+									reject(error);
+								}
+							);
+					}
+					
+				}
+			);
+		}
+	}
+
 	/* STORAGE SERVICE */
-	b.services.storage = {
+	services.storage = {
 
 		/**
 		 * Retrieve the storage meta info for the realm
@@ -1284,7 +1400,7 @@
 			return new Promise(
 				function(resolve, reject) {
 					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 
 					//validate
 					validateRequiredAccount(params, reject);
@@ -1334,7 +1450,6 @@
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
 					validateRequiredAccessToken(reject);
-
 					validateRequiredBlob(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
@@ -1348,7 +1463,143 @@
 					b.$.post(url, formData, true)
 						.then(
 							function(response){
+								resolve(response.uri);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Stores a file 
+		 *
+		 * @alias uploadBlob
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.id The blob id. If not provided, the service will return a new id
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Object} params.file The Blob to store
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The results
+		 */
+		uploadFile: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredFile(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/blobs/' +
+						(params.id ? params.id : '') +
+						'?access_token=' + services.auth.getAccessToken();
+					var formData = new FormData();
+					formData.append('file', params.blob);
+
+					b.$.post(url, formData, true)
+						.then(
+							function(response){
+								resolve(response.uri);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Retrieves a blob file from the storage service
+		 *
+		 * @alias getBlob
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.id The blob id. 
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Object} The blob arraybuffer
+		 */
+		getBlob: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredId(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/blobs/' + params.id + '?access_token=' + services.auth.getAccessToken();
+
+					b.$.getBlob(url)
+						.then(
+							function(response){
 								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Deletes a blob file from the storage service
+		 *
+		 * @alias deleteBlob
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.id The blob id. 
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 */
+		deleteBlob: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
+					validateRequiredAccessToken(reject);
+					validateRequiredId(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/blobs/' + params.id + '?access_token=' + services.auth.getAccessToken();
+
+					b.$.delete(url)
+						.then(
+							function(response){
+								resolve();
 							}
 						)
 						.catch(
@@ -1362,6 +1613,6 @@
 	};
 
 	/* Initialization */
-	b.services.configureHosts();
+	services.configureHosts();
 	
 })(bridgeit);

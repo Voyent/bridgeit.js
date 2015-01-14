@@ -1,4 +1,4 @@
-#BridgeIt Services JavaScript API
+#BridgeIt Authentication Service JavaScript API
 
 ## Auth API
 
@@ -82,13 +82,3 @@ bridgeit.connect({
 ```
 
 In order to automatically reconnect, the `storeCredentials` parameter must be set to true (default), otherwise user credentials will not be available and bridgeit will not be able to reconnect automatically. Credentials are stored in the browser sessionStorage in encoded form for both key and value. These credentials are not easily retrievable from the browser, and will be removed when the browser session expires, although it is possible that credentials, when stored, may be retrieved and decoded without permission. Thus it is recommended that this feature not be used when stricter security measures are required.
-
-## Tests
-
-The BridgetIt JS API Mocha integration tests can be run from the test directory either through the `TestRunner.html` file or with PhantomJS.
-
-```
-mocha-phantomjs TestRunner.html
-```
-
-Mocha and PhantomJS are both required.
