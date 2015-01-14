@@ -2,6 +2,8 @@
 
 ## [Auth Service JavaScript API](bridgeit-auth-service.md)
 
+## [Code Service JavaScript API](bridgeit-code-service.md)
+
 ## [Document Service JavaScript API](bridgeit-docs-service.md)
 
 ## [Location Service JavaScript API](bridgeit-location-service.md)
