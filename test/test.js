@@ -648,7 +648,7 @@ describe('bridgeit.js tests', function () {
 						poi: validPointOfInterestWithId
 					});
 				}).then(function(uri){
-					console.log('new monitor URI: ' + uri);
+					console.log('new POI URI: ' + uri);
 					var uriParts = uri.split('/');
 					var regionId = uriParts[uriParts.length-1];
 					return bridgeit.services.location.findPOIs({
