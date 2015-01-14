@@ -1491,6 +1491,10 @@ if (!window.console) {
 		iPhone = b.isIPhone(),
 		supportMatrix;
 
+	if( wp8 ){
+		android = supportedAndroid = iOS = false;
+	}
+
 	b.commands = [ 'camera', 'camcorder','microphone','fetchContacts','aug', 'push','scan','geospy','sms',  'beacons', 'speech'];
 	supportMatrix = {
 		'iPhone':{
