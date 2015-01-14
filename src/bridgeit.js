@@ -1477,9 +1477,8 @@ if (!window.console) {
 	b.isWindowsPhone8 = function(){
 		var ua = navigator.userAgent;
 		return ua.indexOf('IEMobile') > -1
-			|| ( ua.indexOf('MSIE 10') > -1
-			|| ( ua.indexOf('Windows Phone') > -1)
-				&& typeof window.orientation !== 'undefined');
+			|| ( ua.indexOf('MSIE 10') > -1 && typeof window.orientation !== 'undefined')
+			|| ( ua.indexOf('Windows Phone') > -1);
 	};
 
 	var android = b.isAndroid(),
