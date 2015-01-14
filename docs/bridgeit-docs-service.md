@@ -8,7 +8,7 @@
 function bridgeit.services.documents.createDocument(params)
 ```
 
-Create a new JSON document.
+Create and store a new JSON document in the document service.
 
 #### Parameters
 
@@ -20,8 +20,245 @@ Create a new JSON document.
 | password | User password | String | | true |
 | host | The BridgeIt Services host url | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| document | The JSON document to be created | Object |  | false |
 
 #### Return value
 
 Promise with the resource URI:
 
+```javascript
+http://api.bridgeit.io/docs/demox_corporate/realms/nargles.net/documents/88b9a1f3-36f7-4041-b6d2-7d5a21f193c7
+```
+
+#### Example
+
+```javascript
+var doc = {test: true};
+        
+bridgeit.services.auth.login({
+  account: accountId,
+  username: adminId,
+  password: adminPassword,
+  host: host
+}).then(function(authResponse){
+  return bridgeit.services.documents.createDocument({
+    account: accountId,
+    realm: realmId,
+    host: host,
+    document: doc
+  });
+}).then(function(uri){
+  console.log('created doc: ' + uri);
+}).catch(function(error){
+  console.log('something went wrong: ' + error);
+});
+```
+
+### updateDocument
+
+```javascript
+function bridgeit.services.documents.updateDocument(params)
+```
+
+Update a JSON document in the document service.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name | String | | true |
+| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| username | User name | String | | true |
+| password | User password | String | | true |
+| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| id | The document id | String |  | true |
+| document | The JSON document to be created | Object |  | false |
+
+#### Return value
+
+Promise with the resource URI:
+
+```javascript
+http://api.bridgeit.io/docs/demox_corporate/realms/nargles.net/documents/88b9a1f3-36f7-4041-b6d2-7d5a21f193c7
+```
+
+#### Example
+
+```javascript
+var doc = {test: true};
+        
+bridgeit.services.auth.login({
+  account: accountId,
+  username: adminId,
+  password: adminPassword,
+  host: host
+}).then(function(authResponse){
+  return bridgeit.services.documents.updateDocument({
+    account: accountId,
+    realm: realmId,
+    host: host,
+    id: '1234',
+    document: doc
+  })
+}).then(function(){
+  console.log('updated doc');
+}).catch(function(error){
+  console.log('something went wrong: ' + error);
+});
+```
+
+### getDocument
+
+```javascript
+function bridgeit.services.documents.getDocument(params)
+```
+
+Fetch a JSON document from the document service.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name | String | | true |
+| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| username | User name | String | | true |
+| password | User password | String | | true |
+| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| id | The document id | String |  | true |
+
+#### Return value
+
+Promise with the document JSON object.
+
+#### Example
+
+```javascript
+bridgeit.services.auth.login({
+  account: accountId,
+  username: adminId,
+  password: adminPassword,
+  host: host
+}).then(function(authResponse){
+  newDocURI = '1234';
+  var uriParts = docURI.split('/');
+  var docId = uriParts[uriParts.length-1];
+  return bridgeit.services.documents.getDocument({
+    account: accountId,
+    realm: realmId,
+    host: host,
+    id: docId
+  })
+}).then(function(doc){
+  //do something with the doc
+}).catch(function(error){
+  console.log('something went wrong: ' + error);
+});
+```
+
+### findDocuments
+
+```javascript
+function bridgeit.services.documents.findDocuments(params)
+```
+
+Create and store a new JSON document in the document service.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name | String | | true |
+| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| username | User name | String | | true |
+| password | User password | String | | true |
+| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| query | A Mongo DB query for the documents | Object |  | false |
+
+#### Return value
+
+Promise with the query results
+
+```javascript
+[
+  {_id: '1', val: true},
+  {_id: '2', val: false}
+]
+```
+
+#### Example
+
+```javascript
+var key = new Date().getTime();
+
+bridgeit.services.auth.login({
+  account: accountId,
+  username: adminId,
+  password: adminPassword,
+  host: host
+}).then(function(authResponse){
+   return bridgeit.services.documents.findDocuments({
+    account: accountId,
+    realm: realmId,
+    host: host,
+    query: {key: key}
+  })
+}).then(function(results){
+  if( results && results.length === 1 && results[0].value )
+    //do something with the results
+  else{
+    console.log('did not receive expected doc: ' + JSON.stringify(doc));
+  }
+}).catch(function(error){
+  console.log('something went wrong: ' + error);
+});
+```
+
+### deleteDocument
+
+```javascript
+function bridgeit.services.documents.deleteDocument(params)
+```
+
+Delete a JSON document in the document service.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name | String | | true |
+| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| username | User name | String | | true |
+| password | User password | String | | true |
+| host | The BridgeIt Services host url | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| id | The document id | String |  | true |
+
+#### Return value
+
+Promise with an empty response
+
+#### Example
+
+```javascript
+bridgeit.services.auth.login({
+  account: accountId,
+  username: adminId,
+  password: adminPassword,
+  host: host
+}).then(function(authResponse){
+  return bridgeit.services.documents.deleteDocument({
+    account: accountId,
+    realm: realmId,
+    host: host,
+    id: '1234'
+  })
+}).then(function(){
+  console.log('deleted doc');
+  done();
+}).catch(function(error){
+  console.log('deleteDocument failed ' + error);
+});
+```
