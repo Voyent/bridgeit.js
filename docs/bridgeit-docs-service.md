@@ -14,8 +14,8 @@ Create and store a new JSON document in the document service.
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | -------- |
-| account | BridgeIt Services account name | String | | true |
-| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
@@ -59,8 +59,8 @@ Update a JSON document in the document service.
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | -------- |
-| account | BridgeIt Services account name | String | | true |
-| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
@@ -106,8 +106,8 @@ Fetch a JSON document from the document service.
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | -------- |
-| account | BridgeIt Services account name | String | | true |
-| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
@@ -145,8 +145,8 @@ Create and store a new JSON document in the document service.
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | -------- |
-| account | BridgeIt Services account name | String | | true |
-| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
@@ -197,8 +197,8 @@ Delete a JSON document in the document service.
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | -------- |
-| account | BridgeIt Services account name | String | | true |
-| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
 | host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
