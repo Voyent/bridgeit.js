@@ -1409,7 +1409,7 @@ if (!window.console) {
 				iOS = true; break;
 			}
 		}
-		return iOS;
+		return !b.isWindowsPhone8() && iOS;
 	};
 
 	/**
@@ -1417,7 +1417,7 @@ if (!window.console) {
 	 * @alias plugin.isIPhone
 	 */
 	b.isIPhone = function(){
-		return navigator.userAgent.indexOf('iPhone') > -1;
+		return !b.isWindowsPhone8() && navigator.userAgent.indexOf('iPhone') > -1;
 	};
 
 	/**
@@ -1425,7 +1425,7 @@ if (!window.console) {
 	 * @alias plugin.isIOS6
 	 */
 	b.isIOS6 = function(){
-		return /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
+		return !b.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
 	};
 
 	/**
@@ -1433,7 +1433,7 @@ if (!window.console) {
 	 * @alias plugin.isIOS7
 	 */
 	b.isIOS7 = function(){
-		return /(iPad|iPhone|iPod).*OS 7_/.test( navigator.userAgent );
+		return !b.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 7_/.test( navigator.userAgent );
 	};
 
 	/**
@@ -1441,7 +1441,7 @@ if (!window.console) {
 	 * @alias plugin.isIOS8
 	 */
 	b.isIOS8 = function(){
-		return /(iPad|iPhone|iPod).*OS 8_/.test( navigator.userAgent );
+		return !b.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 8_/.test( navigator.userAgent );
 	};
 
 	/**
@@ -1449,7 +1449,7 @@ if (!window.console) {
 	 * @alias plugin.isAndroid
 	 */
 	b.isAndroid = function(){
-		return navigator.userAgent.toLowerCase()
+		return !b.isWindowsPhone8() && navigator.userAgent.toLowerCase()
 			.indexOf("android") > -1;
 	};
 
@@ -1458,7 +1458,7 @@ if (!window.console) {
 	 * @alias plugin.isAndroidFroyo
 	 */
 	b.isAndroidFroyo = function(){
-		return navigator.userAgent.indexOf("Android 2.2") > -1;
+		return !b.isWindowsPhone8() && navigator.userAgent.indexOf("Android 2.2") > -1;
 	};
 
 	/**
@@ -1466,7 +1466,7 @@ if (!window.console) {
 	 * @alias plugin.isAndroidGingerBreadOrGreater
 	 */
 	b.isAndroidGingerBreadOrGreater = function(){
-		return b.isAndroid() && !b.isAndroidFroyo();
+		return !b.isWindowsPhone8() && b.isAndroid() && !b.isAndroidFroyo();
 	};
 
 
@@ -1481,18 +1481,20 @@ if (!window.console) {
 			|| ( ua.indexOf('Windows Phone') > -1);
 	};
 
-	var android = b.isAndroid(),
-		supportedAndroid = b.isAndroidGingerBreadOrGreater(),
-		iOS = b.isIOS(),
-		iOS6 = b.isIOS6(),
-		iOS7 = b.isIOS7(),
-		iOS8 = b.isIOS8(),
-		wp8 = b.isWindowsPhone8(),
-		iPhone = b.isIPhone(),
-		supportMatrix;
+	
+	var android, supportedAndroid, iOS, iOS6, iOS7, iOS8, wp8, iPhone, supportMatrix;
 
-	if( wp8 ){
-		android = supportedAndroid = iOS = false;
+	wp8 = b.isWindowsPhone8();
+
+	if( !wp8 ){
+		android = b.isAndroid();
+		supportedAndroid = b.isAndroidGingerBreadOrGreater();
+		iOS = b.isIOS();
+		iOS6 = b.isIOS6();
+		iOS7 = b.isIOS7();
+		iOS8 = b.isIOS8();
+		wp8 = b.isWindowsPhone8();
+		iPhone = b.isIPhone();
 	}
 
 	b.commands = [ 'camera', 'camcorder','microphone','fetchContacts','aug', 'push','scan','geospy','sms',  'beacons', 'speech'];
