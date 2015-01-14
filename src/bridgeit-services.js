@@ -13,10 +13,13 @@
 		validateParameter('realm', 'The BridgeIt realm is required', params, reject);
 	}
 
-	function validateRequiredAccessToken(reject){
-		if( !b.services.auth.getAccessToken() ){
+	function validateAndReturnRequiredAccessToken(params, reject){
+		var token = params.accessToken || b.services.auth.getAccessToken();
+		if( token ){
+			return token;
+		}
+		else{
 			reject(Error('BridgeIt access token is required'));
-			return;
 		}
 	}
 
@@ -346,7 +349,6 @@
 		 * @param {Object} params params
 		 * @param {String} params.account BridgeIt Services account name
 		 * @param {String} params.realm BridgeIt Services realm
-		 * @param {Boolean} params.admin Whether the user is an admin (default false), (if true, 'realm' is ignored)
 		 * @param {String} params.username User name
 		 * @param {String} params.password User password
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io
@@ -440,6 +442,28 @@
 
 		},
 
+		/**
+		 * Disconnect from BridgeIt Services.
+		 *
+		 * This function will logout from BridgeIt Services and remove all session information from the client.
+		 *
+		 * TODO
+		 *
+		 * @alias disconnect
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.username User name (required)
+		 * @param {String} params.password User password (required)
+		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns Promise with the following argument:
+		 *      {
+		 *          access_token: 'xxx',
+		 *          expires_in: 99999
+		 *      }
+		 *
+		 */
 		disconnect: function(){
 			//TODO
 		},
@@ -505,12 +529,12 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/' + (params.id ? params.id : '') + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.post(url, params.document)
 						.then(
@@ -551,13 +575,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.post(url, params.document)
 						.then(
@@ -597,13 +621,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -650,13 +674,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/?' + 
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') + 
-						'&access_token=' + services.auth.getAccessToken();
+						'&access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -695,13 +719,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.documentsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/documents/' + params.id + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.delete(url)
 						.then(
@@ -747,13 +771,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredRegion(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/regions/' + (params.id ? params.id : '') + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.post(url, params.region)
 						.then(
@@ -791,13 +815,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/regions/' + params.id + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.delete(url)
 						.then(
@@ -835,12 +859,12 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/regions/' +  
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -867,6 +891,7 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @param {Object} params.query The query
 		 * @returns {Object} The results
 		 */
 		 findRegions: function(params){
@@ -878,13 +903,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/regions/?' + 
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
-						'&access_token=' + services.auth.getAccessToken();
+						'&access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -922,13 +947,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/monitors/?' + 
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
-						'&access_token=' + services.auth.getAccessToken();
+						'&access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -968,13 +993,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredMonitor(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/monitors/' + (params.id ? params.id : '') + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.post(url, params.monitor)
 						.then(
@@ -1012,13 +1037,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/monitors/' + params.id + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.delete(url)
 						.then(
@@ -1056,12 +1081,12 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/monitors/' +  
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -1101,13 +1126,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredPOI(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/poi/' + (params.id ? params.id : '') + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.post(url, params.poi)
 						.then(
@@ -1134,6 +1159,7 @@
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @params {Object} params.query The mongo db query
 		 * @returns {Object} The results
 		 */
 		 findPOIs: function(params){
@@ -1145,13 +1171,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/poi/?' + 
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
-						'&access_token=' + services.auth.getAccessToken();
+						'&access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -1189,13 +1215,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/poi/' + params.id + 
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.delete(url)
 						.then(
@@ -1233,12 +1259,12 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/poi/' +  
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -1282,13 +1308,13 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.metricsURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/stats/?' + 
 						(params.expression ? 'expression=' + encodeURIComponent(JSON.stringify(params.expression)) : '') +
-						'&access_token=' + services.auth.getAccessToken();
+						'&access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -1341,12 +1367,12 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredFlow(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/meta?scope=all&access_token=' + services.auth.getAccessToken();
+						'/realms/' + encodeURI(params.realm) + '/meta?scope=all&access_token=' + token;
 
 					if( 'get' === httpMethod ){
 						//TODO encode params.data into URL?
@@ -1405,11 +1431,11 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/meta?scope=all&access_token=' + services.auth.getAccessToken();
+						'/realms/' + encodeURI(params.realm) + '/meta?scope=all&access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -1449,14 +1475,14 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredBlob(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/blobs/' +
 						(params.id ? params.id : '') +
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 					var formData = new FormData();
 					formData.append('file', params.blob);
 
@@ -1498,14 +1524,14 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredFile(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
 						'/realms/' + encodeURI(params.realm) + '/blobs/' +
 						(params.id ? params.id : '') +
-						'?access_token=' + services.auth.getAccessToken();
+						'?access_token=' + token;
 					var formData = new FormData();
 					formData.append('file', params.blob);
 
@@ -1546,12 +1572,12 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/blobs/' + params.id + '?access_token=' + services.auth.getAccessToken();
+						'/realms/' + encodeURI(params.realm) + '/blobs/' + params.id + '?access_token=' + token;
 
 					b.$.getBlob(url)
 						.then(
@@ -1589,12 +1615,12 @@
 					//validate
 					validateRequiredAccount(params, reject);
 					validateRequiredRealm(params, reject);
-					validateRequiredAccessToken(reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.storageURL + '/' + encodeURI(params.account) + 
-						'/realms/' + encodeURI(params.realm) + '/blobs/' + params.id + '?access_token=' + services.auth.getAccessToken();
+						'/realms/' + encodeURI(params.realm) + '/blobs/' + params.id + '?access_token=' + token;
 
 					b.$.delete(url)
 						.then(
