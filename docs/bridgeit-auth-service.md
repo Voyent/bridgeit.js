@@ -15,10 +15,13 @@ successful authentication. This function does not need to be called if bridgeit.
 called, as that function will automatically extend the user session, unless the timeout has passed. 
 
 The function returns a Promise that, when successful, returns an object with the following structure:
-   {
-      "access_token": "d9f7463d-d100-42b6-aecd-ae21e38e5d02",
-      "expires_in": 1420574793844
-   }
+
+```javascript
+{
+  "access_token": "d9f7463d-d100-42b6-aecd-ae21e38e5d02",
+  "expires_in": 1420574793844
+}
+```
 
 Which contains the access token and the time, in milliseconds that the session will expire in.
 
@@ -38,10 +41,10 @@ Which contains the access token and the time, in milliseconds that the session w
 Promise with the following argument:
 
 ```javascript
-     {
-         access_token: 'd9f7463d-d100-42b6-aecd-ae21e38e5d02',
-         expires_in: 1420574793844
-     }
+{
+   access_token: 'd9f7463d-d100-42b6-aecd-ae21e38e5d02',
+   expires_in: 1420574793844
+}
 ```
 
 ### connect
@@ -139,7 +142,7 @@ The access token string, eg.:
 
 
 ```javascript
-     'd9f7463d-d100-42b6-aecd-ae21e38e5d02'
+'d9f7463d-d100-42b6-aecd-ae21e38e5d02'
 ```
 
 ### getExpiresIn
@@ -155,7 +158,7 @@ The token expiry period in milliseconds, eg.:
 
 
 ```javascript
-     1420574793844
+1420574793844
 ```
 
 ### getTimeRemainingBeforeExpiry
@@ -171,7 +174,7 @@ The milliseconds before expiry, eg.:
 
 
 ```javascript
-     1424
+1424
 ```
 
 ### getConnectSettings
