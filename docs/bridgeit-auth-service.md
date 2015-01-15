@@ -2,15 +2,15 @@
 
 ## Auth API
 
-## [getNewAccessToken](#getNewAccessToken)
-## [login](#login)
-## [connect](#connect)
-## [disconnect](#disconnect)
-## [getLastAccessToken](#getLastAccessToken)
-## [getExpiresIn](#getExpiresIn)
-## [getTimeRemainingBeforeExpiry](#getTimeRemainingBeforeExpiry)
-## [getConnectSettings](#getConnectSettings)
-## [isLoggedIn](#isLoggedIn)
+* [getNewAccessToken](#getNewAccessToken)
+* [login](#login)
+* [connect](#connect)
+* [disconnect](#disconnect)
+* [getLastAccessToken](#getLastAccessToken)
+* [getExpiresIn](#getExpiresIn)
+* [getTimeRemainingBeforeExpiry](#getTimeRemainingBeforeExpiry)
+* [getConnectSettings](#getConnectSettings)
+* [isLoggedIn](#isLoggedIn)
 
 ### <a name="getNewAccessToken"></a>getNewAccessToken
 

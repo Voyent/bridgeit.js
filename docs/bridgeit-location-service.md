@@ -2,7 +2,23 @@
 
 ## Location API
 
-### createRegion
+* [createRegion](#createRegion)
+* [deleteRegion](#deleteRegion)
+* [getAllRegions](#getAllRegions)
+* [findRegions](#findRegions)
+* [findMonitors](#findMonitors)
+* [createMonitor](#createMonitor)
+* [deleteMonitor](#deleteMonitor)
+* [getAllMonitors](#getAllMonitors)
+* [createPOI](#createPOI)
+* [findPOIs](#findPOIs)
+* [deletePOI](#deletePOI)
+* [getAllPOIs](#getAllPOIs)
+* [updateLocation](#updateLocation)
+* [updateLocationCoordinates](#updateLocationCoordinates)
+* [getLastUserLocation](#getLastUserLocation)
+
+### <a name="createRegion"></a>createRegion
 
 ```javascript
 function bridgeit.services.location.createRegion(params)
@@ -53,7 +69,7 @@ bridgeit.services.location.createRegion({
 });
 ```
 
-### deleteRegion
+### <a name="deleteRegion"></a>deleteRegion
 
 ```javascript
 function bridgeit.services.location.deleteRegion(params)
@@ -92,7 +108,7 @@ bridgeit.services.location.deleteRegion({
 });
 ```
 
-### getAllRegions
+### <a name="getAllRegions"></a>getAllRegions
 
 ```javascript
 function bridgeit.services.location.getAllRegions(params)
@@ -130,7 +146,7 @@ bridgeit.services.location.getAllRegions({
 });
 ```
 
-### findRegions
+### <a name="findRegions"></a>findRegions
 
 ```javascript
 function bridgeit.services.location.findRegions(params)
@@ -176,7 +192,7 @@ bridgeit.services.location.findRegions({
 });
 ```
 
-### findMonitors
+### <a name="findMonitors"></a>findMonitors
 
 ```javascript
 function bridgeit.services.location.findMonitors(params)
@@ -221,7 +237,7 @@ bridgeit.services.location.findMonitors({
 });
 ```
 
-### createMonitor
+### <a name="createMonitor"></a>createMonitor
 
 ```javascript
 function bridgeit.services.location.createMonitor(params)
@@ -294,7 +310,7 @@ bridgeit.services.location.createMonitor({
 });
 ```
 
-### deleteMonitor
+### <a name="deleteMonitor"></a>deleteMonitor
 
 ```javascript
 function bridgeit.services.location.deleteMonitor(params)
@@ -333,7 +349,7 @@ bridgeit.services.location.deleteMonitor({
 });
 ```
 
-### getAllMonitors
+### <a name="getAllMonitors"></a>getAllMonitors
 
 ```javascript
 function bridgeit.services.location.getAllMonitors(params)
@@ -370,7 +386,7 @@ bridgeit.services.location.getAllMonitors({
 });
 ```
 
-### createPOI
+### <a name="createPOI"></a>createPOI
 
 ```javascript
 function bridgeit.services.location.createPOI(params)
@@ -423,7 +439,7 @@ bridgeit.services.location.createPOI({
 });
 ```
 
-### findPOIs
+### <a name="findPOIs"></a>findPOIs
 
 ```javascript
 function bridgeit.services.location.findPOIs(params)
@@ -468,7 +484,7 @@ bridgeit.services.location.findPOIs({
 });
 ```
 
-### deletePOI
+### <a name="deletePOI"></a>deletePOI
 
 ```javascript
 function bridgeit.services.location.deletePOI(params)
@@ -507,7 +523,7 @@ bridgeit.services.location.deletePOI({
 });
 ```
 
-### getAllPOIs
+### <a name="getAllPOIs"></a>getAllPOIs
 
 ```javascript
 function bridgeit.services.location.getAllPOIs(params)
@@ -544,7 +560,7 @@ bridgeit.services.location.getAllPOIs({
 });
 ```
 
-### updateLocation
+### <a name="updateLocation"></a>updateLocation
 
 ```javascript
 function bridgeit.services.location.updateLocation(params)
@@ -606,7 +622,7 @@ bridgeit.services.location.updateLocation({
 });
 ```
 
-### updateLocationCoordinates
+### <a name="updateLocationCoordinates"></a>updateLocationCoordinates
 
 ```javascript
 function bridgeit.services.location.updateLocationCoordinates(params)
@@ -645,7 +661,7 @@ bridgeit.services.location.updateLocationCoordinates({
 	console.log('something went wrong: ' + error);
 });
 ```
-### getLastUserLocation
+### <a name="getLastUserLocation"></a>getLastUserLocation
 
 ```javascript
 function bridgeit.services.location.getLastUserLocation(params)

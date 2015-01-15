@@ -2,7 +2,13 @@
 
 ## Documents API
 
-### createDocument
+* [createDocument](#createDocument)
+* [updateDocument](#updateDocument)
+* [getDocument](#getDocument)
+* [findDocuments](#findDocuments)
+* [deleteDocument](#deleteDocument)
+
+### <a name="createDocument"></a>createDocument
 
 ```javascript
 function bridgeit.services.documents.createDocument(params)
@@ -47,7 +53,7 @@ bridgeit.services.documents.createDocument({
 });
 ```
 
-### updateDocument
+### <a name="updateDocument"></a>updateDocument
 
 ```javascript
 function bridgeit.services.documents.updateDocument(params)
@@ -94,7 +100,7 @@ bridgeit.services.documents.updateDocument({
 });
 ```
 
-### getDocument
+### <a name="getDocument"></a>getDocument
 
 ```javascript
 function bridgeit.services.documents.getDocument(params)
@@ -133,7 +139,7 @@ bridgeit.services.documents.getDocument({
 });
 ```
 
-### findDocuments
+### <a name="findDocuments"></a>findDocuments
 
 ```javascript
 function bridgeit.services.documents.findDocuments(params)
@@ -185,7 +191,7 @@ bridgeit.services.documents.findDocuments({
 });
 ```
 
-### deleteDocument
+### <a name="deleteDocument"></a>deleteDocument
 
 ```javascript
 function bridgeit.services.documents.deleteDocument(params)

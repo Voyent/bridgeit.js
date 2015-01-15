@@ -2,7 +2,9 @@
 
 ## Metrics API
 
-### findMetrics
+* [findMetrics](#findMetrics)
+
+### <a name="findMetrics"></a>findMetrics
 
 ```javascript
 function bridgeit.services.metrics.findMetrics(params)
