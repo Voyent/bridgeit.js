@@ -387,6 +387,30 @@ describe('bridgeit.js tests', function () {
 			});
 
 		});
+
+		describe('#getRealmUser()', function(done){
+
+			it('should return a single user', function (done) {
+
+				bridgeit.services.auth.login({
+						account: accountId,
+						username: adminId,
+						password: adminPassword,
+						host: host
+					}).then(function(authResponse){
+						return bridgeit.services.admin.getRealmUser({
+							realm: realmId,
+							id: userId
+						});
+					}).then(function(json){
+						console.log('getRealmUser: ' + JSON.stringify(json));
+						done();
+					}).catch(function(error){
+						console.log('getRealmUser failed ' + error);
+					});
+			});
+
+		});
 	});
 
 	describe('bridgeit.services.documents', function () {

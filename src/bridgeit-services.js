@@ -344,7 +344,8 @@
 					validateRequiredId(params, reject);
 					
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authURL + '/' + encodeURI(account) + '/realms/' + encodeURI(realm) + '/users/' + params.id;
+					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + 
+						encodeURI(realm) + '/users/' + params.id + '?access_token=' + services.auth.getAccessToken();
 
 					b.$.getJSON(url)
 						.then(
