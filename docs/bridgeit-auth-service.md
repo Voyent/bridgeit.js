@@ -2,7 +2,17 @@
 
 ## Auth API
 
-### getNewAccessToken
+## [getNewAccessToken](#getNewAccessToken)
+## [login](#login)
+## [connect](#connect)
+## [disconnect](#disconnect)
+## [getLastAccessToken](#getLastAccessToken)
+## [getExpiresIn](#getExpiresIn)
+## [getTimeRemainingBeforeExpiry](#getTimeRemainingBeforeExpiry)
+## [getConnectSettings](#getConnectSettings)
+## [isLoggedIn](#isLoggedIn)
+
+### <a name="getNewAccessToken"></a>getNewAccessToken
 
 ```javascript
 function bridgeit.services.auth.getNewAccessToken(params)
@@ -46,7 +56,7 @@ Promise with the following argument:
 }
 ```
 
-### login
+### <a name="login"></a>login
 
 ```javascript
 function bridgeit.services.auth.login(params)
@@ -91,7 +101,7 @@ Promise with the following argument:
 }
 ```
 
-### connect
+### <a name="connect"></a>connect
 ```javascript
 function bridgeit.services.auth.connect(params)
 ```
@@ -150,7 +160,7 @@ In order to automatically reconnect, the `storeCredentials` parameter must be se
 
 Promise with the following argument: TODO
 
-### disconnect
+### <a name="disconnect"></a>disconnect
 ```javascript
 function bridgeit.services.auth.disconnect()
 ```
@@ -168,7 +178,7 @@ No parameters required
 
 Promise with the following argument: TODO
 
-### getLastAccessToken
+### <a name="getLastAccessToken"></a>getLastAccessToken
 ```javascript
 function bridgeit.services.auth.getLastAccessToken()
 ```
@@ -189,7 +199,7 @@ The access token string, eg.:
 'd9f7463d-d100-42b6-aecd-ae21e38e5d02'
 ```
 
-### getExpiresIn
+### <a name="getExpiresIn"></a>getExpiresIn
 ```javascript
 function bridgeit.services.auth.getExpiresIn()
 ```
@@ -205,7 +215,7 @@ The token expiry period in milliseconds, eg.:
 1420574793844
 ```
 
-### getTimeRemainingBeforeExpiry
+### <a name="getTimeRemainingBeforeExpiry"></a>getTimeRemainingBeforeExpiry
 ```javascript
 function bridgeit.services.auth.getTimeRemainingBeforeExpiry()
 ```
@@ -221,7 +231,7 @@ The milliseconds before expiry, eg.:
 1424
 ```
 
-### getConnectSettings
+### <a name="getConnectSettings"></a>getConnectSettings
 ```javascript
 function bridgeit.services.auth.getConnectSettings()
 ```
@@ -244,7 +254,7 @@ The configuration settings, eg.:
 }
 ```
 
-### isLoggedIn
+### <a name="isLoggedIn"></a>isLoggedIn
 ```javascript
 function bridgeit.services.auth.isLoggedIn()
 ```
