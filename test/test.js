@@ -163,6 +163,179 @@ describe('bridgeit.js tests', function () {
 				});
 			});
 		});
+
+		describe('#isLoggedIn()', function(){
+			it('should log in as an admin then return true', function (done) {
+				bridgeit.services.auth.login({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(response){
+					if( bridgeit.services.auth.isLoggedIn()){
+						done();
+					}
+				}).catch(function(error){
+					console.log('isLoggedIn failed ' + error);
+				});
+			});
+		});
+
+		describe('#disconnect()', function(){
+			it('should log in as an admin then disconnect and return false from isLoggedIn()', function (done) {
+				bridgeit.services.auth.connect({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(response){
+					bridgeit.services.auth.disconnect();
+				}).then(function(response){
+					if( !bridgeit.services.auth.isLoggedIn()){
+						done();
+					}
+				}).catch(function(error){
+					console.log('disconnect failed ' + error);
+				});
+			});
+		});
+
+		describe('#getAccessToken()', function(){
+			it('should log in as an admin then return the access token', function (done) {
+				bridgeit.services.auth.login({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(authResponse){
+					if( bridgeit.services.auth.getAccessToken() === authResponse.access_token){
+						done();
+					}
+				}).catch(function(error){
+					console.log('getAccessToken failed ' + error);
+				});
+			});
+		});
+
+		describe('#getTokenSetAtTime()', function(){
+			it('should log in as an admin then return the time the token was set at', function (done) {
+				var justBeforeLogin = new Date().getTime();
+				bridgeit.services.auth.login({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(authResponse){
+					var tokenSetAt = bridgeit.services.auth.getTokenSetAtTime();
+					if( tokenSetAt >= justBeforeLogin){
+						done();
+					}
+					else{
+						console.log('invalid getTokenSetAtTime(): ' + tokenSetAt + ' < ' + justBeforeLogin);
+					}
+				}).catch(function(error){
+					console.log('getTokenSetAtTime failed ' + error);
+				});
+			});
+		});
+
+		describe('#getExpiresIn()', function(){
+			it('should log in as an admin then return the expires in period', function (done) {
+				bridgeit.services.auth.login({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(authResponse){
+					if( bridgeit.services.auth.getExpiresIn() === authResponse.expires_in){
+						done();
+					}
+				}).catch(function(error){
+					console.log('getExpiresIn failed ' + error);
+				});
+			});
+		});
+
+		describe('#getTimeRemainingBeforeExpiry()', function(){
+			it('should log in as an admin then return a number less than expires_in', function (done) {
+				bridgeit.services.auth.login({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(authResponse){
+					var timeRemaining = bridgeit.services.auth.getTimeRemainingBeforeExpiry();
+					if( timeRemaining < authResponse.expires_in){
+						done();
+					}
+					else{
+						console.log('getTimeRemainingBeforeExpiry() failed: time remaining=' + timeRemaining + ' expires_in=' + authResponse.expires_in);
+					}
+				}).catch(function(error){
+					console.log('getTimeRemainingBeforeExpiry failed ' + error);
+				});
+			});
+		});
+
+		describe('#getConnectSettings()', function(){
+			it('should connect in as an admin then return a JSON object of the connect settings', function (done) {
+				bridgeit.services.auth.connect({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(response){
+					if( bridgeit.services.auth.getConnectSettings() ){
+						done();
+					}
+					else{
+						try{
+							console.log('getConnectSettings() failed: ' + JSON.stringify(response));
+						}
+						catch(e){
+							console.log('getConnectSettings() failed: ' + response);
+						}
+					}
+				}).catch(function(error){
+					console.log('getConnectSettings failed ' + error);
+				});
+			});
+		});
+
+		describe('#getLastKnownAccount()', function(){
+			it('should login as an admin then return the same account name', function (done) {
+				bridgeit.services.auth.login({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(authResponse){
+					if( bridgeit.services.auth.getLastKnownAccount() === accountId){
+						done();
+					}
+				}).catch(function(error){
+					console.log('getLastKnownAccount failed ' + error);
+				});
+			});
+		});
+
+		describe('#getLastKnownRealm()', function(){
+			it('should login as a realm user then return the same realm name', function (done) {
+				bridgeit.services.auth.login({
+					account: accountId,
+					realm: realmId,
+					username: userId,
+					password: userPassword,
+					host: host
+				}).then(function(authResponse){
+					if( bridgeit.services.auth.getLastKnownRealm() === realmId){
+						done();
+					}
+				}).catch(function(error){
+					console.log('getLastKnownRealm failed ' + error);
+				});
+			});
+		});
 		
 	});
 

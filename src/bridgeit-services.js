@@ -96,6 +96,7 @@
 	var realmKey = 'bridgeitRealm';
 	var usernameKey = 'bridgeitUsername';
 	var passwordKey = 'bridgeitPassword';
+	var reloginCallbackKey = 'bridgeitReloginCallback';
 
 	b.$ = {
 
@@ -254,10 +255,171 @@
 		}
 	};
 
-	
 
-	
-	
+
+	services.admin = {
+		
+		/**
+		 * Get the BridgeIt Service definitions.
+		 *
+		 * @alias getServiceDefinitions
+		 * @param {Object} params params
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns Promise with a json object of the service definitions
+		 *
+		 */
+		getServiceDefinitions: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					if( !params ){
+						params = {};
+					}
+					
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.authAdminURL + '/system/services/?access_token=' + token;
+
+					b.$.getJSON(url)
+						.then(
+							function(json){
+								resolve(json);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);
+		},
+
+		getRealmUsers: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + encodeURI(realm) + '/users/';
+
+					b.$.getJSON(url)
+						.then(
+							function(json){
+								resolve(json);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);
+		},
+
+		getRealmUser: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					validateRequiredId(params, reject);
+					
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.authURL + '/' + encodeURI(account) + '/realms/' + encodeURI(realm) + '/users/' + params.id;
+
+					b.$.getJSON(url)
+						.then(
+							function(json){
+								resolve(json);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);
+		},
+
+		getAccountRealms: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.authURL + '/' + encodeURI(account) + '/realms/';
+
+					b.$.getJSON(url)
+						.then(
+							function(json){
+								resolve(json);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);
+		},
+
+		getAccountRealm: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					validateRequiredId(params, reject);
+					
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.authURL + '/' + encodeURI(account) + '/realms/' + params.id;
+
+					b.$.getJSON(url)
+						.then(
+							function(json){
+								resolve(json);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+			
+				}
+			);
+		},
+	}
 
 	/* AUTH SERVICE */
 	services.auth = {
@@ -317,10 +479,15 @@
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + b.services.authURL + '/' + encodeURI(params.account) + '/realms/' + encodeURI(params.realm) + '/token/';
 
+					var loggedInAt = new Date().getTime();
 					b.$.post(url, {strategy: 'query', username: params.username, password: params.password})
 						.then(
-							function(response){
-								resolve(response);
+							function(authResponse){
+								sessionStorage.setItem(btoa(tokenKey), authResponse.access_token);
+								sessionStorage.setItem(btoa(tokenExpiresKey), authResponse.expires_in);
+								sessionStorage.setItem(btoa(tokenSetKey), loggedInAt);
+
+								resolve(authResponse);
 							}
 						)
 						.catch(
@@ -397,11 +564,8 @@
 						storeCredentials: params.storeCredentials,
 						onSessionTimeout: params.onSessionTimeout
 					};
-					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));
-					
+					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));	
 
-					console.log('connect logging in');
-					var loggedInAt = new Date().getTime();
 					services.auth.login(params)
 						.then(function(authResponse){
 
@@ -431,10 +595,7 @@
 
 							b.$.updateLastActiveTimestamp();
 
-							sessionStorage.setItem(btoa(tokenKey), authResponse.access_token);
-							sessionStorage.setItem(btoa(tokenExpiresKey), authResponse.expires_in);
-							sessionStorage.setItem(btoa(tokenSetKey), loggedInAt);
-
+							
 							//store creds
 							if( params.storeCredentials ){
 								
@@ -445,7 +606,8 @@
 
 								
 								//set a timeout for 200 ms before expires to attempt to relogin
-								setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
+								var cbId = setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
+								sessionStorage.setItem(btoa(reloginCallbackKey), cbId);
 								
 							}
 							resolve(authResponse);
@@ -483,7 +645,19 @@
 		 *
 		 */
 		disconnect: function(){
-			//TODO
+			sessionStorage.removeItem(btoa(tokenKey));
+			sessionStorage.removeItem(btoa(tokenExpiresKey));
+			sessionStorage.removeItem(btoa(connectSettingsKey));
+			sessionStorage.removeItem(btoa(tokenSetKey));
+			sessionStorage.removeItem(btoa(accountKey));
+			sessionStorage.removeItem(btoa(realmKey));
+			sessionStorage.removeItem(btoa(usernameKey));
+			sessionStorage.removeItem(btoa(passwordKey));
+			var cbId = sessionStorage.getItem(btoa(reloginCallbackKey));
+			if( cbId ){
+				clearTimeout(cbId);
+			}
+			sessionStorage.removeItem(btoa(reloginCallbackKey));
 		},
 
 		getAccessToken: function(){
@@ -491,32 +665,43 @@
 		},
 
 		getExpiresIn: function(){
-			return sessionStorage.getItem(btoa(tokenExpiresKey));
+			var expiresInStr = sessionStorage.getItem(btoa(tokenExpiresKey));
+			if( expiresInStr ){
+				return parseInt(expiresInStr);
+			}
+		},
+
+		getTokenSetAtTime: function(){
+			var tokenSetAtStr = sessionStorage.getItem(btoa(tokenSetKey));
+			if( tokenSetAtStr ){
+				return parseInt(tokenSetAtStr);
+			}
 		},
 
 		getTimeRemainingBeforeExpiry: function(){
 			var expiresIn = services.auth.getExpiresIn();
 			var token = services.auth.getExpiresIn();
 			if( expiresIn && token ){
-				var loggedInAt = sessionStorage.getItem(btoa(tokenSetKey));
 				var now = new Date().getTime();
-				return (loggedInAt + expiresIn) - now;
+				return (services.auth.getTokenSetAtTime() + expiresIn) - now;
 			}
 		},
 
 		getConnectSettings: function(){
 			var settingsStr = sessionStorage.getItem(btoa(connectSettingsKey));
 			if( settingsStr ){
-				return JSON.parse(settingsStr);
+				return JSON.parse(atob(settingsStr));
 			}
 		},
 
 		isLoggedIn: function(){
 			var token = sessionStorage.getItem(btoa(tokenKey)),
-				tokenExpiresStr = sessionStorage.getItem(btoa(tokenExpiresKey)),
-				tokenExpires = tokenExpiresStr ? parseInt(tokenExpiresStr) : null,
-				expiresIn = tokenExpires ? tokenExpires - new Date().getTime() : null,
-				result = expiresIn > 0;
+				tokenExpiresInStr = sessionStorage.getItem(btoa(tokenExpiresKey)),
+				tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr) : null,
+				tokenSetAtStr = sessionStorage.getItem(btoa(tokenSetKey)),
+				tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr) : null,
+				result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) );
+			console.log('isLoggedIn: ' + token + ' tokenExpiresIn=' + tokenExpiresIn + ' tokenSetAt=' + tokenSetAt)
 			return result;
 		},
 
