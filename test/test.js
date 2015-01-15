@@ -1,18 +1,39 @@
 describe('bridgeit.js tests', function () {
 
-	var accountId 		= 'demox_corporate';
-	var realmId 		= 'nargles.net';
-	var adminId 		= 'bobwilliams';
+	var accountId 		= 'bsrtests';
+	var realmId 		= 'test';
+	var adminId 		= 'admin';
 	var adminPassword 	= 'secretest';
-	var userId 			= 'johnsmith';
+	var userId 			= 'user';
 	var userPassword 	= 'secretest';
-	var host 			= 'localhost';
+	var host 			= 'dev.bridgeit.io';
 
 	describe('bridgeit.services.auth', function () {
 
 		function validateAuthResponse(response){
 			return response.access_token && response.expires_in;
 		}
+
+		describe('#getNewAcessToken()', function(){
+			
+			it('should retrieve a new access token', function (done) {
+				bridgeit.services.auth.getNewAccessToken({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(response){
+					console.log(JSON.stringify(response));
+					if( validateAuthResponse(response) )
+						done();
+					else{
+						console.log('getNewAcessToken() failed: ' + response);
+					}
+				}).catch(function(error){
+					console.log('getNewAcessToken failed ' + error);
+				});
+			});
+		});
 
 		describe('#login()', function(){
 			
@@ -145,7 +166,7 @@ describe('bridgeit.js tests', function () {
 				}).then(function(response){
 					console.log(JSON.stringify(response));
 					if( validateAuthResponse(response) ){
-						var access_token = bridgeit.services.auth.getAccessToken();
+						var access_token = bridgeit.services.auth.getLastAccessToken();
 						var expires_in = bridgeit.services.auth.getExpiresIn();
 						console.log('access_token: ' + access_token);
 						if( access_token == response.access_token && expires_in == response.expires_in ){
@@ -203,7 +224,7 @@ describe('bridgeit.js tests', function () {
 			});
 		});
 
-		describe('#getAccessToken()', function(){
+		describe('#getLastAccessToken()', function(){
 			it('should log in as an admin then return the access token', function (done) {
 				bridgeit.services.auth.login({
 					account: accountId,
@@ -211,11 +232,11 @@ describe('bridgeit.js tests', function () {
 					password: adminPassword,
 					host: host
 				}).then(function(authResponse){
-					if( bridgeit.services.auth.getAccessToken() === authResponse.access_token){
+					if( bridgeit.services.auth.getLastAccessToken() === authResponse.access_token){
 						done();
 					}
 				}).catch(function(error){
-					console.log('getAccessToken failed ' + error);
+					console.log('getLastAccessToken failed ' + error);
 				});
 			});
 		});
@@ -978,7 +999,7 @@ describe('bridgeit.js tests', function () {
 						host: host
 					})
 				}).then(function(results){
-					console.log('found ' + results.length + ' metrics');
+					console.log('findMetrics found ' + results.length + ' metrics');
 					done();
 				}).catch(function(error){
 					console.log('findMetrics failed ' + error);
@@ -1040,7 +1061,7 @@ describe('bridgeit.js tests', function () {
 						blob: blob
 					})
 				}).then(function(uri){
-					console.log('new blob URI: ' + uri);
+					console.log('createBlob new blob URI: ' + uri);
 					done();
 				}).catch(function(error){
 					console.log('createBlob failed ' + error);

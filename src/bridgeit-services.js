@@ -10,7 +10,7 @@
 	}
 
 	function validateAndReturnRequiredAccessToken(params, reject){
-		var token = params.accessToken || b.services.auth.getAccessToken();
+		var token = params.accessToken || b.services.auth.getLastAccessToken();
 		if( token ){
 			return token;
 		}
@@ -82,6 +82,7 @@
 
 	if (!b['services']) {
 		b.services = {};
+
 	}
 
 	var services = b.services;
@@ -232,7 +233,7 @@
 	};
 
 	services.configureHosts = function(url){
-		var isLocal = url == 'localhost' || '127.0.0.1';
+		var isLocal = ['localhost','127.0.0.1'].indexOf(url) > -1;
 		if( !url ){
 			services.baseURL = 'dev.bridgeit.io';
 		}
@@ -313,7 +314,7 @@
 					
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/users/?access_token=' + services.auth.getAccessToken();
+						'/realms/' + encodeURI(realm) + '/users/?access_token=' + services.auth.getLastAccessToken();
 
 					b.$.getJSON(url)
 						.then(
@@ -345,7 +346,7 @@
 					
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + 
-						encodeURI(realm) + '/users/' + params.id + '?access_token=' + services.auth.getAccessToken();
+						encodeURI(realm) + '/users/' + params.id + '?access_token=' + services.auth.getLastAccessToken();
 
 					b.$.getJSON(url)
 						.then(
@@ -425,6 +426,75 @@
 
 	/* AUTH SERVICE */
 	services.auth = {
+
+		/**
+		 * Retrieve a new access token from the BridgeIt auth service.
+		 *
+		 * The function returns a Promise that, when successful, returns an object with the following structure:
+		 *    {
+		 *       "access_token": "d9f7463d-d100-42b6-aecd-ae21e38e5d02",
+		 *       "expires_in": 1420574793844
+		 *    }
+		 * 
+		 * Which contains the access token and the time, in milliseconds that the session will expire in.
+		 *
+		 * Unlike the login, and connect functions, this function does not store the access token after it
+		 * is retrieved.
+		 *
+		 * @alias getNewAccessToken
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.username User name (required)
+		 * @param {String} params.password User password (required)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns Promise with the following argument:
+		 *      {
+		 *          access_token: 'xxx',
+		 *          expires_in: 99999
+		 *      }
+		 *
+		 */
+		 getNewAccessToken: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					b.services.checkHost(params);
+
+					if( !params.realm ){
+						params.realm = 'admin';
+					}
+					
+					//validation
+					if( !params.account ){
+						reject(Error('BridgeIt account required for new access token'));
+						return;
+					}
+					if( !params.password ){
+						reject(Error('password required for new access token'));
+						return;
+					}
+					if( !params.username ){
+						reject(Error('username required for new access token'));
+						return;
+					}
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.authURL + '/' + encodeURI(params.account) + '/realms/' + encodeURI(params.realm) + '/token/';
+
+					b.$.post(url, {strategy: 'query', username: params.username, password: params.password})
+						.then(
+							function(authResponse){
+								resolve(authResponse);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
 
 		/**
 		 * Login into bridgeit services. 
@@ -664,7 +734,7 @@
 			sessionStorage.removeItem(btoa(reloginCallbackKey));
 		},
 
-		getAccessToken: function(){
+		getLastAccessToken: function(){
 			return sessionStorage.getItem(btoa(tokenKey));
 		},
 

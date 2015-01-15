@@ -2,6 +2,50 @@
 
 ## Auth API
 
+### getNewAccessToken
+
+```javascript
+function bridgeit.services.auth.getNewAccessToken(params)
+```
+
+Retrieve a new access token from the BridgeIt auth service.. 
+
+The function returns a Promise that, when successful, returns an object with the following structure:
+
+```javascript
+{
+  "access_token": "d9f7463d-d100-42b6-aecd-ae21e38e5d02",
+  "expires_in": 1420574793844
+}
+```
+
+Which contains the access token and the time, in milliseconds that the session will expire in.
+
+Unlike the login, and connect functions, this function does not store the access token after it
+is retrieved.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name | String | | true |
+| realm | BridgeIt Services realm (required only for non-admin logins) | String | | false |
+| username | User name | String | | true |
+| password | User password | String | | true |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+
+#### Return value
+
+Promise with the following argument:
+
+```javascript
+{
+   access_token: 'd9f7463d-d100-42b6-aecd-ae21e38e5d02',
+   expires_in: 1420574793844
+}
+```
+
 ### login
 
 ```javascript
@@ -60,7 +104,7 @@ may send and receive push notifications after connecting.
 
 After connecting to BridgeIt Services, any BridgeIt service API may be used without needing to re-authenticate.
 After successfully connecting, an authentication token will be stored in session storage and available through 
-`bridgeit.services.auth.getAccessToken()`. This authentication information will automatically be used by other BridgeIt API
+`bridgeit.services.auth.getLastAccessToken()`. This authentication information will automatically be used by other BridgeIt API
 calls, so the token does not be included in subsequent calls, but is available if desired.
 
 A simple example of connecting to the BridgeIt Services and then making a service call is the following:
@@ -124,12 +168,12 @@ No parameters required
 
 Promise with the following argument: TODO
 
-### getAccessToken
+### getLastAccessToken
 ```javascript
-function bridgeit.services.auth.getAccessToken()
+function bridgeit.services.auth.getLastAccessToken()
 ```
 
-Return the current Access Token.
+Return the last known Access Token.
 
 #### Parameters
 
