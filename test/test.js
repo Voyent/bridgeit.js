@@ -171,9 +171,12 @@ describe('bridgeit.js tests', function () {
 					username: adminId,
 					password: adminPassword,
 					host: host
-				}).then(function(response){
+				}).then(function(authResponse){
 					if( bridgeit.services.auth.isLoggedIn()){
 						done();
+					}
+					else{
+
 					}
 				}).catch(function(error){
 					console.log('isLoggedIn failed ' + error);
@@ -376,7 +379,7 @@ describe('bridgeit.js tests', function () {
 							realm: realmId
 						});
 					}).then(function(json){
-						console.log('realm users: ' + json);
+						console.log('getRealmUsers: ' + JSON.stringify(json));
 						done();
 					}).catch(function(error){
 						console.log('getRealmUsers failed ' + error);

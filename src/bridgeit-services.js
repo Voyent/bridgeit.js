@@ -312,7 +312,8 @@
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + encodeURI(realm) + '/users/';
+					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/users/?access_token=' + services.auth.getAccessToken();
 
 					b.$.getJSON(url)
 						.then(
@@ -486,6 +487,8 @@
 								sessionStorage.setItem(btoa(tokenKey), authResponse.access_token);
 								sessionStorage.setItem(btoa(tokenExpiresKey), authResponse.expires_in);
 								sessionStorage.setItem(btoa(tokenSetKey), loggedInAt);
+								sessionStorage.setItem(btoa(accountKey), btoa(params.account));
+								sessionStorage.setItem(btoa(realmKey), btoa(params.realm));
 
 								resolve(authResponse);
 							}
