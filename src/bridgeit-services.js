@@ -41,6 +41,10 @@
 		}
 	}
 
+	function validateRequiredUsername(params, reject){
+		validateParameter('username', 'The username parameter is required', params, reject);
+	}
+
 	/* Locate */
 	function validateRequiredRegion(params, reject){
 		validateParameter('region', 'The region parameter is required', params, reject);
@@ -52,6 +56,18 @@
 
 	function validateRequiredPOI(params, reject){
 		validateParameter('poi', 'The poi parameter is required', params, reject);
+	}
+
+	function validateRequiredLocation(params, reject){
+		validateParameter('location', 'The location parameter is required', params, reject);
+	}
+
+	function validateRequiredLat(params, reject){
+		validateParameter('lat', 'The lat parameter is required', params, reject);
+	}
+
+	function validateRequiredLon(params, reject){
+		validateParameter('lon', 'The lon parameter is required', params, reject);
 	}
 
 	/* Storage */
@@ -1571,6 +1587,163 @@
 				}
 			);
 		},
+
+		/**
+		 * Update the location of the current user.
+		 *
+		 * @alias getLastUserLocation
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @param {Object} params.location The location
+		 */
+		 updateLocation: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					validateRequiredLocation(params, reject);
+					
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/locations/' +  
+						'?access_token=' + token;
+					b.$.post(url, params.location)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Set the current users location with a latitude and longitude
+		 *
+		 * @alias updateLocationCoordinates
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @param {Number} params.latitude The location latitude
+		 * @param {Number} params.longitude The location longitude
+		 * @param {String} params.label An optional label
+		 */
+		 updateLocationCoordinates: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					validateRequiredLat(params, reject);
+					validateRequiredLon(params, reject);
+
+					var location = {
+	                    location: {
+	                        geometry: {
+	                            type: 'Point',
+	                            coordinates: [ params.lon, params.lat ]
+	                        },
+	                        properties: {
+	                            timestamp: new Date().toISOString()
+	                        }
+	                    }
+	                };
+
+	                if( params.label ){
+	                	location.label = params.label;
+	                }
+					
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/locations/' +  
+						'?access_token=' + token;
+					b.$.post(url, location)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Get the last known user location from the location service.
+		 *
+		 * @alias getLastUserLocation
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @param {String} params.username
+		 * @returns {Object} The single result, if any, of the user location.
+		 */
+		 getLastUserLocation: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					validateRequiredUsername(params, reject);
+
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/locations/' +  
+						'?access_token=' + token + 
+						'&query={"username": "' + encodeURIComponent(params.username) + '"} +' +
+	                    '&options={"sort":[["lastUpdated","desc"]]}' +
+	                    '&results=one';
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		}
 
 	};
 

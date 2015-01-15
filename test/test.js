@@ -508,7 +508,8 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						document: newDoc
+						document: newDoc,
+						realm: realmId
 					});
 				}).then(function(docURI){
 					newDocURI = docURI;
@@ -541,7 +542,8 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						document: newDoc
+						document: newDoc,
+						realm: realmId
 					});
 				}).then(function(docURI){
 					newDocURI = docURI;
@@ -576,7 +578,8 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						document: newDoc
+						document: newDoc,
+						realm: realmId
 					});
 				}).then(function(docURI){
 					newDocURI = docURI;
@@ -653,6 +656,26 @@ describe('bridgeit.js tests', function () {
 		        },
 		        properties: {
 		            tags: ['statue', 'USA', 'tourist', 'monument']
+		        }
+		    }
+		};
+
+		var validLocationWithoutId = {
+		    label: 'My Favourite iPad',
+		    location: {
+		        geometry: {
+		            type: 'Point',
+		            coordinates: [ -123.35, 48.43 ]
+		        },
+		        properties: {
+		            label: 'Somewhere interesting in Victoria',
+		            accuracy: 50,
+		            altitude: 1000,
+		            altitudeAccuracy: 5,
+		            speed: 3,
+		            heading: 90,
+		            timestamp: '2014-04-01T11:11:11.11Z',
+		            jguid: 'e33f9ce8-b9cc-40ad-8f96-ad32303bc6da'
 		        }
 		    }
 		};
@@ -979,6 +1002,75 @@ describe('bridgeit.js tests', function () {
 			});
 		});
 
+		describe('#getLastUserLocation()', function(){
+
+			it('should return the last know user location', function (done) {
+				bridgeit.services.auth.login({
+					account: accountId,
+					realm: realmId,
+					username: userId,
+					password: userPassword,
+					host: host
+				}).then(function(authResponse){
+					return bridgeit.services.location.updateLocation({
+						location: validLocationWithoutId
+					});
+				}).then(function(){
+					return bridgeit.services.location.getLastUserLocation({
+						username: userId
+					});
+				}).then(function(location){
+					console.log('getLastUserLocation(): ' + json);
+					done();
+				}).catch(function(error){
+					console.log('getLastUserLocation() failed ' + error);
+				});
+			})
+		});
+
+		describe('#updateLocation()', function(){
+			it('should update the location of the current user', function(){
+				bridgeit.services.auth.login({
+					account: accountId,
+					realm: realmId,
+					username: userId,
+					password: userPassword,
+					host: host
+				}).then(function(authResponse){
+					return bridgeit.services.location.updateLocation({
+						location: validLocationWithoutId
+					});
+				}).then(function(json){
+					console.log('updateLocation(): ' + json);
+					done();
+				}).catch(function(error){
+					console.log('updateLocation() failed ' + error);
+				});
+			});
+		});
+
+		describe('#updateLocationCoordinates()', function(){
+			it('should update the location of the current user', function(){
+				bridgeit.services.auth.login({
+					account: accountId,
+					realm: realmId,
+					username: userId,
+					password: userPassword,
+					host: host
+				}).then(function(authResponse){
+					return bridgeit.services.location.updateLocation({
+						lon: -123.35,
+						lat: 48.43,
+						label: 'test label'
+					});
+				}).then(function(json){
+					console.log('updateLocationCoordinates(): ' + json);
+					done();
+				}).catch(function(error){
+					console.log('updateLocationCoordinates() failed ' + error);
+				});
+			});
+		});
 
 	});
 

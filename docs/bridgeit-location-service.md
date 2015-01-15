@@ -35,16 +35,16 @@ http://api.bridgeit.io/locate/demox_corporate/realms/nargles.net/regions/88b9a1f
 ```javascript
 var newRegion = { 
   location: {
-    properties: {
-      country: 'Canada'
-    }
+	properties: {
+	  country: 'Canada'
+	}
   }
 };
 bridgeit.services.location.createRegion({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
-    region: newRegion
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	region: newRegion
   });
 }).then(function(uri){
   console.log('new region URI: ' + uri);
@@ -80,10 +80,10 @@ Promise with no arguments.
 
 ```javascript
 bridgeit.services.location.deleteRegion({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
-    id: '1234'
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	id: '1234'
   })
 }).then(function(){
   console.log('successfully deleted region');
@@ -118,10 +118,10 @@ Promise with a result list of regions.
 
 ```javascript
 bridgeit.services.location.getAllRegions({
-    account: accountId,
-    realm: realmId,
-    host: host,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	account: accountId,
+	realm: realmId,
+	host: host,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
   })
 }).then(function(results){
   console.log('found ' + results.length + ' regions');
@@ -157,17 +157,17 @@ Promise with a result list of regions.
 
 ```javascript
 bridgeit.services.location.findRegions({
-    account: accountId,
-    realm: realmId,
-    host: host,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
-    query: { 
-          location: {
-            properties: {
-              country: 'Canada'
-            }
-          }
-        }
+	account: accountId,
+	realm: realmId,
+	host: host,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	query: { 
+		  location: {
+			properties: {
+			  country: 'Canada'
+			}
+		  }
+		}
   })
 }).then(function(results){
   console.log('found ' + results.length + ' regions');
@@ -203,16 +203,16 @@ Promise with a result list of monitors.
 
 ```javascript
 bridgeit.services.location.findMonitors({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
-    query: { 
-          location: {
-            properties: {
-              country: 'Canada'
-            }
-          }
-        }
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	query: { 
+		  location: {
+			properties: {
+			  country: 'Canada'
+			}
+		  }
+		}
   })
 }).then(function(results){
   console.log('found ' + results.length + ' monitors');
@@ -253,39 +253,39 @@ http://api.bridgeit.io/locate/demox_corporate/realms/nargles.net/monitors/88b9a1
 
 ```javascript
 var newMonitor = {
-      label: 'Various Cities Monitor',
-      active: true,
-      elapsedTimeLimit: 5,
-      locationChangeLimit: 100,
-      locationNearLimit: 1000,
-      regions: {
-        ids: ['Victoria', 'Calgary', 'Paris']
-      },
-      poi: {
-        ids: ['statueofliberty'],
-        tags: ['monument']
-      },
-      events: ['bridgeit.locate.locationChanged', 'bridgeit.locate.enteredRegion', 'bridgeit.locate.exitedRegion'],
-      destinations: [
-        {
-          url: 'http://dev.bridgeit.io/code/bridgeit.test/flows/customflowid',
-          payload: {}
-        },
-        {
-          url: 'push://bridgeit/studentPushGroup',
-          payload: {}
-        },
-        {
-          url: 'ws://joe:seakret@bridgeit/dummyEntry',
-          payload: {}
-        }
-      ]
-    };
+	  label: 'Various Cities Monitor',
+	  active: true,
+	  elapsedTimeLimit: 5,
+	  locationChangeLimit: 100,
+	  locationNearLimit: 1000,
+	  regions: {
+		ids: ['Victoria', 'Calgary', 'Paris']
+	  },
+	  poi: {
+		ids: ['statueofliberty'],
+		tags: ['monument']
+	  },
+	  events: ['bridgeit.locate.locationChanged', 'bridgeit.locate.enteredRegion', 'bridgeit.locate.exitedRegion'],
+	  destinations: [
+		{
+		  url: 'http://dev.bridgeit.io/code/bridgeit.test/flows/customflowid',
+		  payload: {}
+		},
+		{
+		  url: 'push://bridgeit/studentPushGroup',
+		  payload: {}
+		},
+		{
+		  url: 'ws://joe:seakret@bridgeit/dummyEntry',
+		  payload: {}
+		}
+	  ]
+	};
 bridgeit.services.location.createMonitor({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
-    monitor: newMonitor
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	monitor: newMonitor
   });
 }).then(function(uri){
   console.log('new monitor URI: ' + uri);
@@ -321,10 +321,10 @@ Promise with no arguments.
 
 ```javascript
 bridgeit.services.location.deleteMonitor({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
-    id: '1234'
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	id: '1234'
   })
 }).then(function(){
   console.log('successfully deleted monitor');
@@ -359,9 +359,9 @@ Promise with a result list of monitors.
 
 ```javascript
 bridgeit.services.location.getAllMonitors({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
   })
 }).then(function(results){
   console.log('found ' + results.length + ' monitors');
@@ -397,26 +397,26 @@ Promise with new resource URI.
 
 ```javascript
 bridgeit.services.location.createPOI({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
-    poi: {
-        _id: 'statueofliberty',
-        label: 'Statue of Liberty',
-        location: {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [
-                    -74.0445004,
-                    40.6892494
-                ]
-            },
-            properties: {
-                tags: ['statue', 'USA', 'tourist', 'monument']
-            }
-        }
-    }
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	poi: {
+		_id: 'statueofliberty',
+		label: 'Statue of Liberty',
+		location: {
+			type: 'Feature',
+			geometry: {
+				type: 'Point',
+				coordinates: [
+					-74.0445004,
+					40.6892494
+				]
+			},
+			properties: {
+				tags: ['statue', 'USA', 'tourist', 'monument']
+			}
+		}
+	}
   });
 }).then(function(uri){
   console.log('new poi URI: ' + uri);
@@ -450,16 +450,16 @@ Promise with a result list of Points of Interest.
 
 ```javascript
 bridgeit.services.location.findPOIs({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
-    query: { 
-          location: {
-            properties: {
-              country: 'Canada'
-            }
-          }
-        }
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	query: { 
+		  location: {
+			properties: {
+			  country: 'Canada'
+			}
+		  }
+		}
   })
 }).then(function(results){
   console.log('found ' + results.length + ' POIs');
@@ -495,10 +495,10 @@ Promise with no arguments.
 
 ```javascript
 bridgeit.services.location.deletePOI({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
-    id: '1234'
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	id: '1234'
   })
 }).then(function(){
   console.log('successfully deleted POI');
@@ -533,13 +533,149 @@ Promise with a result list of POIs.
 
 ```javascript
 bridgeit.services.location.getAllPOIs({
-    account: accountId,
-    realm: realmId,
-    accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	account: accountId,
+	realm: realmId,
+	accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
   })
 }).then(function(results){
   console.log('found ' + results.length + ' POIs');
 }).catch(function(error){
   console.log('getAllPOIs failed ' + error);
+});
+```
+
+### updateLocation
+
+```javascript
+function bridgeit.services.location.updateLocation(params)
+```
+
+Update the location of the current user.
+
+The location is stored in the location service with a location document.
+
+```javascript
+{
+	label: 'My Favourite iPad',
+	location: {
+		geometry: {
+			type: 'Point',
+			coordinates: [ -123.35, 48.43 ]
+		},
+		properties: {
+			label: 'Somewhere interesting in Victoria',
+			accuracy: 50,
+			altitude: 1000,
+			altitudeAccuracy: 5,
+			speed: 3,
+			heading: 90,
+			timestamp: '2014-04-01T11:11:11.11Z',
+			jguid: 'e33f9ce8-b9cc-40ad-8f96-ad32303bc6da'
+		}
+	}
+}
+```
+
+The location document extra properties are optional.
+
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| location | A JSON object describing the location | Object |  | true |
+
+#### Return value
+
+Promise with a resource URI.
+
+#### Example
+
+```javascript
+bridgeit.services.location.updateLocation({
+	location: validLocationWithoutId
+}).then(function(uri){
+	console.log('location URI(): ' + uri);
+}).catch(function(error){
+	console.log('something went wrong: ' + error);
+});
+```
+
+### updateLocationCoordinates
+
+```javascript
+function bridgeit.services.location.updateLocationCoordinates(params)
+```
+
+Update the location of the current user with a latitude and longitude.
+
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| lat | The location latitude | Number |  | true |
+| lon | The location longitude | Number |  | true |
+| label | The location label | String |  | false |
+
+#### Return value
+
+Promise with a resource URI.
+
+#### Example
+
+```javascript
+bridgeit.services.location.updateLocationCoordinates({
+	lon: -123.35,
+	lat: 48.43,
+	label: 'test label'
+}).then(function(uri){
+	console.log('location URI(): ' + uri);
+}).catch(function(error){
+	console.log('something went wrong: ' + error);
+});
+```
+### getLastUserLocation
+
+```javascript
+function bridgeit.services.location.getLastUserLocation(params)
+```
+
+Get the last known user location from the location service.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| username | The user id | String | | true |
+
+#### Return value
+
+Promise with a location JSON object.
+
+#### Example
+
+```javascript
+bridgeit.services.location.getLastUserLocation({
+	username: 'jsmith'
+}).then(function(location){
+	console.log('location: ' + JSON.stringify(location));
+}).catch(function(error){
+	console.log('something went wrong: ' + error);
 });
 ```
