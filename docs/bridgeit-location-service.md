@@ -107,7 +107,7 @@ Fetches all saved regions for the realm from the location service.
 | account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
 | realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 
 #### Return value
@@ -145,7 +145,7 @@ Searches for regions in a realm based on a Mongo DB query.
 | account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
 | realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | query | The Mongo DB query | Object |  | false |
 
@@ -191,7 +191,7 @@ Searches for location monitors in a realm based on a Mongo DB query.
 | account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | true |
 | realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
 | accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
-used. | String | api.bridgeit.io | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
 | ssl | Whether to use SSL for network traffic | Boolean | false | false |
 | query | The Mongo DB query | Object |  | false |
 
