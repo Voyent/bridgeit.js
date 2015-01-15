@@ -427,7 +427,8 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						document: newDoc
+						document: newDoc,
+						realm: realmId
 					});
 				}).then(function(docURI){
 					console.log('new doc URI: ' + docURI);
@@ -451,7 +452,8 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						document: newDoc
+						document: newDoc,
+						realm: realmId
 					});
 				}).then(function(docURI){
 					newDocURI = docURI;
