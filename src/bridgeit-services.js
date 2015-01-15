@@ -84,6 +84,15 @@
 		validateParameter('flow', 'The flow parameter is required', params, reject);
 	}
 
+	/* Context */
+	function validateRequiredState(params, reject){
+		validateParameter('state', 'The state parameter is required', params, reject);
+	}
+
+	function validateRequiredData(params, reject){
+		validateParameter('data', 'The data parameter is required', params, reject);
+	}
+
 	/* Misc */
 	function validateRequiredId(params, reject){
 		validateParameter('id', 'The id is required', params, reject);
@@ -263,6 +272,7 @@
 		services.documentsURL = baseURL + (isLocal ? ':55080' : '') + '/docs';
 		services.storageURL = baseURL + (isLocal ? ':55030' : '') + '/storage';
 		services.metricsURL = baseURL + (isLocal ? ':55040' : '') + '/metrics';
+		services.contextURL = baseURL + (isLocal ? ':55060' : '') + '/context';
 	};
 
 	services.checkHost = function(params){
@@ -1800,6 +1810,245 @@
 
 	/* CONTEXT SERVICE */
 	services.context = {
+
+		getUser: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					validateRequiredUsername(params, reject);
+					
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/users/' + params.username +
+						'&access_token=' + token;
+
+					b.$.post(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		getUserState: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					validateRequiredUsername(params, reject);
+					
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/state'
+						'&access_token=' + token;
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		setUserState: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					validateRequiredUsername(params, reject);
+					validateRequiredState(params, reject);
+					
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/state'
+						'&access_token=' + token;
+
+					b.$.getJSON(url, params.state)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		getUserInfo: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					validateRequiredUsername(params, reject);
+					
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/info'
+						'&access_token=' + token;
+
+					b.$.post(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		getUpdates: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					validateRequiredUsername(params, reject);
+					
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/updates'
+						'&access_token=' + token;
+
+					b.$.post(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		getUnreadUpdates: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					validateRequiredUsername(params, reject);
+					
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/updates/unread'
+						'&access_token=' + token;
+
+					b.$.post(url)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		execute: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					validateRequiredData(params, reject);
+
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/contexts?op=exec' +
+						'&access_token=' + token;
+
+					b.$.post(url, params.data)
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
 
 	};
 
