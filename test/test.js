@@ -741,17 +741,17 @@ describe('bridgeit.js tests', function () {
 						region: newRegion
 					});
 				}).then(function(uri){
-					console.log('new region URI: ' + uri);
+					console.log('findRegions new region URI: ' + uri);
 					var uriParts = uri.split('/');
 					var regionId = uriParts[uriParts.length-1];
 					return bridgeit.services.location.findRegions({
 						account: accountId,
 						realm: realmId,
 						host: host,
-						query: newRegion
+						query: {'location.properties.country': 'Canada'}
 					})
 				}).then(function(results){
-					console.log('found ' + results.length + ' regions');
+					console.log('findRegions found ' + results.length + ' regions');
 					done();
 				}).catch(function(error){
 					console.log('findRegions failed ' + error);
