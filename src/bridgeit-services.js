@@ -1,3 +1,7 @@
+if( ! ('bridgeit' in window)){
+	throw new Error('bridgeit-services.js requires bridgeit.js, please include bridgeit.js before bridgeit-services.js');
+}
+
 (function(b) {
 
 	"use strict";
@@ -70,6 +74,11 @@
 		validateParameter('lon', 'The lon parameter is required', params, reject);
 	}
 
+	/* Metrics */
+	function validateRequiredMetric(params, reject){
+		validateParameter('metric', 'The metric parameter is required', params, reject);
+	}
+
 	/* Storage */
 	function validateRequiredBlob(params, reject){
 		validateParameter('blob', 'The blob parameter is required', params, reject);
@@ -89,13 +98,13 @@
 		validateParameter('state', 'The state parameter is required', params, reject);
 	}
 
-	function validateRequiredData(params, reject){
-		validateParameter('data', 'The data parameter is required', params, reject);
-	}
-
 	/* Misc */
 	function validateRequiredId(params, reject){
 		validateParameter('id', 'The id is required', params, reject);
+	}
+
+	function validateRequiredData(params, reject){
+		validateParameter('data', 'The data parameter is required', params, reject);
 	}
 
 	function validateParameter(name, msg, params, reject){
@@ -1767,7 +1776,10 @@
 		 * @param {Object} params params
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
-		 * @param {Object} params.expression The expression for the metrics query TODO document expression format
+		 * @param {String} params.expression The expression for the metrics query TODO document expression format
+		 * @param {String} params.start The start date for events. Represented in ISO 8601 UTC format (YYYY-MM-DDTHH:mm:ss.sssZ); defaults to UNIX epoch. TODO convert from other formats
+		 * @param {String} params.stop The stop date for events. Represented in ISO 8601 UTC format (YYYY-MM-DDTHH:mm:ss.sssZ); defaults to now.
+		 * @param {Number} params.limit The maximum number of events to return; defaults to ten thousand
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1787,7 +1799,10 @@
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.metricsURL + '/' + encodeURI(account) + 
 						'/realms/' + encodeURI(realm) + '/stats/?' + 
-						(params.expression ? 'expression=' + encodeURIComponent(JSON.stringify(params.expression)) : '') +
+						(params.expression ? 'expression=' + encodeURIComponent(params.expression) : '') +
+						(params.start ? '&start=' + encodeURIComponent(params.start) : '') +
+						(params.stop ? '&stop=' + encodeURIComponent(params.stop) : '') +
+						(params.limit ? '&limit=' + params.limit : '') +
 						'&access_token=' + token;
 
 					b.$.getJSON(url)
@@ -1804,6 +1819,104 @@
 				}
 			);
 		},
+
+		/**
+		 * Store a custom metric in the metrics service.
+		 *
+		 * @alias addMetric
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @param {Object} params.metric The custom metric that you would like to store, in JSON format.
+		 */
+		 addCustomMetric: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					validateRequiredMetric(params, reject);
+
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.metricsURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/stats/?access_token=' + token;
+
+					b.$.post(url, { data: params.metric})
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		},
+
+		/**
+		 * Retrieve the time difference in milliseconds between the provided time and the metrics server time.
+		 *
+		 * Useful for displaying accurate live metrics views. The time difference is returned as 
+		 * client time - server time.
+		 *
+		 * @alias getClientServerTimeGap
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @returns {Number} The time difference in milliseconds
+		 */
+		 getClientServerTimeGap: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					//defaults
+					services.checkHost(params);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + services.metricsURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/time?clientTime=' + encodeURIComponent(new Date().toISOString()) + 
+						'&access_token=' + token;
+
+					b.$.getJSON(url)
+						.then(
+							function(response){
+								if( response.timeDifference){
+									resolve(response.timeDifference);
+								}
+								else{
+									reject(new Error('getClientServerTimeGap() could not parse response: ' + 
+										JSON.stringify(response)));
+								}
+							}
+						)
+						.catch(
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		}
 
 
 	};
