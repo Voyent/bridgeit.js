@@ -7,6 +7,7 @@ describe('bridgeit.js tests', function () {
 	var userId 			= 'user';
 	var userPassword 	= 'secretest';
 	var host 			= 'dev.bridgeit.io';
+	var deleteTimeout 	= 3000; //deletes are taking longer
 
 	describe('bridgeit.services.auth', function () {
 
@@ -421,13 +422,57 @@ describe('bridgeit.js tests', function () {
 					}).then(function(authResponse){
 						return bridgeit.services.admin.getRealmUser({
 							realm: realmId,
-							id: userId
+							username: userId
 						});
 					}).then(function(json){
 						console.log('getRealmUser: ' + JSON.stringify(json));
 						done();
 					}).catch(function(error){
 						console.log('getRealmUser failed ' + error);
+					});
+			});
+
+		});
+
+		describe('#getAccountRealms()', function(done){
+
+			it('should return a list of realms for the account', function (done) {
+
+				bridgeit.services.auth.login({
+						account: accountId,
+						username: adminId,
+						password: adminPassword,
+						host: host
+					}).then(function(authResponse){
+						return bridgeit.services.admin.getAccountRealms();
+					}).then(function(json){
+						console.log('getAccountRealms: ' + JSON.stringify(json));
+						done();
+					}).catch(function(error){
+						console.log('getAccountRealms failed ' + error);
+					});
+			});
+
+		});
+
+		describe('#getAccountRealm()', function(done){
+
+			it('should return a single realm for the account', function (done) {
+
+				bridgeit.services.auth.login({
+						account: accountId,
+						username: adminId,
+						password: adminPassword,
+						host: host
+					}).then(function(authResponse){
+						return bridgeit.services.admin.getAccountRealm({
+							realm: realmId
+						});
+					}).then(function(json){
+						console.log('getAccountRealm: ' + JSON.stringify(json));
+						done();
+					}).catch(function(error){
+						console.log('getAccountRealm failed ' + error);
 					});
 			});
 
@@ -462,8 +507,8 @@ describe('bridgeit.js tests', function () {
 		});
 
 		describe('#deleteDocument()', function(){
+			this.timeout(deleteTimeout);
 			it('should create a new unnamed document and delete it', function (done) {
-
 				var newDoc = {test: true};
 				
 				bridgeit.services.auth.login({
@@ -705,6 +750,7 @@ describe('bridgeit.js tests', function () {
 		});
 
 		describe('#deleteRegion()', function(){
+			this.timeout(deleteTimeout);
 			it('should create a new unnamed region and then delete it', function (done) {
 				bridgeit.services.auth.login({
 					account: accountId,
@@ -870,6 +916,7 @@ describe('bridgeit.js tests', function () {
 		});
 
 		describe('#deleteMonitor()', function(){
+			this.timeout(deleteTimeout);
 			it('should create a new unnamed monitor and then delete it', function (done) {
 				bridgeit.services.auth.login({
 					account: accountId,
@@ -937,6 +984,7 @@ describe('bridgeit.js tests', function () {
 		});
 
 		describe('#deletePOI()', function(){
+			this.timeout(deleteTimeout);
 			it('should create a new unnamed POI and then delete it', function (done) {
 				bridgeit.services.auth.login({
 					account: accountId,
@@ -1139,7 +1187,7 @@ describe('bridgeit.js tests', function () {
 			it('should store a custom metric', function (done) {
 				var now = new Date().getTime();
 				var metric = {
-					value: 'test',
+					value: 123,
 					time: now
 				};
 				return bridgeit.services.auth.login({
@@ -1150,13 +1198,14 @@ describe('bridgeit.js tests', function () {
 				}).then(function(){
 					return bridgeit.services.metrics.addCustomMetric({
 						realm: realmId,
-						metric: metric
+						metric: metric,
+						type: 'test'
 					})
 				}).then(function(){
 					console.log('addCustomMetric successful ');
 					done();
 				}).catch(function(error){
-					return new Error('addCustomMetric failed ' + error);
+					console.log('addCustomMetric failed ' + error);
 				});
 			});
 		});

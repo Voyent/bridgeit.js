@@ -79,6 +79,10 @@ if( ! ('bridgeit' in window)){
 		validateParameter('metric', 'The metric parameter is required', params, reject);
 	}
 
+	function validateRequiredType(params, reject){
+		validateParameter('type', 'The type parameter is required', params, reject);
+	}
+
 	/* Storage */
 	function validateRequiredBlob(params, reject){
 		validateParameter('blob', 'The blob parameter is required', params, reject);
@@ -147,9 +151,9 @@ if( ! ('bridgeit' in window)){
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
-						  		resolve(this.responseText);
+								resolve(this.responseText);
 							} else {
-						  		reject(Error(this.status));
+								reject(Error(this.status));
 							}
 						}
 					};
@@ -167,9 +171,9 @@ if( ! ('bridgeit' in window)){
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
-						  		resolve(JSON.parse(this.responseText));
+								resolve(JSON.parse(this.responseText));
 							} else {
-						  		reject(Error(this.status));
+								reject(Error(this.status));
 							}
 						}
 					};
@@ -210,7 +214,7 @@ if( ! ('bridgeit' in window)){
 					if( !isFormData ){
 						request.setRequestHeader("Content-type", contentType);
 					}
-   					//request.setRequestHeader("Connection", "close");
+					//request.setRequestHeader("Connection", "close");
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
@@ -223,7 +227,7 @@ if( ! ('bridgeit' in window)){
 									reject(e);
 								}
 							} else {
-						  		reject(Error(this.status));
+								reject(Error(this.status));
 							}
 						}
 					};
@@ -242,13 +246,13 @@ if( ! ('bridgeit' in window)){
 					request.open('DELETE', url, true);
 					//request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 					//request.setRequestHeader("Content-type", "application/json");
-   					//request.setRequestHeader("Connection", "close");
+					//request.setRequestHeader("Connection", "close");
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
 								resolve();
 							} else {
-						  		reject(Error(this.status));
+								reject(Error(this.status));
 							}
 						}
 					};
@@ -377,11 +381,11 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
-					validateRequiredId(params, reject);
+					validateRequiredUsername(params, reject);
 					
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + 
-						encodeURI(realm) + '/users/' + params.id + '?access_token=' + services.auth.getLastAccessToken();
+						encodeURI(realm) + '/users/' + params.username + '?access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -402,6 +406,9 @@ if( ! ('bridgeit' in window)){
 		getAccountRealms: function(params){
 			return new Promise(
 				function(resolve, reject) {
+					if( !params ){
+						params = {};
+					}
 					//defaults
 					services.checkHost(params);
 
@@ -410,7 +417,8 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authURL + '/' + encodeURI(account) + '/realms/';
+					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/'
+							+ '?access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -437,10 +445,11 @@ if( ! ('bridgeit' in window)){
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
-					validateRequiredId(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
 					
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authURL + '/' + encodeURI(account) + '/realms/' + params.id;
+					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + encodeURI(realm)
+							+ '?access_token=' + token;
 
 					b.$.getJSON(url)
 						.then(
@@ -1680,20 +1689,20 @@ if( ! ('bridgeit' in window)){
 					validateRequiredLon(params, reject);
 
 					var location = {
-	                    location: {
-	                        geometry: {
-	                            type: 'Point',
-	                            coordinates: [ params.lon, params.lat ]
-	                        },
-	                        properties: {
-	                            timestamp: new Date().toISOString()
-	                        }
-	                    }
-	                };
+						location: {
+							geometry: {
+								type: 'Point',
+								coordinates: [ params.lon, params.lat ]
+							},
+							properties: {
+								timestamp: new Date().toISOString()
+							}
+						}
+					};
 
-	                if( params.label ){
-	                	location.label = params.label;
-	                }
+					if( params.label ){
+						location.label = params.label;
+					}
 					
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
@@ -1746,8 +1755,8 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/locations/' +  
 						'?access_token=' + token + 
 						'&query={"username": "' + encodeURIComponent(params.username) + '"} +' +
-	                    '&options={"sort":[["lastUpdated","desc"]]}' +
-	                    '&results=one';
+						'&options={"sort":[["lastUpdated","desc"]]}' +
+						'&results=one';
 
 					b.$.getJSON(url)
 						.then(
@@ -1831,12 +1840,14 @@ if( ! ('bridgeit' in window)){
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @param {Object} params.metric The custom metric that you would like to store, in JSON format.
+		 * @param {String} params.type The metric 'type'
 		 */
 		 addCustomMetric: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					console.log('addCustomMetric()');
 					validateRequiredMetric(params, reject);
+					validateRequiredType(params, reject);
 
 					//defaults
 					services.checkHost(params);
@@ -1850,9 +1861,22 @@ if( ! ('bridgeit' in window)){
 					var url = protocol + services.metricsURL + '/' + encodeURI(account) + 
 						'/realms/' + encodeURI(realm) + '/stats/?access_token=' + token;
 
-					b.$.post(url, { data: params.metric})
+					var postData = {
+						auth: {
+							agent: {
+								access_token: token,
+								account: account, 
+								realm: realm, 
+								type: params.type
+							}
+						},
+						data: params.metric
+					};
+					console.log('addCustomMetric() sending post');
+					b.$.post(url, postData)
 						.then(
 							function(response){
+								console.log('addCustomMetric() received post response: ' + response);
 								resolve(response);
 							}
 						)

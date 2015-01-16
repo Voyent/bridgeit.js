@@ -8,9 +8,12 @@
 * [disconnect](#disconnect)
 * [getLastAccessToken](#getLastAccessToken)
 * [getExpiresIn](#getExpiresIn)
+* [getTokenSetAtTime](#getTokenSetAtTime)
 * [getTimeRemainingBeforeExpiry](#getTimeRemainingBeforeExpiry)
 * [getConnectSettings](#getConnectSettings)
 * [isLoggedIn](#isLoggedIn)
+* [getLastKnownAccount](#getLastKnownAccount)
+* [getLastKnownRealm](#getLastKnownRealm)
 
 ### <a name="getNewAccessToken"></a>getNewAccessToken
 
@@ -47,7 +50,7 @@ is retrieved.
 
 #### Return value
 
-Promise with the following argument:
+Promise with the access token and expires_in values in the following format:
 
 ```javascript
 {
@@ -215,6 +218,22 @@ The token expiry period in milliseconds, eg.:
 1420574793844
 ```
 
+### <a name="getTokenSetAtTime"></a>getTokenSetAtTime
+```javascript
+function bridgeit.services.auth.getTokenSetAtTime()
+```
+
+Return the time the last access token was retrieved.
+
+#### Return value
+
+The unix time of the last access token, eg.:
+
+```javascript
+1420574793844
+```
+
+
 ### <a name="getTimeRemainingBeforeExpiry"></a>getTimeRemainingBeforeExpiry
 ```javascript
 function bridgeit.services.auth.getTimeRemainingBeforeExpiry()
@@ -265,5 +284,32 @@ Return whether a current access token exists.
 
 True or false
 
+### <a name="getLastKnownAccount"></a>getLastKnownAccount
+```javascript
+function bridgeit.services.auth.getLastKnownAccount()
+```
+
+Return the last know account name that was used for the `login` or `connect` functions. 
+
+This value will only be available while the current sessionStorage is still available and 
+until the `disconnect` function has been called.
+
+#### Return value
+
+A string value or null.
+
+### <a name="getLastKnownRealm"></a>getLastKnownRealm
+```javascript
+function bridgeit.services.auth.getLastKnownRealm()
+```
+
+Return the last know realm name that was used for the `login` or `connect` functions. 
+
+This value will only be available while the current sessionStorage is still available and 
+until the `disconnect` function has been called.
+
+#### Return value
+
+A string value or null.
 
 

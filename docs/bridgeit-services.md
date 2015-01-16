@@ -1,5 +1,7 @@
 #BridgeIt Services JavaScript API
 
+## [Admin Service JavaScript API](bridgeit-admin-service.md)
+
 ## [Auth Service JavaScript API](bridgeit-auth-service.md)
 
 ## [Code Service JavaScript API](bridgeit-code-service.md)
