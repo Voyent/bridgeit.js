@@ -1,11 +1,11 @@
 describe('bridgeit.js tests', function () {
 
-	var accountId 		= 'bsrtests';
-	var realmId 		= 'test';
-	var adminId 		= 'admin';
-	var adminPassword 	= 'secretest';
-	var userId 			= 'user';
-	var userPassword 	= 'secretest';
+	var accountId 		= 'bridget_u';
+	var realmId 		= 'bridgeit.u';
+	var adminId 		= 'bridgetU';
+	var adminPassword 	= 'bridgetU1';
+	var userId 			= 'bridgeitadmin';
+	var userPassword 	= 'bridgeitadmin';
 	var host 			= 'dev.bridgeit.io';
 	var deleteTimeout 	= 3000; //deletes are taking longer
 
@@ -550,6 +550,32 @@ describe('bridgeit.js tests', function () {
 					});
 			});
 
+		});
+	});
+
+	describe('bridgeit.services.code', function(){
+		describe('#executeFlow', function(){
+			it('should execute a flow in the code service', function (done) {
+
+				bridgeit.services.auth.login({
+					account: accountId,
+					realm: realmId,
+					username: userId,
+					password: userPassword,
+					host: host
+				}).then(function(authResponse){
+					return bridgeit.services.code.executeFlow({
+						flow: 'richresponse',
+						data: {accept: false}
+					});
+				}).then(function(response){
+					console.log('executeFlow() response: ' + response);
+					done();
+				}).catch(function(error){
+					console.log('executeFlow() failed ' + error);
+				});
+
+			});
 		});
 	});
 

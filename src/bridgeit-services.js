@@ -299,6 +299,7 @@ if( ! ('bridgeit' in window)){
 		services.storageURL = baseURL + (isLocal ? ':55030' : '') + '/storage';
 		services.metricsURL = baseURL + (isLocal ? ':55040' : '') + '/metrics';
 		services.contextURL = baseURL + (isLocal ? ':55060' : '') + '/context';
+		services.codeURL = baseURL + '/coden';
 	};
 
 	services.checkHost = function(params){
@@ -2330,35 +2331,24 @@ if( ! ('bridgeit' in window)){
 					validateRequiredFlow(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/meta?scope=all&access_token=' + token;
+					var url = protocol + services.codeURL + '/' + encodeURI(account) + 
+						'/realms/' + encodeURI(realm) + '/nodes/' + encodeURI(params.flow) +
+						'&access_token=' + token;
 
 					if( 'get' === httpMethod ){
 						//TODO encode params.data into URL?
-						b.$.get(url)
-							.then(
-								function(response){
-									resolve();
-								}
-							)
-							['catch'](
-								function(error){
-									reject(error);
-								}
-							);
+						b.$.get(url).then(function(response){
+							resolve();
+						})['catch'](function(error){
+							reject(error);
+						});
 					}
 					else if( 'post' === httpMethod ){
-						b.$.post(url, params.data)
-							.then(
-								function(response){
-									resolve();
-								}
-							)
-							['catch'](
-								function(error){
-									reject(error);
-								}
-							);
+						b.$.post(url, params.data).then(function(response){
+							resolve();
+						})['catch'](function(error){
+							reject(error);
+						});
 					}
 					
 				}
