@@ -387,6 +387,54 @@ describe('bridgeit.js tests', function () {
 				});
 			});
 		});
+
+		describe('#checkUserPermissions()', function(){
+			it('should return true', function (done) {
+
+				bridgeit.services.auth.login({
+					account: accountId,
+					realm: realmId,
+					username: userId,
+					password: userPassword,
+					host: host
+				}).then(function(response){
+					return bridgeit.services.auth.checkUserPermissions({
+						permissions: 'bridgeit.doc.getDocument bridgeit.doc.saveDocument'
+					})
+				}).then(function(hasPermission){
+					console.log('checkUserPermissions() returned ' + hasPermission);
+					if( hasPermission ){
+						done();
+					}
+				}).catch(function(error){
+					console.log('checkUserPermissions failed ' + error);
+				});
+
+			});
+
+			it('should return false', function (done) {
+
+				bridgeit.services.auth.login({
+					account: accountId,
+					realm: realmId,
+					username: userId,
+					password: userPassword,
+					host: host
+				}).then(function(response){
+					return bridgeit.services.auth.checkUserPermissions({
+						permissions: 'permissionDoesntExist'
+					})
+				}).then(function(hasPermission){
+					console.log('checkUserPermissions() returned ' + hasPermission);
+					if( !hasPermission ){
+						done();
+					}
+				}).catch(function(error){
+					console.log('checkUserPermissions failed ' + error);
+				});
+
+			});
+		});
 		
 	});
 

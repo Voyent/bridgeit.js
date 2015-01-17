@@ -17,6 +17,10 @@ if( ! ('bridgeit' in window)){
 		validateParameter('password', 'The password parameter is required', params, reject);
 	}
 
+	function validateRequiredPermissions(params, reject){
+		validateParameter('permissions', 'The permissions parameter is required', params, reject);
+	}
+
 	function validateAndReturnRequiredAccessToken(params, reject){
 		var token = params.accessToken || b.services.auth.getLastAccessToken();
 		if( token ){
@@ -845,15 +849,13 @@ if( ! ('bridgeit' in window)){
 		 * @param {Object} params.custom Custom user information
 		 * @returns Promise 
 		 */
-		
 		 registerAsNewUser: function(params){
 			return new Promise(
 				function(resolve, reject) {
 					b.services.checkHost(params);
 
-					var account = validateAndReturnRequiredAccount(params, reject);
-					var realm = validateAndReturnRequiredRealm(params, reject);
-
+					validateRequiredAccount(params, reject);
+					validateRequiredRealm(params, reject);
 					validateRequiredUsername(params, reject);
 					validateRequiredPassword(params, reject);
 
@@ -891,7 +893,56 @@ if( ! ('bridgeit' in window)){
 						);
 				}
 			);
-		} 
+		},
+
+		/**
+		 * Check if the current user has a set of permissions.
+		 *
+		 * @alias checkUserPermissions 
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @param {String} params.permissions A space-delimited list of permissions
+		 * @returns Promise 
+		 */
+		 checkUserPermissions: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					b.services.checkHost(params);
+
+					validateRequiredPermissions(params, reject);
+
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.authURL + '/' + encodeURI(account) + 
+							'/realms/' + encodeURI(realm) + '/permission' +
+							'?access_token=' + token;
+
+					b.$.post(url, {permissions: params.permissions})
+						.then(
+							function(response){
+								resolve(true);
+							}
+						)
+						['catch'](
+							function(error){
+								if( error.message == '403'){
+									resolve(false);
+								}
+								else{
+									reject(error);
+								}
+								
+							}
+						);
+				}
+			);
+		}
 
 	};
 

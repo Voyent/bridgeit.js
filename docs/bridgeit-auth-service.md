@@ -15,6 +15,7 @@
 * [getLastKnownAccount](#getLastKnownAccount)
 * [getLastKnownRealm](#getLastKnownRealm)
 * [registerAsNewUser](*registerAsNewUser)
+* [checkUserPermissions](*checkUserPermissions)
 
 ### <a name="getNewAccessToken"></a>getNewAccessToken
 
@@ -359,6 +360,40 @@ bridgeit.services.auth.registerAsNewUser({
   }
 }).then(function(){
   console.log('registerAsNewUser() created new user');
+}).catch(function(error){
+  console.log('something went wrong: ' + error);
+});
+```
+
+
+### <a name="checkUserPermissions"></a>checkUserPermissions
+```javascript
+function bridgeit.services.auth.checkUserPermissions()
+```
+
+Check if the current user has a set of permissions.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used. | String | | true |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| permissions | A space-delimited list of permissions to check. | String |  | true |
+
+#### Return value
+
+A Promise with an argument of true, if the user has the permission, or false, if not.
+
+#### Example
+
+```javascript
+bridgeit.services.auth.checkUserPermissions({
+  permissions: 'bridgeit.doc.getDocument bridgeit.doc.saveDocument'
+}).then(function(hasPermission){
+  console.log('checkUserPermissions() user has permission: ' + hasPermission);
 }).catch(function(error){
   console.log('something went wrong: ' + error);
 });
