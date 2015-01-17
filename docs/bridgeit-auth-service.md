@@ -14,8 +14,8 @@
 * [isLoggedIn](#isLoggedIn)
 * [getLastKnownAccount](#getLastKnownAccount)
 * [getLastKnownRealm](#getLastKnownRealm)
-* [registerAsNewUser](*registerAsNewUser)
-* [checkUserPermissions](*checkUserPermissions)
+* [registerAsNewUser](#registerAsNewUser)
+* [checkUserPermissions](#checkUserPermissions)
 
 ### <a name="getNewAccessToken"></a>getNewAccessToken
 
