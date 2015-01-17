@@ -361,6 +361,32 @@ describe('bridgeit.js tests', function () {
 				});
 			});
 		});
+
+		describe('#registerAsNewUser()', function(){
+			it('should create a new user in the realm', function (done) {
+
+				var newUserId = 'user' + new Date().getTime();
+
+				bridgeit.services.auth.registerAsNewUser({
+					account: accountId,
+					realm: realmId,
+					username: newUserId,
+					password: userPassword,
+					firstname: 'First',
+					lastname: 'Last',
+					email: 'user@email.com',
+					host: host,
+					custom: {
+						preferred_correspondence: 'email'
+					}
+				}).then(function(){
+					console.log('registerAsNewUser() created new user');
+					done();
+				}).catch(function(error){
+					console.log('registerAsNewUser() failed ' + error);
+				});
+			});
+		});
 		
 	});
 
@@ -378,7 +404,7 @@ describe('bridgeit.js tests', function () {
 					}).then(function(authResponse){
 						return bridgeit.services.admin.getServiceDefinitions();
 					}).then(function(json){
-						console.log('service defintions: ' + json);
+						console.log('service defintions: ' + JSON.stringify(json));
 						done();
 					}).catch(function(error){
 						console.log('getServiceDefinitions failed ' + error);

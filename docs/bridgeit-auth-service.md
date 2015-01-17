@@ -14,6 +14,7 @@
 * [isLoggedIn](#isLoggedIn)
 * [getLastKnownAccount](#getLastKnownAccount)
 * [getLastKnownRealm](#getLastKnownRealm)
+* [registerAsNewUser](*registerAsNewUser)
 
 ### <a name="getNewAccessToken"></a>getNewAccessToken
 
@@ -311,5 +312,56 @@ until the `disconnect` function has been called.
 #### Return value
 
 A string value or null.
+
+### <a name="registerAsNewUser"></a>registerAsNewUser
+```javascript
+function bridgeit.services.auth.registerAsNewUser()
+```
+
+Register a new user for a realm that supports open user registrations.
+
+In order to allow open (ie. public) user registrations, the BridgeIt realm must be pre-configured to do so. 
+Please consult the BridgeIt Console for more information.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name | String | | true |
+| realm | BridgeIt Services realm | String | | false |
+| username | User name | String | | true |
+| password | User password | String | | true |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+| firstname | The user's first name | String |  | false |
+| lastname | The user's last name | String |  | false |
+| email | The user's email address | String |  | false |
+| custom | Custom user information in JSON format. Any custom information can be stored. | Object |  | false |
+
+#### Return value
+
+A Promise with a no arguments when successful.
+
+#### Example
+
+```javascript
+bridgeit.services.auth.registerAsNewUser({
+  account: accountId,
+  realm: realmId,
+  username: newUserId,
+  password: userPassword,
+  firstname: 'First',
+  lastname: 'Last',
+  email: 'user@email.com',
+  host: host,
+  custom: {
+     prefered_correspondence: 'email'
+  }
+}).then(function(){
+  console.log('registerAsNewUser() created new user');
+}).catch(function(error){
+  console.log('something went wrong: ' + error);
+});
+```
 
 

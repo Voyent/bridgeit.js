@@ -13,13 +13,17 @@ if( ! ('bridgeit' in window)){
 		validateParameter('realm', 'The BridgeIt realm is required', params, reject);
 	}
 
+	function validateRequiredPassword(params, reject){
+		validateParameter('password', 'The password parameter is required', params, reject);
+	}
+
 	function validateAndReturnRequiredAccessToken(params, reject){
 		var token = params.accessToken || b.services.auth.getLastAccessToken();
 		if( token ){
 			return token;
 		}
 		else{
-			reject(Error('A BridgeIt access token is required'));
+			return reject(Error('A BridgeIt access token is required'));
 		}
 	}
 
@@ -30,7 +34,7 @@ if( ! ('bridgeit' in window)){
 			return realm;
 		}
 		else{
-			reject(Error('The BridgeIt realm is required'));
+			return reject(Error('The BridgeIt realm is required'));
 		}
 	}
 
@@ -41,7 +45,7 @@ if( ! ('bridgeit' in window)){
 			return account;
 		}
 		else{
-			reject(Error('The BridgeIt account is required'));
+			return reject(Error('The BridgeIt account is required'));
 		}
 	}
 
@@ -218,13 +222,18 @@ if( ! ('bridgeit' in window)){
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
-								var json = null;
-								try{
-									json = JSON.parse(this.responseText);
-									resolve(json);
+								if( this.responseText ){
+									var json = null;
+									try{
+										json = JSON.parse(this.responseText);
+										resolve(json);
+									}
+									catch(e){
+										reject(e);
+									}
 								}
-								catch(e){
-									reject(e);
+								else{
+									resolve();
 								}
 							} else {
 								reject(Error(this.status));
@@ -237,7 +246,7 @@ if( ! ('bridgeit' in window)){
 			);
 		},
 
-		delete: function(url){
+		doDelete: function(url){
 			return new Promise(
 				function(resolve, reject) {
 					console.log('sending delete to ' + url);
@@ -324,17 +333,11 @@ if( ! ('bridgeit' in window)){
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + services.authAdminURL + '/system/services/?access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
-							function(json){
-								resolve(json);
-							}
-						)
-						.catch(
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(json){
+						resolve(json);
+					})['catch'](function(error){
+						reject(error);
+					});
 			
 				}
 			);
@@ -355,17 +358,11 @@ if( ! ('bridgeit' in window)){
 					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + 
 						'/realms/' + encodeURI(realm) + '/users/?access_token=' + services.auth.getLastAccessToken();
 
-					b.$.getJSON(url)
-						.then(
-							function(json){
-								resolve(json);
-							}
-						)
-						.catch(
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(json){
+						resolve(json);
+					})['catch'](function(error){
+						reject(error);
+					});
 			
 				}
 			);
@@ -387,17 +384,11 @@ if( ! ('bridgeit' in window)){
 					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + 
 						encodeURI(realm) + '/users/' + params.username + '?access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
-							function(json){
-								resolve(json);
-							}
-						)
-						.catch(
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(json){
+						resolve(json);
+					})['catch'](function(error){
+						reject(error);
+					});
 			
 				}
 			);
@@ -426,7 +417,7 @@ if( ! ('bridgeit' in window)){
 								resolve(json);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -457,7 +448,7 @@ if( ! ('bridgeit' in window)){
 								resolve(json);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -465,8 +456,8 @@ if( ! ('bridgeit' in window)){
 			
 				}
 			);
-		},
-	}
+		}
+	};
 
 	/* AUTH SERVICE */
 	services.auth = {
@@ -531,7 +522,7 @@ if( ! ('bridgeit' in window)){
 								resolve(authResponse);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -608,7 +599,7 @@ if( ! ('bridgeit' in window)){
 								resolve(authResponse);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -702,7 +693,7 @@ if( ! ('bridgeit' in window)){
 										.then(function(authResponse){
 											setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
 										})
-										.catch(function(error){
+										['catch'](function(error){
 											throw new Error('error relogging in: ' + error);
 										});
 
@@ -730,7 +721,7 @@ if( ! ('bridgeit' in window)){
 							}
 							resolve(authResponse);
 						})
-						.catch(function(error){
+						['catch'](function(error){
 							reject(error);
 						});
 					
@@ -785,14 +776,14 @@ if( ! ('bridgeit' in window)){
 		getExpiresIn: function(){
 			var expiresInStr = sessionStorage.getItem(btoa(tokenExpiresKey));
 			if( expiresInStr ){
-				return parseInt(expiresInStr);
+				return parseInt(expiresInStr,10);
 			}
 		},
 
 		getTokenSetAtTime: function(){
 			var tokenSetAtStr = sessionStorage.getItem(btoa(tokenSetKey));
 			if( tokenSetAtStr ){
-				return parseInt(tokenSetAtStr);
+				return parseInt(tokenSetAtStr,10);
 			}
 		},
 
@@ -815,9 +806,9 @@ if( ! ('bridgeit' in window)){
 		isLoggedIn: function(){
 			var token = sessionStorage.getItem(btoa(tokenKey)),
 				tokenExpiresInStr = sessionStorage.getItem(btoa(tokenExpiresKey)),
-				tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr) : null,
+				tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr,10) : null,
 				tokenSetAtStr = sessionStorage.getItem(btoa(tokenSetKey)),
-				tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr) : null,
+				tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr,10) : null,
 				result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) );
 			console.log('isLoggedIn: ' + token + ' tokenExpiresIn=' + tokenExpiresIn + ' tokenSetAt=' + tokenSetAt)
 			return result;
@@ -835,7 +826,73 @@ if( ! ('bridgeit' in window)){
 			if( realmCipher ){
 				return atob(realmCipher);
 			}
-		}
+		},
+
+		/**
+		 * Register a new user for a realm that supports open user registrations.
+		 *
+		 * @alias registerAsNewUser
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required)
+		 * @param {String} params.username User name (required)
+		 * @param {String} params.password User password (required)
+		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+		 * @param {String} params.firstname The user's first name (optional)
+		 * @param {String} params.lastname The user's last name (optional)
+		 * @param {String} params.email The user's email (optional)
+		 * @param {Object} params.custom Custom user information
+		 * @returns Promise 
+		 */
+		
+		 registerAsNewUser: function(params){
+			return new Promise(
+				function(resolve, reject) {
+					b.services.checkHost(params);
+
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+
+					validateRequiredUsername(params, reject);
+					validateRequiredPassword(params, reject);
+
+					var user = {
+						username: params.username,
+						password: params.password
+					};
+
+					if( 'firstname' in params ){
+						user.firstname = params.firstname;
+					}
+					if( 'lastname' in params ){
+						user.lastname = params.lastname;
+					}
+					if( 'email' in params ){
+						user.email = params.email;
+					}
+					if( 'custom' in params ){
+						user.custom = params.custom;
+					}
+
+					var protocol = params.ssl ? 'https://' : 'http://';
+					var url = protocol + b.services.authAdminURL + '/' + encodeURI(params.account) + '/realms/' + encodeURI(params.realm) + '/quickuser';
+
+					b.$.post(url, {user: user})
+						.then(
+							function(response){
+								resolve(response);
+							}
+						)
+						['catch'](
+							function(error){
+								reject(error);
+							}
+						);
+				}
+			);
+		} 
+
 	};
 
 	/* DOC SERVICE */
@@ -877,7 +934,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response.uri);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -924,7 +981,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response.uri);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -977,7 +1034,7 @@ if( ! ('bridgeit' in window)){
 								}	
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1023,7 +1080,7 @@ if( ! ('bridgeit' in window)){
 								resolve(doc);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1062,13 +1119,13 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
 						'?access_token=' + token;
 
-					b.$.delete(url)
+					b.$.doDelete(url)
 						.then(
 							function(response){
 								resolve();
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1120,7 +1177,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response.uri);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1158,13 +1215,13 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/regions/' + params.id + 
 						'?access_token=' + token;
 
-					b.$.delete(url)
+					var promise = b.$.doDelete(url)
 						.then(
 							function(response){
 								resolve();
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1207,7 +1264,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1252,7 +1309,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1296,7 +1353,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1342,7 +1399,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response.uri);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1380,13 +1437,13 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/monitors/' + params.id + 
 						'?access_token=' + token;
 
-					b.$.delete(url)
+					b.$.doDelete(url)
 						.then(
 							function(response){
 								resolve();
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1429,7 +1486,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1475,7 +1532,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response.uri);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1520,7 +1577,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1558,13 +1615,13 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/poi/' + params.id + 
 						'?access_token=' + token;
 
-					b.$.delete(url)
+					b.$.doDelete(url)
 						.then(
 							function(response){
 								resolve();
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1607,7 +1664,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1651,7 +1708,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1714,7 +1771,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1722,6 +1779,7 @@ if( ! ('bridgeit' in window)){
 				}
 			);
 		},
+
 
 		/**
 		 * Get the last known user location from the location service.
@@ -1764,7 +1822,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1773,6 +1831,7 @@ if( ! ('bridgeit' in window)){
 			);
 		}
 
+		
 	};
 
 	/* METRICS SERVICE */
@@ -1820,7 +1879,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1875,12 +1934,11 @@ if( ! ('bridgeit' in window)){
 					console.log('addCustomMetric() sending post');
 					b.$.post(url, postData)
 						.then(
-							function(response){
-								console.log('addCustomMetric() received post response: ' + response);
-								resolve(response);
+							function(){
+								resolve();
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1933,7 +1991,7 @@ if( ! ('bridgeit' in window)){
 								}
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -1973,7 +2031,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2007,7 +2065,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2042,7 +2100,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2076,7 +2134,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2110,7 +2168,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2144,7 +2202,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2178,14 +2236,14 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
 						);
 				}
 			);
-		},
+		}
 
 	};
 
@@ -2232,7 +2290,7 @@ if( ! ('bridgeit' in window)){
 									resolve();
 								}
 							)
-							.catch(
+							['catch'](
 								function(error){
 									reject(error);
 								}
@@ -2245,7 +2303,7 @@ if( ! ('bridgeit' in window)){
 									resolve();
 								}
 							)
-							.catch(
+							['catch'](
 								function(error){
 									reject(error);
 								}
@@ -2293,7 +2351,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2342,7 +2400,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response.uri);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2391,7 +2449,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response.uri);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2435,7 +2493,7 @@ if( ! ('bridgeit' in window)){
 								resolve(response);
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
@@ -2472,13 +2530,13 @@ if( ! ('bridgeit' in window)){
 					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
 						'/realms/' + encodeURI(realm) + '/blobs/' + params.id + '?access_token=' + token;
 
-					b.$.delete(url)
+					b.$.doDelete(url)
 						.then(
 							function(response){
 								resolve();
 							}
 						)
-						.catch(
+						['catch'](
 							function(error){
 								reject(error);
 							}
