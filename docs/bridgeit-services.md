@@ -81,10 +81,10 @@ bridgeit.services.auth.login({
 	})
 }).then(function(){
 	console.log('completed transaction: ' + bridgeit.services.getLastTransactionId());
-	bridgeit.services.endTransation();
+	bridgeit.services.endTransaction();
 }).catch(function(error){
 	console.log('something went wrong with transaction: ' + bridgeit.services.getLastTransactionId());
-	bridgeit.services.endTransation();
+	bridgeit.services.endTransaction();
 });
 });
 ```

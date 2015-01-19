@@ -1402,10 +1402,10 @@ describe('bridgeit.js tests', function () {
 					})
 				}).then(function(){
 					console.log('startTransaction() test finished');
-					bridgeit.services.endTransation();
+					bridgeit.services.endTransaction();
 					done();
 				}).catch(function(error){
-					bridgeit.services.endTransation();
+					bridgeit.services.endTransaction();
 					console.log('startTransaction failed ' + error);
 				});
 			});
