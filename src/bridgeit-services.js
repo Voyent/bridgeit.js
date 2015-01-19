@@ -32,7 +32,13 @@ if( ! ('bridgeit' in window)){
 	}
 
 	function validateAndReturnRequiredRealm(params, reject){
-		var realm = params.realm || b.services.auth.getLastKnownRealm();
+		var realm = params.realm;
+		if( realm ){
+			realm = encodeURI(realm);
+		}
+		else{
+			realm = b.services.auth.getLastKnownRealm();
+		}
 		if( realm ){
 			sessionStorage.setItem(btoa(realmKey), btoa(realm));
 			return realm;
@@ -43,7 +49,13 @@ if( ! ('bridgeit' in window)){
 	}
 
 	function validateAndReturnRequiredAccount(params, reject){
-		var account = params.account || b.services.auth.getLastKnownAccount();
+		var account = params.account;
+		if( account ){
+			account = encodeURI(account);
+		}
+		else{
+			account = b.services.auth.getLastKnownAccount();
+		}
 		if( account ){
 			sessionStorage.setItem(btoa(accountKey), btoa(account));
 			return account;
@@ -134,6 +146,31 @@ if( ! ('bridgeit' in window)){
 		}
 	}
 
+	function getTransactionURLParam(){
+		var txId = services.getLastTransactionId();
+		if( txId ){
+			return 'tx=' + txId;
+		}
+		else{
+			return '';
+		}
+	}
+
+	function getRealmResourceURL(servicePath, account, realm, resourcePath, token, ssl, params){
+		var protocol = ssl ? 'https://' : 'http://';
+		var txParam = getTransactionURLParam();
+		var url = protocol + servicePath + 
+			'/' + account + '/realms/' + realm + '/' + resourcePath + '?' + 
+			(token ? 'access_token=' + token : '') +
+			(txParam ? '&' + txParam : '');
+		if( params ){
+			for( var key in params ){
+				url += ('&' + key + '=' + params[key]);
+			}
+		}
+		return url;
+	}
+
 	if (!b['services']) {
 		b.services = {};
 
@@ -152,6 +189,7 @@ if( ! ('bridgeit' in window)){
 	var usernameKey = 'bridgeitUsername';
 	var passwordKey = 'bridgeitPassword';
 	var reloginCallbackKey = 'bridgeitReloginCallback';
+	var transactionKey = 'bridgeitTransaction';
 
 	b.$ = {
 
@@ -286,6 +324,13 @@ if( ! ('bridgeit' in window)){
 					request = null;
 				}
 			);
+		},
+
+		newUUID: function()  {
+			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+				var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+				return v.toString(16);
+			});
 		}
 
 		
@@ -317,7 +362,17 @@ if( ! ('bridgeit' in window)){
 		}
 	};
 
+	services.startTransaction = function(){
+		sessionStorage.setItem(btoa(transactionKey), b.$.newUUID());
+	};
 
+	services.endTransaction = function(){
+		sessionStorage.removeItem(btoa(transactionKey));
+	};
+
+	services.getLastTransactionId = function(){
+		return sessionStorage.getItem(btoa(transactionKey));
+	};
 
 	services.admin = {
 		
@@ -344,7 +399,9 @@ if( ! ('bridgeit' in window)){
 					//validate
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.authAdminURL + '/system/services/?access_token=' + token;
+					var txParam = getTransactionURLParam();
+					var url = protocol + services.authAdminURL + '/system/services/?access_token=' + token +
+						(txParam ? '&' + txParam : '');
 
 					b.$.getJSON(url).then(function(json){
 						resolve(json);
@@ -368,9 +425,8 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/users/?access_token=' + services.auth.getLastAccessToken();
+					var url = getRealmResourceURL(b.services.authAdminURL, account, realm, 
+						'users', token, params.ssl);
 
 					b.$.getJSON(url).then(function(json){
 						resolve(json);
@@ -395,9 +451,8 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredUsername(params, reject);
 					
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + 
-						encodeURI(realm) + '/users/' + params.username + '?access_token=' + token;
+					var url = getRealmResourceURL(b.services.authAdminURL, account, realm, 
+						'users/' + params.username, token, params.ssl);
 
 					b.$.getJSON(url).then(function(json){
 						resolve(json);
@@ -424,8 +479,8 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/'
-							+ '?access_token=' + token;
+					var url = protocol + b.services.authAdminURL + '/' + account + '/realms/'
+							+ '?access_token=' + token + getTransactionURLParam();
 
 					b.$.getJSON(url).then(function(json){
 						resolve(json);
@@ -444,14 +499,13 @@ if( ! ('bridgeit' in window)){
 					services.checkHost(params);
 					validateLoggedIn(reject);
 					
-					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + encodeURI(realm)
-							+ '?access_token=' + token;
+					var url = getRealmResourceURL(b.services.authAdminURL, account, realm, 
+						'', token, params.ssl);
+
 
 					b.$.getJSON(url).then(function(json){
 						services.auth.updateLastActiveTimestamp();
@@ -520,7 +574,8 @@ if( ! ('bridgeit' in window)){
 						return;
 					}
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authURL + '/' + encodeURI(params.account) + '/realms/' + encodeURI(params.realm) + '/token/';
+					var url = protocol + b.services.authURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/token/?' + getTransactionURLParam();
 
 					b.$.post(url, {
 						strategy: 'query', 
@@ -588,7 +643,8 @@ if( ! ('bridgeit' in window)){
 						return;
 					}
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authURL + '/' + encodeURI(params.account) + '/realms/' + encodeURI(params.realm) + '/token/';
+					var url = protocol + b.services.authURL + '/' + encodeURI(params.account) + 
+						'/realms/' + encodeURI(params.realm) + '/token/?' + getTransactionURLParam();
 
 					var loggedInAt = new Date().getTime();
 					b.$.post(url, {
@@ -867,19 +923,14 @@ if( ! ('bridgeit' in window)){
 					}
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authAdminURL + '/' + encodeURI(params.account) + '/realms/' + encodeURI(params.realm) + '/quickuser';
+					var url = getRealmResourceURL(b.services.authAdminURL, account, realm, 
+						'quickuser', token, params.ssl);
 
-					b.$.post(url, {user: user})
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, {user: user}).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -908,10 +959,8 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + b.services.authURL + '/' + encodeURI(account) + 
-							'/realms/' + encodeURI(realm) + '/permission' +
-							'?access_token=' + token;
+					var url = getRealmResourceURL(b.services.authURL, account, realm, 
+						'permission', token, params.ssl);
 
 					b.$.post(url, {permissions: params.permissions}).then(function(response){
 						resolve(true);
@@ -965,13 +1014,11 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/documents/' + (params.id ? params.id : '') + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(b.services.documentsURL, account, realm, 
+						'documents/' + (params.id ? params.id : ''), token, params.ssl);
 
 					b.$.post(url, params.document).then(function(response){
-												resolve(response.uri);
+						resolve(response.uri);
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1007,13 +1054,11 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(b.services.documentsURL, account, realm, 
+						'documents/' + params.id, token, params.ssl);
 
 					b.$.post(url, params.document).then(function(response){
-												resolve(response.uri);
+						resolve(response.uri);
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1047,10 +1092,8 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(b.services.documentsURL, account, realm, 
+						'documents/' + params.id, token, params.ssl);
 
 					b.$.getJSON(url).then(function(doc){
 												//the document service always returns a list, so 
@@ -1093,14 +1136,13 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/documents/?' + 
-						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') + 
-						'&access_token=' + token;
+					var url = getRealmResourceURL(b.services.documentsURL, account, realm, 
+						'documents', token, params.ssl, {
+							'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : ''
+					});
 
 					b.$.getJSON(url).then(function(doc){
-												resolve(doc);
+						resolve(doc);
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1134,10 +1176,8 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.documentsURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(b.services.documentsURL, account, realm, 
+						'documents/' + params.id, token, params.ssl);
 
 					b.$.doDelete(url).then(function(response){
 												resolve();
@@ -1180,10 +1220,9 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredRegion(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/regions/' + (params.id ? params.id : '') + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'regions/' + (params.id ? params.id : ''), token, params.ssl);
+
 
 					b.$.post(url, params.region).then(function(response){
 												resolve(response.uri);
@@ -1219,13 +1258,11 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/regions/' + params.id + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'regions/' + params.id, token, params.ssl);
 
 					b.$.doDelete(url).then(function(response){
-												resolve();
+						resolve();
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1257,10 +1294,8 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/regions/' +  
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'regions', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
 												resolve(response);
@@ -1296,11 +1331,10 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/regions/?' + 
-						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'regions', token, params.ssl, params.query ? {
+							'query': encodeURIComponent(JSON.stringify(params.query))
+						}: undefined);
 
 					b.$.getJSON(url).then(function(response){
 												resolve(response);
@@ -1335,11 +1369,10 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/monitors/?' + 
-						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'monitors', token, params.ssl, params.query ? {
+							'query': encodeURIComponent(JSON.stringify(params.query))
+						}: undefined);
 
 					b.$.getJSON(url).then(function(response){
 												resolve(response);
@@ -1378,9 +1411,8 @@ if( ! ('bridgeit' in window)){
 					validateRequiredMonitor(params, reject);
 
 					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/monitors/' + (params.id ? params.id : '') + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'monitors' + (params.id ? '/' + params.id : ''), token, params.ssl);
 
 					b.$.post(url, params.monitor).then(function(response){
 												resolve(response.uri);
@@ -1416,10 +1448,8 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/monitors/' + params.id + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'monitors/' + params.id, token, params.ssl);
 
 					b.$.doDelete(url).then(function(response){
 												resolve();
@@ -1454,10 +1484,8 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/monitors/' +  
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'monitors', token, params.ssl);
 
 					b.$.getJSON(url).then(
 							function(response){
@@ -1500,10 +1528,8 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredPOI(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/poi/' + (params.id ? params.id : '') + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'poi' + (params.id ? '/' + params.id : ''), token, params.ssl);
 
 					b.$.post(url, params.poi)
 						.then(
@@ -1545,11 +1571,10 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/poi/?' + 
-						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'poi', token, params.ssl, params.query ? {
+
+						} : undefined);
 
 					b.$.getJSON(url)
 						.then(
@@ -1591,22 +1616,14 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/poi/' + params.id + 
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'poi/' + params.id, token, params.ssl);
 
-					b.$.doDelete(url)
-						.then(
-							function(response){
-								resolve();
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.doDelete(url).then(function(response){
+						resolve();
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1635,22 +1652,14 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/poi/' +  
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'poi', token, params.ssl);
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1680,10 +1689,9 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredLocation(params, reject);
 					
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/locations/' +  
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'locations', token, params.ssl);
+
 					b.$.post(url, params.location)
 						.then(
 							function(response){
@@ -1743,21 +1751,14 @@ if( ! ('bridgeit' in window)){
 						location.label = params.label;
 					}
 					
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/locations/' +  
-						'?access_token=' + token;
-					b.$.post(url, location)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'locations', token, params.ssl);
+
+					b.$.post(url, location).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1789,25 +1790,18 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.locateURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/locations/' +  
-						'?access_token=' + token + 
-						'&query={"username": "' + encodeURIComponent(params.username) + '"} +' +
-						'&options={"sort":[["lastUpdated","desc"]]}' +
-						'&results=one';
+					var url = getRealmResourceURL(services.locateURL, account, realm, 
+						'locations', token, params.ssl, {
+							'query': "{'username': '" + encodeURIComponent(params.username) + "'}",
+							'options': '{"sort":[["lastUpdated","desc"]]}',
+							'results':'one'
+						});
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		}
@@ -1846,26 +1840,27 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.metricsURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/stats/?' + 
-						(params.expression ? 'expression=' + encodeURIComponent(params.expression) : '') +
-						(params.start ? '&start=' + encodeURIComponent(params.start) : '') +
-						(params.stop ? '&stop=' + encodeURIComponent(params.stop) : '') +
-						(params.limit ? '&limit=' + params.limit : '') +
-						'&access_token=' + token;
+					var queryParams = {};
+					if( params.expression ){
+						queryParams.expression = encodeURIComponent(params.expression);
+					}
+					if( params.start ){
+						queryParams.start = encodeURIComponent(params.start)
+					}
+					if( params.stop ){
+						queryParams.stop = encodeURIComponent(params.stop);
+					}
+					if( params.limit ){
+						queryParams.limit = params.limit;
+					}
+					var url = getRealmResourceURL(services.metricsURL, account, realm, 
+						'stats', token, params.ssl, queryParams);
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1898,9 +1893,9 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.metricsURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/stats/?access_token=' + token;
+					var url = getRealmResourceURL(services.metricsURL, account, realm, 
+						'stats', token, params.ssl);
+
 
 					var postData = {
 						auth: {
@@ -1914,17 +1909,11 @@ if( ! ('bridgeit' in window)){
 						data: params.metric
 					};
 					console.log('addCustomMetric() sending post');
-					b.$.post(url, postData)
-						.then(
-							function(){
-								resolve();
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, postData).then(function(){
+						resolve();
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1956,28 +1945,22 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.metricsURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/time?clientTime=' + encodeURIComponent(new Date().toISOString()) + 
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.metricsURL, account, realm, 
+						'time', token, params.ssl, {
+							clientTime: encodeURIComponent(new Date().toISOString())
+						});
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								if( response.timeDifference){
-									resolve(response.timeDifference);
-								}
-								else{
-									reject(new Error('getClientServerTimeGap() could not parse response: ' + 
-										JSON.stringify(response)));
-								}
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						if( response.timeDifference){
+							resolve(response.timeDifference);
+						}
+						else{
+							reject(new Error('getClientServerTimeGap() could not parse response: ' + 
+								JSON.stringify(response)));
+						}
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		}
@@ -2002,22 +1985,14 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/users/' + params.username +
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.contextURL, account, realm, 
+						'users/' + params.username, token, params.ssl);
 
-					b.$.post(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2036,22 +2011,14 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/state'
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.contextURL, account, realm, 
+						'users/' + params.username + '/state', token, params.ssl);
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2071,22 +2038,14 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/state'
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.contextURL, account, realm, 
+						'users/' + params.username + '/state', token, params.ssl);
 
-					b.$.getJSON(url, params.state)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, params.state).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2105,22 +2064,14 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/info'
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.contextURL, account, realm, 
+						'users/' + params.username + '/info', token, params.ssl);
 
-					b.$.post(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2139,22 +2090,14 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/updates'
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.contextURL, account, realm, 
+						'users/' + params.username + '/updates', token, params.ssl);
 
-					b.$.post(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2173,22 +2116,14 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/users/' + params.username + '/updates/unread'
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.contextURL, account, realm, 
+						'users/' + params.username + '/updates/unread', token, params.ssl);
 
-					b.$.post(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2207,22 +2142,16 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.contextURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/contexts?op=exec' +
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.contextURL, account, realm, 
+						'contexts', token, params.ssl, {
+							op: 'exec'
+						});
 
-					b.$.post(url, params.data)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, params.data).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		}
@@ -2262,10 +2191,8 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredFlow(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.codeURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/nodes/' + encodeURI(params.flow) +
-						'&access_token=' + token;
+					var url = getRealmResourceURL(services.codeURL, account, realm, 
+						'nodes/' + encodeURI(params.flow), token, params.ssl);
 
 					if( 'get' === httpMethod ){
 						//TODO encode params.data into URL?
@@ -2315,21 +2242,17 @@ if( ! ('bridgeit' in window)){
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/meta?scope=all&access_token=' + token;
+					var url = getRealmResourceURL(services.storageURL, account, realm, 
+						'meta', token, params.ssl, {
+							scope: 'all'
+						});
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+
+					b.$.getJSON(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2361,25 +2284,17 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredBlob(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/blobs/' +
-						(params.id ? params.id : '') +
-						'?access_token=' + token;
 					var formData = new FormData();
 					formData.append('file', params.blob);
 
-					b.$.post(url, formData, true)
-						.then(
-							function(response){
-								resolve(response.uri);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					var url = getRealmResourceURL(services.storageURL, account, realm, 
+						'blobs' + (params.id ? '/' + params.id : ''), token, params.ssl);
+
+					b.$.post(url, formData, true).then(function(response){
+						resolve(response.uri);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2411,25 +2326,16 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredFile(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/blobs/' +
-						(params.id ? params.id : '') +
-						'?access_token=' + token;
+					var url = getRealmResourceURL(services.storageURL, account, realm, 
+						'blobs' + (params.id ? '/' + params.id : ''), token, params.ssl);
 					var formData = new FormData();
 					formData.append('file', params.blob);
 
-					b.$.post(url, formData, true)
-						.then(
-							function(response){
-								resolve(response.uri);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, formData, true).then(function(response){
+						resolve(response.uri);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2460,21 +2366,14 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/blobs/' + params.id + '?access_token=' + token;
+					var url = getRealmResourceURL(services.storageURL, account, realm, 
+						'blobs/' + params.id, token, params.ssl);
 
-					b.$.getBlob(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getBlob(url).then(function(response){
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -2504,21 +2403,14 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredId(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
-					var url = protocol + services.storageURL + '/' + encodeURI(account) + 
-						'/realms/' + encodeURI(realm) + '/blobs/' + params.id + '?access_token=' + token;
+					var url = getRealmResourceURL(services.storageURL, account, realm, 
+						'blobs/' + params.id, token, params.ssl);
 
-					b.$.doDelete(url)
-						.then(
-							function(response){
-								resolve();
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.doDelete(url).then(function(response){
+						resolve();
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		}

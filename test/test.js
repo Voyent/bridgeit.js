@@ -1,11 +1,11 @@
 describe('bridgeit.js tests', function () {
 
-	var accountId 		= 'bridget_u';
-	var realmId 		= 'bridgeit.u';
-	var adminId 		= 'bridgetU';
-	var adminPassword 	= 'bridgetU1';
-	var userId 			= 'bridgeitadmin';
-	var userPassword 	= 'bridgeitadmin';
+	var accountId 		= 'bsrtests';
+	var realmId 		= 'test';
+	var adminId 		= 'admin';
+	var adminPassword 	= 'secretest';
+	var userId 			= 'user';
+	var userPassword 	= 'secretest';
 	var host 			= 'dev.bridgeit.io';
 	var deleteTimeout 	= 3000; //deletes are taking longer
 
@@ -1370,6 +1370,44 @@ describe('bridgeit.js tests', function () {
 					console.log('createBlob failed ' + error);
 				});
 
+			});
+		});
+	});
+
+	describe('bridgeit.services', function () {
+		describe('#startTransaction()', function(){
+			it('should start a transaction, login, create, then delete a document, then end the transaction ', function(){
+				var newDoc = {test: true};
+				bridgeit.services.startTransaction();
+				console.log('started transaction: ' + bridgeit.services.getLastTransactionId());
+				bridgeit.services.auth.login({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(authResponse){
+					return bridgeit.services.documents.createDocument({
+						document: newDoc,
+						realm: realmId
+					});
+				}).then(function(docURI){
+					newDocURI = docURI;
+					var uriParts = docURI.split('/');
+					var docId = uriParts[uriParts.length-1];
+					return bridgeit.services.documents.deleteDocument({
+						account: accountId,
+						realm: realmId,
+						host: host,
+						id: docId
+					})
+				}).then(function(){
+					console.log('startTransaction() test finished');
+					bridgeit.services.endTransation();
+					done();
+				}).catch(function(error){
+					bridgeit.services.endTransation();
+					console.log('startTransaction failed ' + error);
+				});
 			});
 		});
 	});
