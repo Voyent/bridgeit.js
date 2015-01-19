@@ -6,6 +6,8 @@
 
 ## [Code Service JavaScript API](bridgeit-code-service.md)
 
+## [Context Service JavaScript API](bridgeit-context-service.md)
+
 ## [Document Service JavaScript API](bridgeit-docs-service.md)
 
 ## [Location Service JavaScript API](bridgeit-location-service.md)

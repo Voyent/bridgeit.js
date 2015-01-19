@@ -2128,7 +2128,7 @@ if( ! ('bridgeit' in window)){
 			);
 		},
 
-		execute: function(params){
+		executeContext: function(params){
 			return new Promise(
 				function(resolve, reject) {
 
