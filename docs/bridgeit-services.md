@@ -40,7 +40,7 @@ Mocha and PhantomJS are both required.
 ## Global bridgeit.services Functions
 
 * [startTransaction](#startTransaction)
-* [endTransation](#endTransation)
+* [endTransaction](#endTransaction)
 * [getLastTransactionId](#getLastTransactionId)
 
 ### <a name="startTransaction"></a>startTransaction
@@ -89,10 +89,10 @@ bridgeit.services.auth.login({
 });
 ```
 
-### <a name="endTransation"></a>endTransation
+### <a name="endTransaction"></a>endTransaction
 
 ```javascript
-function bridgeit.services.endTransation()
+function bridgeit.services.endTransaction()
 ```
 
 End a BridgeIt transaction.
