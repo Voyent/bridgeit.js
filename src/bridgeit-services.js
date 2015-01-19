@@ -126,6 +126,14 @@ if( ! ('bridgeit' in window)){
 		}
 	}
 
+	function validateLoggedIn(reject){
+		if( !services.auth.isLoggedIn() ){
+			var msg = 'BridgeIt is not logged in, cancelling op';
+			console.log(msg);
+			reject(msg);
+		}
+	}
+
 	if (!b['services']) {
 		b.services = {};
 
@@ -159,6 +167,7 @@ if( ! ('bridgeit' in window)){
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
+								services.auth.updateLastActiveTimestamp();
 								resolve(this.responseText);
 							} else {
 								reject(Error(this.status));
@@ -179,6 +188,7 @@ if( ! ('bridgeit' in window)){
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
+								services.auth.updateLastActiveTimestamp();
 								resolve(JSON.parse(this.responseText));
 							} else {
 								reject(Error(this.status));
@@ -197,6 +207,7 @@ if( ! ('bridgeit' in window)){
 					var request = new XMLHttpRequest();
 					request.onreadystatechange = function(){
 						if (this.readyState === 4 && this.status === 200){
+							services.auth.updateLastActiveTimestamp();
 							resolve(new Uint8Array(this.response));
 						}
 						else{
@@ -230,6 +241,7 @@ if( ! ('bridgeit' in window)){
 									var json = null;
 									try{
 										json = JSON.parse(this.responseText);
+										services.auth.updateLastActiveTimestamp();
 										resolve(json);
 									}
 									catch(e){
@@ -263,6 +275,7 @@ if( ! ('bridgeit' in window)){
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
+								services.auth.updateLastActiveTimestamp();
 								resolve();
 							} else {
 								reject(Error(this.status));
@@ -273,14 +286,9 @@ if( ! ('bridgeit' in window)){
 					request = null;
 				}
 			);
-		},
-
-		updateLastActiveTimestamp: function(){
-			sessionStorage.setItem(btoa(lastActiveTimestampKey), new Date().getTime());
-		},
-		getLastActiveTimestamp: function(){
-			sessionStorage.getItem(btoa(lastActiveTimestampKey));
 		}
+
+		
 	};
 
 	services.configureHosts = function(url){
@@ -330,9 +338,9 @@ if( ! ('bridgeit' in window)){
 						params = {};
 					}
 					
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					var protocol = params.ssl ? 'https://' : 'http://';
@@ -351,9 +359,10 @@ if( ! ('bridgeit' in window)){
 		getRealmUsers: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -376,9 +385,10 @@ if( ! ('bridgeit' in window)){
 		getRealmUser: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -405,9 +415,10 @@ if( ! ('bridgeit' in window)){
 					if( !params ){
 						params = {};
 					}
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
@@ -416,17 +427,11 @@ if( ! ('bridgeit' in window)){
 					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/'
 							+ '?access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
-							function(json){
-								resolve(json);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(json){
+						resolve(json);
+					})['catch'](function(error){
+						reject(error);
+					});
 			
 				}
 			);
@@ -435,9 +440,10 @@ if( ! ('bridgeit' in window)){
 		getAccountRealm: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
@@ -447,17 +453,12 @@ if( ! ('bridgeit' in window)){
 					var url = protocol + b.services.authAdminURL + '/' + encodeURI(account) + '/realms/' + encodeURI(realm)
 							+ '?access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
-							function(json){
-								resolve(json);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(json){
+						services.auth.updateLastActiveTimestamp();
+						resolve(json);
+					})['catch'](function(error){
+						reject(error);
+					});
 			
 				}
 			);
@@ -521,17 +522,15 @@ if( ! ('bridgeit' in window)){
 					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = protocol + b.services.authURL + '/' + encodeURI(params.account) + '/realms/' + encodeURI(params.realm) + '/token/';
 
-					b.$.post(url, {strategy: 'query', username: params.username, password: params.password})
-						.then(
-							function(authResponse){
-								resolve(authResponse);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, {
+						strategy: 'query', 
+						username: params.username, 
+						password: params.password
+					}).then(function(authResponse){
+												resolve(authResponse);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -592,23 +591,21 @@ if( ! ('bridgeit' in window)){
 					var url = protocol + b.services.authURL + '/' + encodeURI(params.account) + '/realms/' + encodeURI(params.realm) + '/token/';
 
 					var loggedInAt = new Date().getTime();
-					b.$.post(url, {strategy: 'query', username: params.username, password: params.password})
-						.then(
-							function(authResponse){
-								sessionStorage.setItem(btoa(tokenKey), authResponse.access_token);
-								sessionStorage.setItem(btoa(tokenExpiresKey), authResponse.expires_in);
-								sessionStorage.setItem(btoa(tokenSetKey), loggedInAt);
-								sessionStorage.setItem(btoa(accountKey), btoa(params.account));
-								sessionStorage.setItem(btoa(realmKey), btoa(params.realm));
+					b.$.post(url, {
+						strategy: 'query', 
+						username: params.username, 
+						password: params.password
+					}).then(function(authResponse){
+												sessionStorage.setItem(btoa(tokenKey), authResponse.access_token);
+						sessionStorage.setItem(btoa(tokenExpiresKey), authResponse.expires_in);
+						sessionStorage.setItem(btoa(tokenSetKey), loggedInAt);
+						sessionStorage.setItem(btoa(accountKey), btoa(params.account));
+						sessionStorage.setItem(btoa(realmKey), btoa(params.realm));
 
-								resolve(authResponse);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+						resolve(authResponse);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -663,8 +660,7 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 					
-					//defaults
-					b.services.checkHost(params);
+					services.checkHost(params);
 					if( !'storeCredentials' in params){
 						params.storeCredentials = true;
 					}
@@ -680,57 +676,50 @@ if( ! ('bridgeit' in window)){
 					};
 					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));	
 
-					services.auth.login(params)
-						.then(function(authResponse){
+					services.auth.login(params).then(function(authResponse){
 
-							function reloginBeforeTimeout(){
-								//first check if connectionTimeout has expired
-								var now = new Date().getTime();
-								if( now - b.$.getLastActiveTimestamp() < params.connectionTimeout * 60 * 1000 ){
-									//we have not exceeded the connection timeout
-									var loginParams = services.auth.getConnectSettings();
-									loginParams.account = sessionStorage.getItem(btoa(accountKey));
-									loginParams.realm = sessionStorage.getItem(btoa(realmKey));
-									loginParams.username = sessionStorage.getItem(btoa(usernameKey));
-									loginParams.password = sessionStorage.getItem(btoa(passwordKey));
+						function reloginBeforeTimeout(){
+							//first check if connectionTimeout has expired
+							var now = new Date().getTime();
+							if( now - services.auth.getLastActiveTimestamp() < params.connectionTimeout * 60 * 1000 ){
+								//we have not exceeded the connection timeout
+								var loginParams = services.auth.getConnectSettings();
+								loginParams.account = sessionStorage.getItem(btoa(accountKey));
+								loginParams.realm = sessionStorage.getItem(btoa(realmKey));
+								loginParams.username = sessionStorage.getItem(btoa(usernameKey));
+								loginParams.password = sessionStorage.getItem(btoa(passwordKey));
 
-									services.auth.login(loginParams)
-										.then(function(authResponse){
-											setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
-										})
-										['catch'](function(error){
-											throw new Error('error relogging in: ' + error);
-										});
+								services.auth.login(loginParams).then(function(authResponse){
+									setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
+								})['catch'](function(error){
+									throw new Error('error relogging in: ' + error);
+								});
 
-								}
 							}
+						}
 
-							console.log('connect received auth response: ' + JSON.stringify(authResponse));
+						console.log('connect received auth response: ' + JSON.stringify(authResponse));
 
-							b.$.updateLastActiveTimestamp();
+						
+						
+						//store creds
+						if( params.storeCredentials ){
+							
+							sessionStorage.setItem(btoa(accountKey), btoa(params.account));
+							sessionStorage.setItem(btoa(realmKey), btoa(params.realm));
+							sessionStorage.setItem(btoa(usernameKey), btoa(params.username));
+							sessionStorage.setItem(btoa(passwordKey), btoa(params.password));
 
 							
-							//store creds
-							if( params.storeCredentials ){
-								
-								sessionStorage.setItem(btoa(accountKey), btoa(params.account));
-								sessionStorage.setItem(btoa(realmKey), btoa(params.realm));
-								sessionStorage.setItem(btoa(usernameKey), btoa(params.username));
-								sessionStorage.setItem(btoa(passwordKey), btoa(params.password));
-
-								
-								//set a timeout for 200 ms before expires to attempt to relogin
-								var cbId = setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
-								sessionStorage.setItem(btoa(reloginCallbackKey), cbId);
-								
-							}
-							resolve(authResponse);
-						})
-						['catch'](function(error){
-							reject(error);
-						});
-					
-					
+							//set a timeout for 200 ms before expires to attempt to relogin
+							var cbId = setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
+							sessionStorage.setItem(btoa(reloginCallbackKey), cbId);
+							
+						}
+						resolve(authResponse);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 
@@ -815,7 +804,6 @@ if( ! ('bridgeit' in window)){
 				tokenSetAtStr = sessionStorage.getItem(btoa(tokenSetKey)),
 				tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr,10) : null,
 				result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) );
-			console.log('isLoggedIn: ' + token + ' tokenExpiresIn=' + tokenExpiresIn + ' tokenSetAt=' + tokenSetAt)
 			return result;
 		},
 
@@ -911,8 +899,9 @@ if( ! ('bridgeit' in window)){
 		 checkUserPermissions: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					b.services.checkHost(params);
-
+					
+					services.checkHost(params);
+					validateLoggedIn(reject);
 					validateRequiredPermissions(params, reject);
 
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -924,25 +913,25 @@ if( ! ('bridgeit' in window)){
 							'/realms/' + encodeURI(realm) + '/permission' +
 							'?access_token=' + token;
 
-					b.$.post(url, {permissions: params.permissions})
-						.then(
-							function(response){
-								resolve(true);
-							}
-						)
-						['catch'](
-							function(error){
-								if( error.message == '403'){
-									resolve(false);
-								}
-								else{
-									reject(error);
-								}
-								
-							}
-						);
+					b.$.post(url, {permissions: params.permissions}).then(function(response){
+						resolve(true);
+					})['catch'](function(error){
+						if( error.message == '403'){
+							resolve(false);
+						}
+						else{
+							reject(error);
+						}
+					});
 				}
 			);
+		},
+
+		updateLastActiveTimestamp: function(){
+			sessionStorage.setItem(btoa(lastActiveTimestampKey), new Date().getTime());
+		},
+		getLastActiveTimestamp: function(){
+			sessionStorage.getItem(btoa(lastActiveTimestampKey));
 		}
 
 	};
@@ -967,9 +956,10 @@ if( ! ('bridgeit' in window)){
 		createDocument: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -980,17 +970,11 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/documents/' + (params.id ? params.id : '') + 
 						'?access_token=' + token;
 
-					b.$.post(url, params.document)
-						.then(
-							function(response){
-								resolve(response.uri);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, params.document).then(function(response){
+												resolve(response.uri);
+					})['catch'](function(error){
+						reject(error);
+					});
 			
 				}
 			);			
@@ -1013,9 +997,10 @@ if( ! ('bridgeit' in window)){
 		updateDocument: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1027,18 +1012,11 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
 						'?access_token=' + token;
 
-					b.$.post(url, params.document)
-						.then(
-							function(response){
-								resolve(response.uri);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
-			
+					b.$.post(url, params.document).then(function(response){
+												resolve(response.uri);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);			
 		},
@@ -1059,9 +1037,10 @@ if( ! ('bridgeit' in window)){
 		 getDocument: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1073,25 +1052,18 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
 						'?access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
-							function(doc){
-								//the document service always returns a list, so 
-								//check if we have a list of one, and if so, return the single item
-								if( doc.length && doc.length === 1 ){
-									resolve(doc[0]);
-								}
-								else{
-									resolve(doc);
-								}	
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
-			
+					b.$.getJSON(url).then(function(doc){
+												//the document service always returns a list, so 
+						//check if we have a list of one, and if so, return the single item
+						if( doc.length && doc.length === 1 ){
+							resolve(doc[0]);
+						}
+						else{
+							resolve(doc);
+						}	
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);			
 		},
@@ -1112,9 +1084,10 @@ if( ! ('bridgeit' in window)){
 		 findDocuments: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1126,17 +1099,11 @@ if( ! ('bridgeit' in window)){
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') + 
 						'&access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
-							function(doc){
-								resolve(doc);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(doc){
+												resolve(doc);
+					})['catch'](function(error){
+						reject(error);
+					});
 			
 				}
 			);			
@@ -1157,9 +1124,10 @@ if( ! ('bridgeit' in window)){
 		deleteDocument: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1171,18 +1139,11 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/documents/' + params.id + 
 						'?access_token=' + token;
 
-					b.$.doDelete(url)
-						.then(
-							function(response){
-								resolve();
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
-			
+					b.$.doDelete(url).then(function(response){
+												resolve();
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		}
@@ -1209,9 +1170,10 @@ if( ! ('bridgeit' in window)){
 		 createRegion: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1223,17 +1185,11 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/regions/' + (params.id ? params.id : '') + 
 						'?access_token=' + token;
 
-					b.$.post(url, params.region)
-						.then(
-							function(response){
-								resolve(response.uri);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, params.region).then(function(response){
+												resolve(response.uri);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1253,9 +1209,10 @@ if( ! ('bridgeit' in window)){
 		 deleteRegion: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1267,17 +1224,11 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/regions/' + params.id + 
 						'?access_token=' + token;
 
-					var promise = b.$.doDelete(url)
-						.then(
-							function(response){
-								resolve();
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.doDelete(url).then(function(response){
+												resolve();
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1297,9 +1248,10 @@ if( ! ('bridgeit' in window)){
 		 getAllRegions: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1310,17 +1262,11 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/regions/' +  
 						'?access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+												resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1341,9 +1287,10 @@ if( ! ('bridgeit' in window)){
 		 findRegions: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1355,17 +1302,11 @@ if( ! ('bridgeit' in window)){
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
 						'&access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+												resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1385,9 +1326,10 @@ if( ! ('bridgeit' in window)){
 		 findMonitors: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1399,17 +1341,11 @@ if( ! ('bridgeit' in window)){
 						(params.query ? 'query=' + encodeURIComponent(JSON.stringify(params.query)) : '') +
 						'&access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+												resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1431,9 +1367,10 @@ if( ! ('bridgeit' in window)){
 		 createMonitor: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1445,17 +1382,11 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/monitors/' + (params.id ? params.id : '') + 
 						'?access_token=' + token;
 
-					b.$.post(url, params.monitor)
-						.then(
-							function(response){
-								resolve(response.uri);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, params.monitor).then(function(response){
+												resolve(response.uri);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1475,9 +1406,10 @@ if( ! ('bridgeit' in window)){
 		 deleteMonitor: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1489,17 +1421,11 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/monitors/' + params.id + 
 						'?access_token=' + token;
 
-					b.$.doDelete(url)
-						.then(
-							function(response){
-								resolve();
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.doDelete(url).then(function(response){
+												resolve();
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1519,9 +1445,10 @@ if( ! ('bridgeit' in window)){
 		 getAllMonitors: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1532,8 +1459,7 @@ if( ! ('bridgeit' in window)){
 						'/realms/' + encodeURI(realm) + '/monitors/' +  
 						'?access_token=' + token;
 
-					b.$.getJSON(url)
-						.then(
+					b.$.getJSON(url).then(
 							function(response){
 								resolve(response);
 							}
@@ -1564,9 +1490,10 @@ if( ! ('bridgeit' in window)){
 		 createPOI: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1609,9 +1536,10 @@ if( ! ('bridgeit' in window)){
 		 findPOIs: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1653,9 +1581,10 @@ if( ! ('bridgeit' in window)){
 		 deletePOI: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1697,9 +1626,10 @@ if( ! ('bridgeit' in window)){
 		 getAllPOIs: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1741,9 +1671,9 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1787,9 +1717,9 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1851,10 +1781,9 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 
 					validateRequiredUsername(params, reject);
-
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1908,9 +1837,10 @@ if( ! ('bridgeit' in window)){
 		findMetrics: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -1960,9 +1890,9 @@ if( ! ('bridgeit' in window)){
 					validateRequiredMetric(params, reject);
 					validateRequiredType(params, reject);
 
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2018,9 +1948,9 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2064,9 +1994,9 @@ if( ! ('bridgeit' in window)){
 
 					validateRequiredUsername(params, reject);
 					
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2098,9 +2028,9 @@ if( ! ('bridgeit' in window)){
 
 					validateRequiredUsername(params, reject);
 					
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2133,9 +2063,9 @@ if( ! ('bridgeit' in window)){
 					validateRequiredUsername(params, reject);
 					validateRequiredState(params, reject);
 					
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2167,9 +2097,9 @@ if( ! ('bridgeit' in window)){
 
 					validateRequiredUsername(params, reject);
 					
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2201,9 +2131,9 @@ if( ! ('bridgeit' in window)){
 
 					validateRequiredUsername(params, reject);
 					
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2235,9 +2165,9 @@ if( ! ('bridgeit' in window)){
 
 					validateRequiredUsername(params, reject);
 					
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2269,9 +2199,9 @@ if( ! ('bridgeit' in window)){
 
 					validateRequiredData(params, reject);
 
-					//defaults
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2319,8 +2249,10 @@ if( ! ('bridgeit' in window)){
 		executeFlow: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
+					validateLoggedIn(reject);
+					
 					var httpMethod = params.httpMethod || 'post';
 					httpMethod = httpMethod.toLowerCase();
 
@@ -2374,9 +2306,10 @@ if( ! ('bridgeit' in window)){
 		getMetaInfo: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2418,9 +2351,10 @@ if( ! ('bridgeit' in window)){
 		uploadBlob: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2467,9 +2401,10 @@ if( ! ('bridgeit' in window)){
 		uploadFile: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2515,9 +2450,10 @@ if( ! ('bridgeit' in window)){
 		getBlob: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2558,9 +2494,10 @@ if( ! ('bridgeit' in window)){
 		deleteBlob: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					//defaults
+					
 					services.checkHost(params);
-
+					validateLoggedIn(reject);
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
