@@ -1139,10 +1139,19 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
+					var queryStr;
+					if( params.query ){
+						try{
+							queryStr = JSON.stringify(params.query);
+						}
+						catch(e){
+							queryStr = params.query;
+						}
+					}
 
 					var url = getRealmResourceURL(b.services.documentsURL, account, realm, 
 						'documents', token, params.ssl, {
-							'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : ''
+							'query': params.query ? encodeURIComponent(queryStr) : ''
 					});
 
 					b.$.getJSON(url).then(function(doc){
@@ -1289,6 +1298,10 @@ if( ! ('bridgeit' in window)){
 		 getAllRegions: function(params){
 			return new Promise(
 				function(resolve, reject) {
+
+					if( !params ){
+						params = {};
+					}
 					
 					services.checkHost(params);
 					validateLoggedIn(reject);
