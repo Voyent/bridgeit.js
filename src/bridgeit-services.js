@@ -1127,6 +1127,10 @@ if( ! ('bridgeit' in window)){
 		 findDocuments: function(params){
 			return new Promise(
 				function(resolve, reject) {
+
+					if( !params ){
+						params = {};
+					}
 					
 					services.checkHost(params);
 					validateLoggedIn(reject);
