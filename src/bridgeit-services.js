@@ -882,7 +882,7 @@ if( ! ('bridgeit' in window)){
 				tokenSetAtStr = sessionStorage.getItem(btoa(tokenSetKey)),
 				tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr,10) : null,
 				result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) );
-			return result;
+			return !!result;
 		},
 
 		getLastKnownAccount: function(){

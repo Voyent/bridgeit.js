@@ -216,8 +216,16 @@ describe('bridgeit.js tests', function () {
 				}).then(function(response){
 					bridgeit.services.auth.disconnect();
 				}).then(function(response){
-					if( !bridgeit.services.auth.isLoggedIn()){
+					var isLoggedIn = bridgeit.services.auth.isLoggedIn();
+					var lastAccount = bridgeit.services.auth.getLastKnownAccount();
+					var lastRealm = bridgeit.services.auth.getLastKnownRealm();
+					var lastToken = bridgeit.services.auth.getLastAccessToken();
+					if( !isLoggedIn && !lastAccount && !lastRealm && !lastToken ){
 						done();
+					}
+					else{
+						console.log('disconnect failed: loggedIn: ' + isloggedIn + ' account: ' + lastAccount +
+							' realm: ' + lastRealm + ' token: ' + lastToken);
 					}
 				}).catch(function(error){
 					console.log('disconnect failed ' + error);
