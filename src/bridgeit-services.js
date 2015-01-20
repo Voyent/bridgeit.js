@@ -1179,8 +1179,14 @@ if( ! ('bridgeit' in window)){
 
 					b.$.getJSON(url).then(function(doc){
 						resolve(doc);
-					})['catch'](function(error){
-						reject(error);
+					})['catch'](function(response){
+						//service currently returns a 404 when no documents are found
+						if( response.status == 404 ){
+							resolve(null);
+						}
+						else{
+							reject(error);
+						}
 					});
 			
 				}

@@ -745,6 +745,31 @@ describe('bridgeit.js tests', function () {
 				});
 
 			});
+
+			it('should search for a non-existant doc and receive null', function (done) {
+
+				var key = 'null';
+				
+				bridgeit.services.auth.login({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(){
+					return bridgeit.services.documents.findDocuments({
+						query: {key: key}
+					})
+				}).then(function(results){
+					if( !results )
+						done();
+					else{
+						console.log('did not receive expected null response for missing doc: ' + JSON.stringify(results));
+					}
+				}).catch(function(error){
+					console.log('findDocuments failed ' + error);
+				});
+
+			});
 		});
 	});
 
