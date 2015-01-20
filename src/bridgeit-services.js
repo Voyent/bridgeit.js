@@ -191,6 +191,19 @@ if( ! ('bridgeit' in window)){
 		}
 	}
 
+	function getFunctionName(fn) {
+		var ret = fn.toString();
+		ret = ret.substr('function '.length);
+		ret = ret.substr(0, ret.indexOf('('));
+		return ret;
+	}
+
+	function callGlobalFunctionByName(name, params){
+		if( name in window && typeof window[name] === 'function'){
+			window[name](params);
+		}
+	}
+
 	if (!b['services']) {
 		b.services = {};
 
@@ -210,8 +223,7 @@ if( ! ('bridgeit' in window)){
 	var passwordKey = 'bridgeitPassword';
 	var reloginCallbackKey = 'bridgeitReloginCallback';
 	var transactionKey = 'bridgeitTransaction';
-	var connectRealTimeoutKey = 'connectRealTimeout';
-
+	
 	b.$ = {
 
 		serializePostData: function(data){
@@ -789,6 +801,23 @@ if( ! ('bridgeit' in window)){
 							else{
 								console.log('bridgeit connect: timeout has expired, disconnecting..');
 								services.auth.disconnect();
+
+								//look for the onSessionTimeout callback on the params first,
+								//as functions could be passed by reference
+								//secondly by settings, which would only be passed by name
+								var expiredCallback = params.onSessionTimeout;
+								if( !expiredCallback ){
+									expiredCallback = connectSettings.onSessionTimeout;
+								}
+
+								if( expiredCallback ){
+									if( typeof params.onSessionTimeout === 'function'){
+										params.onSessionTimeout();
+									}
+									else{
+										callGlobalFunctionByName()
+									}
+								}	
 							}
 						}
 
@@ -827,6 +856,15 @@ if( ! ('bridgeit' in window)){
 						onSessionTimeout: params.onSessionTimeout
 					};
 					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));
+
+					if( params.onSessionTimeout ){
+						if( typeof params.onSessionTimeout === 'function'){
+							var name = getFunctionName(params.onSessionTimeout);
+							if( name ){
+								settings.onSessionTimeout = name;
+							}
+						}
+					}
 
 					var connectionTimeoutMillis =  settings.connectionTimeout * 60 * 1000;	
 

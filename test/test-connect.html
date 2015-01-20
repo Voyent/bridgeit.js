@@ -35,6 +35,10 @@
         var activityTimeout = 2;
         var activityTimeoutMillis = activityTimeout*1000*60; //10 minutes 
 
+        function expiredCallback(){
+            alert('your session has expired');
+        }
+
         function testConnect(){
             var accountId       = 'bsrtests';
             var realmId         = 'test';
@@ -48,9 +52,10 @@
                     username: adminId,
                     password: adminPassword,
                     host: host,
-                    connectionTimeout: activityTimeout
+                    connectionTimeout: activityTimeout,
+                    onSessionTimeout: expiredCallback
                 }).then(function(response){
-                    console.log('connect success: ' + JSON.stringify(response));
+                    console.log('connect success');
                     updateLastActive();
                     updateConnectedAt(connectedAt);
                     
