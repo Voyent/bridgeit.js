@@ -2,7 +2,122 @@
 
 ## Code API
 
+* [start](#start)
+* [stop](#stop)
+* [restart](#restart)
 * [executeFlow](#executeFlow)
+
+### <a name="start"></a>start
+
+```javascript
+function bridgeit.services.code.start(params)
+```
+
+Creates and starts the code service for the specified realm if one doesn't yet
+exist, or starts an existing one.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | false |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+
+#### Return value
+
+Promise with no arguments.
+
+#### Example
+
+```javascript
+bridgeit.services.code.start({
+		account: accountId,
+		realm: realmId,
+		accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	})
+}).then(function(){
+	console.log('successfully launched code service');
+}).catch(function(error){
+	console.log('something went wrong: ' + error);
+});
+```
+
+### <a name="stop"></a>stop
+
+```javascript
+function bridgeit.services.code.stop(params)
+```
+
+Stop a running code service.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | false |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+
+#### Return value
+
+Promise with no arguments.
+
+#### Example
+
+```javascript
+bridgeit.services.code.stop({
+		account: accountId,
+		realm: realmId,
+		accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	})
+}).then(function(){
+	console.log('successfully stopped the code service');
+}).catch(function(error){
+	console.log('something went wrong: ' + error);
+});
+```
+
+### <a name="restart"></a>restart
+
+```javascript
+function bridgeit.services.code.restart(params)
+```
+
+Restart the code service for a realm.
+
+#### Parameters
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | -------- |
+| account | BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.| String | | false |
+| realm | The BridgeIt Services realm. If not provided, the last known BridgeIt Realm will be used. | String | | false |
+| accessToken | The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used | String | | false |
+| host | The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. | String | api.bridgeit.io | false |
+| ssl | Whether to use SSL for network traffic | Boolean | false | false |
+
+#### Return value
+
+Promise with no arguments.
+
+#### Example
+
+```javascript
+bridgeit.services.code.restart({
+		account: accountId,
+		realm: realmId,
+		accessToken: "d9f7463d-d100-42b6-aecd-ae21e38e5d02"
+	})
+}).then(function(){
+	console.log('successfully restarted code service');
+}).catch(function(error){
+	console.log('something went wrong: ' + error);
+});
+```
 
 ### <a name="executeFlow"></a>executeFlow
 

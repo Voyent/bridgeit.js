@@ -311,7 +311,13 @@ if( ! ('bridgeit' in window)){
 							}
 						}
 					};
-					request.send(isFormData ? data : JSON.stringify(data));
+					if( data ){
+						request.send(isFormData ? data : JSON.stringify(data));
+					}
+					else{
+						request.send();
+					}
+					
 					request = null;
 				}
 			);
@@ -381,10 +387,12 @@ if( ! ('bridgeit' in window)){
 
 	services.startTransaction = function(){
 		sessionStorage.setItem(btoa(transactionKey), b.$.newUUID());
+		console.log('bridgeit: started transaction ' + bridgeit.services.getLastTransactionId());
 	};
 
 	services.endTransaction = function(){
 		sessionStorage.removeItem(btoa(transactionKey));
+		console.log('bridgeit: ended transaction ' + bridgeit.services.getLastTransactionId());
 	};
 
 	services.getLastTransactionId = function(){
@@ -820,10 +828,11 @@ if( ! ('bridgeit' in window)){
 					};
 					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));
 
-					var connectionTimeoutMillis =  params.connectionTimeout * 60 * 1000;	
+					var connectionTimeoutMillis =  settings.connectionTimeout * 60 * 1000;	
 
 					if( services.auth.isLoggedIn()){
 						initConnectCallback();
+						resolve();
 					}
 					else{
 						services.auth.login(params).then(function(authResponse){
@@ -833,13 +842,11 @@ if( ! ('bridgeit' in window)){
 							sessionStorage.setItem(btoa(usernameKey), btoa(params.username));
 							sessionStorage.setItem(btoa(passwordKey), btoa(params.password));
 							initConnectCallback();	
-							resolve(authResponse);
+							resolve();
 						})['catch'](function(error){
 							reject(error);
 						});
 					}
-
-					
 				}
 			);
 
@@ -2331,6 +2338,75 @@ if( ! ('bridgeit' in window)){
 					
 				}
 			);
+		},
+
+		start: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					if( !params ){
+						params = {};
+					}
+					
+					services.checkHost(params);
+					validateLoggedIn(reject);
+					
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					
+					http://dev.bridgeit.io/coden/bridget_u/realms/bridgeit.u?access_token=xxxx
+
+					var url = getRealmResourceURL(services.codeURL, account, realm, 
+						'', token, params.ssl);
+
+					b.$.post(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
+						resolve();
+					})['catch'](function(error){
+						reject(error);
+					});
+					
+				}
+			);
+		},
+
+		stop: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					if( !params ){
+						params = {};
+					}
+					
+					services.checkHost(params);
+					validateLoggedIn(reject);
+
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+					
+					http://dev.bridgeit.io/coden/bridget_u/realms/bridgeit.u?access_token=xxxx
+
+					var url = getRealmResourceURL(services.codeURL, account, realm, 
+						'', token, params.ssl);
+
+					b.$.doDelete(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
+						resolve();
+					})['catch'](function(error){
+						reject(error);
+					});
+				}
+			);
+		},
+
+		restart: function(params){
+			return services.code.stop(params).then(function(){
+				return services.code.start(params);
+			});
 		}
 	}
 

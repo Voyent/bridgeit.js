@@ -166,20 +166,7 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(response){
 					console.log(JSON.stringify(response));
-					if( validateAuthResponse(response) ){
-						var access_token = bridgeit.services.auth.getLastAccessToken();
-						var expires_in = bridgeit.services.auth.getExpiresIn();
-						console.log('access_token: ' + access_token);
-						if( access_token == response.access_token && expires_in == response.expires_in ){
-							done();
-						}
-						else{
-							console.log('could not retrieve access_token('+ access_token + ')(' + response.access_token + ') and expires_in(' + expires_in + ')(' + response.expires_in + ')');
-						}
-					}
-					else{
-						console.log('connect could not validate auth response');
-					}
+					done();
 				}).catch(function(response){
 					console.log('login failed ' + JSON.stringify(response));
 				});
@@ -563,16 +550,50 @@ describe('bridgeit.js tests', function () {
 	});
 
 	describe('bridgeit.services.code', function(){
+
+		describe('#start', function(){
+			this.timeout(10000);
+			it('should start, restart, then stop the code service', function (done) {
+
+				bridgeit.services.auth.login({
+					account: accountId,
+					username: adminId,
+					password: adminPassword,
+					host: host
+				}).then(function(authResponse){
+					return bridgeit.services.code.start({
+						realm: realmId
+					});
+				}).then(function(response){
+					console.log('start() response: ' + response);
+					return bridgeit.services.code.restart();
+				}).then(function(response){
+					console.log('restart() response: ' + response);
+					return bridgeit.services.code.stop();
+				}).then(function(response){
+					console.log('stop() response: ' + response);
+					done()
+				}).catch(function(response){
+					console.log('start() failed ' + JSON.stringify(response));
+				});
+
+			});
+		});
+
+
 		describe('#executeFlow', function(){
 			it('should execute a flow in the code service', function (done) {
 
 				bridgeit.services.auth.login({
 					account: accountId,
-					realm: realmId,
-					username: userId,
-					password: userPassword,
+					username: adminId,
+					password: adminPassword,
 					host: host
 				}).then(function(authResponse){
+					return bridgeit.services.code.start({
+						realm: realmId
+					});
+				}).then(function(){
 					return bridgeit.services.code.executeFlow({
 						flow: 'richresponse',
 						data: {accept: false}
