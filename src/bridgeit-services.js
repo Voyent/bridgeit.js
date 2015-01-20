@@ -165,10 +165,30 @@ if( ! ('bridgeit' in window)){
 			(txParam ? '&' + txParam : '');
 		if( params ){
 			for( var key in params ){
-				url += ('&' + key + '=' + params[key]);
+				var param = params[key];
+				if( typeof param === 'object'){
+					try{
+						param = JSON.stringify(param);
+					}
+					catch(e){
+						param = params[key];
+					}
+				}
+				url += ('&' + key + '=' + param);
 			}
 		}
 		return url;
+	}
+
+	function extractResponseValues(xhr){
+		return {
+			status: xhr.status,
+			statusText: xhr.statusText,
+			response: xhr.response,
+			responseText: xhr.responseText,
+			responseType: xhr.responseType,
+			responseXML: xhr.responseXML
+		}
 	}
 
 	if (!b['services']) {
@@ -208,7 +228,7 @@ if( ! ('bridgeit' in window)){
 								services.auth.updateLastActiveTimestamp();
 								resolve(this.responseText);
 							} else {
-								reject(Error(this.status));
+								reject(extractResponseValues(this));
 							}
 						}
 					};
@@ -229,7 +249,7 @@ if( ! ('bridgeit' in window)){
 								services.auth.updateLastActiveTimestamp();
 								resolve(JSON.parse(this.responseText));
 							} else {
-								reject(Error(this.status));
+								reject(extractResponseValues(this));
 							}
 						}
 					};
@@ -249,7 +269,7 @@ if( ! ('bridgeit' in window)){
 							resolve(new Uint8Array(this.response));
 						}
 						else{
-							reject(Error(this.status));
+							reject(extractResponseValues(this));
 						}
 					};
 					request.open('GET', url);
@@ -283,18 +303,18 @@ if( ! ('bridgeit' in window)){
 										resolve(json);
 									}
 									catch(e){
-										reject(e);
+										reject(extractResponseValues(this));
 									}
 								}
 								else{
 									resolve();
 								}
 							} else {
-								reject(Error(this.status));
+								reject(extractResponseValues(this));
 							}
 						}
 					};
-					request.send(JSON.stringify(data));
+					request.send(isFormData ? data : JSON.stringify(data));
 					request = null;
 				}
 			);
@@ -316,7 +336,7 @@ if( ! ('bridgeit' in window)){
 								services.auth.updateLastActiveTimestamp();
 								resolve();
 							} else {
-								reject(Error(this.status));
+								reject(extractResponseValues(this));
 							}
 						}
 					};
@@ -734,7 +754,8 @@ if( ! ('bridgeit' in window)){
 
 					services.auth.login(params).then(function(authResponse){
 
-						function reloginBeforeTimeout(){
+						function connectTimeout(){
+							console.log('connectTimeout()')
 							//first check if connectionTimeout has expired
 							var now = new Date().getTime();
 							if( now - services.auth.getLastActiveTimestamp() < params.connectionTimeout * 60 * 1000 ){
@@ -768,7 +789,7 @@ if( ! ('bridgeit' in window)){
 
 							
 							//set a timeout for 200 ms before expires to attempt to relogin
-							var cbId = setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
+							var cbId = setTimeout(connectTimeout, services.auth.getExpiresIn() - 200);
 							sessionStorage.setItem(btoa(reloginCallbackKey), cbId);
 							
 						}
@@ -812,6 +833,7 @@ if( ! ('bridgeit' in window)){
 			sessionStorage.removeItem(btoa(realmKey));
 			sessionStorage.removeItem(btoa(usernameKey));
 			sessionStorage.removeItem(btoa(passwordKey));
+			sessionStorage.removeItem(btoa(lastActiveTimestampKey));
 			var cbId = sessionStorage.getItem(btoa(reloginCallbackKey));
 			if( cbId ){
 				clearTimeout(cbId);
@@ -899,8 +921,10 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					b.services.checkHost(params);
 
-					validateRequiredAccount(params, reject);
-					validateRequiredRealm(params, reject);
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
 					validateRequiredUsername(params, reject);
 					validateRequiredPassword(params, reject);
 
@@ -922,9 +946,8 @@ if( ! ('bridgeit' in window)){
 						user.custom = params.custom;
 					}
 
-					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = getRealmResourceURL(b.services.authAdminURL, account, realm, 
-						'quickuser', token, params.ssl);
+						'quickuser', services.auth.getLastAccessToken(), params.ssl);
 
 					b.$.post(url, {user: user}).then(function(response){
 						resolve(response);
@@ -964,8 +987,8 @@ if( ! ('bridgeit' in window)){
 
 					b.$.post(url, {permissions: params.permissions}).then(function(response){
 						resolve(true);
-					})['catch'](function(error){
-						if( error.message == '403'){
+					})['catch'](function(response){
+						if( response.status == 403){
 							resolve(false);
 						}
 						else{
@@ -1427,7 +1450,6 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 					validateRequiredMonitor(params, reject);
 
-					var protocol = params.ssl ? 'https://' : 'http://';
 					var url = getRealmResourceURL(services.locateURL, account, realm, 
 						'monitors' + (params.id ? '/' + params.id : ''), token, params.ssl);
 
@@ -1684,7 +1706,7 @@ if( ! ('bridgeit' in window)){
 		/**
 		 * Update the location of the current user.
 		 *
-		 * @alias getLastUserLocation
+		 * @alias updateLocation
 		 * @param {Object} params params
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
@@ -1793,7 +1815,21 @@ if( ! ('bridgeit' in window)){
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @param {String} params.username
 		 * @returns {Object} The single result, if any, of the user location.
-		 */
+		 
+
+		 http://dev.bridgeit.io/locate/bsrtests/realms/test/locations
+		 	?access_token=4be2fc2f-a53b-4987-9446-88d519faaa77
+		 	&query={%22username%22:%22user%22}
+		 	&options={%22sort%22:[[%22lastUpdated%22,%22desc%22]]}
+		 	&results=one
+
+		 var locationURL = apiURL + '/locations' +
+                    '?access_token=' + encodeURIComponent(bsr.auth.getCurrentToken()) +
+                    '&query={"username": "' + encodeURIComponent(user) + '"} +' +
+                    '&options={"sort":[["lastUpdated","desc"]]}' +
+                    '&results=one';
+         */
+
 		 getLastUserLocation: function(params){
 			return new Promise(
 				function(resolve, reject) {
@@ -1809,15 +1845,20 @@ if( ! ('bridgeit' in window)){
 					
 					var url = getRealmResourceURL(services.locateURL, account, realm, 
 						'locations', token, params.ssl, {
-							'query': "{'username': '" + encodeURIComponent(params.username) + "'}",
+							'query': {username: encodeURIComponent(params.username)},
 							'options': '{"sort":[["lastUpdated","desc"]]}',
 							'results':'one'
 						});
 
 					b.$.getJSON(url).then(function(response){
 						resolve(response);
-					})['catch'](function(error){
-						reject(error);
+					})['catch'](function(reponse){
+						if( response.status == 403 ){
+							resolve(null);
+						}
+						else{
+							reject(response);
+						}
 					});
 				}
 			);

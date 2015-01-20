@@ -272,7 +272,8 @@ describe('bridgeit.js tests', function () {
 					password: adminPassword,
 					host: host
 				}).then(function(authResponse){
-					if( bridgeit.services.auth.getExpiresIn() === authResponse.expires_in){
+					var expiresIn = bridgeit.services.auth.getExpiresIn();
+					if( typeof expiresIn === 'number' && expiresIn == authResponse.expires_in){
 						done();
 					}
 				}).catch(function(error){
@@ -1364,10 +1365,10 @@ describe('bridgeit.js tests', function () {
 						blob: blob
 					})
 				}).then(function(uri){
-					console.log('createBlob new blob URI: ' + uri);
+					console.log('createBlob new cat image URI: ' + uri + '?access_token=' + bridgeit.services.auth.getLastAccessToken());
 					done();
-				}).catch(function(error){
-					console.log('createBlob failed ' + error);
+				}).catch(function(response){
+					console.log('createBlob failed ' + JSON.stringify(response));
 				});
 
 			});
@@ -1376,7 +1377,7 @@ describe('bridgeit.js tests', function () {
 
 	describe('bridgeit.services', function () {
 		describe('#startTransaction()', function(){
-			it('should start a transaction, login, create, then delete a document, then end the transaction ', function(){
+			it('should start a transaction, login, create, then delete a document, then end the transaction ', function(done){
 				var newDoc = {test: true};
 				bridgeit.services.startTransaction();
 				console.log('started transaction: ' + bridgeit.services.getLastTransactionId());
