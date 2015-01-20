@@ -49,8 +49,8 @@ describe('bridgeit.js tests', function () {
 					console.log(JSON.stringify(response));
 					if( validateAuthResponse(response) )
 						done();
-				}).catch(function(error){
-					console.log('login failed ' + error);
+				}).catch(function(response){
+					console.log('login failed ' + JSON.stringify(response));
 				});
 
 			});
@@ -64,8 +64,8 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(response){
 					console.log(JSON.stringify(response));
-				}).catch(function(error){
-					console.log('login failed ' + error);
+				}).catch(function(response){
+					console.log('login failed ' + JSON.stringify(response));
 					done();
 				});
 
@@ -83,8 +83,8 @@ describe('bridgeit.js tests', function () {
 					console.log(JSON.stringify(response));
 					if( validateAuthResponse(response) )
 						done();
-				}).catch(function(error){
-					console.log('login failed ' + error);
+				}).catch(function(response){
+					console.log('login failed ' + JSON.stringify(response));
 				});
 
 			});
@@ -98,8 +98,8 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(response){
 					console.log(JSON.stringify(response));
-				}).catch(function(error){
-					console.log('login failed ' + error);
+				}).catch(function(response){
+					console.log('login failed test success');
 					done();
 				});
 
@@ -114,8 +114,8 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(response){
 					console.log(JSON.stringify(response));
-				}).catch(function(error){
-					console.log('login failed ' + error);
+				}).catch(function(response){
+					console.log('login failed test success');
 					done();
 				});
 
@@ -130,8 +130,8 @@ describe('bridgeit.js tests', function () {
 					host: host
 				}).then(function(response){
 					console.log(JSON.stringify(response));
-				}).catch(function(error){
-					console.log('login failed ' + error);
+				}).catch(function(response){
+					console.log('login failed test success ');
 					done();
 				});
 
@@ -150,8 +150,8 @@ describe('bridgeit.js tests', function () {
 					console.log(JSON.stringify(response));
 					if( validateAuthResponse(response) )
 						done();
-				}).catch(function(error){
-					console.log('login failed ' + error);
+				}).catch(function(response){
+					console.log('login failed ' + JSON.stringify(response));
 				});
 
 			});
@@ -180,8 +180,8 @@ describe('bridgeit.js tests', function () {
 					else{
 						console.log('connect could not validate auth response');
 					}
-				}).catch(function(error){
-					console.log('login failed ' + error);
+				}).catch(function(response){
+					console.log('login failed ' + JSON.stringify(response));
 				});
 			});
 		});
@@ -691,13 +691,13 @@ describe('bridgeit.js tests', function () {
 				
 				bridgeit.services.auth.login({
 					account: accountId,
-					username: adminId,
-					password: adminPassword,
+					realm: realmId,
+					username: userId,
+					password: userPassword,
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
-						document: newDoc,
-						realm: realmId
+						document: newDoc
 					});
 				}).then(function(docURI){
 					newDocURI = docURI;
@@ -727,8 +727,9 @@ describe('bridgeit.js tests', function () {
 				
 				bridgeit.services.auth.login({
 					account: accountId,
-					username: adminId,
-					password: adminPassword,
+					username: userId,
+					realm: realmId,
+					password: userPassword,
 					host: host
 				}).then(function(authResponse){
 					return bridgeit.services.documents.createDocument({
@@ -760,8 +761,9 @@ describe('bridgeit.js tests', function () {
 				
 				bridgeit.services.auth.login({
 					account: accountId,
-					username: adminId,
-					password: adminPassword,
+					realm: realmId,
+					username: userId,
+					password: userPassword,
 					host: host
 				}).then(function(){
 					return bridgeit.services.documents.findDocuments({

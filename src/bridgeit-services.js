@@ -210,6 +210,7 @@ if( ! ('bridgeit' in window)){
 	var passwordKey = 'bridgeitPassword';
 	var reloginCallbackKey = 'bridgeitReloginCallback';
 	var transactionKey = 'bridgeitTransaction';
+	var connectRealTimeoutKey = 'connectRealTimeout';
 
 	b.$ = {
 
@@ -225,7 +226,6 @@ if( ! ('bridgeit' in window)){
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
-								services.auth.updateLastActiveTimestamp();
 								resolve(this.responseText);
 							} else {
 								reject(extractResponseValues(this));
@@ -246,7 +246,6 @@ if( ! ('bridgeit' in window)){
 					request.onreadystatechange = function() {
 						if (this.readyState === 4) {
 							if (this.status >= 200 && this.status < 400) {
-								services.auth.updateLastActiveTimestamp();
 								resolve(JSON.parse(this.responseText));
 							} else {
 								reject(extractResponseValues(this));
@@ -265,7 +264,6 @@ if( ! ('bridgeit' in window)){
 					var request = new XMLHttpRequest();
 					request.onreadystatechange = function(){
 						if (this.readyState === 4 && this.status === 200){
-							services.auth.updateLastActiveTimestamp();
 							resolve(new Uint8Array(this.response));
 						}
 						else{
@@ -299,7 +297,6 @@ if( ! ('bridgeit' in window)){
 									var json = null;
 									try{
 										json = JSON.parse(this.responseText);
-										services.auth.updateLastActiveTimestamp();
 										resolve(json);
 									}
 									catch(e){
@@ -424,6 +421,7 @@ if( ! ('bridgeit' in window)){
 						(txParam ? '&' + txParam : '');
 
 					b.$.getJSON(url).then(function(json){
+						services.auth.updateLastActiveTimestamp();
 						resolve(json);
 					})['catch'](function(error){
 						reject(error);
@@ -449,6 +447,7 @@ if( ! ('bridgeit' in window)){
 						'users', token, params.ssl);
 
 					b.$.getJSON(url).then(function(json){
+						services.auth.updateLastActiveTimestamp();
 						resolve(json);
 					})['catch'](function(error){
 						reject(error);
@@ -475,6 +474,7 @@ if( ! ('bridgeit' in window)){
 						'users/' + params.username, token, params.ssl);
 
 					b.$.getJSON(url).then(function(json){
+						services.auth.updateLastActiveTimestamp();
 						resolve(json);
 					})['catch'](function(error){
 						reject(error);
@@ -503,6 +503,7 @@ if( ! ('bridgeit' in window)){
 							+ '?access_token=' + token + getTransactionURLParam();
 
 					b.$.getJSON(url).then(function(json){
+						services.auth.updateLastActiveTimestamp();
 						resolve(json);
 					})['catch'](function(error){
 						reject(error);
@@ -672,7 +673,10 @@ if( ! ('bridgeit' in window)){
 						username: params.username, 
 						password: params.password
 					}).then(function(authResponse){
-												sessionStorage.setItem(btoa(tokenKey), authResponse.access_token);
+						if( !params.suppressUpdateTimestamp ){
+							services.auth.updateLastActiveTimestamp();
+						}
+						sessionStorage.setItem(btoa(tokenKey), authResponse.access_token);
 						sessionStorage.setItem(btoa(tokenExpiresKey), authResponse.expires_in);
 						sessionStorage.setItem(btoa(tokenSetKey), loggedInAt);
 						sessionStorage.setItem(btoa(accountKey), btoa(params.account));
@@ -735,6 +739,70 @@ if( ! ('bridgeit' in window)){
 		connect: function(params){
 			return new Promise(
 				function(resolve, reject) {
+
+					function initConnectCallback(){
+
+						function connectCallback(){
+							console.log('bridgeit connect: callback running')
+							var connectSettings = services.auth.getConnectSettings();
+							if( !connectSettings ){
+								console.log('bridgeit connect: error, could not retrieve settings');
+							}
+
+							var timeoutMillis =  connectSettings.connectionTimeout * 60 * 1000;	
+
+							//first check if connectionTimeout has expired
+							var now = new Date().getTime();
+							if( now - services.auth.getLastActiveTimestamp() < timeoutMillis - timeoutPadding ){
+								console.log('bridgeit connect: timeout has not been exceeded, ' + services.auth.getTimeRemainingBeforeExpiry()/1000/60 + ' mins remaining');
+
+								if( connectSettings.connectionTimeout > services.auth.getTimeRemainingBeforeExpiry()){
+									
+									var loginParams = services.auth.getConnectSettings();
+									loginParams.account = atob(sessionStorage.getItem(btoa(accountKey)));
+									loginParams.realm = atob(sessionStorage.getItem(btoa(realmKey)));
+									loginParams.username = atob(sessionStorage.getItem(btoa(usernameKey)));
+									loginParams.password = atob(sessionStorage.getItem(btoa(passwordKey)));
+									loginParams.suppressUpdateTimestamp = true;
+
+									services.auth.login(loginParams).then(function(authResponse){
+										setTimeout(connectCallback, services.auth.getTimeRemainingBeforeExpiry() - timeoutPadding);
+									})['catch'](function(response){
+										throw new Error('bridgeit connect: error relogging in: ' + response.responseText);
+									});
+								}
+								else{
+									console.log('bridgeit connect: setting callback for ' + connectSettings.connectionTimeout + ' minutes');
+									setTimeout(connectCallback, connectSettings.connectionTimeout * 60 * 1000);
+								}
+
+								
+							}
+							else{
+								console.log('bridgeit connect: timeout has expired, disconnecting..');
+								services.auth.disconnect();
+							}
+						}
+
+						var callbackTimeout;
+
+						//if the desired connection timeout is greater the token expiry
+						//set the callback check for just before the token expires
+						if( connectionTimeoutMillis > services.auth.getExpiresIn()){
+							callbackTimeout = services.auth.getExpiresIn() - 500;
+						}
+						//otherwise the disired timeout is less then the token expiry
+						//so set the callback to happen just at specified timeout
+						else{
+							callbackTimeout = connectionTimeoutMillis;
+						}
+
+						console.log('bridgeit connect: setting timeout to ' + callbackTimeout / 1000 / 60 + ' mins');
+						var cbId = setTimeout(connectCallback, callbackTimeout);
+						sessionStorage.setItem(btoa(reloginCallbackKey), cbId);
+					}
+
+					var timeoutPadding = 500;
 					
 					services.checkHost(params);
 					if( !'storeCredentials' in params){
@@ -747,56 +815,31 @@ if( ! ('bridgeit' in window)){
 						userPushService: params.usePushService,
 						connectionTimeout: params.connectionTimeout || 20,
 						ssl: params.ssl,
-						storeCredentials: params.storeCredentials,
+						storeCredentials: params.storeCredentials || true,
 						onSessionTimeout: params.onSessionTimeout
 					};
-					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));	
+					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));
 
-					services.auth.login(params).then(function(authResponse){
+					var connectionTimeoutMillis =  params.connectionTimeout * 60 * 1000;	
 
-						function connectTimeout(){
-							console.log('connectTimeout()')
-							//first check if connectionTimeout has expired
-							var now = new Date().getTime();
-							if( now - services.auth.getLastActiveTimestamp() < params.connectionTimeout * 60 * 1000 ){
-								//we have not exceeded the connection timeout
-								var loginParams = services.auth.getConnectSettings();
-								loginParams.account = sessionStorage.getItem(btoa(accountKey));
-								loginParams.realm = sessionStorage.getItem(btoa(realmKey));
-								loginParams.username = sessionStorage.getItem(btoa(usernameKey));
-								loginParams.password = sessionStorage.getItem(btoa(passwordKey));
-
-								services.auth.login(loginParams).then(function(authResponse){
-									setTimeout(reloginBeforeTimeout, authResponse.expires_in - 200);
-								})['catch'](function(error){
-									throw new Error('error relogging in: ' + error);
-								});
-
-							}
-						}
-
-						console.log('connect received auth response: ' + JSON.stringify(authResponse));
-
-						
-						
-						//store creds
-						if( params.storeCredentials ){
-							
+					if( services.auth.isLoggedIn()){
+						initConnectCallback();
+					}
+					else{
+						services.auth.login(params).then(function(authResponse){
+							console.log('bridgeit connect: received auth response');				
 							sessionStorage.setItem(btoa(accountKey), btoa(params.account));
 							sessionStorage.setItem(btoa(realmKey), btoa(params.realm));
 							sessionStorage.setItem(btoa(usernameKey), btoa(params.username));
 							sessionStorage.setItem(btoa(passwordKey), btoa(params.password));
+							initConnectCallback();	
+							resolve(authResponse);
+						})['catch'](function(error){
+							reject(error);
+						});
+					}
 
-							
-							//set a timeout for 200 ms before expires to attempt to relogin
-							var cbId = setTimeout(connectTimeout, services.auth.getExpiresIn() - 200);
-							sessionStorage.setItem(btoa(reloginCallbackKey), cbId);
-							
-						}
-						resolve(authResponse);
-					})['catch'](function(error){
-						reject(error);
-					});
+					
 				}
 			);
 
@@ -950,6 +993,7 @@ if( ! ('bridgeit' in window)){
 						'quickuser', services.auth.getLastAccessToken(), params.ssl);
 
 					b.$.post(url, {user: user}).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -986,9 +1030,11 @@ if( ! ('bridgeit' in window)){
 						'permission', token, params.ssl);
 
 					b.$.post(url, {permissions: params.permissions}).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(true);
 					})['catch'](function(response){
 						if( response.status == 403){
+							services.auth.updateLastActiveTimestamp();
 							resolve(false);
 						}
 						else{
@@ -1003,7 +1049,7 @@ if( ! ('bridgeit' in window)){
 			sessionStorage.setItem(btoa(lastActiveTimestampKey), new Date().getTime());
 		},
 		getLastActiveTimestamp: function(){
-			sessionStorage.getItem(btoa(lastActiveTimestampKey));
+			return sessionStorage.getItem(btoa(lastActiveTimestampKey));
 		}
 
 	};
@@ -1041,6 +1087,7 @@ if( ! ('bridgeit' in window)){
 						'documents/' + (params.id ? params.id : ''), token, params.ssl);
 
 					b.$.post(url, params.document).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response.uri);
 					})['catch'](function(error){
 						reject(error);
@@ -1081,6 +1128,7 @@ if( ! ('bridgeit' in window)){
 						'documents/' + params.id, token, params.ssl);
 
 					b.$.post(url, params.document).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response.uri);
 					})['catch'](function(error){
 						reject(error);
@@ -1119,7 +1167,8 @@ if( ! ('bridgeit' in window)){
 						'documents/' + params.id, token, params.ssl);
 
 					b.$.getJSON(url).then(function(doc){
-												//the document service always returns a list, so 
+						services.auth.updateLastActiveTimestamp();
+						//the document service always returns a list, so 
 						//check if we have a list of one, and if so, return the single item
 						if( doc.length && doc.length === 1 ){
 							resolve(doc[0]);
@@ -1178,6 +1227,7 @@ if( ! ('bridgeit' in window)){
 					});
 
 					b.$.getJSON(url).then(function(doc){
+						services.auth.updateLastActiveTimestamp();
 						resolve(doc);
 					})['catch'](function(response){
 						//service currently returns a 404 when no documents are found
@@ -1222,7 +1272,8 @@ if( ! ('bridgeit' in window)){
 						'documents/' + params.id, token, params.ssl);
 
 					b.$.doDelete(url).then(function(response){
-												resolve();
+						services.auth.updateLastActiveTimestamp();
+						resolve();
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1267,7 +1318,8 @@ if( ! ('bridgeit' in window)){
 
 
 					b.$.post(url, params.region).then(function(response){
-												resolve(response.uri);
+						services.auth.updateLastActiveTimestamp();
+						resolve(response.uri);
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1304,6 +1356,7 @@ if( ! ('bridgeit' in window)){
 						'regions/' + params.id, token, params.ssl);
 
 					b.$.doDelete(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve();
 					})['catch'](function(error){
 						reject(error);
@@ -1344,7 +1397,8 @@ if( ! ('bridgeit' in window)){
 						'regions', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
-												resolve(response);
+						services.auth.updateLastActiveTimestamp();
+						resolve(response);
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1383,7 +1437,8 @@ if( ! ('bridgeit' in window)){
 						}: undefined);
 
 					b.$.getJSON(url).then(function(response){
-												resolve(response);
+						services.auth.updateLastActiveTimestamp();
+						resolve(response);
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1421,7 +1476,8 @@ if( ! ('bridgeit' in window)){
 						}: undefined);
 
 					b.$.getJSON(url).then(function(response){
-												resolve(response);
+						services.auth.updateLastActiveTimestamp();
+						resolve(response);
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1460,7 +1516,8 @@ if( ! ('bridgeit' in window)){
 						'monitors' + (params.id ? '/' + params.id : ''), token, params.ssl);
 
 					b.$.post(url, params.monitor).then(function(response){
-												resolve(response.uri);
+						services.auth.updateLastActiveTimestamp();
+						resolve(response.uri);
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1497,7 +1554,8 @@ if( ! ('bridgeit' in window)){
 						'monitors/' + params.id, token, params.ssl);
 
 					b.$.doDelete(url).then(function(response){
-												resolve();
+						services.auth.updateLastActiveTimestamp();
+						resolve();
 					})['catch'](function(error){
 						reject(error);
 					});
@@ -1532,16 +1590,12 @@ if( ! ('bridgeit' in window)){
 					var url = getRealmResourceURL(services.locateURL, account, realm, 
 						'monitors', token, params.ssl);
 
-					b.$.getJSON(url).then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1576,17 +1630,12 @@ if( ! ('bridgeit' in window)){
 					var url = getRealmResourceURL(services.locateURL, account, realm, 
 						'poi' + (params.id ? '/' + params.id : ''), token, params.ssl);
 
-					b.$.post(url, params.poi)
-						.then(
-							function(response){
-								resolve(response.uri);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, params.poi).then(function(response){
+						services.auth.updateLastActiveTimestamp();
+						resolve(response.uri);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1621,17 +1670,12 @@ if( ! ('bridgeit' in window)){
 
 						} : undefined);
 
-					b.$.getJSON(url)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1665,6 +1709,7 @@ if( ! ('bridgeit' in window)){
 						'poi/' + params.id, token, params.ssl);
 
 					b.$.doDelete(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve();
 					})['catch'](function(error){
 						reject(error);
@@ -1701,6 +1746,7 @@ if( ! ('bridgeit' in window)){
 						'poi', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -1737,17 +1783,12 @@ if( ! ('bridgeit' in window)){
 					var url = getRealmResourceURL(services.locateURL, account, realm, 
 						'locations', token, params.ssl);
 
-					b.$.post(url, params.location)
-						.then(
-							function(response){
-								resolve(response);
-							}
-						)
-						['catch'](
-							function(error){
-								reject(error);
-							}
-						);
+					b.$.post(url, params.location).then(function(response){
+						services.auth.updateLastActiveTimestamp();
+						resolve(response);
+					})['catch'](function(error){
+						reject(error);
+					});
 				}
 			);
 		},
@@ -1800,6 +1841,7 @@ if( ! ('bridgeit' in window)){
 						'locations', token, params.ssl);
 
 					b.$.post(url, location).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -1857,6 +1899,7 @@ if( ! ('bridgeit' in window)){
 						});
 
 					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(reponse){
 						if( response.status == 403 ){
@@ -1921,6 +1964,7 @@ if( ! ('bridgeit' in window)){
 						'stats', token, params.ssl, queryParams);
 
 					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -1974,6 +2018,7 @@ if( ! ('bridgeit' in window)){
 					};
 					console.log('addCustomMetric() sending post');
 					b.$.post(url, postData).then(function(){
+						services.auth.updateLastActiveTimestamp();
 						resolve();
 					})['catch'](function(error){
 						reject(error);
@@ -2016,6 +2061,7 @@ if( ! ('bridgeit' in window)){
 
 					b.$.getJSON(url).then(function(response){
 						if( response.timeDifference){
+							services.auth.updateLastActiveTimestamp();
 							resolve(response.timeDifference);
 						}
 						else{
@@ -2053,6 +2099,7 @@ if( ! ('bridgeit' in window)){
 						'users/' + params.username, token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -2079,6 +2126,7 @@ if( ! ('bridgeit' in window)){
 						'users/' + params.username + '/state', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -2106,6 +2154,7 @@ if( ! ('bridgeit' in window)){
 						'users/' + params.username + '/state', token, params.ssl);
 
 					b.$.post(url, params.state).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -2132,6 +2181,7 @@ if( ! ('bridgeit' in window)){
 						'users/' + params.username + '/info', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -2158,6 +2208,7 @@ if( ! ('bridgeit' in window)){
 						'users/' + params.username + '/updates', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -2184,6 +2235,7 @@ if( ! ('bridgeit' in window)){
 						'users/' + params.username + '/updates/unread', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -2212,6 +2264,7 @@ if( ! ('bridgeit' in window)){
 						});
 
 					b.$.post(url, params.data).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -2261,6 +2314,7 @@ if( ! ('bridgeit' in window)){
 					if( 'get' === httpMethod ){
 						//TODO encode params.data into URL?
 						b.$.get(url).then(function(response){
+							services.auth.updateLastActiveTimestamp();
 							resolve();
 						})['catch'](function(error){
 							reject(error);
@@ -2268,6 +2322,7 @@ if( ! ('bridgeit' in window)){
 					}
 					else if( 'post' === httpMethod ){
 						b.$.post(url, params.data).then(function(response){
+							services.auth.updateLastActiveTimestamp();
 							resolve();
 						})['catch'](function(error){
 							reject(error);
@@ -2313,6 +2368,7 @@ if( ! ('bridgeit' in window)){
 
 
 					b.$.getJSON(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -2355,6 +2411,7 @@ if( ! ('bridgeit' in window)){
 						'blobs' + (params.id ? '/' + params.id : ''), token, params.ssl);
 
 					b.$.post(url, formData, true).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response.uri);
 					})['catch'](function(error){
 						reject(error);
@@ -2396,6 +2453,7 @@ if( ! ('bridgeit' in window)){
 					formData.append('file', params.blob);
 
 					b.$.post(url, formData, true).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response.uri);
 					})['catch'](function(error){
 						reject(error);
@@ -2434,6 +2492,7 @@ if( ! ('bridgeit' in window)){
 						'blobs/' + params.id, token, params.ssl);
 
 					b.$.getBlob(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve(response);
 					})['catch'](function(error){
 						reject(error);
@@ -2471,6 +2530,7 @@ if( ! ('bridgeit' in window)){
 						'blobs/' + params.id, token, params.ssl);
 
 					b.$.doDelete(url).then(function(response){
+						services.auth.updateLastActiveTimestamp();
 						resolve();
 					})['catch'](function(error){
 						reject(error);
@@ -2482,5 +2542,17 @@ if( ! ('bridgeit' in window)){
 
 	/* Initialization */
 	services.configureHosts();
+
+	/* check connect settings */
+	if( services.auth.isLoggedIn()){
+		var connectSettings = services.auth.getConnectSettings();
+		if( connectSettings ){
+			//user is logged in and has connect settings, so reconnect
+			services.auth.connect(connectSettings);
+		}
+	}
+	
+	
+
 	
 })(bridgeit);
