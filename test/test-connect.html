@@ -42,15 +42,16 @@
         function testConnect(){
             var accountId       = 'bsrtests';
             var realmId         = 'test';
-            var adminId         = 'admin';
-            var adminPassword   = 'secretest';
+            var userId         = 'user';
+            var userPassword   = 'secretest';
             var host            = 'dev.bridgeit.io';
 
             var connectedAt = new Date().getTime();
             bridgeit.services.auth.connect({
                     account: accountId,
-                    username: adminId,
-                    password: adminPassword,
+                    username: userId,
+                    realm: realmId,
+                    password: userPassword,
                     host: host,
                     connectionTimeout: activityTimeout,
                     onSessionTimeout: expiredCallback

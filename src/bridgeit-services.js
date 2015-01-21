@@ -4,7 +4,7 @@ if( ! ('bridgeit' in window)){
 
 (function(b) {
 
-	"use strict";
+	//"use strict";
 
 	/************************* Private ********************/
 
@@ -122,6 +122,15 @@ if( ! ('bridgeit' in window)){
 		validateParameter('state', 'The state parameter is required', params, reject);
 	}
 
+	/* Push */
+	function validateRequiredGroup(params, reject){
+		validateParameter('group', 'The group parameter is required', params, reject);
+	}
+
+	function validateRequiredCallback(params, reject){
+		validateParameter('group', 'The callback parameter is required', params, reject);
+	}
+
 	/* Misc */
 	function validateRequiredId(params, reject){
 		validateParameter('id', 'The id is required', params, reject);
@@ -223,6 +232,8 @@ if( ! ('bridgeit' in window)){
 	var passwordKey = 'bridgeitPassword';
 	var reloginCallbackKey = 'bridgeitReloginCallback';
 	var transactionKey = 'bridgeitTransaction';
+	var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
+	var CLOUD_PUSH_KEY = "ice.notifyBack";
 	
 	b.$ = {
 
@@ -388,6 +399,7 @@ if( ! ('bridgeit' in window)){
 		services.metricsURL = baseURL + (isLocal ? ':55040' : '') + '/metrics';
 		services.contextURL = baseURL + (isLocal ? ':55060' : '') + '/context';
 		services.codeURL = baseURL + '/coden';
+		services.pushURL = baseURL + '/push';
 	};
 
 	services.checkHost = function(params){
@@ -795,8 +807,6 @@ if( ! ('bridgeit' in window)){
 									console.log('bridgeit connect: setting callback for ' + connectSettings.connectionTimeout + ' minutes');
 									setTimeout(connectCallback, connectSettings.connectionTimeout * 60 * 1000);
 								}
-
-								
 							}
 							else{
 								console.log('bridgeit connect: timeout has expired, disconnecting..');
@@ -842,7 +852,7 @@ if( ! ('bridgeit' in window)){
 					var timeoutPadding = 500;
 					
 					services.checkHost(params);
-					if( !'storeCredentials' in params){
+					if( !params.storeCredentials){
 						params.storeCredentials = true;
 					}
 
@@ -853,7 +863,8 @@ if( ! ('bridgeit' in window)){
 						connectionTimeout: params.connectionTimeout || 20,
 						ssl: params.ssl,
 						storeCredentials: params.storeCredentials || true,
-						onSessionTimeout: params.onSessionTimeout
+						onSessionTimeout: params.onSessionTimeout,
+						usePushService: params.usePushService || true
 					};
 					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));
 
@@ -868,18 +879,26 @@ if( ! ('bridgeit' in window)){
 
 					var connectionTimeoutMillis =  settings.connectionTimeout * 60 * 1000;	
 
+
+
 					if( services.auth.isLoggedIn()){
 						initConnectCallback();
+						if( settings.usePushService ){
+							services.push.connect(settings);
+						}
 						resolve();
 					}
 					else{
 						services.auth.login(params).then(function(authResponse){
 							console.log('bridgeit connect: received auth response');				
-							sessionStorage.setItem(btoa(accountKey), btoa(params.account));
-							sessionStorage.setItem(btoa(realmKey), btoa(params.realm));
+							sessionStorage.setItem(btoa(accountKey), btoa(bridgeit.services.auth.getLastKnownAccount()));
+							sessionStorage.setItem(btoa(realmKey), btoa(bridgeit.services.auth.getLastKnownRealm()));
 							sessionStorage.setItem(btoa(usernameKey), btoa(params.username));
 							sessionStorage.setItem(btoa(passwordKey), btoa(params.password));
 							initConnectCallback();	
+							if( settings.usePushService ){
+								services.push.connect(settings);
+							}
 							resolve();
 						})['catch'](function(error){
 							reject(error);
@@ -2121,6 +2140,220 @@ if( ! ('bridgeit' in window)){
 		}
 
 
+	};
+
+	/* PUSH SERVICE */
+	services.push = {
+
+		/**
+		 * Connect to the BridgeIt Push Service
+		 *
+		 * @alias connect
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 */
+		 connect: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					function setupCloudPush()  {
+						var cloudPushId = getCloudPushId();
+						if (!!cloudPushId)  {
+							if (ice.push)  {
+								console.log("Cloud Push registered: " + cloudPushId);
+								ice.push.parkInactivePushIds(cloudPushId);
+							}
+						}
+					}
+
+					function getCloudPushId()  {
+						return localStorage.getItem(CLOUD_PUSH_KEY);
+					}
+					
+					services.checkHost(params);
+					validateLoggedIn(reject);
+					
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					
+					var pushURL = (params.ssl ? 'https://' : 'http://') + services.pushURL + '/';
+
+					b.$.get(pushURL + 'code.icepush').then(function(response){
+						try{
+							eval(response);
+							ice.push.configuration.contextPath = pushURL;
+							ice.push.configuration.account = bridgeit.services.auth.getLastKnownAccount();
+							ice.push.configuration.realm = bridgeit.services.auth.getLastKnownRealm();
+							ice.push.configuration.access_token = bridgeit.services.auth.getLastAccessToken();
+							ice.push.connection.startConnection();
+							setupCloudPush();
+							console.log('bridgeit.services.push.connect() connected');
+							resolve();
+						}
+						catch(e){
+							console.log('bridgeit.services.push.connect() failed: ' + e);
+							reject(e);
+						}
+					})['catch'](function(error){
+						reject(error);
+					});
+				}
+			);
+		},
+
+		
+		/**
+		 * Add listener for notifications belonging to the specified group.
+	 	 * Callbacks must be passed by name to receive cloud push notifications.
+		 *
+		 * @alias addPushListener
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.group The push group name
+		 * @param {String} params.callback The callback function to be called on the push event
+		 * @param {Boolean} params.useCloudPush Use BridgeIt Cloud Push to call the callback through native cloud notification channels when necessary (default true)
+		 */
+		 addPushListener: function(params){
+			return new Promise(
+				function(resolve, reject) {
+
+					function storePushListener(pushId, group, cb){
+						var pushListeners = {};
+						var pushListenersStr = sessionStorage.getItem('pushListeners');
+						if( pushListenersStr ){
+							try{
+								pushListeners = JSON.parse(pushListenersStr);
+							}
+							catch(e){}
+						}
+						pushListeners[pushId] = {group: group, callback: cb};
+						sessionStorage.setItem(JSON.stringify(pushListeners));
+					}
+
+					function addCloudPushListener(){
+						var functionName;
+						if ("string" === typeof(params.callback)){
+							functionName = params.callback;
+						}
+						else{
+							functionName = getFunctionName(params.callback);
+						}
+						
+						if( !functionName ){
+							reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
+							return;
+						}
+						else{
+							if( !(functionName in window )){
+								reject('Could not find BridgeIt Cloud Push callback "' + functionName + '". Callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
+								return;
+							}
+							else{
+								var callbacks = localStorage.getItem(CLOUD_CALLBACKS_KEY);
+								if (!callbacks)  {
+									callbacks = " ";
+								}
+								if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
+									callbacks += callbackName + " ";
+								}
+								localStorage.setItem(CLOUD_CALLBACKS_KEY, callbacks);
+							}
+						}
+					}
+
+					function addPushGroupMember(){
+						ice.push.connection.resumeConnection();
+						var pushId = ice.push.createPushId();
+						ice.push.addGroupMember(params.group, pushId);
+						ice.push.register([ pushId ], params.callback);
+						if( params.useCloudPush ){
+							addCloudPushListener();
+						}
+					}
+					
+					services.checkHost(params);
+					validateLoggedIn(reject);
+					validateRequiredGroup(params, reject);
+					validateRequiredCallback(params, reject);
+					
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					
+					var pushURL = (settings.ssl ? 'https://' : 'http://') + services.pushURL + '/';
+
+					if (ice && ice.push && ice.push.configuration.contextPath) {
+						addPushGroupMember();
+						resolve();
+					} else {
+						reject('Push service is not active');
+					}
+				}
+			);
+		},
+
+		/**
+		 * Push notification to the group.
+		 *
+		 * This will result in an Ajax Push (and associated callback)
+		 * to any web pages that have added a push listener to the
+		 * specified group.  If Cloud Push options are provided
+		 * (options.subject and options.detail) a Cloud Push will
+		 * be dispatched as a home screen notification to any devices
+		 * unable to recieve the Ajax Push via the web page.
+		 *
+		 * @alias push
+		 * @param {Object} params params
+		 * @param {String} params.account BridgeIt Services account name (required)
+		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.group The push group name
+		 * @param {String} params.subject The subject heading for the notification
+		 * @param {String} params.detail The message text to be sent in the notification body
+		 */
+		push: function(params) {
+			return new Promise(
+				function(resolve, reject) {
+					
+					services.checkHost(params);
+					validateLoggedIn(reject);
+					
+					//validate
+					var account = validateAndReturnRequiredAccount(params, reject);
+					var realm = validateAndReturnRequiredRealm(params, reject);
+					var token = validateAndReturnRequiredAccessToken(params, reject);
+
+					validateRequiredGroup(params, reject);
+					
+					var pushURL = (settings.ssl ? 'https://' : 'http://') + services.pushURL + '/';
+					
+					/* TODO
+					if (!absoluteGoBridgeItURL)  {
+						if (!!bridgeit.goBridgeItURL)  {
+							absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
+						}
+					}
+					if (!!absoluteGoBridgeItURL)  {
+						if (options && !options.url)  {
+							options.url = absoluteGoBridgeItURL;
+						}
+					}
+					*/
+					if (ice && ice.push && ice.push.configuration.contextPath) {
+						ice.push.notify(params.group, options);
+						resolve();
+					} else {
+						reject('Push service is not active');
+					}
+				}
+			);
+		}
 	};
 
 	/* CONTEXT SERVICE */
