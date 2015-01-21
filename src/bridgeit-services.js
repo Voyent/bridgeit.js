@@ -40,7 +40,7 @@ if( ! ('bridgeit' in window)){
 			realm = b.services.auth.getLastKnownRealm();
 		}
 		if( realm ){
-			sessionStorage.setItem(btoa(realmKey), btoa(realm));
+			sessionStorage.setItem(btoa(REALM_KEY), btoa(realm));
 			return realm;
 		}
 		else{
@@ -57,7 +57,7 @@ if( ! ('bridgeit' in window)){
 			account = b.services.auth.getLastKnownAccount();
 		}
 		if( account ){
-			sessionStorage.setItem(btoa(accountKey), btoa(account));
+			sessionStorage.setItem(btoa(ACCOUNT_KEY), btoa(account));
 			return account;
 		}
 		else{
@@ -221,17 +221,17 @@ if( ! ('bridgeit' in window)){
 	var services = b.services;
 
 	//internal keys
-	var tokenKey = 'bridgeitToken';
-	var tokenExpiresKey = 'bridgeitTokenExpires';
-	var tokenSetKey = 'bridgeitTokenSet';
-	var connectSettingsKey = 'bridgeitConnectSettingsKey';
-	var lastActiveTimestampKey = 'bridgeitLastActiveTimestamp';
-	var accountKey = 'bridgeitAccount';
-	var realmKey = 'bridgeitRealm';
-	var usernameKey = 'bridgeitUsername';
-	var passwordKey = 'bridgeitPassword';
-	var reloginCallbackKey = 'bridgeitReloginCallback';
-	var transactionKey = 'bridgeitTransaction';
+	var TOKEN_KEY = 'bridgeitToken';
+	var TOKEN_EXPIRES_KEY = 'bridgeitTokenExpires';
+	var TOKEN_SET_KEY = 'bridgeitTokenSet';
+	var CONNECT_SETTINGS_KEY = 'bridgeitConnectSettings';
+	var LAST_ACTIVE_TS_KEY = 'bridgeitLastActiveTimestamp';
+	var ACCOUNT_KEY = 'bridgeitAccount';
+	var REALM_KEY = 'bridgeitRealm';
+	var USERNAME_KEY = 'bridgeitUsername';
+	var PASSWORD_KEY = 'bridgeitPassword';
+	var RELOGIN_CB_KEY = 'bridgeitReloginCallback';
+	var TRANSACTION_KEY = 'bridgeitTransaction';
 	var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
 	var CLOUD_PUSH_KEY = "ice.notifyBack";
 	
@@ -410,17 +410,17 @@ if( ! ('bridgeit' in window)){
 	};
 
 	services.startTransaction = function(){
-		sessionStorage.setItem(btoa(transactionKey), b.$.newUUID());
+		sessionStorage.setItem(btoa(TRANSACTION_KEY), b.$.newUUID());
 		console.log('bridgeit: started transaction ' + bridgeit.services.getLastTransactionId());
 	};
 
 	services.endTransaction = function(){
-		sessionStorage.removeItem(btoa(transactionKey));
+		sessionStorage.removeItem(btoa(TRANSACTION_KEY));
 		console.log('bridgeit: ended transaction ' + bridgeit.services.getLastTransactionId());
 	};
 
 	services.getLastTransactionId = function(){
-		return sessionStorage.getItem(btoa(transactionKey));
+		return sessionStorage.getItem(btoa(TRANSACTION_KEY));
 	};
 
 	services.admin = {
@@ -708,11 +708,11 @@ if( ! ('bridgeit' in window)){
 						if( !params.suppressUpdateTimestamp ){
 							services.auth.updateLastActiveTimestamp();
 						}
-						sessionStorage.setItem(btoa(tokenKey), authResponse.access_token);
-						sessionStorage.setItem(btoa(tokenExpiresKey), authResponse.expires_in);
-						sessionStorage.setItem(btoa(tokenSetKey), loggedInAt);
-						sessionStorage.setItem(btoa(accountKey), btoa(params.account));
-						sessionStorage.setItem(btoa(realmKey), btoa(params.realm));
+						sessionStorage.setItem(btoa(TOKEN_KEY), authResponse.access_token);
+						sessionStorage.setItem(btoa(TOKEN_EXPIRES_KEY), authResponse.expires_in);
+						sessionStorage.setItem(btoa(TOKEN_SET_KEY), loggedInAt);
+						sessionStorage.setItem(btoa(ACCOUNT_KEY), btoa(params.account));
+						sessionStorage.setItem(btoa(REALM_KEY), btoa(params.realm));
 
 						resolve(authResponse);
 					})['catch'](function(error){
@@ -791,10 +791,10 @@ if( ! ('bridgeit' in window)){
 								if( connectSettings.connectionTimeout > services.auth.getTimeRemainingBeforeExpiry()){
 									
 									var loginParams = services.auth.getConnectSettings();
-									loginParams.account = atob(sessionStorage.getItem(btoa(accountKey)));
-									loginParams.realm = atob(sessionStorage.getItem(btoa(realmKey)));
-									loginParams.username = atob(sessionStorage.getItem(btoa(usernameKey)));
-									loginParams.password = atob(sessionStorage.getItem(btoa(passwordKey)));
+									loginParams.account = atob(sessionStorage.getItem(btoa(ACCOUNT_KEY)));
+									loginParams.realm = atob(sessionStorage.getItem(btoa(REALM_KEY)));
+									loginParams.username = atob(sessionStorage.getItem(btoa(USERNAME_KEY)));
+									loginParams.password = atob(sessionStorage.getItem(btoa(PASSWORD_KEY)));
 									loginParams.suppressUpdateTimestamp = true;
 
 									services.auth.login(loginParams).then(function(authResponse){
@@ -846,7 +846,7 @@ if( ! ('bridgeit' in window)){
 
 						console.log('bridgeit connect: setting timeout to ' + callbackTimeout / 1000 / 60 + ' mins');
 						var cbId = setTimeout(connectCallback, callbackTimeout);
-						sessionStorage.setItem(btoa(reloginCallbackKey), cbId);
+						sessionStorage.setItem(btoa(RELOGIN_CB_KEY), cbId);
 					}
 
 					var timeoutPadding = 500;
@@ -866,7 +866,7 @@ if( ! ('bridgeit' in window)){
 						onSessionTimeout: params.onSessionTimeout,
 						usePushService: params.usePushService || true
 					};
-					sessionStorage.setItem(btoa(connectSettingsKey), btoa(JSON.stringify(settings)));
+					sessionStorage.setItem(btoa(CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
 					if( params.onSessionTimeout ){
 						if( typeof params.onSessionTimeout === 'function'){
@@ -891,10 +891,10 @@ if( ! ('bridgeit' in window)){
 					else{
 						services.auth.login(params).then(function(authResponse){
 							console.log('bridgeit connect: received auth response');				
-							sessionStorage.setItem(btoa(accountKey), btoa(bridgeit.services.auth.getLastKnownAccount()));
-							sessionStorage.setItem(btoa(realmKey), btoa(bridgeit.services.auth.getLastKnownRealm()));
-							sessionStorage.setItem(btoa(usernameKey), btoa(params.username));
-							sessionStorage.setItem(btoa(passwordKey), btoa(params.password));
+							sessionStorage.setItem(btoa(ACCOUNT_KEY), btoa(bridgeit.services.auth.getLastKnownAccount()));
+							sessionStorage.setItem(btoa(REALM_KEY), btoa(bridgeit.services.auth.getLastKnownRealm()));
+							sessionStorage.setItem(btoa(USERNAME_KEY), btoa(params.username));
+							sessionStorage.setItem(btoa(PASSWORD_KEY), btoa(params.password));
 							initConnectCallback();	
 							if( settings.usePushService ){
 								services.push.connect(settings);
@@ -932,35 +932,35 @@ if( ! ('bridgeit' in window)){
 		 *
 		 */
 		disconnect: function(){
-			sessionStorage.removeItem(btoa(tokenKey));
-			sessionStorage.removeItem(btoa(tokenExpiresKey));
-			sessionStorage.removeItem(btoa(connectSettingsKey));
-			sessionStorage.removeItem(btoa(tokenSetKey));
-			sessionStorage.removeItem(btoa(accountKey));
-			sessionStorage.removeItem(btoa(realmKey));
-			sessionStorage.removeItem(btoa(usernameKey));
-			sessionStorage.removeItem(btoa(passwordKey));
-			sessionStorage.removeItem(btoa(lastActiveTimestampKey));
-			var cbId = sessionStorage.getItem(btoa(reloginCallbackKey));
+			sessionStorage.removeItem(btoa(TOKEN_KEY));
+			sessionStorage.removeItem(btoa(TOKEN_EXPIRES_KEY));
+			sessionStorage.removeItem(btoa(CONNECT_SETTINGS_KEY));
+			sessionStorage.removeItem(btoa(TOKEN_SET_KEY));
+			sessionStorage.removeItem(btoa(ACCOUNT_KEY));
+			sessionStorage.removeItem(btoa(REALM_KEY));
+			sessionStorage.removeItem(btoa(USERNAME_KEY));
+			sessionStorage.removeItem(btoa(PASSWORD_KEY));
+			sessionStorage.removeItem(btoa(LAST_ACTIVE_TS_KEY));
+			var cbId = sessionStorage.getItem(btoa(RELOGIN_CB_KEY));
 			if( cbId ){
 				clearTimeout(cbId);
 			}
-			sessionStorage.removeItem(btoa(reloginCallbackKey));
+			sessionStorage.removeItem(btoa(RELOGIN_CB_KEY));
 		},
 
 		getLastAccessToken: function(){
-			return sessionStorage.getItem(btoa(tokenKey));
+			return sessionStorage.getItem(btoa(TOKEN_KEY));
 		},
 
 		getExpiresIn: function(){
-			var expiresInStr = sessionStorage.getItem(btoa(tokenExpiresKey));
+			var expiresInStr = sessionStorage.getItem(btoa(TOKEN_EXPIRES_KEY));
 			if( expiresInStr ){
 				return parseInt(expiresInStr,10);
 			}
 		},
 
 		getTokenSetAtTime: function(){
-			var tokenSetAtStr = sessionStorage.getItem(btoa(tokenSetKey));
+			var tokenSetAtStr = sessionStorage.getItem(btoa(TOKEN_SET_KEY));
 			if( tokenSetAtStr ){
 				return parseInt(tokenSetAtStr,10);
 			}
@@ -976,31 +976,31 @@ if( ! ('bridgeit' in window)){
 		},
 
 		getConnectSettings: function(){
-			var settingsStr = sessionStorage.getItem(btoa(connectSettingsKey));
+			var settingsStr = sessionStorage.getItem(btoa(CONNECT_SETTINGS_KEY));
 			if( settingsStr ){
 				return JSON.parse(atob(settingsStr));
 			}
 		},
 
 		isLoggedIn: function(){
-			var token = sessionStorage.getItem(btoa(tokenKey)),
-				tokenExpiresInStr = sessionStorage.getItem(btoa(tokenExpiresKey)),
+			var token = sessionStorage.getItem(btoa(TOKEN_KEY)),
+				tokenExpiresInStr = sessionStorage.getItem(btoa(TOKEN_EXPIRES_KEY)),
 				tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr,10) : null,
-				tokenSetAtStr = sessionStorage.getItem(btoa(tokenSetKey)),
+				tokenSetAtStr = sessionStorage.getItem(btoa(TOKEN_SET_KEY)),
 				tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr,10) : null,
 				result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) );
 			return !!result;
 		},
 
 		getLastKnownAccount: function(){
-			var accountCipher = sessionStorage.getItem(btoa(accountKey));
+			var accountCipher = sessionStorage.getItem(btoa(ACCOUNT_KEY));
 			if( accountCipher ){
 				return atob(accountCipher);
 			}
 		},
 
 		getLastKnownRealm: function(){
-			var realmCipher = sessionStorage.getItem(btoa(realmKey));
+			var realmCipher = sessionStorage.getItem(btoa(REALM_KEY));
 			if( realmCipher ){
 				return atob(realmCipher);
 			}
@@ -1110,10 +1110,10 @@ if( ! ('bridgeit' in window)){
 		},
 
 		updateLastActiveTimestamp: function(){
-			sessionStorage.setItem(btoa(lastActiveTimestampKey), new Date().getTime());
+			sessionStorage.setItem(btoa(LAST_ACTIVE_TS_KEY), new Date().getTime());
 		},
 		getLastActiveTimestamp: function(){
-			return sessionStorage.getItem(btoa(lastActiveTimestampKey));
+			return sessionStorage.getItem(btoa(LAST_ACTIVE_TS_KEY));
 		}
 
 	};
