@@ -14,6 +14,8 @@
 
 ## [Metrics Service JavaScript API](bridgeit-metrics-service.md)
 
+## [Push Service JavaScript API](bridgeit-push-service.md)
+
 ## ES6 Promise Support
 
 The BridgeIt Services Client API is written with ECMAScript 6 Promise/A+ support. All API functions that use asynchronous network io will return a Promise. If your application already supports ES6 Promises, you can continue using those. ES6 Promises are supported in all modern browsers except IE11 (http://caniuse.com/#search=promise). To support older browsers, you can use a shim, such as `es6-promises`, like so:

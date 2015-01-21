@@ -4,7 +4,7 @@ if( ! ('bridgeit' in window)){
 
 (function(b) {
 
-	//"use strict";
+	"use strict";
 
 	/************************* Private ********************/
 
@@ -798,6 +798,9 @@ if( ! ('bridgeit' in window)){
 									loginParams.suppressUpdateTimestamp = true;
 
 									services.auth.login(loginParams).then(function(authResponse){
+										if( loginParams.usePushService ){
+											services.push.startPushService(loginParams);
+										}
 										setTimeout(connectCallback, services.auth.getTimeRemainingBeforeExpiry() - timeoutPadding);
 									})['catch'](function(response){
 										throw new Error('bridgeit connect: error relogging in: ' + response.responseText);
@@ -879,12 +882,10 @@ if( ! ('bridgeit' in window)){
 
 					var connectionTimeoutMillis =  settings.connectionTimeout * 60 * 1000;	
 
-
-
 					if( services.auth.isLoggedIn()){
 						initConnectCallback();
 						if( settings.usePushService ){
-							services.push.connect(settings);
+							services.push.startPushService(settings);
 						}
 						resolve();
 					}
@@ -897,7 +898,7 @@ if( ! ('bridgeit' in window)){
 							sessionStorage.setItem(btoa(PASSWORD_KEY), btoa(params.password));
 							initConnectCallback();	
 							if( settings.usePushService ){
-								services.push.connect(settings);
+								services.push.startPushService(settings);
 							}
 							resolve();
 						})['catch'](function(error){
@@ -2148,15 +2149,16 @@ if( ! ('bridgeit' in window)){
 		/**
 		 * Connect to the BridgeIt Push Service
 		 *
-		 * @alias connect
+		 * @alias startPushService
 		 * @param {Object} params params
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
 		 */
-		 connect: function(params){
+		startPushService: function(params){
 			return new Promise(
 				function(resolve, reject) {
 
+					/*
 					function setupCloudPush()  {
 						var cloudPushId = getCloudPushId();
 						if (!!cloudPushId)  {
@@ -2169,7 +2171,7 @@ if( ! ('bridgeit' in window)){
 
 					function getCloudPushId()  {
 						return localStorage.getItem(CLOUD_PUSH_KEY);
-					}
+					}*/
 					
 					services.checkHost(params);
 					validateLoggedIn(reject);
@@ -2178,10 +2180,20 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
-
 					
 					var pushURL = (params.ssl ? 'https://' : 'http://') + services.pushURL + '/';
 
+					b.usePushService(pushURL, null, {
+						auth:{
+							access_token: token
+						},
+						account: account, 
+						realm: realm
+					});
+					console.log('bridgeit.services.push.connect() connected');
+					resolve();
+
+					/*
 					b.$.get(pushURL + 'code.icepush').then(function(response){
 						try{
 							eval(response);
@@ -2200,7 +2212,7 @@ if( ! ('bridgeit' in window)){
 						}
 					})['catch'](function(error){
 						reject(error);
-					});
+					});*/
 				}
 			);
 		},
@@ -2218,7 +2230,7 @@ if( ! ('bridgeit' in window)){
 		 * @param {String} params.callback The callback function to be called on the push event
 		 * @param {Boolean} params.useCloudPush Use BridgeIt Cloud Push to call the callback through native cloud notification channels when necessary (default true)
 		 */
-		 addPushListener: function(params){
+		addPushListener: function(params){
 			return new Promise(
 				function(resolve, reject) {
 
@@ -2236,33 +2248,20 @@ if( ! ('bridgeit' in window)){
 					}
 
 					function addCloudPushListener(){
-						var functionName;
-						if ("string" === typeof(params.callback)){
-							functionName = params.callback;
-						}
-						else{
-							functionName = getFunctionName(params.callback);
-						}
-						
-						if( !functionName ){
+						var callback = findCallbackInGlobalScope(params.callback);
+						if( !callback ){
 							reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
-							return;
 						}
-						else{
-							if( !(functionName in window )){
-								reject('Could not find BridgeIt Cloud Push callback "' + functionName + '". Callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
-								return;
+						else{	
+							var callbacks = localStorage.getItem(CLOUD_CALLBACKS_KEY);
+							var callbackName = getFunctionName(callback);
+							if (!callbacks)  {
+								callbacks = " ";
 							}
-							else{
-								var callbacks = localStorage.getItem(CLOUD_CALLBACKS_KEY);
-								if (!callbacks)  {
-									callbacks = " ";
-								}
-								if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
-									callbacks += callbackName + " ";
-								}
-								localStorage.setItem(CLOUD_CALLBACKS_KEY, callbacks);
+							if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
+								callbacks += callbackName + " ";
 							}
+							localStorage.setItem(CLOUD_CALLBACKS_KEY, callbacks);
 						}
 					}
 
@@ -2270,27 +2269,50 @@ if( ! ('bridgeit' in window)){
 						ice.push.connection.resumeConnection();
 						var pushId = ice.push.createPushId();
 						ice.push.addGroupMember(params.group, pushId);
-						ice.push.register([ pushId ], params.callback);
-						if( params.useCloudPush ){
-							addCloudPushListener();
+						var fn = findCallbackInGlobalScope(params.callback);
+						if( !fn ){
+							reject('could not find function in global scope: ' + params.callback);
 						}
+						else{
+							ice.push.register([ pushId ], fn);
+							if( params.useCloudPush ){
+								addCloudPushListener();
+							}
+						}
+						
+					}
+
+					function findCallbackInGlobalScope(fn){
+						var functionName;
+						if ("string" === typeof(fn)){
+							functionName = fn;
+						}
+						else{
+							functionName = getFunctionName(fn);
+						}
+						return window[functionName];
 					}
 					
 					services.checkHost(params);
 					validateLoggedIn(reject);
 					validateRequiredGroup(params, reject);
 					validateRequiredCallback(params, reject);
+
+					if( !('useCloudPush' in params )){
+						params.useCloudPush = true;
+					}
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
-
 					
-					var pushURL = (settings.ssl ? 'https://' : 'http://') + services.pushURL + '/';
+					var pushURL = (params.ssl ? 'https://' : 'http://') + services.pushURL + '/';
 
 					if (ice && ice.push && ice.push.configuration.contextPath) {
 						addPushGroupMember();
+						console.log('bridgeit.services.push.addPushListener() added listener ' + 
+							params.callback + ' to group ' + params.group);
 						resolve();
 					} else {
 						reject('Push service is not active');
@@ -2300,16 +2322,16 @@ if( ! ('bridgeit' in window)){
 		},
 
 		/**
-		 * Push notification to the group.
+		 * Push notification to a push group.
 		 *
 		 * This will result in an Ajax Push (and associated callback)
 		 * to any web pages that have added a push listener to the
 		 * specified group.  If Cloud Push options are provided
-		 * (options.subject and options.detail) a Cloud Push will
+		 * (params.subject and params.detail) a Cloud Push will
 		 * be dispatched as a home screen notification to any devices
 		 * unable to recieve the Ajax Push via the web page.
 		 *
-		 * @alias push
+		 * @alias sendPushEvent
 		 * @param {Object} params params
 		 * @param {String} params.account BridgeIt Services account name (required)
 		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
@@ -2317,7 +2339,7 @@ if( ! ('bridgeit' in window)){
 		 * @param {String} params.subject The subject heading for the notification
 		 * @param {String} params.detail The message text to be sent in the notification body
 		 */
-		push: function(params) {
+		sendPushEvent: function(params) {
 			return new Promise(
 				function(resolve, reject) {
 					
@@ -2331,7 +2353,7 @@ if( ! ('bridgeit' in window)){
 
 					validateRequiredGroup(params, reject);
 					
-					var pushURL = (settings.ssl ? 'https://' : 'http://') + services.pushURL + '/';
+					var pushURL = (params.ssl ? 'https://' : 'http://') + services.pushURL + '/';
 					
 					/* TODO
 					if (!absoluteGoBridgeItURL)  {
@@ -2346,7 +2368,10 @@ if( ! ('bridgeit' in window)){
 					}
 					*/
 					if (ice && ice.push && ice.push.configuration.contextPath) {
-						ice.push.notify(params.group, options);
+						ice.push.notify(params.group, {
+							subject: params.subject,
+							detail: params.detail
+						});
 						resolve();
 					} else {
 						reject('Push service is not active');
