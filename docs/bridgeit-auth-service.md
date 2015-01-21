@@ -16,6 +16,8 @@
 * [getLastKnownRealm](#getLastKnownRealm)
 * [registerAsNewUser](#registerAsNewUser)
 * [checkUserPermissions](#checkUserPermissions)
+* [updateLastActiveTimestamp](#updateLastActiveTimestamp)
+* [getLastActiveTimestamp](#getLastActiveTimestamp)
 
 ### <a name="getNewAccessToken"></a>getNewAccessToken
 
@@ -398,5 +400,22 @@ bridgeit.services.auth.checkUserPermissions({
   console.log('something went wrong: ' + error);
 });
 ```
+
+
+### <a name="updateLastActiveTimestamp"></a>updateLastActiveTimestamp
+```javascript
+function bridgeit.services.auth.updateLastActiveTimestamp()
+```
+
+Update the last active timestamp for BridgeIt connect.
+
+### <a name="getLastActiveTimestamp"></a>getLastActiveTimestamp
+```javascript
+function bridgeit.services.auth.getLastActiveTimestamp()
+```
+
+Return the last active timestamp in milliseconds.
+
+
 
 
