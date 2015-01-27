@@ -60,7 +60,7 @@
                     password: userPassword,
                     host: host,
                     connectionTimeout: activityTimeout,
-                    onSessionTimeout: expiredCallback
+                    onSessionExpiry: expiredCallback
                 }).then(function(response){
                     console.log('connect success');
                     updateLastActive();
