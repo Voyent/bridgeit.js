@@ -764,7 +764,7 @@ if( ! ('bridgeit' in window)){
 		 * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the BridgeIt login will last during inactivity. Default 20 minutes.
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session storage. If set to false, bridgeit will not attempt to relogin before the session expires.
-		 * @param {Function} params.onSessionTimeout Function callback to be called on session expiry
+		 * @param {Function} params.onSessionExpiry Function callback to be called on session expiry
 		 * @returns Promise with service definitions
 		 *
 		 */
@@ -813,24 +813,27 @@ if( ! ('bridgeit' in window)){
 							}
 							else{
 								console.log('bridgeit connect: timeout has expired, disconnecting..');
-								services.auth.disconnect();
+								
 
-								//look for the onSessionTimeout callback on the params first,
+								//look for the onSessionExpiry callback on the params first,
 								//as functions could be passed by reference
 								//secondly by settings, which would only be passed by name
-								var expiredCallback = params.onSessionTimeout;
+								var expiredCallback = params.onSessionExpiry;
 								if( !expiredCallback ){
-									expiredCallback = connectSettings.onSessionTimeout;
+									expiredCallback = connectSettings.onSessionExpiry;
 								}
 
 								if( expiredCallback ){
-									if( typeof params.onSessionTimeout === 'function'){
-										params.onSessionTimeout();
+									if( typeof params.onSessionExpiry === 'function'){
+										params.onSessionExpiry();
 									}
 									else{
 										callGlobalFunctionByName()
 									}
 								}	
+								//disconnect after onSessionExpiry called so clients can still
+								//access tokens and auth state
+								services.auth.disconnect();
 							}
 						}
 
@@ -866,16 +869,16 @@ if( ! ('bridgeit' in window)){
 						connectionTimeout: params.connectionTimeout || 20,
 						ssl: params.ssl,
 						storeCredentials: params.storeCredentials || true,
-						onSessionTimeout: params.onSessionTimeout,
+						onSessionExpiry: params.onSessionExpiry,
 						usePushService: params.usePushService || true
 					};
 					sessionStorage.setItem(btoa(CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
-					if( params.onSessionTimeout ){
-						if( typeof params.onSessionTimeout === 'function'){
-							var name = getFunctionName(params.onSessionTimeout);
+					if( params.onSessionExpiry ){
+						if( typeof params.onSessionExpiry === 'function'){
+							var name = getFunctionName(params.onSessionExpiry);
 							if( name ){
-								settings.onSessionTimeout = name;
+								settings.onSessionExpiry = name;
 							}
 						}
 					}
@@ -2283,6 +2286,7 @@ if( ! ('bridgeit' in window)){
 					}
 
 					function findCallbackInGlobalScope(fn){
+						//TODO traverse child properties
 						var functionName;
 						if ("string" === typeof(fn)){
 							functionName = fn;

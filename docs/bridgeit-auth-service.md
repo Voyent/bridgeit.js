@@ -160,7 +160,7 @@ In order to automatically reconnect, the `storeCredentials` parameter must be se
 | usePushService | Open and connect to the BridgeIt push service TODO | Boolean | true | false |
 | connectionTimeout | The timeout duration, in minutes, that the BridgeIt login will last during inactivity | Number | 20 | false |
 | storeCredentials | Whether to store encrypted credentials in session storage. If set to false, bridgeit will not attempt to relogin before the session expires. | Boolean | true | false |
-| onSessionTimeout | Function callback to be called on session expiry TODO | Function |  | false |
+| onSessionExpiry | Function callback to be called on session expiry | Function |  | false |
 
 
 #### Return value
