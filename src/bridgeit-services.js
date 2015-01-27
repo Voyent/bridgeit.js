@@ -417,8 +417,9 @@ if( ! ('bridgeit' in window)){
 		services.storageURL = baseURL + (isLocal ? ':55030' : '') + '/storage';
 		services.metricsURL = baseURL + (isLocal ? ':55040' : '') + '/metrics';
 		services.contextURL = baseURL + (isLocal ? ':55060' : '') + '/context';
-		services.codeURL = baseURL + '/coden';
-		services.pushURL = baseURL + '/push';
+		services.codeURL = baseURL + (isLocal ? ':55090' : '') + '/code';
+        services.pushURL = baseURL + (isLocal ? ':8080' : '') + '/push';
+        services.pushRESTURL = services.pushURL + '/rest';
 	};
 
 	services.checkHost = function(params){
@@ -732,6 +733,7 @@ if( ! ('bridgeit' in window)){
 						sessionStorage.setItem(btoa(TOKEN_SET_KEY), loggedInAt);
 						sessionStorage.setItem(btoa(ACCOUNT_KEY), btoa(params.account));
 						sessionStorage.setItem(btoa(REALM_KEY), btoa(params.realm));
+                        sessionStorage.setItem(btoa(USERNAME_KEY), btoa(params.username));
 
 						resolve(authResponse);
 					})['catch'](function(error){
@@ -1036,7 +1038,15 @@ if( ! ('bridgeit' in window)){
 			}
 		},
 
-		/**
+        getLastKnownUsername: function () {
+            var realmCipher = sessionStorage.getItem(btoa(USERNAME_KEY));
+            if (realmCipher) {
+                return atob(realmCipher);
+            }
+        },
+
+
+        /**
 		 * Register a new user for a realm that supports open user registrations.
 		 *
 		 * @alias registerAsNewUser
@@ -1984,19 +1994,17 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
-					
-					var url = getRealmResourceURL(services.locateURL, account, realm, 
-						'locations', token, params.ssl, {
-							'query': {username: encodeURIComponent(params.username)},
-							'options': '{"sort":[["lastUpdated","desc"]]}',
-							'results':'one'
-						});
 
-					b.$.getJSON(url).then(function(response){
+                    var url = getRealmResourceURL(services.locateURL, account, realm,
+                        'locations/' + params.username, token, params.ssl, {
+                            'results': 'last'
+                        });
+
+                    b.$.getJSON(url).then(function(response){
 						services.auth.updateLastActiveTimestamp();
 						resolve(response);
-					})['catch'](function(reponse){
-						if( response.status == 403 ){
+					})['catch'](function(response){
+						if( response.status === 403 ){
 							resolve(null);
 						}
 						else{
@@ -2605,7 +2613,7 @@ if( ! ('bridgeit' in window)){
 					var token = validateAndReturnRequiredAccessToken(params, reject);
 
 					var url = getRealmResourceURL(services.contextURL, account, realm, 
-						'contexts', token, params.ssl, {
+						'contexts/' + params.name, token, params.ssl, {
 							op: 'exec'
 						});
 
