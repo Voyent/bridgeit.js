@@ -207,9 +207,28 @@ if( ! ('bridgeit' in window)){
 		return ret;
 	}
 
-	function callGlobalFunctionByName(name, params){
-		if( name in window && typeof window[name] === 'function'){
-			window[name](params);
+	function findFunctionInGlobalScope(fn){
+		if (!fn)  {
+			return null;
+		}
+		var functionName;
+		if ("string" === typeof(fn)){
+			functionName = fn;
+			var parts = functionName.split(".");
+			var theObject = window;
+			for (var i = 0; i < parts.length; i++) {
+				theObject = theObject[parts[i]];
+				if (!theObject) {
+					return null;
+				}
+			}
+			if (window == theObject)  {
+				return null;
+			}
+			return theObject;
+		}
+		else if( "function" === typeof(fn)) {
+			return fn;
 		}
 	}
 
@@ -824,11 +843,18 @@ if( ! ('bridgeit' in window)){
 								}
 
 								if( expiredCallback ){
-									if( typeof params.onSessionExpiry === 'function'){
-										params.onSessionExpiry();
+									if( typeof expiredCallback === 'function'){
+										expiredCallback();
 									}
-									else{
-										callGlobalFunctionByName()
+									else if( typeof expiredCallback === 'string'){
+										var callbackFunction = findFunctionInGlobalScope(expiredCallback);
+										if( callbackFunction ){
+											callbackFunction();
+										}
+										else{
+											console.log('BridgeIt: error calling onSessionExpiry callback, ' +
+												'could not find function: ' + expiredCallback);
+										}
 									}
 								}	
 								//disconnect after onSessionExpiry called so clients can still
@@ -2251,7 +2277,7 @@ if( ! ('bridgeit' in window)){
 					}
 
 					function addCloudPushListener(){
-						var callback = findCallbackInGlobalScope(params.callback);
+						var callback = findFunctionInGlobalScope(params.callback);
 						if( !callback ){
 							reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
 						}
@@ -2272,7 +2298,7 @@ if( ! ('bridgeit' in window)){
 						ice.push.connection.resumeConnection();
 						var pushId = ice.push.createPushId();
 						ice.push.addGroupMember(params.group, pushId);
-						var fn = findCallbackInGlobalScope(params.callback);
+						var fn = findFunctionInGlobalScope(params.callback);
 						if( !fn ){
 							reject('could not find function in global scope: ' + params.callback);
 						}
@@ -2285,16 +2311,29 @@ if( ! ('bridgeit' in window)){
 						
 					}
 
-					function findCallbackInGlobalScope(fn){
-						//TODO traverse child properties
+					function findFunctionInGlobalScope(fn){
+						if (!fn)  {
+							return null;
+						}
 						var functionName;
 						if ("string" === typeof(fn)){
 							functionName = fn;
+							var parts = functionName.split(".");
+							var theObject = window;
+							for (var i = 0; i < parts.length; i++) {
+								theObject = theObject[parts[i]];
+								if (!theObject) {
+									return null;
+								}
+							}
+							if (window == theObject)  {
+								return null;
+							}
+							return theObject;
 						}
-						else{
-							functionName = getFunctionName(fn);
+						else if( "function" === typeof(fn)) {
+							return fn;
 						}
-						return window[functionName];
 					}
 					
 					services.checkHost(params);

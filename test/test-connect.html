@@ -41,9 +41,18 @@
         var activityTimeout = 2;
         var activityTimeoutMillis = activityTimeout*1000*60; //10 minutes 
 
+        //test callback as child object
+        var expiredCallbackHolder = {
+            callback: expiredCallback
+        }
+
+        //test callback as global function
         function expiredCallback(){
             alert('your session has expired');
         }
+
+        //test callback as named string
+        var expiredCallbackName = 'expiredCallback';
 
         function testConnect(){
             var accountId       = 'bsrtests';
@@ -60,7 +69,9 @@
                     password: userPassword,
                     host: host,
                     connectionTimeout: activityTimeout,
-                    onSessionExpiry: expiredCallback
+                    //onSessionExpiry: expiredCallback
+                    //onSessionExpiry: expiredCallback
+                    onSessionExpiry: expiredCallbackHolder.callback
                 }).then(function(response){
                     console.log('connect success');
                     updateLastActive();
