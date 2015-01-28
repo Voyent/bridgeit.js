@@ -861,7 +861,7 @@ if( ! ('bridgeit' in window)){
 								}	
 								//disconnect after onSessionExpiry called so clients can still
 								//access tokens and auth state
-								services.auth.disconnect();
+								setTimeout(services.auth.disconnect, 500);
 							}
 						}
 
