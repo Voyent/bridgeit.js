@@ -785,7 +785,7 @@ if( ! ('bridgeit' in window)){
 		 * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the BridgeIt login will last during inactivity. Default 20 minutes.
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session storage. If set to false, bridgeit will not attempt to relogin before the session expires.
-		 * @param {Function} params.onSessionExpiry Function callback to be called on session expiry
+		 * @param {Function} params.onSessionExpiry Function callback to be called on session expiry. If you wish to ensure that disconnect is not called until after your onSessionExpiry callback has completed, please return a Promise from your function.
 		 * @returns Promise with service definitions
 		 *
 		 */
@@ -844,24 +844,40 @@ if( ! ('bridgeit' in window)){
 									expiredCallback = connectSettings.onSessionExpiry;
 								}
 
+								//if there's no onSessionExpiry, call disconnect immediately
+								//otherwise search for onSessionExpiry function, if not found
+								//call disconnect() immediately, otherwise call onSessionExpiry
+								//if callback if a promise, wait until the promise completes 
+								//before disconnecting, otherwise, wait 500ms then disconnect
 								if( expiredCallback ){
+									var expiredCallbackFunction;
 									if( typeof expiredCallback === 'function'){
-										expiredCallback();
+										expiredCallbackFunction = expiredCallback;
 									}
 									else if( typeof expiredCallback === 'string'){
-										var callbackFunction = findFunctionInGlobalScope(expiredCallback);
-										if( callbackFunction ){
-											callbackFunction();
+										expiredCallbackFunction = findFunctionInGlobalScope(expiredCallback);
+									}
+									if( expiredCallbackFunction ){
+										var expiredCallbackPromise = expiredCallbackFunction();
+										if( expiredCallbackPromise && expiredCallbackPromise.then ){
+											expiredCallbackPromise.then(services.auth.disconnect)
+											['catch'](services.auth.disconnect);
 										}
 										else{
-											console.log('BridgeIt: error calling onSessionExpiry callback, ' +
-												'could not find function: ' + expiredCallback);
+											setTimeout(services.auth.disconnect, 500);
 										}
 									}
+									else{
+										console.log('BridgeIt: error calling onSessionExpiry callback, ' +
+											'could not find function: ' + expiredCallback);
+										services.auth.disconnect();
+									}
+
 								}	
-								//disconnect after onSessionExpiry called so clients can still
-								//access tokens and auth state
-								setTimeout(services.auth.disconnect, 500);
+								else{
+									services.auth.disconnect();
+								}
+								
 							}
 						}
 
@@ -978,6 +994,7 @@ if( ! ('bridgeit' in window)){
 				clearTimeout(cbId);
 			}
 			sessionStorage.removeItem(btoa(RELOGIN_CB_KEY));
+			console.log('BridgeIt has disconnected')
 		},
 
 		getLastAccessToken: function(){

@@ -48,7 +48,20 @@
 
         //test callback as global function
         function expiredCallback(){
-            alert('your session has expired');
+            return new Promise( function(resolve, reject){
+                //chew up time for 800ms
+                var millis = 8000;
+                var date = new Date();
+                var curDate = null;
+                do { 
+                    curDate = new Date(); 
+                    console.log(curDate);
+                }
+                while(curDate-date < millis);
+                alert('your session has expired');
+                resolve();
+
+            });
         }
 
         //test callback as named string
@@ -57,8 +70,8 @@
         function testConnect(){
             var accountId       = 'bsrtests';
             var realmId         = 'test';
-            var userId         = 'user';
-            var userPassword   = 'secretest';
+            var userId          = 'user';
+            var userPassword    = 'secretest';
             var host            = 'dev.bridgeit.io';
 
             var connectedAt = new Date().getTime();
