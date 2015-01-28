@@ -464,9 +464,7 @@ if( ! ('bridgeit' in window)){
 		getServiceDefinitions: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					if( !params ){
-						params = {};
-					}
+					params = params ? params : {};
 					
 					services.checkHost(params);
 					
@@ -491,7 +489,7 @@ if( ! ('bridgeit' in window)){
 		getRealmUsers: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -516,17 +514,17 @@ if( ! ('bridgeit' in window)){
 		getRealmUser: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
-					validateRequiredUsername(params, reject);
+					var username = validateAndReturnRequiredUsername(params, reject);
 					
 					var url = getRealmResourceURL(b.services.authAdminURL, account, realm, 
-						'users/' + params.username, token, params.ssl);
+						'users/' + username, token, params.ssl);
 
 					b.$.getJSON(url).then(function(json){
 						services.auth.updateLastActiveTimestamp();
@@ -542,10 +540,7 @@ if( ! ('bridgeit' in window)){
 		getAccountRealms: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					if( !params ){
-						params = {};
-					}
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -570,7 +565,7 @@ if( ! ('bridgeit' in window)){
 		getAccountRealm: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -627,6 +622,7 @@ if( ! ('bridgeit' in window)){
 		 getNewAccessToken: function(params){
 			return new Promise(
 				function(resolve, reject) {
+					params = params ? params : {};
 					b.services.checkHost(params);
 
 					if( !params.realm ){
@@ -696,6 +692,7 @@ if( ! ('bridgeit' in window)){
 		login: function(params) {
 			return new Promise(
 				function(resolve, reject) {
+					params = params ? params : {};
 					b.services.checkHost(params);
 
 					if( !params.realm ){
@@ -900,7 +897,7 @@ if( ! ('bridgeit' in window)){
 					}
 
 					var timeoutPadding = 500;
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					if( !params.storeCredentials){
 						params.storeCredentials = true;
@@ -1083,6 +1080,7 @@ if( ! ('bridgeit' in window)){
 		 registerAsNewUser: function(params){
 			return new Promise(
 				function(resolve, reject) {
+					params = params ? params : {};
 					b.services.checkHost(params);
 
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1138,7 +1136,7 @@ if( ! ('bridgeit' in window)){
 		 checkUserPermissions: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					validateRequiredPermissions(params, reject);
@@ -1195,7 +1193,7 @@ if( ! ('bridgeit' in window)){
 		createDocument: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1234,7 +1232,7 @@ if( ! ('bridgeit' in window)){
 		updateDocument: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1272,7 +1270,7 @@ if( ! ('bridgeit' in window)){
 		 getDocument: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1318,10 +1316,7 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					if( !params ){
-						params = {};
-					}
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1375,7 +1370,7 @@ if( ! ('bridgeit' in window)){
 		deleteDocument: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1419,7 +1414,7 @@ if( ! ('bridgeit' in window)){
 		 createRegion: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1457,7 +1452,7 @@ if( ! ('bridgeit' in window)){
 		 deleteRegion: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1495,10 +1490,7 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					if( !params ){
-						params = {};
-					}
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1535,7 +1527,7 @@ if( ! ('bridgeit' in window)){
 		 findRegions: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1573,7 +1565,7 @@ if( ! ('bridgeit' in window)){
 		 findMonitors: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1613,7 +1605,7 @@ if( ! ('bridgeit' in window)){
 		 createMonitor: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1650,7 +1642,7 @@ if( ! ('bridgeit' in window)){
 		 deleteMonitor: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1687,7 +1679,7 @@ if( ! ('bridgeit' in window)){
 		 getAllMonitors: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1725,7 +1717,7 @@ if( ! ('bridgeit' in window)){
 		 createPOI: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1763,7 +1755,7 @@ if( ! ('bridgeit' in window)){
 		 findPOIs: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1801,7 +1793,7 @@ if( ! ('bridgeit' in window)){
 		 deletePOI: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1838,7 +1830,7 @@ if( ! ('bridgeit' in window)){
 		 getAllPOIs: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1874,7 +1866,7 @@ if( ! ('bridgeit' in window)){
 		 updateLocation: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1913,7 +1905,7 @@ if( ! ('bridgeit' in window)){
 		 updateLocationCoordinates: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -1983,17 +1975,17 @@ if( ! ('bridgeit' in window)){
 		 getLastUserLocation: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
-					validateRequiredUsername(params, reject);
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
+					var username = validateAndReturnRequiredUsername(params, reject);
 
                     var url = getRealmResourceURL(services.locateURL, account, realm,
-                        'locations/' + params.username, token, params.ssl, {
+                        'locations/' + username, token, params.ssl, {
                             'results': 'last'
                         });
 
@@ -2037,7 +2029,7 @@ if( ! ('bridgeit' in window)){
 		findMetrics: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2087,7 +2079,7 @@ if( ! ('bridgeit' in window)){
 		 addCustomMetric: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					console.log('addCustomMetric()');
+					params = params ? params : {};
 					validateRequiredMetric(params, reject);
 					validateRequiredType(params, reject);
 
@@ -2142,7 +2134,7 @@ if( ! ('bridgeit' in window)){
 		 getClientServerTimeGap: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2203,7 +2195,7 @@ if( ! ('bridgeit' in window)){
 					function getCloudPushId()  {
 						return localStorage.getItem(CLOUD_PUSH_KEY);
 					}*/
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					
@@ -2337,7 +2329,7 @@ if( ! ('bridgeit' in window)){
 							return fn;
 						}
 					}
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					validateRequiredGroup(params, reject);
@@ -2387,7 +2379,7 @@ if( ! ('bridgeit' in window)){
 		sendPushEvent: function(params) {
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2431,7 +2423,7 @@ if( ! ('bridgeit' in window)){
 		getUser: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2456,7 +2448,7 @@ if( ! ('bridgeit' in window)){
 		getUserState: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2481,7 +2473,7 @@ if( ! ('bridgeit' in window)){
 		setUserState: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					validateRequiredState(params, reject);
 					
 					services.checkHost(params);
@@ -2508,7 +2500,7 @@ if( ! ('bridgeit' in window)){
 		getUserInfo: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2533,7 +2525,7 @@ if( ! ('bridgeit' in window)){
 		getUpdates: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2558,7 +2550,7 @@ if( ! ('bridgeit' in window)){
 		getUnreadUpdates: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2583,7 +2575,7 @@ if( ! ('bridgeit' in window)){
 		executeContext: function(params){
 			return new Promise(
 				function(resolve, reject) {
-
+					params = params ? params : {};
 					validateRequiredData(params, reject);
 
 					services.checkHost(params);
@@ -2630,7 +2622,7 @@ if( ! ('bridgeit' in window)){
 		executeFlow: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					var httpMethod = params.httpMethod || 'post';
@@ -2671,10 +2663,7 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					if( !params ){
-						params = {};
-					}
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2702,10 +2691,7 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					if( !params ){
-						params = {};
-					}
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2753,7 +2739,7 @@ if( ! ('bridgeit' in window)){
 		getMetaInfo: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2794,7 +2780,7 @@ if( ! ('bridgeit' in window)){
 		uploadBlob: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2836,7 +2822,7 @@ if( ! ('bridgeit' in window)){
 		uploadFile: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2876,7 +2862,7 @@ if( ! ('bridgeit' in window)){
 		getBlob: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
@@ -2913,7 +2899,7 @@ if( ! ('bridgeit' in window)){
 		deleteBlob: function(params){
 			return new Promise(
 				function(resolve, reject) {
-					
+					params = params ? params : {};
 					services.checkHost(params);
 					
 					//validate
