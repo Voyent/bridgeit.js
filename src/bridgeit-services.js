@@ -950,8 +950,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias disconnect
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.username User name (required)
 		 * @param {String} params.password User password (required)
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
@@ -1051,8 +1051,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias registerAsNewUser
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.username User name (required)
 		 * @param {String} params.password User password (required)
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
@@ -1111,8 +1111,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias checkUserPermissions 
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @param {String} params.permissions A space-delimited list of permissions
@@ -1168,8 +1168,8 @@ if( ! ('bridgeit' in window)){
 		 * @param {Object} params params
 		 * @param {String} params.id The document id. If not provided, the service will return a new id
 		 * @param {Object} params.document The document to be created
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1208,8 +1208,8 @@ if( ! ('bridgeit' in window)){
 		 * @param {Object} params params
 		 * @param {String} params.id The document id. 
 		 * @param {Object} params.document The document to be created
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1247,8 +1247,8 @@ if( ! ('bridgeit' in window)){
 		 * @alias getDocument
 		 * @param {Object} params params
 		 * @param {String} params.id The document id. If not provided, the service will return a new id
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1293,8 +1293,8 @@ if( ! ('bridgeit' in window)){
 		 * @alias getDocument
 		 * @param {Object} params params
 		 * @param {String} params.query A mongo query for the documents
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1353,8 +1353,8 @@ if( ! ('bridgeit' in window)){
 		 * @alias deleteDocument
 		 * @param {Object} params params
 		 * @param {String} params.id The document id. If not provided, the service will return a new id
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1397,8 +1397,8 @@ if( ! ('bridgeit' in window)){
 		 * @param {Object} params params
 		 * @param {String} params.id The region id. If not provided, the service will return a new id
 		 * @param {Object} params.region The region geoJSON document that describes the region to be created
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1437,8 +1437,8 @@ if( ! ('bridgeit' in window)){
 		 * @alias deleteRegion
 		 * @param {Object} params params
 		 * @param {String} params.id The region id. 
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1474,8 +1474,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias getAllRegions
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1515,8 +1515,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias findRegions
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1555,8 +1555,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias findMonitors
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1596,9 +1596,9 @@ if( ! ('bridgeit' in window)){
 		 * @param {Object} params params
 		 * @param {String} params.id The monitor id. If not provided, the service will return a new id
 		 * @param {Object} params.monitor The monitor document that describes the monitor to be created
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
-		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+		  * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
 		 * @returns {String} The resource URI
@@ -1635,8 +1635,8 @@ if( ! ('bridgeit' in window)){
 		 * @alias deleteMonitor
 		 * @param {Object} params params
 		 * @param {String} params.id The region id. 
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1672,8 +1672,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias getAllMonitors
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1711,8 +1711,8 @@ if( ! ('bridgeit' in window)){
 		 * @param {Object} params params
 		 * @param {String} params.id The POI id. If not provided, the service will return a new id
 		 * @param {Object} params.poi The POI document that describes the POI to be created
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1749,8 +1749,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias findPOIs
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1790,8 +1790,8 @@ if( ! ('bridgeit' in window)){
 		 * @alias deletePOI
 		 * @param {Object} params params
 		 * @param {String} params.id The POI id. 
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1827,8 +1827,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias getAllPOIs
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1864,8 +1864,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias updateLocation
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1902,8 +1902,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias updateLocationCoordinates
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -1960,8 +1960,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias getLastUserLocation
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -2026,8 +2026,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias findMetrics
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.expression The expression for the metrics query TODO document expression format
 		 * @param {String} params.start The start date for events. Represented in ISO 8601 UTC format (YYYY-MM-DDTHH:mm:ss.sssZ); defaults to UNIX epoch. TODO convert from other formats
 		 * @param {String} params.stop The stop date for events. Represented in ISO 8601 UTC format (YYYY-MM-DDTHH:mm:ss.sssZ); defaults to now.
@@ -2080,8 +2080,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias addMetric
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -2137,8 +2137,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias getClientServerTimeGap
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -2188,8 +2188,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias startPushService
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 */
 		startPushService: function(params){
 			return new Promise(
@@ -2261,8 +2261,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias addPushListener
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.group The push group name
 		 * @param {String} params.callback The callback function to be called on the push event
 		 * @param {Boolean} params.useCloudPush Use BridgeIt Cloud Push to call the callback through native cloud notification channels when necessary (default true)
@@ -2384,8 +2384,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias sendPushEvent
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.group The push group name
 		 * @param {String} params.subject The subject heading for the notification
 		 * @param {String} params.detail The message text to be sent in the notification body
@@ -2637,8 +2637,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias executeFlow
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -2765,8 +2765,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias getMetaInfo
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
 		 * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
@@ -2805,8 +2805,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias uploadBlob
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.id The blob id. If not provided, the service will return a new id
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
@@ -2848,8 +2848,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias uploadBlob
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.id The blob id. If not provided, the service will return a new id
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
@@ -2890,8 +2890,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias getBlob
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.id The blob id. 
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
@@ -2929,8 +2929,8 @@ if( ! ('bridgeit' in window)){
 		 *
 		 * @alias deleteBlob
 		 * @param {Object} params params
-		 * @param {String} params.account BridgeIt Services account name (required)
-		 * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+		 * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
+		 * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
 		 * @param {String} params.id The blob id. 
 		 * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.services.auth.connect() will be used
 		 * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
