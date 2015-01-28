@@ -65,6 +65,20 @@ if( ! ('bridgeit' in window)){
 		}
 	}
 
+	function validateAndReturnRequiredUsername(params, reject){
+		var username = params.username;
+		if( !username ){
+			username = b.services.auth.getLastKnownUsername();
+		}
+		if( username ){
+			sessionStorage.setItem(btoa(USERNAME_KEY), btoa(username));
+			return username;
+		}
+		else{
+			return reject(Error('The BridgeIt username is required'));
+		}
+	}
+
 	function validateRequiredUsername(params, reject){
 		validateParameter('username', 'The username parameter is required', params, reject);
 	}
@@ -1039,9 +1053,9 @@ if( ! ('bridgeit' in window)){
 		},
 
         getLastKnownUsername: function () {
-            var realmCipher = sessionStorage.getItem(btoa(USERNAME_KEY));
-            if (realmCipher) {
-                return atob(realmCipher);
+            var usernameCipher = sessionStorage.getItem(btoa(USERNAME_KEY));
+            if (usernameCipher) {
+                return atob(usernameCipher);
             }
         },
 
@@ -2439,8 +2453,6 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					validateRequiredUsername(params, reject);
-					
 					services.checkHost(params);
 					validateLoggedIn(reject);
 					
@@ -2448,9 +2460,10 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
+					var username = validateAndReturnRequiredUsername(params, reject);
 
 					var url = getRealmResourceURL(services.contextURL, account, realm, 
-						'users/' + params.username, token, params.ssl);
+						'users/' + username, token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
 						services.auth.updateLastActiveTimestamp();
@@ -2466,8 +2479,6 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					validateRequiredUsername(params, reject);
-					
 					services.checkHost(params);
 					validateLoggedIn(reject);
 					
@@ -2475,9 +2486,10 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
+					var username = validateAndReturnRequiredUsername(params, reject);
 
 					var url = getRealmResourceURL(services.contextURL, account, realm, 
-						'users/' + params.username + '/state', token, params.ssl);
+						'users/' + username + '/state', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
 						services.auth.updateLastActiveTimestamp();
@@ -2493,7 +2505,6 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					validateRequiredUsername(params, reject);
 					validateRequiredState(params, reject);
 					
 					services.checkHost(params);
@@ -2503,9 +2514,10 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
+					var username = validateAndReturnRequiredUsername(params, reject);
 
 					var url = getRealmResourceURL(services.contextURL, account, realm, 
-						'users/' + params.username + '/state', token, params.ssl);
+						'users/' + username + '/state', token, params.ssl);
 
 					b.$.post(url, params.state).then(function(response){
 						services.auth.updateLastActiveTimestamp();
@@ -2521,8 +2533,6 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					validateRequiredUsername(params, reject);
-					
 					services.checkHost(params);
 					validateLoggedIn(reject);
 					
@@ -2530,9 +2540,10 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
+					var username = validateAndReturnRequiredUsername(params, reject);
 
 					var url = getRealmResourceURL(services.contextURL, account, realm, 
-						'users/' + params.username + '/info', token, params.ssl);
+						'users/' + username + '/info', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
 						services.auth.updateLastActiveTimestamp();
@@ -2548,8 +2559,6 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					validateRequiredUsername(params, reject);
-					
 					services.checkHost(params);
 					validateLoggedIn(reject);
 					
@@ -2557,9 +2566,10 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
+					var username = validateAndReturnRequiredUsername(params, reject);
 
 					var url = getRealmResourceURL(services.contextURL, account, realm, 
-						'users/' + params.username + '/updates', token, params.ssl);
+						'users/' + username + '/updates', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
 						services.auth.updateLastActiveTimestamp();
@@ -2575,8 +2585,6 @@ if( ! ('bridgeit' in window)){
 			return new Promise(
 				function(resolve, reject) {
 
-					validateRequiredUsername(params, reject);
-					
 					services.checkHost(params);
 					validateLoggedIn(reject);
 					
@@ -2584,9 +2592,10 @@ if( ! ('bridgeit' in window)){
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
+					var username = validateAndReturnRequiredUsername(params, reject);
 
 					var url = getRealmResourceURL(services.contextURL, account, realm, 
-						'users/' + params.username + '/updates/unread', token, params.ssl);
+						'users/' + username + '/updates/unread', token, params.ssl);
 
 					b.$.getJSON(url).then(function(response){
 						services.auth.updateLastActiveTimestamp();
