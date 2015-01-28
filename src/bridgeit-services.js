@@ -161,14 +161,6 @@ if( ! ('bridgeit' in window)){
 		}
 	}
 
-	function validateLoggedIn(reject){
-		if( !services.auth.isLoggedIn() ){
-			var msg = 'BridgeIt is not logged in, cancelling op';
-			console.log(msg);
-			reject(msg);
-		}
-	}
-
 	function getTransactionURLParam(){
 		var txId = services.getLastTransactionId();
 		if( txId ){
@@ -477,7 +469,6 @@ if( ! ('bridgeit' in window)){
 					}
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var token = validateAndReturnRequiredAccessToken(params, reject);
@@ -502,7 +493,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -528,7 +518,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -558,7 +547,6 @@ if( ! ('bridgeit' in window)){
 					}
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -584,7 +572,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var token = validateAndReturnRequiredAccessToken(params, reject);
@@ -592,7 +579,6 @@ if( ! ('bridgeit' in window)){
 					
 					var url = getRealmResourceURL(b.services.authAdminURL, account, realm, 
 						'', token, params.ssl);
-
 
 					b.$.getJSON(url).then(function(json){
 						services.auth.updateLastActiveTimestamp();
@@ -1137,7 +1123,7 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
+					
 					validateRequiredPermissions(params, reject);
 
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1194,7 +1180,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1234,7 +1219,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1273,7 +1257,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1323,7 +1306,6 @@ if( ! ('bridgeit' in window)){
 					}
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1378,7 +1360,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1423,7 +1404,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1462,7 +1442,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1504,7 +1483,6 @@ if( ! ('bridgeit' in window)){
 					}
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1542,7 +1520,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1581,7 +1558,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1622,7 +1598,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1660,7 +1635,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1698,7 +1672,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1737,7 +1710,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1776,7 +1748,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1815,7 +1786,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1853,7 +1823,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1890,7 +1859,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -1930,7 +1898,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2002,7 +1969,6 @@ if( ! ('bridgeit' in window)){
 
 					validateRequiredUsername(params, reject);
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2056,7 +2022,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2110,7 +2075,6 @@ if( ! ('bridgeit' in window)){
 					validateRequiredType(params, reject);
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2163,7 +2127,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2225,7 +2188,7 @@ if( ! ('bridgeit' in window)){
 					}*/
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
+					
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2359,7 +2322,7 @@ if( ! ('bridgeit' in window)){
 					}
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
+					
 					validateRequiredGroup(params, reject);
 					validateRequiredCallback(params, reject);
 
@@ -2409,7 +2372,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2454,7 +2416,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2480,7 +2441,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2508,7 +2468,6 @@ if( ! ('bridgeit' in window)){
 					validateRequiredState(params, reject);
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2534,7 +2493,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2560,7 +2518,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2586,7 +2543,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2614,7 +2570,6 @@ if( ! ('bridgeit' in window)){
 					validateRequiredData(params, reject);
 
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2660,7 +2615,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					var httpMethod = params.httpMethod || 'post';
 					httpMethod = httpMethod.toLowerCase();
@@ -2705,7 +2659,6 @@ if( ! ('bridgeit' in window)){
 					}
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2737,8 +2690,7 @@ if( ! ('bridgeit' in window)){
 					}
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
-
+					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
 					var realm = validateAndReturnRequiredRealm(params, reject);
@@ -2786,7 +2738,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2828,7 +2779,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2871,7 +2821,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2912,7 +2861,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
@@ -2950,7 +2898,6 @@ if( ! ('bridgeit' in window)){
 				function(resolve, reject) {
 					
 					services.checkHost(params);
-					validateLoggedIn(reject);
 					
 					//validate
 					var account = validateAndReturnRequiredAccount(params, reject);
