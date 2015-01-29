@@ -218,7 +218,7 @@ if( ! ('bridgeit' in window)){
 			return null;
 		}
 		var functionName;
-		if ("string" === typeof(fn)){
+		if( typeof fn === "string" ){
 			functionName = fn;
 			var parts = functionName.split(".");
 			var theObject = window;
@@ -233,7 +233,7 @@ if( ! ('bridgeit' in window)){
 			}
 			return theObject;
 		}
-		else if( "function" === typeof(fn)) {
+		else if( typeof fn === "function" ){
 			return fn;
 		}
 	}
@@ -2304,31 +2304,7 @@ if( ! ('bridgeit' in window)){
 						}
 						
 					}
-
-					function findFunctionInGlobalScope(fn){
-						if (!fn)  {
-							return null;
-						}
-						var functionName;
-						if ("string" === typeof(fn)){
-							functionName = fn;
-							var parts = functionName.split(".");
-							var theObject = window;
-							for (var i = 0; i < parts.length; i++) {
-								theObject = theObject[parts[i]];
-								if (!theObject) {
-									return null;
-								}
-							}
-							if (window == theObject)  {
-								return null;
-							}
-							return theObject;
-						}
-						else if( "function" === typeof(fn)) {
-							return fn;
-						}
-					}
+					
 					params = params ? params : {};
 					services.checkHost(params);
 					
