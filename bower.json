@@ -1,6 +1,6 @@
 {
 	"name": "bridgeit.js",
-	"version": "1.0.2",
+	"version": "1.0.5",
 	"main": "src/bridgeit.js",
 	"ignore": [
 		"docs",
