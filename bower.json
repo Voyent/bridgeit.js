@@ -2,7 +2,7 @@
 	"name": "bridgeit.js",
 	"version": "1.0.2",
 	"main": "src/bridgeit.js",
-	"ignore: [
+	"ignore": [
 		"docs",
 		"bower.json",
 		"LICENCE",
