@@ -15,7 +15,7 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">/* BridgeIt Mobile 1.0.4 
+  <pre class="prettyprint lang-js">/* BridgeIt Mobile 1.0.6
  *
  * Copyright 2004-2013 ICEsoft Technologies Canada Corp.
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -26,27 +26,27 @@
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
- * &#39;AS IS&#39; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-if (!window[&#39;ice&#39;]) {
-    window.ice = {};
+if (!window['ice']) {
+	window.ice = {};
 }
-if (!window[&#39;bridgeit&#39;]) {
-    window.bridgeit = {};
-    window.bridgeIt = window.bridgeit; //alias bridgeit and bridgeIt
+if (!window['bridgeit']) {
+	window.bridgeit = {};
+	window.bridgeIt = window.bridgeit; //alias bridgeit and bridgeIt
 }
 if (!window.console) {
-    console = {};
-    if (ice.logInContainer) {
-        console.log = ice.logInContainer;
-    } else {
-        console.log = function() {
-        };
-        console.error = function() {
-        };
-    }
+	console = {};
+	if (ice.logInContainer) {
+		console.log = ice.logInContainer;
+	} else {
+		console.log = function() {
+		};
+		console.error = function() {
+		};
+	}
 }
 <span id='bridgeit'>/**
 </span> * The BridgeIt JavaScript API. Native Mobile integration for your web app.
@@ -57,8 +57,8 @@ if (!window.console) {
  * that runs alongside the browser and is available for each of the supported
  * platforms (currently Android, iOS, and Windows Phone 8).
  *
- * For example, bridgeit.camera(&#39;myCamera&#39;, &#39;myCallback&#39;) will allow the user
- * to take a photo identified by &#39;myCamera&#39; and this will be returned via an
+ * For example, bridgeit.camera('myCamera', 'myCallback') will allow the user
+ * to take a photo identified by 'myCamera' and this will be returned via an
  * event to the function named myCallback.  For the best compatibility the
  * callback is passed by name since the browser page may be refreshed when
  * the callback returns. The callback will be passed an event where:
@@ -77,1667 +77,1745 @@ if (!window.console) {
  */
 (function(b) {
 
-    /* *********************** PRIVATE ******************************/
-    function serializeForm(formId, typed) {
-        var form = document.getElementById(formId);
-        var els = form.elements;
-        var len = els.length;
-        var qString = [];
-        var addField = function(name, value) {
-            var tmpStr = &quot;&quot;;
-            if (qString.length &gt; 0) {
-                tmpStr = &quot;&amp;&quot;;
-            }
-            tmpStr += encodeURIComponent(name) + &quot;=&quot; + encodeURIComponent(value);
-            qString.push(tmpStr);
-        };
-        for (var i = 0; i &lt; len; i++) {
-            var el = els[i];
-            if (!el.disabled) {
-                var prefix = &quot;&quot;;
-                if (typed) {
-                    var vtype = el.getAttribute(&quot;data-type&quot;);
-                    if (vtype) {
-                        prefix = vtype + &quot;-&quot;;
-                    } else {
-                        prefix = el.type + &quot;-&quot;;
-                    }
-                }
-                switch (el.type) {
-                    case &#39;submit&#39;:
-                    case &#39;button&#39;:
-                    case &#39;fieldset&#39;:
-                        break;
-                    case &#39;text&#39;:
-                    case &#39;password&#39;:
-                    case &#39;hidden&#39;:
-                    case &#39;textarea&#39;:
-                        addField(prefix + el.name, el.value);
-                        break;
-                    case &#39;select-one&#39;:
-                        if (el.selectedIndex &gt;= 0) {
-                            addField(prefix + el.name, el.options[el.selectedIndex].value);
-                        }
-                        break;
-                    case &#39;select-multiple&#39;:
-                        for (var j = 0; j &lt; el.options.length; j++) {
-                            if (el.options[j].selected) {
-                                addField(prefix + el.name, el.options[j].value);
-                            }
-                        }
-                        break;
-                    case &#39;checkbox&#39;:
-                    case &#39;radio&#39;:
-                        if (el.checked) {
-                            addField(prefix + el.name, el.value);
-                        }
-                        break;
-                    default:
-                        addField(prefix + el.name, el.value);
-                }
-            }
-        }
-        // concatenate the array
-        return qString.join(&quot;&quot;);
-    }
-
-    if (window.jQuery &amp;&amp; jQuery.mobile)  {
-        //jquery mobile insists on parsing BridgeIt hashchange data
-        bridgeit.useBase64 = true;;
-    }
-    function getDeviceCommand()  {
-        var commandData = null;
-        var locHash = &quot;&quot; + window.location.hash;
-        var hashMark = isDeviceCommandHash(locHash);
-        if (hashMark)  {
-            commandData = locHash.substring(hashMark.length + 1);
-            var dupIndex = commandData.indexOf(hashMark);
-            if (dupIndex &gt; 0)  {
-                commandData = commandData.substring(0, dupIndex);
-                console.error(&quot;trimmed corrupt &quot; + locHash + &quot; to &quot;
-                        + commandData);
-            }
-        }
-        return commandData;
-    }
-
-    function isDeviceCommandHash(fullHash)  {
-        var sxkey = &quot;#icemobilesx&quot;;
-        if (sxkey === fullHash.substring(0, sxkey.length))  {
-            return sxkey;
-        }
-        var brkey = &quot;#bridgeit&quot;;
-        if (brkey === fullHash.substring(0, brkey.length))  {
-            return brkey;
-        }
-        return null;
-    }
-
-    var reservedParams = [&#39;postURL&#39;, &#39;element&#39;, &#39;form&#39;, &#39;deviceCommandCallback&#39;, &#39;cookies&#39;];
-
-    function deviceCommandExec(command, id, options)  {
-        var payload = options;
-        if (!payload)  {
-            payload = { };
-        }
-        var windowLocation = window.location;
-
-        payload._version = bridgeit.version;
-
-        if (payload.postURL)  {
-            var postURL = getAbsoluteURL(payload.postURL);
-            payload._postURL = postURL;
-            delete payload.postURL;
-        }
-        if (payload.ub)  {
-            payload._urlBase = payload.ub;
-            delete payload.ub;
-        } else {
-            var barURL = windowLocation.toString();
-            var baseURL =
-                    barURL.substring(0, barURL.lastIndexOf(&quot;/&quot;)) + &quot;/&quot;;
-            payload._urlBase = baseURL;
-        }
-
-        payload._command = command;
-        payload._id = id;
-        payload._seq = (new Date()).getTime();
-
-        if (payload._callback)  {
-            if (&quot;string&quot; != typeof(payload._callback))  {
-                if (bridgeit.allowAnonymousCallbacks)  {
-                    payload._callback = &quot;!anon&quot;;
-                } else  {
-                    console.error(
-                        &quot;BridgeIt callbacks must be named in window scope&quot;);
-                    delete payload._callback;
-                }
-            }
-        }
-
-        var returnURL = &quot;&quot; + windowLocation;
-        var lastHash = returnURL.lastIndexOf(&quot;#&quot;);
-        var theHash = &quot;&quot;;
-        var theURL = returnURL;
-        if (lastHash &gt; 0)  {
-            theHash = returnURL.substring(lastHash);
-            theURL = returnURL.substring(0, lastHash);
-        }
-        returnURL = theURL + &quot;#bridgeit&quot;;
-
-        payload._returnURL = returnURL;
-        payload._restoreHash = theHash;
-
-        payload._splashImageURL = bridgeit.splashImageURL;
-        payload._splashImage = bridgeit.splashImage;
-
-        var encodedCommand = btoa(JSON.stringify(payload))
-            .replace(/=/g,&quot;~&quot;)
-            .replace(/\//g,&quot;.&quot;);
-
-        var commandBase = &quot;bridgeit:&quot;;
-        if (b.isAndroid())  {
-            commandBase = &quot;http://bridgeit.mobi/android/install/index.html#&quot;
-        }
-
-        var commandURL = commandBase + encodedCommand;
-        console.log(&quot;commandURL &quot; + commandURL);
-
-        window.location = commandURL;
-
-    }
-
-    function deviceCommandURLExec(command, id, options)  {
-        console.log(&quot;deviceCommandExec(&#39;&quot; + command + &quot;&#39;, &#39;&quot; + id + &quot;, &quot; + JSON.stringify(options));
-        var ampchar = String.fromCharCode(38);
-        var uploadURL;
-        var sessionid;
-        var params;
-        var element;
-        var formID;
-        var callback;
-
-        if (options)  {
-            if (options.postURL)  {
-            var postURL = getAbsoluteURL(options.postURL);
-                uploadURL = postURL;
-            }
-            params = packObject(options, reservedParams);
-            if (options.deviceCommandCallback)  {
-                callback = options.deviceCommandCallback;
-                if (&quot;string&quot; != typeof(callback))  {
-                    if (bridgeit.allowAnonymousCallbacks)  {
-                        callback = &quot;!anon&quot;;
-                    } else  {
-                        console.error(
-                            &quot;BridgeIt callbacks must be named in window scope&quot;);
-                        callback = null;
-                    }
-                }
-            }
-            if (options.element)  {
-                element = options.element;
-            }
-            if (options.form)  {
-                formID = options.form.getAttribute(&quot;id&quot;);
-            }
-            if (options.cookies)  {
-                sessionid = options.cookies[&#39;JSESSIONID&#39;];
-            }
-        }
-
-        if (!uploadURL)  {
-            uploadURL = getUploadURL(element);
-        }
-
-        var windowLocation = window.location;
-        var barURL = windowLocation.toString();
-        var baseURL = barURL.substring(0,
-                barURL.lastIndexOf(&quot;/&quot;)) + &quot;/&quot;;
-
-        var returnURL = &quot;&quot; + window.location;
-        var lastHash = returnURL.lastIndexOf(&quot;#&quot;);
-        var theHash = &quot;&quot;;
-        var theURL = returnURL;
-        if (lastHash &gt; 0)  {
-            theHash = returnURL.substring(lastHash);
-            theURL = returnURL.substring(0, lastHash);
-        }
-        returnURL = theURL + &quot;#icemobilesx&quot;;
-
-        var hashSubClause = &quot;&quot;;
-        if (!!theHash)  {
-            hashSubClause = &quot;&amp;h=&quot; + escape(theHash);
-        }
-
-        var callbackClause = &quot;&quot;;
-        if (!!callback)  {
-            callbackClause = &quot;&amp;c=&quot; + escape(callback);
-        }
-
-        seqClause = &quot;&amp;seq=&quot; + (new Date()).getTime();
-
-        var hashClause = &quot;&quot;;
-        if (!!hashSubClause || !!callbackClause)  {
-            hashClause = &quot;&amp;h=&quot; + escape(hashSubClause) + escape(callbackClause)
-                    + escape(seqClause);
-        }
-
-        deviceOptions = null;
-        if (bridgeit.useBase64)  {
-            //jquery mobile insists on parsing BridgeIt hashchange data
-            deviceOptions = &quot;enc=base64&quot;;
-        }
-        var optionsClause = &quot;&quot;;
-        if (!!deviceOptions)  {
-            optionsClause = &quot;&amp;o=&quot; + escape(deviceOptions);
-        }
-
-        if (params &amp;&amp; (&quot;&quot; != params)) {
-            params = &quot;&amp;ub=&quot; + escape(baseURL) + ampchar + params;
-        }
-        console.log(&#39;params = &#39; + params);
-
-        var sessionidClause = &quot;&quot;;
-        if (sessionid &amp;&amp; (&quot;&quot; != sessionid)) {
-            sessionidClause = &quot;&amp;JSESSIONID=&quot; + escape(sessionid);
-            //also need PHPSESSID and ASPSESSIONID
-        }
-        var serializedFormClause = &quot;&quot;;
-        if (formID &amp;&amp; (&quot;&quot; != formID))  {
-            serializedFormClause = &quot;&amp;p=&quot; +
-                    escape(serializeForm(formID, false));
-        }
-        var uploadURLClause = &quot;&quot;;
-        if (uploadURL &amp;&amp; (&quot;&quot; != uploadURL))  {
-            uploadURLClause = &quot;&amp;u=&quot; + escape(uploadURL);
-        }
-        var sxURL = &quot;c=&quot; + escape(command +
-                &quot;?id=&quot; + id + ampchar + (params ? params : &#39;&#39;)) +
-                uploadURLClause +
-                &quot;&amp;r=&quot; + escape(returnURL) +
-                sessionidClause +
-                optionsClause +
-                hashClause +
-                serializedFormClause;
-        if (b.isWindowsPhone8())  {
-            sxURL = escape(sxURL);
-        }
-        var sxBase = &quot;icemobile:&quot;;
-        if (b.isAndroid())  {
-            sxBase = &quot;http://bridgeit.mobi/android/install/index.html#&quot;
-        }
-        sxURL = sxBase + sxURL;
-        console.log(&#39;sxURL=&#39; + sxURL);
-
-        window.location = sxURL;
-    }
-    function getSplashClause()  {
-        var splashClause = &quot;&quot;;
-        if (null != bridgeit.splashImageURL)  {
-            var splashImage = &quot;i=&quot; + escape(bridgeit.splashImageURL);
-            splashClause = &quot;&amp;s=&quot; + escape(splashImage);
-        }
-        return splashClause;
-    }
-    var autoDetectUploadURL = false;
-    function getUploadURL(element)  {
-        if (!autoDetectUploadURL)  {
-            return null;
-        }
-        var uploadURL;
-
-        var windowLocation = window.location;
-        var barURL = windowLocation.toString();
-        var baseURL = barURL.substring(0,
-                barURL.lastIndexOf(&quot;/&quot;)) + &quot;/&quot;;
-
-        if (!element)  {
-            uploadURL = baseURL;
-        } else {
-            var form = formOf(element);
-            formID = form.getAttribute(&#39;id&#39;);
-            var formAction = form.getAttribute(&quot;action&quot;);
-
-            if (!uploadURL) {
-                uploadURL = element.getAttribute(&quot;data-posturl&quot;);
-            }
-            if (!uploadURL) {
-                if (0 === formAction.indexOf(&quot;/&quot;)) {
-                    uploadURL = window.location.origin + formAction;
-                } else if ((0 === formAction.indexOf(&quot;http://&quot;)) ||
-                        (0 === formAction.indexOf(&quot;https://&quot;))) {
-                    uploadURL = formAction;
-                } else {
-                    uploadURL = baseURL + formAction;
-                }
-            }
-        }
-        return uploadURL;
-    }
-    var checkTimeout;
-    function deviceCommand(command, id, callback, options)  {
-        if( !b.isSupportedPlatform(command) ){
-            b.notSupported(id, command);
-            return;
-        }
-        if (b.isIOS())  {
-            checkTimeout = setTimeout( function()  {
-                bridgeit.launchFailed(id);
-            }, 3000);
-        }
-        if (!options)  {
-            options = {};
-        }
-        console.log(command + &quot; &quot; + id);
-        bridgeit.deviceCommandCallback = callback;
-        if (bridgeit.useJSON64)  {
-            options._callback = callback;
-            deviceCommandExec(command, id, options);
-        } else {
-            options.deviceCommandCallback = callback;
-            deviceCommandURLExec(command, id, options);
-        }
-    }
-    function setInput(target, name, value, vtype)  {
-        console.log(&#39;setInput(target=&#39; + target + &#39;, name=&#39; + name + &#39;, value=&#39; + value + &#39;, vtype=&#39; + vtype);
-        var hiddenID = name + &quot;-hid&quot;;
-        var existing = document.getElementById(hiddenID);
-        if (existing)  {
-            existing.setAttribute(&quot;value&quot;, value);
-            return;
-        }
-        var targetElm = document.getElementById(target);
-        if (!targetElm)  {
-            return;
-        }
-        var hidden = document.createElement(&quot;input&quot;);
-
-        hidden.setAttribute(&quot;type&quot;, &quot;hidden&quot;);
-        hidden.setAttribute(&quot;id&quot;, hiddenID);
-        hidden.setAttribute(&quot;name&quot;, name);
-        hidden.setAttribute(&quot;value&quot;, value);
-        if (vtype)  {
-            hidden.setAttribute(&quot;data-type&quot;, vtype);
-        }
-        targetElm.parentNode.insertBefore(hidden, targetElm);
-    }
-    function formOf(element) {
-        var parent = element;
-        while (null != parent) {
-            if (&quot;form&quot; == parent.nodeName.toLowerCase()) {
-                return parent;
-            }
-            parent = parent.parentNode;
-        }
-    }
-
-    function packObject(params, exclude)  {
-        var packed = &quot;&quot;;
-        var sep = &quot;&quot;;
-        for (var key in params)  {
-            if (exclude.indexOf(key) &lt; 0)  {
-                packed += sep + escape(key) + &quot;=&quot; + escape(params[key]);
-                sep = &quot;&amp;&quot;;
-            }
-        }
-        return packed;
-    }
-    function unpackDeviceResponse(data)  {
-        var result = {};
-        var un64 = bridgeit.useJSON64 ||
-                (bridgeit.useBase64 &amp;&amp; (data.indexOf(&quot;!&quot;) &lt; 0));
-        if (un64)  {
-            data = data.replace(/~/g,&quot;=&quot;);
-            data = data.replace(/\./g,&quot;/&quot;);
-            data = atob(data);
-        }
-        if (bridgeit.useJSON64)  {
-            //clone these for now
-            data = JSON.parse(data)
-            data.name = data.id;
-            data.p = data.preview;
-            data.c = data.cloud;
-            data.h = data.echo;
-            data.v = data.version;
-            return data;
-        } else {
-            data = decodeURIComponent(data);
-        }
-        var params = data.split(&quot;&amp;&quot;);
-        var len = params.length;
-        for (var i = 0; i &lt; len; i++) {
-            var splitIndex = params[i].indexOf(&quot;=&quot;);
-            var paramName = unescape(params[i].substring(0, splitIndex));
-            var paramValue = decodeURIComponent(
-                    params[i].substring(splitIndex + 1) );
-            if (&quot;!&quot; === paramName.substring(0,1))  {
-                //BridgeIt parameters are set directly
-                result[paramName.substring(1)] = paramValue;
-            } else  {
-                //only one user value is supported
-                console.log(&quot;deviceResponse value &quot; +
-                        paramName + &quot; &quot; + paramValue);
-                result.name = paramName;
-                result.value = paramValue;
-            }
-        }
-        return result;
-    }
-    function url2Object(encoded)  {
-        var parts = encoded.split(&quot;&amp;&quot;);
-        var record = {};
-        for (var i = 0; i &lt; parts.length; i++) {
-            if (!!parts[i])  {
-                var pair = parts[i].split(&quot;=&quot;);
-                record[unescape(pair[0])] = decodeURIComponent(pair[1]);
-            }
-        }
-        return record;
-    }
-    function getNamedObject(name)  {
-        if (!name)  {
-            return null;
-        }
-        var parts = name.split(&quot;.&quot;);
-        var theObject = window;
-        for (var i = 0; i &lt; parts.length; i++) {
-            theObject = theObject[parts[i]];
-            if (!theObject) {
-                return null;
-            }
-        }
-        if (window == theObject)  {
-            return null;
-        }
-        return theObject;
-    }
-    function addOnLoadListener(func)  {
-        var oldonload = window.onload;
-        window.onload = function() {
-            try {
-                if (oldonload)  {
-                    oldonload();
-                }
-            } catch (e)  {
-                console.error(e);
-            }
-            func();
-        }
-    }
-    var isDataPending = false;
-    var isLoaded = false;
-    var pendingData = null;
-    function loadComplete()  {
-        isLoaded = true;
-    }
-    function checkExecDeviceResponse()  {
-        var data = getDeviceCommand();
-        if (null == data)  {
-            data = pendingData;
-            //record URL/hash changes that are not device commands
-            storeLastPage();
-        }
-        var deviceParams;
-        if (null != data)  {
-            pendingData = data;
-            isDataPending = true;
-            if (!isLoaded)  {
-                console.log(&quot;checkExecDeviceResponse waiting for onload&quot;);
-                return;
-            }
-            var name;
-            var value;
-            var needRefresh = true;
-            if (&quot;&quot; != data)  {
-                deviceParams = unpackDeviceResponse(data);
-                if (deviceParams.name)  {
-                    name = deviceParams.name;
-                    value = deviceParams.value;
-                    setInput(name, name, value);
-                    needRefresh = false;
-                }
-            }
-            if (needRefresh)  {
-                console.log(&#39;needs refresh&#39;);
-                if (window.ice.ajaxRefresh)  {
-                    ice.ajaxRefresh();
-                }
-            }
-            setTimeout( function(){
-                if (!isDataPending)  {
-                    console.log(&quot;checkExecDeviceResponse is done, exiting&quot;);
-                    return;
-                }
-                var sxEvent = {
-                    name : name,
-                    value : value
-                };
-                var callback = bridgeit.deviceCommandCallback;
-                var namedCallBack = getNamedObject(callback);
-                if (namedCallBack)  {
-                    callback = namedCallBack;
-                }
-                console.log(&#39;sxEvent: &#39; + JSON.stringify(sxEvent) + &quot; &quot; +
-                        JSON.stringify(deviceParams));
-                var restoreHash = &quot;&quot;;
-                if (deviceParams)  {
-                    if (deviceParams.r)  {
-                        sxEvent.response = deviceParams.r;
-                    }
-                    if (deviceParams.v)  {
-                        sxEvent.version = deviceParams.v;
-                        setLastAppVersion(deviceParams.v);
-                    }
-                    if (deviceParams.p)  {
-                        sxEvent.preview = deviceParams.p;
-                    }
-                    if (deviceParams.c)  {
-                        setCloudPushId(deviceParams.c);
-                        if (ice.push)  {
-                            ice.push.parkInactivePushIds(
-                                    deviceParams.c );
-                        }
-                    }
-                    if (deviceParams.h)  {
-                        var echoed = url2Object(unescape(deviceParams.h));
-                        if (echoed.h)  {
-                            restoreHash = echoed.h;
-                        }
-                        if (echoed.c)  {
-                            var namedCallBack = getNamedObject(echoed.c);
-                            if (namedCallBack)  {
-                                callback = namedCallBack;
-                            }
-                        }
-                    }
-                }
-                var loc = window.location;
-                isDataPending = false;
-                pendingData = null;
-
-                if( !hasInstalledToken() ){
-                    setInstalledToken();
-                }
-
-                if (callback)  {
-                    try {
-                        callback(sxEvent);
-                    } catch (e)  {
-                        console.error(&quot;Device function callback failed &quot; + e);
-                        console.error(e.stack);
-                    }
-                    bridgeit.deviceCommandCallback = null;
-                } else{
-                    console.log(&#39;no deviceCommandCallback registered :(&#39;);
-                }
-                setTimeout(function(){
-                    var restoreLocation =
-                        loc.pathname + loc.search + restoreHash;
-                    history.replaceState(&quot;&quot;, document.title,
-                        restoreLocation);
-                    console.log(&#39;bridgeit history replaceState: &#39; +
-                        restoreLocation);
-                }, 100);
-            }, 1);
-        }
-    }
-    var CLOUD_PUSH_KEY = &quot;ice.notifyBack&quot;;
-    function setCloudPushId(id)  {
-        //rely on local storage since cloud push is on modern platforms
-        if (localStorage)  {
-            localStorage.setItem(CLOUD_PUSH_KEY, id);
-        }
-    }
-    function getCloudPushId()  {
-        if (localStorage)  {
-            return localStorage.getItem(CLOUD_PUSH_KEY);
-        }
-        return null;
-    }
-
-    function setupCloudPush()  {
-        var cloudPushId = getCloudPushId();
-        if (!!cloudPushId)  {
-            if (ice.push)  {
-                console.log(&quot;Cloud Push registered: &quot; + cloudPushId);
-                ice.push.parkInactivePushIds(cloudPushId);
-            }
-        }
-    }
-    //move pause and resume to ICEpush when ready
-    function pausePush()  {
-       if (window.ice &amp;&amp; ice.push)  {
-           ice.push.connection.pauseConnection();
-       }
-    }
-    function resumePush()  {
-       if (window.ice &amp;&amp; ice.push)  {
-           ice.push.connection.resumeConnection();
-            resumePushGroups();
-       }
-    }
-    function resumePushGroups()  {
-        for (var pushID in pushListeners) {
-            var pushListener = pushListeners[pushID];
-            console.log(&quot;rejoining push group with old pushid &quot; +
-                    pushListener.group + &quot; &quot; + pushID );
-            ice.push.addGroupMember(pushListener.group, pushID);
-        }
-    }
-
-    var LAST_PAGE_KEY = &quot;bridgeit.lastpage&quot;;
-    function storeLastPage(lastPage)  {
-        if (!lastPage)  {
-            var sxkey = &quot;#icemobilesx&quot;;
-            var sxlen = sxkey.length;
-            var locHash = &quot;&quot; + window.location.hash;
-            lastPage = &quot;&quot; + document.location;
-            if (sxkey === locHash.substring(0, sxlen))  {
-                lastPage = lastPage.substring(0,
-                        lastPage.length - locHash.length)
-            }
-        }
-        if (localStorage)  {
-            localStorage.setItem(LAST_PAGE_KEY, lastPage);
-            console.log(&quot;bridgeit storeLastPage &quot; + lastPage);
-        }
-    }
-    /* Page event handling */
-    if (window.addEventListener) {
-
-        window.addEventListener(&quot;pagehide&quot;, function () {
-            //hiding the page either indicates user does not require
-            //BridgeIt or the url scheme invocation has succeeded
-            clearTimeout(checkTimeout);
-            if (ice.push &amp;&amp; ice.push.connection) {
-                pausePush();
-            }
-        }, false);
-
-        window.addEventListener(&quot;pageshow&quot;, function () {
-            if (ice.push &amp;&amp; ice.push.connection) {
-                resumePush();
-            }
-        }, false);
-
-        window.addEventListener(&quot;hashchange&quot;, function () {
-            console.log(&#39;entered hashchange listener hash=&#39; + window.location.hash);
-            checkExecDeviceResponse();
-        }, false);
-
-        window.addEventListener(&quot;load&quot;, function () {
-            storeLastPage();
-        }, false);
-
-        document.addEventListener(&quot;webkitvisibilitychange&quot;, function () {
-            if (document.webkitHidden)  {
-                pausePush();
-            } else {
-                resumePush();
-            }
-        });
-
-        document.addEventListener(&quot;visibilitychange&quot;, function () {
-            if (document.hidden)  {
-                pausePush();
-            } else {
-                resumePush();
-            }
-        });
-
-    };
-
-    function jsonPOST(uri, payload) {
-        var xhr = new XMLHttpRequest();
-        xhr.open(&#39;POST&#39;, uri, false);
-        xhr.setRequestHeader(
-                &quot;Content-Type&quot;, &quot;application/json;charset=UTF-8&quot;);
-        xhr.send(JSON.stringify(payload));
-        if (xhr.status == 200) {
-            return JSON.parse(xhr.responseText);
-        } else {
-            throw xhr.statusText + &#39;[&#39; + xhr.status + &#39;]&#39;;
-        }
-    }
-
-    function httpGET(uri, query) {
-        var xhr = new XMLHttpRequest();
-        var queryStr = &quot;&quot;;
-        if (!!query)  {
-            queryStr = &quot;?&quot; + query;
-        }
-        xhr.open(&#39;GET&#39;, uri + queryStr, false);
-        xhr.send(query);
-        if (xhr.status == 200) {
-            return xhr.responseText;
-        } else {
-            throw xhr.statusText + &#39;[&#39; + xhr.status + &#39;]&#39;;
-        }
-    }
-
-    function endsWith(s, pattern) {
-        return s.lastIndexOf(pattern) == s.length - pattern.length;
-    }
-
-    var absoluteGoBridgeItURL = null;
-
-    function fetchGoBridgeIt(url) {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (4 == xhr.readyState)  {
-                if (200 == xhr.status)  {
-                    if (!absoluteGoBridgeItURL)  {
-                        absoluteGoBridgeItURL = getAbsoluteURL(url);
-                        console.log(&quot;Cloud Push return via goBridgeIt: &quot; +
-                                absoluteGoBridgeItURL);
-                    }
-                }
-            }
-        };
-        xhr.open(&#39;GET&#39;, url, true);
-        xhr.send();
-    }
-
-    function findGoBridgeIt() {
-        if (!!bridgeit.goBridgeItURL)  {
-            //page setting overrides detection
-            absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
-            return;
-        }
-        //host-wide page
-        fetchGoBridgeIt(&#39;/goBridgeIt.html&#39;);
-        //application-specific page
-        fetchGoBridgeIt(&#39;goBridgeIt.html&#39;);
-    }
-
-    function getAbsoluteURL(url)  {
-        var img = document.createElement(&#39;img&#39;);
-        img.src = url;
-        url = img.src;
-        return url;
-    }
-
-    function loadPushService(uri, apikey, options) {
-        if (ice &amp;&amp; ice.push) {
-            console.log(&#39;Push service already loaded and configured&#39;);
-        } else {
-            var baseURI = uri + (endsWith(uri, &#39;/&#39;) ? &#39;&#39; : &#39;/&#39;);
-            var codeURI = baseURI + &#39;code.icepush&#39;;
-            var code = httpGET(codeURI);
-            eval(code);
-
-            ice.push.configuration.contextPath = baseURI;
-            ice.push.configuration.apikey = apikey;
-            if (options)  {
-                ice.push.configuration.realm = options.realm;
-                if (options.auth)  {
-                    ice.push.configuration.access_token =
-                            options.auth.access_token;
-                }
-            }
-            ice.push.connection.startConnection();
-            findGoBridgeIt();
-        }
-        setupCloudPush();
-    }
-
-    var pushListeners = {};
-
-    function addPushListenerImpl(group, callback) {
-        if (ice &amp;&amp; ice.push &amp;&amp; ice.push.configuration.contextPath) {
-            ice.push.connection.resumeConnection();
-
-            var pushId = ice.push.createPushId();
-            pushListeners[pushId] = {group: group, callback: callback};
-            ice.push.addGroupMember(group, pushId);
-            if (&quot;string&quot; != typeof(callback))  {
-                console.error(
-                    &quot;BridgeIt Cloud Push callbacks must be named in window scope&quot;);
-            } else {
-                var callbackName = callback;
-                callback = getNamedObject(callback);
-                if (!!callback)  {
-                    if (localStorage)  {
-                        var callbacks = localStorage
-                                .getItem(CLOUD_CALLBACKS_KEY);
-                        if (!callbacks)  {
-                            callbacks = &quot; &quot;;
-                        }
-                        if (callbacks.indexOf(&quot; &quot; + callbackName + &quot; &quot;) &lt; 0)  {
-                            callbacks += callbackName + &quot; &quot;;
-                        }
-                        localStorage.setItem(CLOUD_CALLBACKS_KEY, callbacks);
-                    }
-                }
-            }
-            ice.push.register([ pushId ], callback);
-        } else {
-            console.error(&#39;Push service is not active&#39;);
-        }
-    };
-
-    var BRIDGEIT_INSTALLED_KEY = &quot;bridgeit.installed&quot;;
-    var BRIDGEIT_INSTALLED_LOG_KEY = &quot;bridgeit.installedLogged&quot;;
-
-    function hasInstalledToken(){
-        var result = false;
-        if( window.localStorage){
-            var installTimestamp = localStorage.getItem(BRIDGEIT_INSTALLED_KEY);
-            if( installTimestamp ){
-                if( !window.sessionStorage.getItem(BRIDGEIT_INSTALLED_LOG_KEY) ){
-                    console.log(&#39;bridgeit installed &#39;
-                        + new Date( parseInt(localStorage.getItem(BRIDGEIT_INSTALLED_KEY))).toGMTString());
-                    window.sessionStorage.setItem(BRIDGEIT_INSTALLED_LOG_KEY, &#39;true&#39;);
-                }
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    function setInstalledToken(){
-        if( window.localStorage ){
-            localStorage.setItem(BRIDGEIT_INSTALLED_KEY, &#39;&#39; + new Date().getTime());
-        }
-    }
-
-    var LASTVERSION_KEY = &quot;bridgeit.lastappversion&quot;;
-
-    function setLastAppVersion(version)  {
-        if (window.localStorage)  {
-            localStorage.setItem(LASTVERSION_KEY, version);
-        }
-    }
-
-    function overlayOptions(defaults, options)  {
-        var merged = {};
-        for (var prop in defaults)  {
-            merged[prop] = defaults[prop];
-        }
-        for (var prop in options)  {
-            merged[prop] = options[prop];
-        }
-        return merged;
-    }
-
-    var bridgeitServiceDefaults = {
-        realm: &quot;demo.bridgeit.mobi&quot;,
-        serviceBase: &quot;http://api.bridgeit.mobi/&quot;
-    };
-
-    /* *********************** PUBLIC **********************************/
-
-<span id='bridgeit-property-version'>    /**
-</span>     * The version of bridgeit.js
-     * @property {String}
-     */
-    b.version = &quot;1.0.4&quot;;
-
-<span id='bridgeit-method-lastAppVersion'>    /**
-</span>     * The last detected version of tje BridgeIt App
-     * @alias plugin.lastAppVersion
-     */
-    b.lastAppVersion = function()  {
-        if (localStorage)  {
-            return(localStorage.getItem(LASTVERSION_KEY));
-        }
-        return null;
-    };
-
-<span id='bridgeit-method-launchFailed'>    /**
-</span>     * Application provided callback to detect BridgeIt launch failure.
-     * This can be overridden with an implementation that prompts the
-     * user to download BridgeIt and potentially fallback with a different
-     * browser control such as input file.  The displayed dialog is returned
-     * to allow basic customization.
-     *
-     * @alias plugin.launchFailed
-     * @param {String} id The id passed to the command that failed
-     * @template
-     */
-    b.launchFailed = function(id)  {
-        console.log(&quot;BridgeIt not available for &quot; + id);
-
-        var popDiv = document.createElement(&quot;div&quot;);
-        popDiv.setAttribute(
-            &quot;style&quot;,
-            &quot;height:auto;&quot; +
-            &quot;min-height:100px;&quot; +
-            &quot;position:fixed;&quot; +
-            &quot;border:5px solid #9193A0;&quot; +
-            &quot;border-radius:8px;&quot; +
-            &quot;padding:10px;&quot; +
-            &quot;text-align:center;&quot; +
-            &quot;box-sizing:border-box;&quot; +
-            &quot;top: 50px;&quot; +
-            &quot;background-color:#F8F8F8;&quot; +
-            &quot;transition:opacity 5s ease-in-out;&quot; +
-            &quot;z-index:999;&quot; +
-            &quot;opacity:0.95;&quot;);
-        popDiv.innerHTML =
-            &#39;&lt;a style=&quot;float:right;&quot; &#39;+
-            &#39;onclick=&quot;document.body.removeChild(this.parentNode)&quot;&gt;&#39;+
-            &#39;&amp;times;&lt;/a&gt;&#39; +
-            &#39;&lt;p&gt;The BridgeIt App is missing ... would you like to download &#39; +
-            &#39;it?&lt;/p&gt;&#39; +
-            &#39;&lt;a href=&quot;&#39; + bridgeit.appStoreURL() + &#39;&quot;&#39;+
-            &#39; onclick=&quot;document.body.removeChild(this.parentNode)&quot; &#39; +
-            &#39;target=&quot;_blank&quot;&gt;Download the utility app now&lt;/a&gt;&#39;;
-        document.body.appendChild(popDiv);
-
-        var centerDiv = function(){
-            if( window.innerWidth ){
-                var leftPos = (window.innerWidth - popDiv.offsetWidth) /2;
-                popDiv.style.left = &#39;&#39;+leftPos + &#39;px&#39;;
-            }
-        }
-        centerDiv();
-        if( window.addEventListener ){
-            window.addEventListener(&#39;orientationchange&#39;, centerDiv, false);
-            window.addEventListener(&#39;resize&#39;, centerDiv, false);
-        }
-
-        return popDiv;
-
-    };
-
-<span id='bridgeit-method-notSupported'>    /**
-</span>     * Application provided callback to detect non-supported clients.
-     * This should be overridden with an implementation that informs the
-     * user the user that native mobile functionality is only available
-     * on supported platforms or potentially fallback with a different
-     * browser control such as input file, which would be available on
-     * all browsers.
-     * @param {String} id The id passed to the command that failed
-     * @param {String} command The BridgeIt api command that was launched
-     * @alias plugin.notSupported
-     * @template
-     */
-    b.notSupported = function(id, command)  {
-        alert(&#39;Sorry, the command &#39; + command + &#39; for BridgeIt is not supported on this platform&#39;);
-    };
-
-
-<span id='bridgeit-method-scan'>    /**
-</span>     * Launch the device QR Code scanner.
-     *
-     * The callback function will be called once the scan is captured.
-     * The return value will be set to the text resulting from the scan.
-     *
-     * The QR Code scanner does not currently accept additional parameters,
-     * but these may used in the future.
-     *
-     * @alias plugin.scan
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
-     * @param {Object} options Additional command options
-     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
-     *
-     */
-    b.scan = function(id, callback, options)  {
-        deviceCommand(&quot;scan&quot;, id, callback, options);
-    };
-
-<span id='bridgeit-method-beacons'>    /**
-</span>     * Detect nearby iBeacons.
-     *
-     * The callback function will be called when an iBeacon is detected.
-     * The return value will be set to the range, major, and minor values
-     * if available.
-     *
-     * This is currently a pre-alpha feature and is being developed initially
-     * on iOS.
-     *
-     * @alias plugin.beacons
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
-     * @param {Object} options Additional command options
-     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
-     *
-     */
-    b.beacons = function(id, callback, options)  {
-        deviceCommand(&quot;beacons&quot;, id, callback, options);
-    };
-
-<span id='bridgeit-method-camera'>    /**
-</span>     * Launch the native camera.
-     *
-     * The callback function will be called once the photo is captured.
-     *
-     * @alias plugin.camera
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
-     * @param {Object} options Additional command options
-     * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
-     * @param {Object} options.maxwidth The maxium width for the image in pixels
-     * @param {Object} options.maxheight The maxium height for the image in pixels
-     *
-     */
-    b.camera = function(id, callback, options)  {
-        deviceCommand(&quot;camera&quot;, id, callback, options);
-    };
-<span id='bridgeit-method-camcorder'>    /**
-</span>     * Launch the native video recorder.
-     *
-     * The callback function will be called once the video has been captured.
-     *
-     * @alias plugin.camcorder
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
-     * @param {Object} options Additional command options
-     *
-     */
-    b.camcorder = function(id, callback, options)  {
-        deviceCommand(&quot;camcorder&quot;, id, callback, options);
-    };
-
-<span id='bridgeit-method-microphone'>    /**
-</span>     * Launch the native audio recorder.
-     *
-     * The callback function will be called once the audio is captured.
-     *
-     * @alias plugin.microphone
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
-     * @param {Object} options Additional command options
-     *
-     */
-    b.microphone = function(id, callback, options)  {
-        deviceCommand(&quot;microphone&quot;, id, callback, options);
-    };
-
-<span id='bridgeit-method-fetchContact'>    /**
-</span>     * Launch the native contact list.
-     *
-     * The callback function will be called once the contact is retrieved.
-     *
-     * @alias plugin.fetchContact
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
-     * @param {Object} options Additional command options
-     * @param {Object} options.fields The contact fields to retrieve, default = &quot;name,email,phone&quot;
-     *
-     */
-    b.fetchContact = function(id, callback, options)  {
-        var ops = options || {};
-        if (!ops.fields)  {
-            ops.fields = &quot;name,email,phone&quot;;
-        }
-        deviceCommand(&quot;fetchContacts&quot;, id, callback, ops);
-    };
-
-<span id='bridgeit-method-sms'>    /**
-</span>     * Send an SMS message.
-     *
-     * The sms function will send an SMS message to a number on supported
-     * platforms. On iOS devices, a native SMS call is made through the
-     * BridgeIt utility app. On other platforms an SMS URL protocol is used in a
-     * DOM anchor element, which the browser may use to launch the device
-     * SMS functionality, if available.
-     *
-     * @alias plugin.sms
-     * @param {String} number The phone number to send the message to
-     * @param {String} message The message
-     *
-     */
-    b.sms = function(number, message)  {
-        if( !b.isSupportedPlatform(&#39;sms&#39;) ){
-            b.notSupported(null, &#39;sms&#39;);
-            return;
-        }
-        if( number == &#39;undefined&#39; || number == &#39;&#39;)
-            return;
-        if( b.isIOS() || b.isAndroid() ){
-            deviceCommand(&#39;sms&#39;, &#39;_sms&#39;, null, {n: number, body: message});
-        }
-        else{
-            var smsBtn = document.createElement(&#39;a&#39;);
-            var cleanNumber = number.replace(/[\s-\.\+]/g,&#39;&#39;);
-            smsBtn.href = &#39;sms:+&#39; + cleanNumber + &#39;?body=&#39; + encodeURI(message);
-            smsBtn.style = &#39;display:none&#39;;
-            document.body.appendChild(smsBtn);
-            smsBtn.click();
-            document.body.removeChild(smsBtn);
-         }
-    };
-
-<span id='bridgeit-method-augmentedReality'>    /**
-</span>     * Launch an Augmented Reality view.
-     *
-     * The Augmented Reality view displays a set of geographic icons on
-     * a video overlay. The icons are positioned according to the
-     * orientation of the device so that they appear in a line-of-sight
-     * with their physical geographic position.  The user can select an
-     * icon and this is relayed back to the application.
-     *
-     * The callback function will be called once the augmented reality
-     * view exits with the user selection provided in the return value.
-     * The command is invoked with a locations parameter containing an
-     * array of named locations, each with a comma-separated latitude,
-     * longitude, altitude, direction, and icon URL
-     *
-     * @alias plugin.augmentedReality
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
-     * @param {Object} options Additional command options
-     * @param {Object} options.locations The augmented reality locations to display
-
-     *
-     */
-    b.augmentedReality = function(id, callback, options)  {
-        //copy locations directly into options. The JavaScript API
-        //will not change, but the future deviceCommand will accept
-        //the locations as a subparameter to avoid this copying
-        if (!bridgeit.useJSON64 &amp;&amp; options &amp;&amp; options.locations)  {
-            for (var key in options.locations)  {
-                if (reservedParams.indexOf(key) &lt; 0)  {
-                    options[key] = options.locations[key];
-                }
-            }
-            delete options.locations;
-        }
-
-        deviceCommand(&quot;aug&quot;, id, callback, options);
-    };
-
-<span id='bridgeit-method-geoTrack'>    /**
-</span>     * Activate location tracking.
-     *
-     * Location tracking will run in the
-     * background according to the specified strategy and duration, and will POST
-     * a geoJSON record to the specified postURL.
-     *
-     * Three strategies are currently supported: &quot;continuous&quot; where the location
-     * of the device will be uploaded as frequently as it changes (intended for
-     * testing only due to high power consumption), &quot;significant&quot; where the
-     * location is uploaded when it changes significantly, and &quot;stop&quot; to cease
-     * location tracking.
-     *
-     * The callback function will be called once location tracking is activated.
-     *
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
-     * @param {Object} options Additional command options
-     * @param {String} options.postURL The URL accepting the geoJSON POST
-     * @param {String} options.strategy The strategy, &quot;continuous&quot;, &quot;significant&quot; or &quot;stop&quot;
-     * @param {String} options.duration The duration in hours
-     * @alias plugin.geoTrack
-     *
-     */
-    b.geoTrack = function(id, callback, options)  {
-        deviceCommand(&quot;geospy&quot;, id, callback, options);
-    };
-
-<span id='bridgeit-method-register'>    /**
-</span>     * Register BridgeIt integration and configure Cloud Push.
-     *
-     * This call is necessary to obtain the Cloud Push ID of the
-     * device so that notifications can be delivered when the
-     * user is not currently viewing your application in the browser.
-     *
-     * The callback function will be called when Cloud Push registration
-     * completes.
-     *
-     * @alias plugin.register
-     * @inheritdoc #scan
-     *
-     */
-    b.register = function(id, callback, options)  {
-        deviceCommand(&quot;register&quot;, id, callback, options);
-    };
-
-<span id='bridgeit-method-isRegistered'>    /**
-</span>     * Verify that BridgeIt Cloud Push is registered.
-     *
-     * @alias plugin.isRegistered
-     *
-     */
-    b.isRegistered = function()  {
-        return !!(getCloudPushId());
-    };
-
-<span id='bridgeit-method-speech'>    /**
-</span>     * Text-to-speech
-     *
-     *
-     * @param {String} id The id of the return value
-     * @param {Function} callback The callback function.
-     * @param {Object} options Additional command options
-     * @param {String} options.text The text to be spoken
-     * @param {Boolean} options.respond Determines if voice response is required. default=false
-     * @param {String} options.voice Type of voice to be used
-     * @param {Number} options.rate The rate of speaking. &gt; 0 default=1.0
-     * @param {Number} options.pitch The  pitch of voice. &gt; 0 default=1.2
-     * @param {Number} options.volume The  0.0 &lt; volume &lt;=1.0 default=device setting
-     * @alias plugin.speech
-     *
-     */
-    b.speech = function(id, callback, options){
-        deviceCommand(&quot;speech&quot;, id, callback, options);
-    };
-
-
-
-<span id='bridgeit-method-url2Object'>    /**
-</span>     * Utility method to unpack url-encoded parameters into an object.
-     *
-     * @alias plugin.url2Object
-     * @param {String} encoded The encoded URL string to unpack
-     */
-    b.url2Object = function(encoded)  {
-        return url2Object(encoded);
-    };
-
-<span id='bridgeit-property-allowAnonymousCallbacks'>    /**
-</span>     * Set allowAnonymousCallbacks to true to take advantage of persistent
-     * callback functions currently supported on iOS.
-     * @property {Boolean} [allowAnonymousCallbacks=false]
-     */
-    b.allowAnonymousCallbacks = false;
-
-<span id='bridgeit-property-useJSON64'>    /**
-</span>     * Set useJSON64 to true to take advantage of Base64 JSON
-     * data interchange between the browser and BridgeIt App.
-     * This property may be removed and become the default with
-     * legacy applications required to import an older copy of bridgeit.js.
-     * @property {Boolean} [useJSON64=false]
-     */
-    b.useJSON64 = false;
-
-<span id='bridgeit-property-useBase64'>    /**
-</span>     * Set useBase64 to true to take advantage of Base64
-     * encoding in the return URL from the BridgeIt App.
-     * This property may be removed with
-     * legacy applications required to import an older copy of bridgeit.js.
-     * @property {Boolean} [useBase64=true]
-     */
-    b.useBase64 = true;
-
-<span id='bridgeit-method-isIOS'>    /**
-</span>     * Is the current browser iOS
-     * @alias plugin.isIOS
-     */
-    b.isIOS = function(){
-        var i = 0,
-            iOS = false,
-            iDevice = [&#39;iPad&#39;, &#39;iPhone&#39;, &#39;iPod&#39;];
-
-        for ( ; i &lt; iDevice.length ; i++ ) {
-            if( navigator.userAgent.indexOf(iDevice[i]) &gt; -1 ){
-                iOS = true; break;
-            }
-        }
-        return iOS;
-    };
-
-<span id='bridgeit-method-isIPhone'>    /**
-</span>     * Is the current client an iPhone
-     * @alias plugin.isIPhone
-     */
-    b.isIPhone = function(){
-        return navigator.userAgent.indexOf(&#39;iPhone&#39;) &gt; -1;
-    };
-
-<span id='bridgeit-method-isIOS6'>    /**
-</span>     * Is the current browser iOS 6
-     * @alias plugin.isIOS6
-     */
-    b.isIOS6 = function(){
-        return /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
-    };
-
-<span id='bridgeit-method-isIOS7'>    /**
-</span>     * Is the current browser iOS 7
-     * @alias plugin.isIOS7
-     */
-    b.isIOS7 = function(){
-        return /(iPad|iPhone|iPod).*OS 7_/.test( navigator.userAgent );
-    };
-
-<span id='bridgeit-method-isAndroid'>    /**
-</span>     * Is the current browser Android
-     * @alias plugin.isAndroid
-     */
-    b.isAndroid = function(){
-        return navigator.userAgent.toLowerCase()
-            .indexOf(&quot;android&quot;) &gt; -1;
-    };
-
-<span id='bridgeit-method-isAndroidFroyo'>    /**
-</span>     * Is the current browser Android
-     * @alias plugin.isAndroidFroyo
-     */
-    b.isAndroidFroyo = function(){
-        return navigator.userAgent.indexOf(&quot;Android 2.2&quot;) &gt; -1;
-    };
-
-<span id='bridgeit-method-isAndroidGingerBreadOrGreater'>    /**
-</span>     * Is the current browser Android
-     * @alias plugin.isAndroidGingerBreadOrGreater
-     */
-    b.isAndroidGingerBreadOrGreater = function(){
-        return b.isAndroid() &amp;&amp; !b.isAndroidFroyo();
-    };
-
-
-<span id='bridgeit-method-isWindowsPhone8'>    /**
-</span>     * Is the current browser Windows Phone 8
-     * @alias plugin.isWindowsPhone8
-     */
-    b.isWindowsPhone8 = function(){
-        var ua = navigator.userAgent;
-        return ua.indexOf(&#39;IEMobile&#39;) &gt; -1
-            || ( ua.indexOf(&#39;MSIE 10&#39;) &gt; -1
-                &amp;&amp; typeof window.orientation !== &#39;undefined&#39;);
-    };
-
-    var android = b.isAndroid();
-    var supportedAndroid = b.isAndroidGingerBreadOrGreater();
-    var iOS = b.isIOS();
-    var iOS6 = b.isIOS6();
-    var iOS7 = b.isIOS7();
-    var wp8 = b.isWindowsPhone8();
-    var iPhone = b.isIPhone();
-
-    b.commands = [&#39;camera&#39;,&#39;camcorder&#39;,&#39;microphone&#39;,&#39;fetchContacts&#39;,&#39;aug&#39;,&#39;push&#39;,&#39;scan&#39;,&#39;geospy&#39;,&#39;sms&#39;,
-        &#39;beacons&#39;, &#39;speech&#39;];
-    var fullySupported = [true, true, true, true, true, true, true, true, true, true, true];
-
-    var supportMatrix = {
-        &#39;iPhone&#39;:{
-            &#39;6&#39;:   [true, true, true, true, true, true, false, true, true, false, false],
-            &#39;7&#39;:   [true, true, true, true, true, true, true, true, true, true, true],
-        },
-        &#39;iPad-iPod&#39;:{
-            &#39;6&#39;:   [true, true, true, true, true, true, false, true, false, false, false],
-            &#39;7&#39;:   [true, true, true, true, true, true, true,  true, false, true, true]
-        },
-        &#39;wp8&#39;:     [true, true, true, true, false, false, true, false, true, false, false],
-        &#39;android&#39;: [true, true,  true,  true, false, true,  true, true,  true, false, true]
-    }
-
-<span id='bridgeit-property-overrideAugmentedRealityAlphaLevel'>    /**
-</span>     * Set to true to have Augmented Reality (in experimental status) be used on Android (default false)
-     * @property overrideAugmentedRealityAlphaLevel
-     */
-    b.overrideAugmentedRealityAlphaLevel = false;
-
-<span id='bridgeit-method-isSupportedPlatform'>    /**
-</span>     * Check if the current browser is supported by the BridgeIt Native Mobile app.
-     *
-     * Currently iOS, Android, and some features on Windows Phone 8 are supported.
-     * @param {String} command The BridgeIt API command that may or may not be supported
-     * @alias plugin.isSupportedPlatform
-     */
-    b.isSupportedPlatform = function(command){
-        if( &#39;register&#39; == command ){
-            return true; //do not check platform for cloud push registration
-        }
-        var supported = false;
-        if( android ){
-            if( supportedAndroid ){
-                if( &#39;aug&#39; == command ){
-                    supported = b.overrideAugmentedRealityAlphaLevel;
-                }
-                else{
-                    supported = true;
-                }
-            }
-        }
-        else if( wp8 ){
-            return supportMatrix[&#39;wp8&#39;][b.commands.indexOf(command)];
-        }
-        else if( iOS ){
-            if( iPhone ){
-                if( iOS6 ){
-                    return supportMatrix[&#39;iPhone&#39;][&#39;6&#39;][b.commands.indexOf(command)];
-                }
-                else if( iOS7 ){
-                    return supportMatrix[&#39;iPhone&#39;][&#39;7&#39;][b.commands.indexOf(command)];
-                }
-            }
-            else {
-                if( iOS6 ){
-                    return supportMatrix[&#39;iPad-iPod&#39;][&#39;6&#39;][b.commands.indexOf(command)];
-                }
-                else if( iOS7 ){
-                    return supportMatrix[&#39;iPad-iPod&#39;][&#39;7&#39;][b.commands.indexOf(command)];
-                }
-            }
-        }
-        console.log(&quot;bridgeIt supported platform for &#39;&quot; + command + &quot;&#39; command: &quot; + supported);
-        return supported;
-    };
-
-<span id='bridgeit-method-appStoreURL'>    /**
-</span>     * Returns the app store URL to BridgeIt for the appropirate platform
-     * @alias plugin.appStoreURL
-     */
-    b.appStoreURL = function(){
-        if( b.isAndroid() ) {
-            return &#39;https://play.google.com/store/apps/details?id=mobi.bridgeit&#39;;
-        }
-        else if( b.isIOS() ) {
-            return &#39;https://itunes.apple.com/app/bridgeit/id727736414&#39;;
-        }
-        else if( b.isWindowsPhone8() ) {
-            return &#39;http://windowsphone.com/s?appId=b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1&#39;;
-        }
-
-    };
-
-    var jguid;
-
-<span id='bridgeit-method-getId'>    /**
-</span>     * Returns a persistent id that allows an application to persistently maintain information for
-     * an individual user without requiring a server-side session.
-     * @alias plugin.getId
-     */
-    b.getId = function()  {
-        var JGUID_KEY = &quot;bridgeit.jguid&quot;;
-        if (!jguid)  {
-            if (localStorage)  {
-                jguid = localStorage.getItem(JGUID_KEY);
-            }
-            if (!jguid)  {
-                jguid = &#39;xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx&#39;.replace(/[xy]/g,
-                    function(c) {
-                        var r = Math.random()*16|0, v = c == &#39;x&#39; ? r : (r&amp;0x3|0x8);
-                        return v.toString(16);
-                    });
-                if (localStorage)  {
-                    localStorage.setItem(JGUID_KEY, jguid);
-                }
-            }
-
-        }
-        return jguid;
-    }
-<span id='bridgeit-property-goBridgeItURL'>    /**
-</span>     * Set goBridgeItURL to the URL of your goBridgeIt.html file
-     * to allow {@link bridgeit#push Cloud Push} to go back to the most recent page
-     * The defaults of the host root and the current relative
-     * directory URL do not need to be specified. For an example, see
-     * http://bridgeit.mobi/demo/goBridgeIt.html
-     *
-     * @property {String} [goBridgeItURL]
-     */
-    b.goBridgeItURL = null;
-
-    var CLOUD_CALLBACKS_KEY = &quot;bridgeit.cloudcallbacks&quot;;
-
-<span id='bridgeit-method-handleCloudPush'>    /**
-</span>     * Public callback used by Cloud Push implementation
-     * to relay push event to a newly opened browser window.
-     * This API is not for application use.
-     * @alias plugin.handleCloudPush
-     * @private
-     */
-    b.handleCloudPush = function ()  {
-        var callbacks = localStorage.getItem(CLOUD_CALLBACKS_KEY);
-        var parts = callbacks.split(&quot; &quot;);
-        var callback;
-        for (var i = 0; i &lt; parts.length; i++) {
-            callback = getNamedObject(parts[i]);
-            if (callback) {
-                callback();
-            }
-        }
-    };
-
-<span id='bridgeit-method-login'>    /**
-</span>     * BridgeIt Services login.
-     * @alias login
-     * @param username User name
-     * @param password User password
-     * @param options Additional options
-     */
-    b.login = function(username, password, options) {
-        var auth = {};
-        options = overlayOptions(bridgeitServiceDefaults, options);
-        //need to also allow specified auth URL in options
-        var uri = bridgeitServiceDefaults.serviceBase + &quot;/auth/&quot;;
-        var loginURI = uri + options.realm + &quot;/token/local&quot;;
-        var loginRequest = {
-            username: username,
-            password: password
-        }
-        auth = jsonPOST(loginURI, loginRequest);
-
-        //save default authorization if default realm
-        if (options.realm === bridgeitServiceDefaults.realm)  {
-            bridgeitServiceDefaults.auth = auth;
-        }
-        return auth;
-    }
-
-<span id='bridgeit-method-'>    /**
-</span>     * Set up BridgeIt Services.
-     * @alias useServices
-     * @param param String realm name or object with named parameters
-     */
-    b.useServices = function(param) {
-        if (&quot;object&quot; === typeof arguments[0])  {
-            bridgeitServiceDefaults =
-                    overlayOptions(bridgeitServiceDefaults, param);
-        } else {
-            bridgeitServiceDefaults.realm = param;
-        }
-    }
-
-<span id='bridgeit-method-'>    /**
-</span>     * Configure Push service and connect to it.
-     * @alias plugin.usePushService
-     * @param uri the location of the service
-     * @param apikey
-     */
-    b.usePushService = function(uri, apikey, options) {
-        options = overlayOptions(bridgeitServiceDefaults, options);
-
-        if (0 == arguments.length)  {
-            uri = bridgeitServiceDefaults.serviceBase + &quot;/push&quot;;
-        } else if (&quot;object&quot; === typeof arguments[0])  {
-            if (!!arguments[0].realm)  {
-                realm = arguments[0].realm;
-            }
-            if (!!arguments[0].serviceBase)  {
-                uri = arguments[0].serviceBase + &quot;/push&quot;;
-            }
-            if (!!arguments[0].auth)  {
-                auth = arguments[0].auth;
-            }
-        } else {
-            //legacy uri,apikey
-        }
-
-        window.setTimeout(function() {
-            loadPushService(uri, apikey, options);
-        }, 1);
-    };
-
-<span id='bridgeit-method-addPushListener'>    /**
-</span>     * Add listner for notifications belonging to the specified group.
-     * Callbacks must be passed by name to receive cloud push notifications,
-     * regardless of bridgeit.allowAnonymousCallbacks setting
-     * @param group
-     * @param callback
-     * @alias plugin.addPushListener
-     */
-    b.addPushListener = function(group, callback) {
-        window.setTimeout(function() {
-            addPushListenerImpl(group, callback);
-        }, 1);
-    };
-
-<span id='bridgeit-method-cloudPushReturnURL'>    /**
-</span>     * Augment a URL so that callbacks will be invoked upon Cloud Push
-     * return.
-     * If called with no argument, the current URL is used.
-     * @param url
-     * @alias plugin.cloudPushReturnURL
-     */
-    b.cloudPushReturnURL = function(url) {
-        if (!url)  {
-            if (localStorage)  {
-                url = localStorage[LAST_PAGE_KEY];
-            }
-        }
-        if (!url)  {
-            url = window.location.href;
-        }
-        var seq = (new Date()).getTime();
-        var urlExtra =
-            btoa(&quot;!h=&quot; + escape(&quot;c=bridgeit.handleCloudPush&amp;seq=&quot; + seq));
-        urlExtra = urlExtra.replace(/=/g,&quot;~&quot;);
-        urlExtra = urlExtra.replace(/\//g,&quot;.&quot;);
-        var returnURL = url + &quot;#icemobilesx_&quot; + urlExtra;
-        return returnURL;
-    };
-
-<span id='bridgeit-method-push'>    /**
-</span>     * Push notification to the group.
-     *
-     * This will result in an Ajax Push (and associated callback)
-     * to any web pages that have added a push listener to the
-     * specified group.  If Cloud Push options are provided
-     * (options.subject and options.detail) a Cloud Push will
-     * be dispatched as a home screen notification to any devices
-     * unable to recieve the Ajax Push via the web page.
-     *
-     * @param {String} groupName The Ajax Push group name to push to
-     * @param {Object} options Options that a notification can carry
-     * @param {String} options.subject The subject heading for the notification
-     * @param {String} options.message The message text to be sent in the notification body
-     * @alias plugin.push
-     */
-    b.push = function(groupName, options) {
-        if (!absoluteGoBridgeItURL)  {
-            if (!!bridgeit.goBridgeItURL)  {
-                absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
-            }
-        }
-        if (!!absoluteGoBridgeItURL)  {
-            if (options &amp;&amp; !options.url)  {
-                options.url = absoluteGoBridgeItURL;
-            }
-        }
-        if (ice &amp;&amp; ice.push &amp;&amp; ice.push.configuration.contextPath) {
-            console.log(&quot;bridgeit.push &quot; + JSON.stringify(options));
-            if (options &amp;&amp; options.delay)  {
-                ice.push.notify(groupName, options, options);
-            } else {
-                ice.push.notify(groupName, options);
-            }
-        } else {
-            console.error(&#39;Push service is not active&#39;);
-        }
-    };
-
-    //android functions as full page load
-    addOnLoadListener(loadComplete);
-    addOnLoadListener(checkExecDeviceResponse);
-    checkExecDeviceResponse();
+	/* *********************** PRIVATE ******************************/
+	function serializeForm(formId, typed) {
+		var form = document.getElementById(formId);
+		var els = form.elements;
+		var len = els.length;
+		var qString = [];
+		var addField = function(name, value) {
+			var tmpStr = &quot;&quot;;
+			if (qString.length &gt; 0) {
+				tmpStr = &quot;&amp;&quot;;
+			}
+			tmpStr += encodeURIComponent(name) + &quot;=&quot; + encodeURIComponent(value);
+			qString.push(tmpStr);
+		};
+		for (var i = 0; i &lt; len; i++) {
+			var el = els[i];
+			if (!el.disabled) {
+				var prefix = &quot;&quot;;
+				if (typed) {
+					var vtype = el.getAttribute(&quot;data-type&quot;);
+					if (vtype) {
+						prefix = vtype + &quot;-&quot;;
+					} else {
+						prefix = el.type + &quot;-&quot;;
+					}
+				}
+				switch (el.type) {
+					case 'submit':
+					case 'button':
+					case 'fieldset':
+						break;
+					case 'text':
+					case 'password':
+					case 'hidden':
+					case 'textarea':
+						addField(prefix + el.name, el.value);
+						break;
+					case 'select-one':
+						if (el.selectedIndex &gt;= 0) {
+							addField(prefix + el.name, el.options[el.selectedIndex].value);
+						}
+						break;
+					case 'select-multiple':
+						for (var j = 0; j &lt; el.options.length; j++) {
+							if (el.options[j].selected) {
+								addField(prefix + el.name, el.options[j].value);
+							}
+						}
+						break;
+					case 'checkbox':
+					case 'radio':
+						if (el.checked) {
+							addField(prefix + el.name, el.value);
+						}
+						break;
+					default:
+						addField(prefix + el.name, el.value);
+				}
+			}
+		}
+		// concatenate the array
+		return qString.join(&quot;&quot;);
+	}
+
+	if (window.jQuery &amp;&amp; jQuery.mobile)  {
+		//jquery mobile insists on parsing BridgeIt hashchange data
+		bridgeit.useBase64 = true;;
+	}
+	function getDeviceCommand()  {
+		var commandData = null;
+		var locHash = &quot;&quot; + window.location.hash;
+		var hashMark = isDeviceCommandHash(locHash);
+		if (hashMark)  {
+			commandData = locHash.substring(hashMark.length + 1);
+			var dupIndex = commandData.indexOf(hashMark);
+			if (dupIndex &gt; 0)  {
+				commandData = commandData.substring(0, dupIndex);
+				console.error(&quot;trimmed corrupt &quot; + locHash + &quot; to &quot;
+						+ commandData);
+			}
+		}
+		return commandData;
+	}
+
+	function isDeviceCommandHash(fullHash)  {
+		var sxkey = &quot;#icemobilesx&quot;;
+		if (sxkey === fullHash.substring(0, sxkey.length))  {
+			return sxkey;
+		}
+		var brkey = &quot;#bridgeit&quot;;
+		if (brkey === fullHash.substring(0, brkey.length))  {
+			return brkey;
+		}
+		return null;
+	}
+
+	var reservedParams = ['postURL', 'element', 'form', 'deviceCommandCallback', 'cookies'];
+
+	function deviceCommandExec(command, id, options)  {
+		var payload = options;
+		if (!payload)  {
+			payload = { };
+		}
+		var windowLocation = window.location;
+
+		payload._version = bridgeit.version;
+
+		if (payload.postURL)  {
+			var postURL = getAbsoluteURL(payload.postURL);
+			payload._postURL = postURL;
+			delete payload.postURL;
+		}
+		if (payload.ub)  {
+			payload._urlBase = payload.ub;
+			delete payload.ub;
+		} else {
+			var barURL = windowLocation.toString();
+			var baseURL =
+					barURL.substring(0, barURL.lastIndexOf(&quot;/&quot;)) + &quot;/&quot;;
+			payload._urlBase = baseURL;
+		}
+
+		payload._command = command;
+		payload._id = id;
+		payload._seq = (new Date()).getTime();
+
+		if (payload._callback)  {
+			if (&quot;string&quot; != typeof(payload._callback))  {
+				if (bridgeit.allowAnonymousCallbacks)  {
+					payload._callback = &quot;!anon&quot;;
+				} else  {
+					console.error(
+						&quot;BridgeIt callbacks must be named in window scope&quot;);
+					delete payload._callback;
+				}
+			}
+		}
+
+		var returnURL = &quot;&quot; + windowLocation;
+		var lastHash = returnURL.lastIndexOf(&quot;#&quot;);
+		var theHash = &quot;&quot;;
+		var theURL = returnURL;
+		if (lastHash &gt; 0)  {
+			theHash = returnURL.substring(lastHash);
+			theURL = returnURL.substring(0, lastHash);
+		}
+		returnURL = theURL + &quot;#bridgeit&quot;;
+
+		payload._returnURL = returnURL;
+		payload._restoreHash = theHash;
+
+		payload._splashImageURL = bridgeit.splashImageURL;
+		payload._splashImage = bridgeit.splashImage;
+
+		var encodedCommand = btoa(JSON.stringify(payload))
+			.replace(/=/g,&quot;~&quot;)
+			.replace(/\//g,&quot;.&quot;);
+
+		var commandBase = &quot;bridgeit:&quot;;
+		if (b.isAndroid())  {
+			commandBase = &quot;http://bridgeit.mobi/android/install/index.html#&quot;
+		}
+
+		var commandURL = commandBase + encodedCommand;
+		console.log(&quot;commandURL &quot; + commandURL);
+
+		window.location = commandURL;
+
+	}
+
+	function deviceCommandURLExec(command, id, options)  {
+		console.log(&quot;deviceCommandExec('&quot; + command + &quot;', '&quot; + id + &quot;, &quot; + JSON.stringify(options));
+		var ampchar = String.fromCharCode(38);
+		var uploadURL;
+		var sessionid;
+		var params;
+		var element;
+		var formID;
+		var callback;
+
+		if (options)  {
+			if (options.postURL)  {
+			var postURL = getAbsoluteURL(options.postURL);
+				uploadURL = postURL;
+			}
+			params = packObject(options, reservedParams);
+			if (options.deviceCommandCallback)  {
+				callback = options.deviceCommandCallback;
+				if (&quot;string&quot; != typeof(callback))  {
+					if (bridgeit.allowAnonymousCallbacks)  {
+						callback = &quot;!anon&quot;;
+					} else  {
+						console.error(
+							&quot;BridgeIt callbacks must be named in window scope&quot;);
+						callback = null;
+					}
+				}
+			}
+			if (options.element)  {
+				element = options.element;
+			}
+			if (options.form)  {
+				formID = options.form.getAttribute(&quot;id&quot;);
+			}
+			if (options.cookies)  {
+				sessionid = options.cookies['JSESSIONID'];
+			}
+		}
+
+		if (!uploadURL)  {
+			uploadURL = getUploadURL(element);
+		}
+
+		var windowLocation = window.location;
+		var barURL = windowLocation.toString();
+		var baseURL = barURL.substring(0,
+				barURL.lastIndexOf(&quot;/&quot;)) + &quot;/&quot;;
+
+		var returnURL = &quot;&quot; + window.location;
+		var lastHash = returnURL.lastIndexOf(&quot;#&quot;);
+		var theHash = &quot;&quot;;
+		var theURL = returnURL;
+		if (lastHash &gt; 0)  {
+			theHash = returnURL.substring(lastHash);
+			theURL = returnURL.substring(0, lastHash);
+		}
+		returnURL = theURL + &quot;#icemobilesx&quot;;
+
+		var hashSubClause = &quot;&quot;;
+		if (!!theHash)  {
+			hashSubClause = &quot;&amp;h=&quot; + escape(theHash);
+		}
+
+		var callbackClause = &quot;&quot;;
+		if (!!callback)  {
+			callbackClause = &quot;&amp;c=&quot; + escape(callback);
+		}
+
+		seqClause = &quot;&amp;seq=&quot; + (new Date()).getTime();
+
+		var hashClause = &quot;&quot;;
+		if (!!hashSubClause || !!callbackClause)  {
+			hashClause = &quot;&amp;h=&quot; + escape(hashSubClause) + escape(callbackClause)
+					+ escape(seqClause);
+		}
+
+		deviceOptions = null;
+		if (bridgeit.useBase64)  {
+			//jquery mobile insists on parsing BridgeIt hashchange data
+			deviceOptions = &quot;enc=base64&quot;;
+		}
+		var optionsClause = &quot;&quot;;
+		if (!!deviceOptions)  {
+			optionsClause = &quot;&amp;o=&quot; + escape(deviceOptions);
+		}
+
+		if (params &amp;&amp; (&quot;&quot; != params)) {
+			params = &quot;&amp;ub=&quot; + escape(baseURL) + ampchar + params;
+		}
+		console.log('params = ' + params);
+
+		var sessionidClause = &quot;&quot;;
+		if (sessionid &amp;&amp; (&quot;&quot; != sessionid)) {
+			sessionidClause = &quot;&amp;JSESSIONID=&quot; + escape(sessionid);
+			//also need PHPSESSID and ASPSESSIONID
+		}
+		var serializedFormClause = &quot;&quot;;
+		if (formID &amp;&amp; (&quot;&quot; != formID))  {
+			serializedFormClause = &quot;&amp;p=&quot; +
+					escape(serializeForm(formID, false));
+		}
+		var uploadURLClause = &quot;&quot;;
+		if (uploadURL &amp;&amp; (&quot;&quot; != uploadURL))  {
+			uploadURLClause = &quot;&amp;u=&quot; + escape(uploadURL);
+		}
+		var sxURL = &quot;c=&quot; + escape(command +
+				&quot;?id=&quot; + id + ampchar + (params ? params : '')) +
+				uploadURLClause +
+				&quot;&amp;r=&quot; + escape(returnURL) +
+				sessionidClause +
+				optionsClause +
+				hashClause +
+				serializedFormClause;
+		if (b.isWindowsPhone8())  {
+			sxURL = escape(sxURL);
+		}
+		var sxBase = &quot;icemobile:&quot;;
+		if (b.isAndroid())  {
+			sxBase = &quot;http://bridgeit.mobi/android/install/index.html#&quot;
+		}
+		sxURL = sxBase + sxURL;
+		console.log('sxURL=' + sxURL);
+
+		window.location = sxURL;
+	}
+	function getSplashClause()  {
+		var splashClause = &quot;&quot;;
+		if (null != bridgeit.splashImageURL)  {
+			var splashImage = &quot;i=&quot; + escape(bridgeit.splashImageURL);
+			splashClause = &quot;&amp;s=&quot; + escape(splashImage);
+		}
+		return splashClause;
+	}
+	var autoDetectUploadURL = false;
+	function getUploadURL(element)  {
+		if (!autoDetectUploadURL)  {
+			return null;
+		}
+		var uploadURL;
+
+		var windowLocation = window.location;
+		var barURL = windowLocation.toString();
+		var baseURL = barURL.substring(0,
+				barURL.lastIndexOf(&quot;/&quot;)) + &quot;/&quot;;
+
+		if (!element)  {
+			uploadURL = baseURL;
+		} else {
+			var form = formOf(element);
+			formID = form.getAttribute('id');
+			var formAction = form.getAttribute(&quot;action&quot;);
+
+			if (!uploadURL) {
+				uploadURL = element.getAttribute(&quot;data-posturl&quot;);
+			}
+			if (!uploadURL) {
+				if (0 === formAction.indexOf(&quot;/&quot;)) {
+					uploadURL = window.location.origin + formAction;
+				} else if ((0 === formAction.indexOf(&quot;http://&quot;)) ||
+						(0 === formAction.indexOf(&quot;https://&quot;))) {
+					uploadURL = formAction;
+				} else {
+					uploadURL = baseURL + formAction;
+				}
+			}
+		}
+		return uploadURL;
+	}
+	var checkTimeout;
+	function deviceCommand(command, id, callback, options)  {
+		if( !b.isSupportedPlatform(command) ){
+			b.notSupported(id, command);
+			return;
+		}
+		if (b.isIOS())  {
+			checkTimeout = setTimeout( function()  {
+				bridgeit.launchFailed(id);
+			}, 3000);
+		}
+		if (!options)  {
+			options = {};
+		}
+		console.log(command + &quot; &quot; + id);
+		bridgeit.deviceCommandCallback = callback;
+		if (bridgeit.useJSON64)  {
+			options._callback = callback;
+			deviceCommandExec(command, id, options);
+		} else {
+			options.deviceCommandCallback = callback;
+			deviceCommandURLExec(command, id, options);
+		}
+	}
+	function setInput(target, name, value, vtype)  {
+		console.log('setInput(target=' + target + ', name=' + name + ', value=' + value + ', vtype=' + vtype);
+		var hiddenID = name + &quot;-hid&quot;;
+		var existing = document.getElementById(hiddenID);
+		if (existing)  {
+			existing.setAttribute(&quot;value&quot;, value);
+			return;
+		}
+		var targetElm = document.getElementById(target);
+		if (!targetElm)  {
+			return;
+		}
+		var hidden = document.createElement(&quot;input&quot;);
+
+		hidden.setAttribute(&quot;type&quot;, &quot;hidden&quot;);
+		hidden.setAttribute(&quot;id&quot;, hiddenID);
+		hidden.setAttribute(&quot;name&quot;, name);
+		hidden.setAttribute(&quot;value&quot;, value);
+		if (vtype)  {
+			hidden.setAttribute(&quot;data-type&quot;, vtype);
+		}
+		targetElm.parentNode.insertBefore(hidden, targetElm);
+	}
+	function formOf(element) {
+		var parent = element;
+		while (null != parent) {
+			if (&quot;form&quot; == parent.nodeName.toLowerCase()) {
+				return parent;
+			}
+			parent = parent.parentNode;
+		}
+	}
+
+	function packObject(params, exclude)  {
+		var packed = &quot;&quot;;
+		var sep = &quot;&quot;;
+		for (var key in params)  {
+			if (exclude.indexOf(key) &lt; 0)  {
+				packed += sep + escape(key) + &quot;=&quot; + escape(params[key]);
+				sep = &quot;&amp;&quot;;
+			}
+		}
+		return packed;
+	}
+	function unpackDeviceResponse(data)  {
+		var result = {};
+		var un64 = bridgeit.useJSON64 ||
+				(bridgeit.useBase64 &amp;&amp; (data.indexOf(&quot;!&quot;) &lt; 0));
+		if (un64)  {
+			data = data.replace(/~/g,&quot;=&quot;);
+			data = data.replace(/\./g,&quot;/&quot;);
+			data = atob(data);
+		}
+		if (bridgeit.useJSON64)  {
+			//clone these for now
+			data = JSON.parse(data)
+			data.name = data.id;
+			data.p = data.preview;
+			data.c = data.cloud;
+			data.h = data.echo;
+			data.v = data.version;
+			return data;
+		} else {
+			data = decodeURIComponent(data);
+		}
+		var params = data.split(&quot;&amp;&quot;);
+		var len = params.length;
+		for (var i = 0; i &lt; len; i++) {
+			var splitIndex = params[i].indexOf(&quot;=&quot;);
+			var paramName = unescape(params[i].substring(0, splitIndex));
+			var paramValue = decodeURIComponent(
+					params[i].substring(splitIndex + 1) );
+			if (&quot;!&quot; === paramName.substring(0,1))  {
+				//BridgeIt parameters are set directly
+				result[paramName.substring(1)] = paramValue;
+			} else  {
+				//only one user value is supported
+				console.log(&quot;deviceResponse value &quot; +
+						paramName + &quot; &quot; + paramValue);
+				result.name = paramName;
+				result.value = paramValue;
+			}
+		}
+		return result;
+	}
+	function url2Object(encoded)  {
+		var parts = encoded.split(&quot;&amp;&quot;);
+		var record = {};
+		for (var i = 0; i &lt; parts.length; i++) {
+			if (!!parts[i])  {
+				var pair = parts[i].split(&quot;=&quot;);
+				record[unescape(pair[0])] = decodeURIComponent(pair[1]);
+			}
+		}
+		return record;
+	}
+	function getNamedObject(name)  {
+		if (!name)  {
+			return null;
+		}
+		var parts = name.split(&quot;.&quot;);
+		var theObject = window;
+		for (var i = 0; i &lt; parts.length; i++) {
+			theObject = theObject[parts[i]];
+			if (!theObject) {
+				return null;
+			}
+		}
+		if (window == theObject)  {
+			return null;
+		}
+		return theObject;
+	}
+	function addOnLoadListener(func)  {
+		var oldonload = window.onload;
+		window.onload = function() {
+			try {
+				if (oldonload)  {
+					oldonload();
+				}
+			} catch (e)  {
+				console.error(e);
+			}
+			func();
+		}
+	}
+	var isDataPending = false;
+	var isLoaded = false;
+	var pendingData = null;
+	function loadComplete()  {
+		isLoaded = true;
+	}
+	function checkExecDeviceResponse()  {
+		var data = getDeviceCommand();
+		if (null == data)  {
+			data = pendingData;
+			//record URL/hash changes that are not device commands
+			storeLastPage();
+		}
+		var deviceParams;
+		if (null != data)  {
+			pendingData = data;
+			isDataPending = true;
+			if (!isLoaded)  {
+				console.log(&quot;checkExecDeviceResponse waiting for onload&quot;);
+				return;
+			}
+			var name;
+			var value;
+			var needRefresh = true;
+			if (&quot;&quot; != data)  {
+				deviceParams = unpackDeviceResponse(data);
+				if (deviceParams.name)  {
+					name = deviceParams.name;
+					value = deviceParams.value;
+					setInput(name, name, value);
+					needRefresh = false;
+				}
+			}
+			if (needRefresh)  {
+				console.log('needs refresh');
+				if (window.ice.ajaxRefresh)  {
+					ice.ajaxRefresh();
+				}
+			}
+			setTimeout( function(){
+				if (!isDataPending)  {
+					console.log(&quot;checkExecDeviceResponse is done, exiting&quot;);
+					return;
+				}
+				var sxEvent = {
+					name : name,
+					value : value
+				};
+				var callback = bridgeit.deviceCommandCallback;
+				var namedCallBack = getNamedObject(callback);
+				if (namedCallBack)  {
+					callback = namedCallBack;
+				}
+				console.log('sxEvent: ' + JSON.stringify(sxEvent) + &quot; &quot; +
+						JSON.stringify(deviceParams));
+				var restoreHash = &quot;&quot;;
+				if (deviceParams)  {
+					if (deviceParams.r)  {
+						sxEvent.response = deviceParams.r;
+					}
+					if (deviceParams.v)  {
+						sxEvent.version = deviceParams.v;
+						setLastAppVersion(deviceParams.v);
+					}
+					if (deviceParams.p)  {
+						sxEvent.preview = deviceParams.p;
+					}
+					if (deviceParams.c)  {
+						setCloudPushId(deviceParams.c);
+						if (ice.push)  {
+							ice.push.parkInactivePushIds(
+									deviceParams.c );
+						}
+					}
+					if (deviceParams.h)  {
+						var echoed = url2Object(unescape(deviceParams.h));
+						if (echoed.h)  {
+							restoreHash = echoed.h;
+						}
+						if (echoed.c)  {
+							var namedCallBack = getNamedObject(echoed.c);
+							if (namedCallBack)  {
+								callback = namedCallBack;
+							}
+						}
+					}
+				}
+				var loc = window.location;
+				isDataPending = false;
+				pendingData = null;
+
+				if( !hasInstalledToken() ){
+					setInstalledToken();
+				}
+
+				if (callback)  {
+					try {
+						callback(sxEvent);
+					} catch (e)  {
+						var msg = &quot;BridgeIt Device function callback '&quot; + callback + &quot;' failed, make sure that the callback function is in global scope.&quot;;
+						console.error(msg);
+						console.error(e.stack);
+						alert(msg);
+					}
+					bridgeit.deviceCommandCallback = null;
+				} else{
+					console.log('no deviceCommandCallback registered :(');
+				}
+				setTimeout(function(){
+					var restoreLocation =
+						loc.pathname + loc.search + restoreHash;
+					history.replaceState(&quot;&quot;, document.title,
+						restoreLocation);
+					console.log('bridgeit history replaceState: ' +
+						restoreLocation);
+				}, 100);
+			}, 1);
+		}
+	}
+	var CLOUD_PUSH_KEY = &quot;ice.notifyBack&quot;;
+	function setCloudPushId(id)  {
+		//rely on local storage since cloud push is on modern platforms
+		if (localStorage)  {
+			localStorage.setItem(CLOUD_PUSH_KEY, id);
+		}
+	}
+	function getCloudPushId()  {
+		if (localStorage)  {
+			return localStorage.getItem(CLOUD_PUSH_KEY);
+		}
+		return null;
+	}
+
+	function setupCloudPush()  {
+		var cloudPushId = getCloudPushId();
+		if (!!cloudPushId)  {
+			if (ice.push)  {
+				console.log(&quot;Cloud Push registered: &quot; + cloudPushId);
+				ice.push.parkInactivePushIds(cloudPushId);
+			}
+		}
+	}
+	//move pause and resume to ICEpush when ready
+	function pausePush()  {
+	   if (window.ice &amp;&amp; ice.push)  {
+		   ice.push.connection.pauseConnection();
+	   }
+	}
+	function resumePush()  {
+	   if (window.ice &amp;&amp; ice.push)  {
+		   ice.push.connection.resumeConnection();
+			resumePushGroups();
+	   }
+	}
+	function resumePushGroups()  {
+		for (var pushID in pushListeners) {
+			var pushListener = pushListeners[pushID];
+			console.log(&quot;rejoining push group with old pushid &quot; +
+					pushListener.group + &quot; &quot; + pushID );
+			ice.push.addGroupMember(pushListener.group, pushID);
+		}
+	}
+
+	var LAST_PAGE_KEY = &quot;bridgeit.lastpage&quot;;
+	function storeLastPage(lastPage)  {
+		if (!lastPage)  {
+			var sxkey = &quot;#icemobilesx&quot;;
+			var sxlen = sxkey.length;
+			var locHash = &quot;&quot; + window.location.hash;
+			lastPage = &quot;&quot; + document.location;
+			if (sxkey === locHash.substring(0, sxlen))  {
+				lastPage = lastPage.substring(0,
+						lastPage.length - locHash.length)
+			}
+		}
+		if (localStorage)  {
+			localStorage.setItem(LAST_PAGE_KEY, lastPage);
+			console.log(&quot;bridgeit storeLastPage &quot; + lastPage);
+		}
+	}
+	/* Page event handling */
+	if (window.addEventListener) {
+
+		window.addEventListener(&quot;pagehide&quot;, function () {
+			//hiding the page either indicates user does not require
+			//BridgeIt or the url scheme invocation has succeeded
+			clearTimeout(checkTimeout);
+			if (ice.push &amp;&amp; ice.push.connection) {
+				pausePush();
+			}
+		}, false);
+
+		window.addEventListener(&quot;pageshow&quot;, function () {
+			if (ice.push &amp;&amp; ice.push.connection) {
+				resumePush();
+			}
+		}, false);
+
+		window.addEventListener(&quot;hashchange&quot;, function () {
+			console.log('entered hashchange listener hash=' + window.location.hash);
+			checkExecDeviceResponse();
+		}, false);
+
+		window.addEventListener(&quot;load&quot;, function () {
+			storeLastPage();
+		}, false);
+
+		document.addEventListener(&quot;webkitvisibilitychange&quot;, function () {
+			if (document.webkitHidden)  {
+                clearTimeout(checkTimeout);
+				pausePush();
+			} else {
+				resumePush();
+			}
+		});
+
+		document.addEventListener(&quot;visibilitychange&quot;, function () {
+			if (document.hidden)  {
+                clearTimeout(checkTimeout);
+				pausePush();
+			} else {
+				resumePush();
+			}
+		});
+
+	};
+
+	function jsonPOST(uri, payload) {
+		var prom = new Promiz();
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', uri, true);
+		xhr.setRequestHeader(
+				&quot;Content-Type&quot;, &quot;application/json;charset=UTF-8&quot;);
+		xhr.onreadystatechange = function() {
+			if (4 == xhr.readyState)  {
+				if (200 == xhr.status)  {
+					prom.resolve(JSON.parse(xhr.responseText));
+				} else {
+					prom.reject({message:xhr.statusText, status: xhr.status});
+			   }
+			}
+		};
+		xhr.send(JSON.stringify(payload));
+		return prom;
+	}
+
+	function httpGET(uri, query) {
+		var xhr = new XMLHttpRequest();
+		var queryStr = &quot;&quot;;
+		if (!!query)  {
+			queryStr = &quot;?&quot; + query;
+		}
+		xhr.open('GET', uri + queryStr, false);
+		xhr.send(query);
+		if (xhr.status == 200) {
+			return xhr.responseText;
+		} else {
+			throw xhr.statusText + '[' + xhr.status + ']';
+		}
+	}
+
+	function endsWith(s, pattern) {
+		return s.lastIndexOf(pattern) == s.length - pattern.length;
+	}
+
+	var absoluteGoBridgeItURL = null;
+
+	function fetchGoBridgeIt(url) {
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			if (4 == xhr.readyState)  {
+				if (200 == xhr.status)  {
+					if (!absoluteGoBridgeItURL)  {
+						absoluteGoBridgeItURL = getAbsoluteURL(url);
+						console.log(&quot;Cloud Push return via goBridgeIt: &quot; +
+								absoluteGoBridgeItURL);
+					}
+				}
+			}
+		};
+		xhr.open('GET', url, true);
+		xhr.send();
+	}
+
+	function findGoBridgeIt() {
+		if (!!bridgeit.goBridgeItURL)  {
+			//page setting overrides detection
+			absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
+			return;
+		}
+		//host-wide page
+		fetchGoBridgeIt('/goBridgeIt.html');
+		//application-specific page
+		fetchGoBridgeIt('goBridgeIt.html');
+	}
+
+	function getAbsoluteURL(url)  {
+		var img = document.createElement('img');
+		img.src = url;
+		url = img.src;
+		return url;
+	}
+
+	var pushPromise = new Promiz();
+
+	function loadPushService(uri, apikey, options) {
+		var baseURI = uri + (endsWith(uri, '/') ? '' : '/');
+		if (ice &amp;&amp; ice.push) {
+			console.log('Push service already loaded and configured');
+		} else {
+			var codeURI = baseURI + 'code.icepush';
+			var code = httpGET(codeURI);
+			eval(code);
+
+			findGoBridgeIt();
+		}
+		ice.push.configuration.contextPath = baseURI;
+		ice.push.configuration.apikey = apikey;
+		if (options)  {
+			ice.push.configuration.account = options.account;
+			ice.push.configuration.realm = options.realm;
+			if (options.auth)  {
+				ice.push.configuration.access_token =
+						options.auth.access_token;
+			}
+		}
+		ice.push.connection.startConnection();
+
+		setupCloudPush();
+		pushPromise.resolve();
+	}
+
+	var pushListeners = {};
+
+	function addPushListenerImpl(group, callback) {
+		if (ice &amp;&amp; ice.push &amp;&amp; ice.push.configuration.contextPath) {
+			ice.push.connection.resumeConnection();
+
+			var pushId = ice.push.createPushId();
+			pushListeners[pushId] = {group: group, callback: callback};
+			ice.push.addGroupMember(group, pushId);
+			if (&quot;string&quot; != typeof(callback))  {
+				console.error(
+					&quot;BridgeIt Cloud Push callbacks must be named in window scope&quot;);
+			} else {
+				var callbackName = callback;
+				callback = getNamedObject(callback);
+				if (!!callback)  {
+					if (localStorage)  {
+						var callbacks = localStorage
+								.getItem(CLOUD_CALLBACKS_KEY);
+						if (!callbacks)  {
+							callbacks = &quot; &quot;;
+						}
+						if (callbacks.indexOf(&quot; &quot; + callbackName + &quot; &quot;) &lt; 0)  {
+							callbacks += callbackName + &quot; &quot;;
+						}
+						localStorage.setItem(CLOUD_CALLBACKS_KEY, callbacks);
+					}
+				}
+			}
+			ice.push.register([ pushId ], callback);
+		} else {
+			console.error('Push service is not active');
+		}
+	};
+
+	var BRIDGEIT_INSTALLED_KEY = &quot;bridgeit.installed&quot;;
+	var BRIDGEIT_INSTALLED_LOG_KEY = &quot;bridgeit.installedLogged&quot;;
+
+	function hasInstalledToken(){
+		var result = false;
+		if( window.localStorage){
+			var installTimestamp = localStorage.getItem(BRIDGEIT_INSTALLED_KEY);
+			if( installTimestamp ){
+				if( !window.sessionStorage.getItem(BRIDGEIT_INSTALLED_LOG_KEY) ){
+					console.log('bridgeit installed '
+						+ new Date( parseInt(localStorage.getItem(BRIDGEIT_INSTALLED_KEY))).toGMTString());
+					window.sessionStorage.setItem(BRIDGEIT_INSTALLED_LOG_KEY, 'true');
+				}
+				result = true;
+			}
+		}
+		return result;
+	}
+
+	function setInstalledToken(){
+		if( window.localStorage ){
+			localStorage.setItem(BRIDGEIT_INSTALLED_KEY, '' + new Date().getTime());
+		}
+	}
+
+	var LASTVERSION_KEY = &quot;bridgeit.lastappversion&quot;;
+
+	function setLastAppVersion(version)  {
+		if (window.localStorage)  {
+			localStorage.setItem(LASTVERSION_KEY, version);
+		}
+	}
+
+	function addOptions(base, options)  {
+		for (var prop in options)  {
+			base[prop] = options[prop];
+		}
+		return base;
+	}
+
+	function overlayOptions(defaults, options)  {
+		var merged = {};
+
+		addOptions(merged, defaults);
+		addOptions(merged, options);
+
+		return merged;
+	}
+
+	var anonAuth = new Promiz();
+	anonAuth.resolve();
+
+	var bridgeitServiceDefaults = {
+		account: &quot;icesoft_technologies_inc&quot;,
+		realm: &quot;demo.bridgeit.mobi&quot;,
+		serviceBase: &quot;http://api.bridgeit.mobi/&quot;,
+		auth: anonAuth
+	};
+
+	//Real Promise support stalled by IE
+	function Promiz()  {
+		var thePromiz = this;
+		var successes = [];
+		var fails = [];
+		this.then = function(success, fail)  {
+			if (success)  {
+				successes.push(success);
+			}
+			if (fail)  {
+				fails.push(fail);
+			}
+		}
+		function callall(funcs, args)  {
+			for (var i = 0; i &lt; funcs.length; i++) {
+				funcs[i].apply(thePromiz, args);
+			}
+		}
+		this.resolve = function()  {
+			callall(successes, arguments);
+			thePromiz.then = function(success, fail)  {
+				success.apply(thePromiz, arguments);
+			}
+		}
+		this.reject = function()  {
+			callall(fails, arguments);
+			thePromiz.then = function(success, fail)  {
+				fail.apply(thePromiz, arguments);
+			}
+		}
+	}
+
+
+	/* *********************** PUBLIC **********************************/
+
+<span id='bridgeit-property-version'>	/**
+</span>	 * The version of bridgeit.js
+	 * @property {String}
+	 */
+	b.version = &quot;1.0.4&quot;;
+
+<span id='bridgeit-method-lastAppVersion'>	/**
+</span>	 * The last detected version of tje BridgeIt App
+	 * @alias plugin.lastAppVersion
+	 */
+	b.lastAppVersion = function()  {
+		if (localStorage)  {
+			return(localStorage.getItem(LASTVERSION_KEY));
+		}
+		return null;
+	};
+
+<span id='bridgeit-method-launchFailed'>	/**
+</span>	 * Application provided callback to detect BridgeIt launch failure.
+	 * This can be overridden with an implementation that prompts the
+	 * user to download BridgeIt and potentially fallback with a different
+	 * browser control such as input file.  The displayed dialog is returned
+	 * to allow basic customization.
+	 *
+	 * @alias plugin.launchFailed
+	 * @param {String} id The id passed to the command that failed
+	 * @template
+	 */
+	b.launchFailed = function(id)  {
+		console.log(&quot;BridgeIt not available for &quot; + id);
+
+		var popDiv = document.createElement(&quot;div&quot;);
+		popDiv.setAttribute(
+			&quot;style&quot;,
+			&quot;height:auto;&quot; +
+			&quot;min-height:100px;&quot; +
+			&quot;position:fixed;&quot; +
+			&quot;border:5px solid #9193A0;&quot; +
+			&quot;border-radius:8px;&quot; +
+			&quot;padding:10px;&quot; +
+			&quot;text-align:center;&quot; +
+			&quot;box-sizing:border-box;&quot; +
+			&quot;top: 50px;&quot; +
+			&quot;background-color:#F8F8F8;&quot; +
+			&quot;transition:opacity 5s ease-in-out;&quot; +
+			&quot;z-index:999;&quot; +
+			&quot;opacity:0.95;&quot;);
+		popDiv.innerHTML =
+			'&lt;a style=&quot;float:right;&quot; '+
+			'onclick=&quot;document.body.removeChild(this.parentNode)&quot;&gt;'+
+			'&amp;times;&lt;/a&gt;' +
+			'&lt;p&gt;The BridgeIt App is missing ... would you like to download ' +
+			'it?&lt;/p&gt;' +
+			'&lt;a href=&quot;' + bridgeit.appStoreURL() + '&quot;'+
+			' onclick=&quot;document.body.removeChild(this.parentNode)&quot; ' +
+			'target=&quot;_blank&quot;&gt;Download the utility app now&lt;/a&gt;';
+		document.body.appendChild(popDiv);
+
+		var centerDiv = function(){
+			if( window.innerWidth ){
+				var leftPos = (window.innerWidth - popDiv.offsetWidth) /2;
+				popDiv.style.left = ''+leftPos + 'px';
+			}
+		}
+		centerDiv();
+		if( window.addEventListener ){
+			window.addEventListener('orientationchange', centerDiv, false);
+			window.addEventListener('resize', centerDiv, false);
+		}
+
+		return popDiv;
+
+	};
+
+<span id='bridgeit-method-notSupported'>	/**
+</span>	 * Application provided callback to detect non-supported clients.
+	 * This should be overridden with an implementation that informs the
+	 * user the user that native mobile functionality is only available
+	 * on supported platforms or potentially fallback with a different
+	 * browser control such as input file, which would be available on
+	 * all browsers.
+	 * @param {String} id The id passed to the command that failed
+	 * @param {String} command The BridgeIt api command that was launched
+	 * @alias plugin.notSupported
+	 * @template
+	 */
+	b.notSupported = function(id, command)  {
+		alert('Sorry, the command ' + command + ' for BridgeIt is not supported on this platform');
+	};
+
+
+<span id='bridgeit-method-scan'>	/**
+</span>	 * Launch the device QR Code scanner.
+	 *
+	 * The callback function will be called once the scan is captured.
+	 * The return value will be set to the text resulting from the scan.
+	 *
+	 * The QR Code scanner does not currently accept additional parameters,
+	 * but these may used in the future.
+	 *
+	 * @alias plugin.scan
+	 * @param {String} id The id of the return value
+	 * @param {Function} callback The callback function.
+	 * @param {Object} options Additional command options
+	 * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
+	 *
+	 */
+	b.scan = function(id, callback, options)  {
+		deviceCommand(&quot;scan&quot;, id, callback, options);
+	};
+
+<span id='bridgeit-method-beacons'>	/**
+</span>	 * Detect nearby iBeacons.
+	 *
+	 * The callback function will be called when an iBeacon is detected.
+	 * The return value will be set to the range, major, and minor values
+	 * if available.
+	 *
+	 * This is currently a pre-alpha feature and is being developed initially
+	 * on iOS.
+	 *
+	 * @alias plugin.beacons
+	 * @param {String} id The id of the return value
+	 * @param {Function} callback The callback function.
+	 * @param {Object} options Additional command options
+	 * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
+	 *
+	 */
+	b.beacons = function(id, callback, options)  {
+		deviceCommand(&quot;beacons&quot;, id, callback, options);
+	};
+
+<span id='bridgeit-method-camera'>	/**
+</span>	 * Launch the native camera.
+	 *
+	 * The callback function will be called once the photo is captured.
+	 *
+	 * @alias plugin.camera
+	 * @param {String} id The id of the return value
+	 * @param {Function} callback The callback function.
+	 * @param {Object} options Additional command options
+	 * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
+	 * @param {Object} options.maxwidth The maxium width for the image in pixels
+	 * @param {Object} options.maxheight The maxium height for the image in pixels
+	 *
+	 */
+	b.camera = function(id, callback, options)  {
+		deviceCommand(&quot;camera&quot;, id, callback, options);
+	};
+<span id='bridgeit-method-camcorder'>	/**
+</span>	 * Launch the native video recorder.
+	 *
+	 * The callback function will be called once the video has been captured.
+	 *
+	 * @alias plugin.camcorder
+	 * @param {String} id The id of the return value
+	 * @param {Function} callback The callback function.
+	 * @param {Object} options Additional command options
+	 *
+	 */
+	b.camcorder = function(id, callback, options)  {
+		deviceCommand(&quot;camcorder&quot;, id, callback, options);
+	};
+
+<span id='bridgeit-method-microphone'>	/**
+</span>	 * Launch the native audio recorder.
+	 *
+	 * The callback function will be called once the audio is captured.
+	 *
+	 * @alias plugin.microphone
+	 * @param {String} id The id of the return value
+	 * @param {Function} callback The callback function.
+	 * @param {Object} options Additional command options
+	 *
+	 */
+	b.microphone = function(id, callback, options)  {
+		deviceCommand(&quot;microphone&quot;, id, callback, options);
+	};
+
+<span id='bridgeit-method-fetchContact'>	/**
+</span>	 * Launch the native contact list.
+	 *
+	 * The callback function will be called once the contact is retrieved.
+	 *
+	 * @alias plugin.fetchContact
+	 * @param {String} id The id of the return value
+	 * @param {Function} callback The callback function.
+	 * @param {Object} options Additional command options
+	 * @param {Object} options.fields The contact fields to retrieve, default = &quot;name,email,phone&quot;
+	 *
+	 */
+	b.fetchContact = function(id, callback, options)  {
+		var ops = options || {};
+		if (!ops.fields)  {
+			ops.fields = &quot;name,email,phone&quot;;
+		}
+		deviceCommand(&quot;fetchContacts&quot;, id, callback, ops);
+	};
+
+<span id='bridgeit-method-sms'>	/**
+</span>	 * Send an SMS message.
+	 *
+	 * The sms function will send an SMS message to a number on supported
+	 * platforms. On iOS devices, a native SMS call is made through the
+	 * BridgeIt utility app. On other platforms an SMS URL protocol is used in a
+	 * DOM anchor element, which the browser may use to launch the device
+	 * SMS functionality, if available.
+	 *
+	 * @alias plugin.sms
+	 * @param {String} number The phone number to send the message to
+	 * @param {String} message The message
+	 *
+	 */
+	b.sms = function(number, message)  {
+		if( !b.isSupportedPlatform('sms') ){
+			b.notSupported(null, 'sms');
+			return;
+		}
+		if( number == 'undefined' || number == '')
+			return;
+		if( b.isIOS() || b.isAndroid() ){
+			deviceCommand('sms', '_sms', null, {n: number, body: message});
+		}
+		else{
+			var smsBtn = document.createElement('a');
+			var cleanNumber = number.replace(/[\s-\.\+]/g,'');
+			smsBtn.href = 'sms:+' + cleanNumber + '?body=' + encodeURI(message);
+			smsBtn.style = 'display:none';
+			document.body.appendChild(smsBtn);
+			smsBtn.click();
+			document.body.removeChild(smsBtn);
+		 }
+	};
+
+<span id='bridgeit-method-geoTrack'>	/**
+</span>	 * Activate location tracking.
+	 *
+	 * Location tracking will run in the
+	 * background according to the specified strategy and duration, and will POST
+	 * a geoJSON record to the specified postURL.
+	 *
+	 * Three strategies are currently supported: &quot;continuous&quot; where the location
+	 * of the device will be uploaded as frequently as it changes (intended for
+	 * testing only due to high power consumption), &quot;significant&quot; where the
+	 * location is uploaded when it changes significantly, and &quot;stop&quot; to cease
+	 * location tracking.
+	 *
+	 * The callback function will be called once location tracking is activated.
+	 *
+	 * @param {String} id The id of the return value
+	 * @param {Function} callback The callback function.
+	 * @param {Object} options Additional command options
+	 * @param {String} options.postURL The URL accepting the geoJSON POST
+	 * @param {String} options.strategy The strategy, &quot;continuous&quot;, &quot;significant&quot; or &quot;stop&quot;
+	 * @param {String} options.duration The duration in hours
+	 * @alias plugin.geoTrack
+	 *
+	 */
+	b.geoTrack = function(id, callback, options)  {
+		deviceCommand(&quot;geospy&quot;, id, callback, options);
+	};
+
+<span id='bridgeit-method-register'>	/**
+</span>	 * Register BridgeIt integration and configure Cloud Push.
+	 *
+	 * This call is necessary to obtain the Cloud Push ID of the
+	 * device so that notifications can be delivered when the
+	 * user is not currently viewing your application in the browser.
+	 *
+	 * The callback function will be called when Cloud Push registration
+	 * completes.
+	 *
+	 * @alias plugin.register
+	 * @inheritdoc #scan
+	 *
+	 */
+	b.register = function(id, callback, options)  {
+		deviceCommand(&quot;register&quot;, id, callback, options);
+	};
+
+<span id='bridgeit-method-isRegistered'>	/**
+</span>	 * Verify that BridgeIt Cloud Push is registered.
+	 *
+	 * @alias plugin.isRegistered
+	 *
+	 */
+	b.isRegistered = function()  {
+		return !!(getCloudPushId());
+	};
+
+<span id='bridgeit-method-speech'>	/**
+</span>	 * Text-to-speech
+	 *
+	 *
+	 * @param {String} id The id of the return value
+	 * @param {Function} callback The callback function.
+	 * @param {Object} options Additional command options
+	 * @param {String} options.text The text to be spoken
+	 * @param {Boolean} options.respond Determines if voice response is required. default=false
+	 * @param {String} options.voice Type of voice to be used
+	 * @param {Number} options.rate The rate of speaking. &gt; 0 default=1.0
+	 * @param {Number} options.pitch The  pitch of voice. &gt; 0 default=1.2
+	 * @param {Number} options.volume The  0.0 &lt; volume &lt;=1.0 default=device setting
+	 * @alias plugin.speech
+	 *
+	 */
+	b.speech = function(id, callback, options){
+		deviceCommand(&quot;speech&quot;, id, callback, options);
+	};
+
+
+
+<span id='bridgeit-method-url2Object'>	/**
+</span>	 * Utility method to unpack url-encoded parameters into an object.
+	 *
+	 * @alias plugin.url2Object
+	 * @param {String} encoded The encoded URL string to unpack
+	 */
+	b.url2Object = function(encoded)  {
+		return url2Object(encoded);
+	};
+
+<span id='bridgeit-property-allowAnonymousCallbacks'>	/**
+</span>	 * Set allowAnonymousCallbacks to true to take advantage of persistent
+	 * callback functions currently supported on iOS.
+	 * @property {Boolean} [allowAnonymousCallbacks=false]
+	 */
+	b.allowAnonymousCallbacks = false;
+
+<span id='bridgeit-property-useJSON64'>	/**
+</span>	 * Set useJSON64 to true to take advantage of Base64 JSON
+	 * data interchange between the browser and BridgeIt App.
+	 * This property may be removed and become the default with
+	 * legacy applications required to import an older copy of bridgeit.js.
+	 * @property {Boolean} [useJSON64=false]
+	 */
+	b.useJSON64 = false;
+
+<span id='bridgeit-property-useBase64'>	/**
+</span>	 * Set useBase64 to true to take advantage of Base64
+	 * encoding in the return URL from the BridgeIt App.
+	 * This property may be removed with
+	 * legacy applications required to import an older copy of bridgeit.js.
+	 * @property {Boolean} [useBase64=true]
+	 */
+	b.useBase64 = true;
+
+<span id='bridgeit-method-isIOS'>	/**
+</span>	 * Is the current browser iOS
+	 * @alias plugin.isIOS
+	 */
+	b.isIOS = function(){
+		var i = 0,
+			iOS = false,
+			iDevice = ['iPad', 'iPhone', 'iPod'];
+
+		for ( ; i &lt; iDevice.length ; i++ ) {
+			if( navigator.userAgent.indexOf(iDevice[i]) &gt; -1 ){
+				iOS = true; break;
+			}
+		}
+		return !b.isWindowsPhone8() &amp;&amp; iOS;
+	};
+
+<span id='bridgeit-method-isIPhone'>	/**
+</span>	 * Is the current client an iPhone
+	 * @alias plugin.isIPhone
+	 */
+	b.isIPhone = function(){
+		return !b.isWindowsPhone8() &amp;&amp; navigator.userAgent.indexOf('iPhone') &gt; -1;
+	};
+
+<span id='bridgeit-method-isIOS6'>	/**
+</span>	 * Is the current browser iOS 6
+	 * @alias plugin.isIOS6
+	 */
+	b.isIOS6 = function(){
+		return !b.isWindowsPhone8() &amp;&amp; /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
+	};
+
+<span id='bridgeit-method-isIOS7'>	/**
+</span>	 * Is the current browser iOS 7
+	 * @alias plugin.isIOS7
+	 */
+	b.isIOS7 = function(){
+		return !b.isWindowsPhone8() &amp;&amp; /(iPad|iPhone|iPod).*OS 7_/.test( navigator.userAgent );
+	};
+
+<span id='bridgeit-method-isIOS8'>	/**
+</span>	 * Is the current browser iOS 7
+	 * @alias plugin.isIOS8
+	 */
+	b.isIOS8 = function(){
+		return !b.isWindowsPhone8() &amp;&amp; /(iPad|iPhone|iPod).*OS 8_/.test( navigator.userAgent );
+	};
+
+<span id='bridgeit-method-isAndroid'>	/**
+</span>	 * Is the current browser Android
+	 * @alias plugin.isAndroid
+	 */
+	b.isAndroid = function(){
+		return !b.isWindowsPhone8() &amp;&amp; navigator.userAgent.toLowerCase()
+			.indexOf(&quot;android&quot;) &gt; -1;
+	};
+
+<span id='bridgeit-method-isAndroidFroyo'>	/**
+</span>	 * Is the current browser Android
+	 * @alias plugin.isAndroidFroyo
+	 */
+	b.isAndroidFroyo = function(){
+		return !b.isWindowsPhone8() &amp;&amp; navigator.userAgent.indexOf(&quot;Android 2.2&quot;) &gt; -1;
+	};
+
+<span id='bridgeit-method-isAndroidGingerBreadOrGreater'>	/**
+</span>	 * Is the current browser Android
+	 * @alias plugin.isAndroidGingerBreadOrGreater
+	 */
+	b.isAndroidGingerBreadOrGreater = function(){
+		return !b.isWindowsPhone8() &amp;&amp; b.isAndroid() &amp;&amp; !b.isAndroidFroyo();
+	};
+
+
+<span id='bridgeit-method-isWindowsPhone8'>	/**
+</span>	 * Is the current browser Windows Phone 8
+	 * @alias plugin.isWindowsPhone8
+	 */
+	b.isWindowsPhone8 = function(){
+		var ua = navigator.userAgent;
+		return ua.indexOf('IEMobile') &gt; -1
+			|| ( ua.indexOf('MSIE 10') &gt; -1 &amp;&amp; typeof window.orientation !== 'undefined')
+			|| ( ua.indexOf('Windows Phone') &gt; -1);
+	};
+
+	
+	var android, supportedAndroid, iOS, iOS6, iOS7, iOS8, wp8, iPhone, supportMatrix;
+
+	wp8 = b.isWindowsPhone8();
+
+	if( !wp8 ){
+		android = b.isAndroid();
+		supportedAndroid = b.isAndroidGingerBreadOrGreater();
+		iOS = b.isIOS();
+		iOS6 = b.isIOS6();
+		iOS7 = b.isIOS7();
+		iOS8 = b.isIOS8();
+		wp8 = b.isWindowsPhone8();
+		iPhone = b.isIPhone();
+	}
+
+	b.commands = [ 'camera', 'camcorder','microphone','fetchContacts', 'push','scan','geospy','sms',  'beacons', 'speech'];
+	supportMatrix = {
+		'iPhone':{
+			'6':   [true,     true,       true,        true,           true,  false, true,    true,   false,     false],
+			'7':   [true,     true,       true,        true,           true,  true,  true,    true,   true,      true],
+			'8':   [true,     true,       true,        true,           true,  true,  true,    true,   true,      true]
+		},
+		'iPad-iPod':{
+			'6':   [true,     true,       true,        true,           true,  false, true,    false,  false,     false],
+			'7':   [true,     true,       true,        true,           true,  true,  true,    false,  true,      true],
+			'8':   [true,     true,       true,        true,           true,  true,  true,    false,  true,      true]
+		},
+		'wp8':     [true,     true,       true,        true,           true,  true,  false,   true,   false,     false],
+		'android': [true,     true,       true,        true,           true,  true,  true,    true,   false,     true]
+	}
+
+<span id='bridgeit-method-'>	/**
+</span>	 * Check if the current browser is supported by the BridgeIt Native Mobile app.
+	 *
+	 * Currently iOS, Android, and some features on Windows Phone 8 are supported.
+	 * @alias plugin.isSupportedPlatform
+	 * @param {String} command The BridgeIt API command that may or may not be supported
+	 */
+	b.isSupportedPlatform = function(command){
+		if( 'register' == command ){
+			return true; //do not check platform for cloud push registration
+		}
+		var supported = false;
+		if( android ){
+			if( supportedAndroid ){
+				return supportMatrix['android'][b.commands.indexOf(command)];
+			}
+		}
+		else if( wp8 ){
+			return supportMatrix['wp8'][b.commands.indexOf(command)];
+		}
+		else if( iOS ){
+			//if a future iOS version requires specific checking, additional
+			//cases will be added
+			if( iPhone ){
+				if( iOS6 ){
+					return supportMatrix['iPhone']['6'][b.commands.indexOf(command)];
+				}
+				else /* if( iOS7 ) */ {
+					return supportMatrix['iPhone']['7'][b.commands.indexOf(command)];
+				}
+			}
+			else {
+				if( iOS6 ){
+					return supportMatrix['iPad-iPod']['6'][b.commands.indexOf(command)];
+				}
+				else /* if( iOS7 ) */ {
+					return supportMatrix['iPad-iPod']['7'][b.commands.indexOf(command)];
+				}
+			}
+		}
+		console.log(&quot;bridgeIt supported platform for '&quot; + command + &quot;' command: &quot; + supported);
+		return supported;
+	};
+
+<span id='bridgeit-method-appStoreURL'>	/**
+</span>	 * Returns the app store URL to BridgeIt for the appropirate platform
+	 * @alias plugin.appStoreURL
+	 */
+	b.appStoreURL = function(){
+		if( b.isAndroid() ) {
+			return 'https://play.google.com/store/apps/details?id=mobi.bridgeit';
+		}
+		else if( b.isIOS() ) {
+			return 'https://itunes.apple.com/app/bridgeit/id727736414';
+		}
+		else if( b.isWindowsPhone8() ) {
+			return 'http://windowsphone.com/s?appId=b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1';
+		}
+
+	};
+
+	var jguid;
+
+<span id='bridgeit-method-getId'>	/**
+</span>	 * Returns a persistent id that allows an application to persistently maintain information for
+	 * an individual user without requiring a server-side session.
+	 * @alias plugin.getId
+	 */
+	b.getId = function()  {
+		var JGUID_KEY = &quot;bridgeit.jguid&quot;;
+		if (!jguid)  {
+			if (localStorage)  {
+				jguid = localStorage.getItem(JGUID_KEY);
+			}
+			if (!jguid)  {
+				jguid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+					function(c) {
+						var r = Math.random()*16|0, v = c == 'x' ? r : (r&amp;0x3|0x8);
+						return v.toString(16);
+					});
+				if (localStorage)  {
+					localStorage.setItem(JGUID_KEY, jguid);
+				}
+			}
+
+		}
+		return jguid;
+	}
+<span id='bridgeit-property-goBridgeItURL'>	/**
+</span>	 * Set goBridgeItURL to the URL of your goBridgeIt.html file
+	 * to allow {@link bridgeit#push Cloud Push} to go back to the most recent page
+	 * The defaults of the host root and the current relative
+	 * directory URL do not need to be specified. For an example, see
+	 * http://bridgeit.mobi/demo/goBridgeIt.html
+	 *
+	 * @property {String} [goBridgeItURL]
+	 */
+	b.goBridgeItURL = null;
+
+	var CLOUD_CALLBACKS_KEY = &quot;bridgeit.cloudcallbacks&quot;;
+
+<span id='bridgeit-method-handleCloudPush'>	/**
+</span>	 * Public callback used by Cloud Push implementation
+	 * to relay push event to a newly opened browser window.
+	 * This API is not for application use.
+	 * @alias plugin.handleCloudPush
+	 * @private
+	 */
+	b.handleCloudPush = function ()  {
+		var callbacks = localStorage.getItem(CLOUD_CALLBACKS_KEY);
+		var parts = callbacks.split(&quot; &quot;);
+		var callback;
+		for (var i = 0; i &lt; parts.length; i++) {
+			callback = getNamedObject(parts[i]);
+			if (callback) {
+				callback();
+			}
+		}
+	};
+
+<span id='bridgeit-method-login'>	/**
+</span>	 * BridgeIt Services login.
+	 * @alias login
+	 * @param username User name
+	 * @param password User password
+	 * @param options Additional options
+	 */
+	b.login = function(username, password, options) {
+		var auth = new Promiz();
+
+		options = overlayOptions(bridgeitServiceDefaults, options);
+		//need to also allow specified auth URL in options
+		var uri = bridgeitServiceDefaults.serviceBase + &quot;/auth/&quot;;
+		var loginURI = uri + options.account + &quot;/realms/&quot; + options.realm + &quot;/token&quot;;
+		var loginRequest = {
+			username: username,
+			password: password
+		}
+		jsonPOST(loginURI, loginRequest).then(
+			function(jsonResult) {
+				addOptions(auth, jsonResult);
+				auth.resolve(auth);
+			},
+			function(err) {
+				auth.reject(err);
+			}
+		);
+
+		//save default authorization if default realm
+		if (options.account == bridgeitServiceDefaults.account &amp;&amp; options.realm === bridgeitServiceDefaults.realm)  {
+			bridgeitServiceDefaults.auth = auth;
+		}
+		return auth;
+	}
+
+<span id='bridgeit-method-'>	/**
+</span>	 * Set up BridgeIt Services.
+	 * @alias useServices
+	 * @param param object with named parameters
+	 */
+	b.useServices = function(param) {
+		if (&quot;object&quot; === typeof arguments[0])  {
+			bridgeitServiceDefaults =
+					overlayOptions(bridgeitServiceDefaults, param);
+		}
+	}
+
+<span id='bridgeit-method-'>	/**
+</span>	 * Configure Push service and connect to it.
+	 * @alias plugin.usePushService
+	 * @param uri the location of the service
+	 * @param apikey
+	 */
+	b.usePushService = function(uri, apikey, options) {
+		options = overlayOptions(bridgeitServiceDefaults, options);
+
+		if (0 == arguments.length)  {
+			uri = bridgeitServiceDefaults.serviceBase + &quot;/push&quot;;
+		} else if (&quot;object&quot; === typeof arguments[0])  {
+			if (!!arguments[0].account)  {
+				account = arguments[0].account;
+			}
+			if (!!arguments[0].realm)  {
+				realm = arguments[0].realm;
+			}
+			if (!!arguments[0].serviceBase)  {
+				uri = arguments[0].serviceBase + &quot;/push&quot;;
+			}
+			if (!!arguments[0].auth)  {
+				auth = arguments[0].auth;
+			}
+		} else {
+			//legacy uri,apikey
+		}
+
+		bridgeitServiceDefaults.auth.then(function() {
+			loadPushService(uri, apikey, options);
+		});
+	};
+
+<span id='bridgeit-method-addPushListener'>	/**
+</span>	 * Add listner for notifications belonging to the specified group.
+	 * Callbacks must be passed by name to receive cloud push notifications,
+	 * regardless of bridgeit.allowAnonymousCallbacks setting
+	 * @param group
+	 * @param callback
+	 * @alias plugin.addPushListener
+	 */
+	b.addPushListener = function(group, callback) {
+		pushPromise.then(function() {
+			addPushListenerImpl(group, callback);
+		});
+	};
+
+<span id='bridgeit-method-cloudPushReturnURL'>	/**
+</span>	 * Augment a URL so that callbacks will be invoked upon Cloud Push
+	 * return.
+	 * If called with no argument, the current URL is used.
+	 * @param url
+	 * @alias plugin.cloudPushReturnURL
+	 */
+	b.cloudPushReturnURL = function(url) {
+		if (!url)  {
+			if (localStorage)  {
+				url = localStorage[LAST_PAGE_KEY];
+			}
+		}
+		if (!url)  {
+			url = window.location.href;
+		}
+		var seq = (new Date()).getTime();
+		var urlExtra =
+			btoa(&quot;!h=&quot; + escape(&quot;c=bridgeit.handleCloudPush&amp;seq=&quot; + seq));
+		urlExtra = urlExtra.replace(/=/g,&quot;~&quot;);
+		urlExtra = urlExtra.replace(/\//g,&quot;.&quot;);
+		var returnURL = url + &quot;#icemobilesx_&quot; + urlExtra;
+		return returnURL;
+	};
+
+<span id='bridgeit-method-push'>	/**
+</span>	 * Push notification to the group.
+	 *
+	 * This will result in an Ajax Push (and associated callback)
+	 * to any web pages that have added a push listener to the
+	 * specified group.  If Cloud Push options are provided
+	 * (options.subject and options.detail) a Cloud Push will
+	 * be dispatched as a home screen notification to any devices
+	 * unable to recieve the Ajax Push via the web page.
+	 *
+	 * @param {String} groupName The Ajax Push group name to push to
+	 * @param {Object} options Options that a notification can carry
+	 * @param {String} options.subject The subject heading for the notification
+	 * @param {String} options.message The message text to be sent in the notification body
+	 * @alias plugin.push
+	 */
+	b.push = function(groupName, options) {
+		if (!absoluteGoBridgeItURL)  {
+			if (!!bridgeit.goBridgeItURL)  {
+				absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
+			}
+		}
+		if (!!absoluteGoBridgeItURL)  {
+			if (options &amp;&amp; !options.url)  {
+				options.url = absoluteGoBridgeItURL;
+			}
+		}
+		if (ice &amp;&amp; ice.push &amp;&amp; ice.push.configuration.contextPath) {
+			console.log(&quot;bridgeit.push &quot; + JSON.stringify(options));
+			if (options &amp;&amp; options.delay)  {
+				ice.push.notify(groupName, options, options);
+			} else {
+				ice.push.notify(groupName, options);
+			}
+		} else {
+			console.error('Push service is not active');
+		}
+	};
+
+<span id='bridgeit-method-pushQuery'>	/**
+</span>	 * Push notification to one or more groups resulting from a
+	 * query to the Doc Service.  The query is to be in MongoDB
+	 * format.
+	 *
+	 * This will result in an Ajax Push (and associated callback)
+	 * to any web pages that have added a push listener to a group
+	 * that resulted from the query sent to the Doc Service.  If
+	 * Cloud Push options are provided (options.subject and
+	 * options.detail) a Cloud Push will be dispatched as a home
+	 * screen notification to any devices unable to receive the
+	 * Ajax Push via the web page.
+	 *
+	 * @param {String} docServiceQuery The query to be sent to the Doc Service.
+	 * @param {String} docServiceFields The fields to be sent to the Doc Service.
+	 * @param {String} docServiceOptions The options to be sent to the Doc Service.
+	 * @param {Object} options Options that a notification can carry
+	 * @param {String} options.subject The subject heading for the notification
+	 * @param {String} options.message The message text to be sent in the notification body
+	 * @alias plugin.pushQuery
+	 */
+ 	b.pushQuery = function(docServiceQuery, docServiceFields, docServiceOptions, options) {
+		if (!absoluteGoBridgeItURL)  {
+			if (!!bridgeit.goBridgeItURL)  {
+				absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
+			}
+		}
+		if (!!absoluteGoBridgeItURL)  {
+			if (options &amp;&amp; !options.url)  {
+				options.url = absoluteGoBridgeItURL;
+			}
+		}
+		if (ice &amp;&amp; ice.push &amp;&amp; ice.push.configuration.contextPath) {
+			if (options) {
+				console.log(&quot;bridgeit.push &quot; + JSON.stringify(options));
+			}
+			ice.push.notifyQuery(docServiceQuery, docServiceFields, docServiceOptions, options);
+		} else {
+			console.error('Push service is not active');
+		}
+	};
+
+	//android functions as full page load
+	addOnLoadListener(loadComplete);
+	addOnLoadListener(checkExecDeviceResponse);
+    loadComplete();
+	checkExecDeviceResponse();
 })(bridgeit);
 </pre>
 </body>
