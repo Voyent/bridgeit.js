@@ -774,6 +774,7 @@ if (!window.console) {
 	function getCloudPushId()  {
 		return getLocalStorageItem(CLOUD_PUSH_KEY);
 	}
+	b.getCloudPushId = getCloudPushId;
 
 	function setupCloudPush()  {
 		var cloudPushId = getCloudPushId();
