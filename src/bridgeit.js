@@ -85,6 +85,7 @@ if (!window.console) {
 		}
 		return window.bridgeit_useLocalStorage;
 	}
+	b.useLocalStorage = useLocalStorage;
 
 	function getLocalStorageItem(key){
 		if( useLocalStorage() ){
@@ -94,6 +95,7 @@ if (!window.console) {
 			return getCookie(key);
 		}
 	}
+	b.getLocalStorageItem = getLocalStorageItem;
 
 	function getSessionStorageItem(key){
 		if( useLocalStorage() ){
@@ -103,6 +105,7 @@ if (!window.console) {
 			return getCookie(key);
 		}
 	}
+	b.getSessionStorageItem = getSessionStorageItem;
 
 	function getCookie(cname) {
 		var name = cname + "=";
@@ -114,6 +117,7 @@ if (!window.console) {
 		}
 		return "";
 	}
+	b.getCookie = getCookie;
 
 	function setLocalStorageItem(key, value){
 		if( useLocalStorage() ){
@@ -123,6 +127,7 @@ if (!window.console) {
 			return setCookie(key, value);
 		}
 	}
+	b.setLocalStorageItem = setLocalStorageItem;
 
 	function removeSessionStorageItem(key){
 		if( useLocalStorage() ){
@@ -132,6 +137,7 @@ if (!window.console) {
 			setCookie(key, null);
 		}
 	}
+	b.removeSessionStorageItem = removeSessionStorageItem;
 
 	function removeLocalStorageItem(key){
 		if( useLocalStorage() ){
@@ -141,6 +147,7 @@ if (!window.console) {
 			setCookie(key, null);
 		}
 	}
+	b.removeLocalStorageItem = removeLocalStorageItem;
 
 	function setSessionStorageItem(key, value){
 		if( useLocalStorage() ){
@@ -150,6 +157,7 @@ if (!window.console) {
 			return setCookie(key, value, 1);
 		}
 	}
+	b.setSessionStorageItem = setSessionStorageItem;
 
 	function setCookie(cname, cvalue, days) {
 		var d = new Date();
@@ -157,6 +165,7 @@ if (!window.console) {
 		var expires = "expires="+d.toUTCString();
 		document.cookie = cname + "=" + cvalue + "; " + expires;
 	}
+	b.setCookie = setCookie;
 
 	/* *********************** PRIVATE ******************************/
 	function serializeForm(formId, typed) {
