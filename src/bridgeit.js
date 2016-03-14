@@ -778,7 +778,7 @@ if (!window.console) {
 	}
 	var CLOUD_PUSH_KEY = "ice.notifyBack";
 	function setCloudPushId(id)  {
-		setStorageItem(CLOUD_PUSH_KEY, id);
+		setLocalStorageItem(CLOUD_PUSH_KEY, id);
 	}
 	function getCloudPushId()  {
 		return getLocalStorageItem(CLOUD_PUSH_KEY);
