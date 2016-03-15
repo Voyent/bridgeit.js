@@ -1386,6 +1386,16 @@ if (!window.console) {
 		deviceCommand("register", id, callback, options);
 	};
 
+	/* Remove client from cloud push notifications
+	 * Currently this just removes the cloud push id (notifyBackURI)
+	 * but in the future will make a call to the push service 
+	 * when an unregister api is available
+	 */
+	b.unregisterCloudPush = function(){
+		removeLocalStorageItem(CLOUD_PUSH_KEY);
+	};
+
+
 	/**
 	 * Verify that BridgeIt Cloud Push is registered.
 	 *
