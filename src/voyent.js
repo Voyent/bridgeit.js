@@ -1,4 +1,4 @@
-/* BridgeIt Mobile 1.0.7
+/* Voyent Mobile 1.0.7
  *
  * Copyright 2004-2013 ICEsoft Technologies Canada Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,8 @@
 if (!window['ice']) {
 	window.ice = {};
 }
-if (!window['bridgeit']) {
-	window.bridgeit = {};
-	window.bridgeIt = window.bridgeit; //alias bridgeit and bridgeIt
+if (!window['voyent']) {
+	window.voyent = {};
 }
 if (!window.console) {
 	console = {};
@@ -32,15 +31,15 @@ if (!window.console) {
 	}
 }
 /**
- * The BridgeIt JavaScript API. Native Mobile integration for your web app.
+ * The Voyent JavaScript API. Native Mobile integration for your web app.
  *
- * BridgeIt provides a variety of device commands that allow access to
+ * Voyent provides a variety of device commands that allow access to
  * device features from JavaScript, all while running in the stock browser
- * such as Safari or Chrome. This is made possible by the BridgeIt utilty app
+ * such as Safari or Chrome. This is made possible by the BridgeIt utility app
  * that runs alongside the browser and is available for each of the supported
  * platforms (currently Android, iOS, and Windows Phone 8).
  *
- * For example, bridgeit.camera('myCamera', 'myCallback') will allow the user
+ * For example, voyent.camera('myCamera', 'myCallback') will allow the user
  * to take a photo identified by 'myCamera' and this will be returned via an
  * event to the function named myCallback.  For the best compatibility the
  * callback is passed by name since the browser page may be refreshed when
@@ -56,9 +55,9 @@ if (!window.console) {
  * the result of the command), and extra parameters
  * specific to the command may be added to the options argument.
  *
- * @class bridgeit
+ * @class voyent
  */
-(function(b) {
+(function(v) {
 
 	function useLocalStorage(){
 		if( !('bridgeit_useLocalStorage' in window )){
@@ -85,7 +84,7 @@ if (!window.console) {
 		}
 		return window.bridgeit_useLocalStorage;
 	}
-	b.useLocalStorage = useLocalStorage;
+	v.useLocalStorage = useLocalStorage;
 
 	function getLocalStorageItem(key){
 		if( useLocalStorage() ){
@@ -95,7 +94,7 @@ if (!window.console) {
 			return getCookie(key);
 		}
 	}
-	b.getLocalStorageItem = getLocalStorageItem;
+	v.getLocalStorageItem = getLocalStorageItem;
 
 	function getSessionStorageItem(key){
 		if( useLocalStorage() ){
@@ -105,7 +104,7 @@ if (!window.console) {
 			return getCookie(key);
 		}
 	}
-	b.getSessionStorageItem = getSessionStorageItem;
+	v.getSessionStorageItem = getSessionStorageItem;
 
 	function getCookie(cname) {
 		var name = cname + "=";
@@ -117,7 +116,7 @@ if (!window.console) {
 		}
 		return "";
 	}
-	b.getCookie = getCookie;
+	v.getCookie = getCookie;
 
 	function setLocalStorageItem(key, value){
 		if( useLocalStorage() ){
@@ -127,7 +126,7 @@ if (!window.console) {
 			return setCookie(key, value);
 		}
 	}
-	b.setLocalStorageItem = setLocalStorageItem;
+	v.setLocalStorageItem = setLocalStorageItem;
 
 	function removeSessionStorageItem(key){
 		if( useLocalStorage() ){
@@ -137,7 +136,7 @@ if (!window.console) {
 			setCookie(key, null);
 		}
 	}
-	b.removeSessionStorageItem = removeSessionStorageItem;
+	v.removeSessionStorageItem = removeSessionStorageItem;
 
 	function removeLocalStorageItem(key){
 		if( useLocalStorage() ){
@@ -147,7 +146,7 @@ if (!window.console) {
 			setCookie(key, null);
 		}
 	}
-	b.removeLocalStorageItem = removeLocalStorageItem;
+	v.removeLocalStorageItem = removeLocalStorageItem;
 
 	function setSessionStorageItem(key, value){
 		if( useLocalStorage() ){
@@ -157,7 +156,7 @@ if (!window.console) {
 			return setCookie(key, value, 1);
 		}
 	}
-	b.setSessionStorageItem = setSessionStorageItem;
+	v.setSessionStorageItem = setSessionStorageItem;
 
 	function setCookie(cname, cvalue, days) {
 		var d = new Date();
@@ -165,7 +164,7 @@ if (!window.console) {
 		var expires = "expires="+d.toUTCString();
 		document.cookie = cname + "=" + cvalue + "; " + expires;
 	}
-	b.setCookie = setCookie;
+	v.setCookie = setCookie;
 
 	/* *********************** PRIVATE ******************************/
 	function serializeForm(formId, typed) {
@@ -232,8 +231,8 @@ if (!window.console) {
 	}
 
 	if (window.jQuery && jQuery.mobile)  {
-		//jquery mobile insists on parsing BridgeIt hashchange data
-		bridgeit.useBase64 = true;;
+		//jquery mobile insists on parsing Voyent hashchange data
+		v.useBase64 = true;
 	}
 	function getDeviceCommand()  {
 		var commandData = null;
@@ -272,7 +271,7 @@ if (!window.console) {
 		}
 		var windowLocation = window.location;
 
-		payload._version = bridgeit.version;
+		payload._version = v.version;
 
 		if (payload.postURL)  {
 			var postURL = getAbsoluteURL(payload.postURL);
@@ -295,11 +294,11 @@ if (!window.console) {
 
 		if (payload._callback)  {
 			if ("string" != typeof(payload._callback))  {
-				if (bridgeit.allowAnonymousCallbacks)  {
+				if (v.allowAnonymousCallbacks)  {
 					payload._callback = "!anon";
 				} else  {
 					console.error(
-						"BridgeIt callbacks must be named in window scope");
+						"Voyent callbacks must be named in window scope");
 					delete payload._callback;
 				}
 			}
@@ -318,15 +317,15 @@ if (!window.console) {
 		payload._returnURL = returnURL;
 		payload._restoreHash = theHash;
 
-		payload._splashImageURL = bridgeit.splashImageURL;
-		payload._splashImage = bridgeit.splashImage;
+		payload._splashImageURL = v.splashImageURL;
+		payload._splashImage = v.splashImage;
 
 		var encodedCommand = btoa(JSON.stringify(payload))
 			.replace(/=/g,"~")
 			.replace(/\//g,".");
 
 		var commandBase = "bridgeit:";
-		if (b.isAndroid())  {
+		if (v.isAndroid())  {
 			commandBase = "http://bridgeit.mobi/android/install/index.html#"
 		}
 
@@ -356,11 +355,11 @@ if (!window.console) {
 			if (options.deviceCommandCallback)  {
 				callback = options.deviceCommandCallback;
 				if ("string" != typeof(callback))  {
-					if (bridgeit.allowAnonymousCallbacks)  {
+					if (v.allowAnonymousCallbacks)  {
 						callback = "!anon";
 					} else  {
 						console.error(
-							"BridgeIt callbacks must be named in window scope");
+							"Voyent callbacks must be named in window scope");
 						callback = null;
 					}
 				}
@@ -414,8 +413,8 @@ if (!window.console) {
 		}
 
 		deviceOptions = null;
-		if (bridgeit.useBase64)  {
-			//jquery mobile insists on parsing BridgeIt hashchange data
+		if (v.useBase64)  {
+			//jquery mobile insists on parsing Voyent hashchange data
 			deviceOptions = "enc=base64";
 		}
 		var optionsClause = "";
@@ -450,11 +449,11 @@ if (!window.console) {
 				optionsClause +
 				hashClause +
 				serializedFormClause;
-		if (b.isWindowsPhone8())  {
+		if (v.isWindowsPhone8())  {
 			sxURL = escape(sxURL);
 		}
 		var sxBase = "icemobile:";
-		if (b.isAndroid())  {
+		if (v.isAndroid())  {
 			sxBase = "http://bridgeit.mobi/android/install/index.html#"
 		}
 		sxURL = sxBase + sxURL;
@@ -464,8 +463,8 @@ if (!window.console) {
 	}
 	function getSplashClause()  {
 		var splashClause = "";
-		if (null != bridgeit.splashImageURL)  {
-			var splashImage = "i=" + escape(bridgeit.splashImageURL);
+		if (null != v.splashImageURL)  {
+			var splashImage = "i=" + escape(v.splashImageURL);
 			splashClause = "&s=" + escape(splashImage);
 		}
 		return splashClause;
@@ -507,23 +506,23 @@ if (!window.console) {
 	}
 	var checkTimeout;
 	function deviceCommand(command, id, callback, options)  {
-		if( !b.isSupportedPlatform(command) ){
-			b.notSupported(id, command);
+		if( !v.isSupportedPlatform(command) ){
+			v.notSupported(id, command);
 			return;
 		}
-		if (b.isIOS())  {
-			console.log('bridgeit.deviceCommand() setting checkTimeout ' + new Date().getTime());
+		if (v.isIOS())  {
+			console.log('voyent.deviceCommand() setting checkTimeout ' + new Date().getTime());
 			checkTimeout = setTimeout( function()  {
-				console.log('bridgeit.deviceCommand() lauchFailed ' + new Date().getTime());
-				bridgeit.launchFailed(id);
+				console.log('voyent.deviceCommand() lauchFailed ' + new Date().getTime());
+				v.launchFailed(id);
 			}, 10000);
 		}
 		if (!options)  {
 			options = {};
 		}
 		console.log(command + " " + id);
-		bridgeit.deviceCommandCallback = callback;
-		if (bridgeit.useJSON64)  {
+		v.deviceCommandCallback = callback;
+		if (v.useJSON64)  {
 			options._callback = callback;
 			deviceCommandExec(command, id, options);
 		} else {
@@ -577,14 +576,14 @@ if (!window.console) {
 	}
 	function unpackDeviceResponse(data)  {
 		var result = {};
-		var un64 = bridgeit.useJSON64 ||
-				(bridgeit.useBase64 && (data.indexOf("!") < 0));
+		var un64 = v.useJSON64 ||
+				(v.useBase64 && (data.indexOf("!") < 0));
 		if (un64)  {
 			data = data.replace(/~/g,"=");
 			data = data.replace(/\./g,"/");
 			data = atob(data);
 		}
-		if (bridgeit.useJSON64)  {
+		if (v.useJSON64)  {
 			//clone these for now
 			data = JSON.parse(data)
 			data.name = data.id;
@@ -604,7 +603,7 @@ if (!window.console) {
 			var paramValue = decodeURIComponent(
 					params[i].substring(splitIndex + 1) );
 			if ("!" === paramName.substring(0,1))  {
-				//BridgeIt parameters are set directly
+				//Voyent parameters are set directly
 				result[paramName.substring(1)] = paramValue;
 			} else  {
 				//only one user value is supported
@@ -705,7 +704,7 @@ if (!window.console) {
 					name : name,
 					value : value
 				};
-				var callback = bridgeit.deviceCommandCallback;
+				var callback = v.deviceCommandCallback;
 				var namedCallBack = getNamedObject(callback);
 				if (namedCallBack)  {
 					callback = namedCallBack;
@@ -756,12 +755,12 @@ if (!window.console) {
 					try {
 						callback(sxEvent);
 					} catch (e)  {
-						var msg = "BridgeIt Device function callback '" + callback + "' failed, make sure that the callback function is in global scope.";
+						var msg = "Voyent Device function callback '" + callback + "' failed, make sure that the callback function is in global scope.";
 						console.error(msg);
 						console.error(e.stack);
 						alert(msg);
 					}
-					bridgeit.deviceCommandCallback = null;
+					v.deviceCommandCallback = null;
 				} else{
 					console.log('no deviceCommandCallback registered :(');
 				}
@@ -770,7 +769,7 @@ if (!window.console) {
 						loc.pathname + loc.search + restoreHash;
 					history.replaceState("", document.title,
 						restoreLocation);
-					console.log('bridgeit history replaceState: ' +
+					console.log('voyent history replaceState: ' +
 						restoreLocation);
 				}, 100);
 			}, 1);
@@ -783,7 +782,7 @@ if (!window.console) {
 	function getCloudPushId()  {
 		return getLocalStorageItem(CLOUD_PUSH_KEY);
 	}
-	b.getCloudPushId = getCloudPushId;
+	v.getCloudPushId = getCloudPushId;
 
 	function setupCloudPush()  {
 		var cloudPushId = getCloudPushId();
@@ -828,15 +827,15 @@ if (!window.console) {
 			}
 		}
 		setLocalStorageItem(LAST_PAGE_KEY, lastPage);
-		console.log("bridgeit storeLastPage " + lastPage);
+		console.log("voyent storeLastPage " + lastPage);
 	}
 	/* Page event handling */
 	if (window.addEventListener) {
 
 		window.addEventListener("pagehide", function () {
 			//hiding the page either indicates user does not require
-			//BridgeIt or the url scheme invocation has succeeded
-			console.log('bridgeit clearing lauchFailed timeout on pagehide ' + new Date().getTime());
+			//Voyent or the url scheme invocation has succeeded
+			console.log('voyent clearing lauchFailed timeout on pagehide ' + new Date().getTime());
 			clearTimeout(checkTimeout);
 			if (ice.push && ice.push.connection) {
 				pausePush();
@@ -859,9 +858,9 @@ if (!window.console) {
 		}, false);
 
 		document.addEventListener("webkitvisibilitychange", function () {
-			console.log(new Date().getTime() + ' bridgeit webkitvisibilitychange document.hidden=' + document.hidden + ' visibilityState=' + document.visibilityState);
+			console.log(new Date().getTime() + ' voyent webkitvisibilitychange document.hidden=' + document.hidden + ' visibilityState=' + document.visibilityState);
 			if (document.webkitHidden)  {
-				console.log('bridgeit clearing lauchFailed timeout on webkitvisibilitychange ' + new Date().getTime());
+				console.log('voyent clearing lauchFailed timeout on webkitvisibilitychange ' + new Date().getTime());
                 clearTimeout(checkTimeout);
 				pausePush();
 			} else {
@@ -870,9 +869,9 @@ if (!window.console) {
 		});
 
 		document.addEventListener("visibilitychange", function () {
-			console.log(new Date().getTime() + ' bridgeit visibilitychange document.hidden=' + document.hidden + ' visibilityState=' + document.visibilityState);
+			console.log(new Date().getTime() + ' voyent visibilitychange document.hidden=' + document.hidden + ' visibilityState=' + document.visibilityState);
 			if (document.hidden)  {
-				console.log('bridgeit clearing lauchFailed timeout on visibilitychange ' + new Date().getTime());
+				console.log('voyent clearing lauchFailed timeout on visibilitychange ' + new Date().getTime());
                 clearTimeout(checkTimeout);
 				pausePush();
 			} else {
@@ -929,7 +928,7 @@ if (!window.console) {
 				if (200 == xhr.status)  {
 					if (!absoluteGoBridgeItURL)  {
 						absoluteGoBridgeItURL = getAbsoluteURL(url);
-						console.log("Cloud Push return via goBridgeIt: " +
+						console.log("Cloud Push return via goVoyent: " +
 								absoluteGoBridgeItURL);
 					}
 				}
@@ -940,9 +939,9 @@ if (!window.console) {
 	}
 
 	function findGoBridgeIt() {
-		if (!!bridgeit.goBridgeItURL)  {
+		if (!!v.goBridgeItURL)  {
 			//page setting overrides detection
-			absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
+			absoluteGoBridgeItURL = getAbsoluteURL(v.goBridgeItURL);
 			return;
 		}
 		//host-wide page
@@ -998,7 +997,7 @@ if (!window.console) {
 			ice.push.addGroupMember(group, pushId);
 			if ("string" != typeof(callback))  {
 				console.error(
-					"BridgeIt Cloud Push callbacks must be named in window scope");
+					"Voyent Cloud Push callbacks must be named in window scope");
 			} else {
 				var callbackName = callback;
 				callback = getNamedObject(callback);
@@ -1111,16 +1110,16 @@ if (!window.console) {
 	/* *********************** PUBLIC **********************************/
 
 	/**
-	 * The version of bridgeit.js
+	 * The version of voyent.js
 	 * @property {String}
 	 */
-	b.version = "1.0.8";
+	v.version = "1.0.8";
 
 	/**
-	 * The last detected version of tje BridgeIt App
+	 * The last detected version of tje Voyent App
 	 * @alias plugin.lastAppVersion
 	 */
-	b.lastAppVersion = function()  {
+	v.lastAppVersion = function()  {
 		return getLocalStorageItem(LASTVERSION_KEY);
 	};
 
@@ -1135,7 +1134,7 @@ if (!window.console) {
 	 * @param {String} id The id passed to the command that failed
 	 * @template
 	 */
-	b.launchFailed = function(id)  {
+	v.launchFailed = function(id)  {
 		console.log("BridgeIt not available for " + id);
 
 		var popDiv = document.createElement("div");
@@ -1159,7 +1158,7 @@ if (!window.console) {
 			'onclick="document.body.removeChild(this.parentNode)">'+
 			'&times;</a>' +
 			'<p>Having Problems?<BR>The BridgeIt App might not be installed.</p><BR>' +
-			'<a href="' + bridgeit.appStoreURL() + '"'+
+			'<a href="' + v.appStoreURL() + '"'+
 			' onclick="document.body.removeChild(this.parentNode)" ' +
 			'target="_blank" style="text-decoration: underline;">Install BridgeIt</a>';
 		document.body.appendChild(popDiv);
@@ -1188,12 +1187,12 @@ if (!window.console) {
 	 * browser control such as input file, which would be available on
 	 * all browsers.
 	 * @param {String} id The id passed to the command that failed
-	 * @param {String} command The BridgeIt api command that was launched
+	 * @param {String} command The Voyent api command that was launched
 	 * @alias plugin.notSupported
 	 * @template
 	 */
-	b.notSupported = function(id, command)  {
-		alert('Sorry, the command ' + command + ' for BridgeIt is not supported on this platform');
+	v.notSupported = function(id, command)  {
+		alert('Sorry, the command ' + command + ' for Voyent is not supported on this platform');
 	};
 
 
@@ -1213,7 +1212,7 @@ if (!window.console) {
 	 * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
 	 *
 	 */
-	b.scan = function(id, callback, options)  {
+	v.scan = function(id, callback, options)  {
 		deviceCommand("scan", id, callback, options);
 	};
 
@@ -1234,7 +1233,7 @@ if (!window.console) {
 	 * @param {String} options.postURL Server-side URL accepting POST of command result (optional)
 	 *
 	 */
-	b.beacons = function(id, callback, options)  {
+	v.beacons = function(id, callback, options)  {
 		deviceCommand("beacons", id, callback, options);
 	};
 
@@ -1252,7 +1251,7 @@ if (!window.console) {
 	 * @param {Object} options.maxheight The maxium height for the image in pixels
 	 *
 	 */
-	b.camera = function(id, callback, options)  {
+	v.camera = function(id, callback, options)  {
 		deviceCommand("camera", id, callback, options);
 	};
 	/**
@@ -1266,7 +1265,7 @@ if (!window.console) {
 	 * @param {Object} options Additional command options
 	 *
 	 */
-	b.camcorder = function(id, callback, options)  {
+	v.camcorder = function(id, callback, options)  {
 		deviceCommand("camcorder", id, callback, options);
 	};
 
@@ -1281,7 +1280,7 @@ if (!window.console) {
 	 * @param {Object} options Additional command options
 	 *
 	 */
-	b.microphone = function(id, callback, options)  {
+	v.microphone = function(id, callback, options)  {
 		deviceCommand("microphone", id, callback, options);
 	};
 
@@ -1297,7 +1296,7 @@ if (!window.console) {
 	 * @param {Object} options.fields The contact fields to retrieve, default = "name,email,phone"
 	 *
 	 */
-	b.fetchContact = function(id, callback, options)  {
+	v.fetchContact = function(id, callback, options)  {
 		var ops = options || {};
 		if (!ops.fields)  {
 			ops.fields = "name,email,phone";
@@ -1319,14 +1318,14 @@ if (!window.console) {
 	 * @param {String} message The message
 	 *
 	 */
-	b.sms = function(number, message)  {
-		if( !b.isSupportedPlatform('sms') ){
-			b.notSupported(null, 'sms');
+	v.sms = function(number, message)  {
+		if( !v.isSupportedPlatform('sms') ){
+			v.notSupported(null, 'sms');
 			return;
 		}
 		if( number == 'undefined' || number == '')
 			return;
-		if( b.isIOS() || b.isAndroid() ){
+		if( v.isIOS() || v.isAndroid() ){
 			deviceCommand('sms', '_sms', null, {n: number, body: message});
 		}
 		else{
@@ -1364,12 +1363,12 @@ if (!window.console) {
 	 * @alias plugin.geoTrack
 	 *
 	 */
-	b.geoTrack = function(id, callback, options)  {
+	v.geoTrack = function(id, callback, options)  {
 		deviceCommand("geospy", id, callback, options);
 	};
 
 	/**
-	 * Register BridgeIt integration and configure Cloud Push.
+	 * Register Voyent integration and configure Cloud Push.
 	 *
 	 * This call is necessary to obtain the Cloud Push ID of the
 	 * device so that notifications can be delivered when the
@@ -1382,7 +1381,7 @@ if (!window.console) {
 	 * @inheritdoc #scan
 	 *
 	 */
-	b.register = function(id, callback, options)  {
+	v.register = function(id, callback, options)  {
 		deviceCommand("register", id, callback, options);
 	};
 
@@ -1391,18 +1390,18 @@ if (!window.console) {
 	 * but in the future will make a call to the push service 
 	 * when an unregister api is available
 	 */
-	b.unregisterCloudPush = function(){
+	v.unregisterCloudPush = function(){
 		removeLocalStorageItem(CLOUD_PUSH_KEY);
 	};
 
 
 	/**
-	 * Verify that BridgeIt Cloud Push is registered.
+	 * Verify that Voyent Cloud Push is registered.
 	 *
 	 * @alias plugin.isRegistered
 	 *
 	 */
-	b.isRegistered = function()  {
+	v.isRegistered = function()  {
 		return !!(getCloudPushId());
 	};
 
@@ -1422,7 +1421,7 @@ if (!window.console) {
 	 * @alias plugin.speech
 	 *
 	 */
-	b.speech = function(id, callback, options){
+	v.speech = function(id, callback, options){
 		deviceCommand("speech", id, callback, options);
 	};
 
@@ -1434,7 +1433,7 @@ if (!window.console) {
 	 * @alias plugin.url2Object
 	 * @param {String} encoded The encoded URL string to unpack
 	 */
-	b.url2Object = function(encoded)  {
+	v.url2Object = function(encoded)  {
 		return url2Object(encoded);
 	};
 
@@ -1443,31 +1442,31 @@ if (!window.console) {
 	 * callback functions currently supported on iOS.
 	 * @property {Boolean} [allowAnonymousCallbacks=false]
 	 */
-	b.allowAnonymousCallbacks = false;
+	v.allowAnonymousCallbacks = false;
 
 	/**
 	 * Set useJSON64 to true to take advantage of Base64 JSON
-	 * data interchange between the browser and BridgeIt App.
+	 * data interchange between the browser and Voyent App.
 	 * This property may be removed and become the default with
-	 * legacy applications required to import an older copy of bridgeit.js.
+	 * legacy applications required to import an older copy of voyent.js.
 	 * @property {Boolean} [useJSON64=false]
 	 */
-	b.useJSON64 = false;
+	v.useJSON64 = false;
 
 	/**
 	 * Set useBase64 to true to take advantage of Base64
 	 * encoding in the return URL from the BridgeIt App.
 	 * This property may be removed with
-	 * legacy applications required to import an older copy of bridgeit.js.
+	 * legacy applications required to import an older copy of voyent.js.
 	 * @property {Boolean} [useBase64=true]
 	 */
-	b.useBase64 = true;
+	v.useBase64 = true;
 
 	/**
 	 * Is the current browser iOS
 	 * @alias plugin.isIOS
 	 */
-	b.isIOS = function(){
+	v.isIOS = function(){
 		var i = 0,
 			iOS = false,
 			iDevice = ['iPad', 'iPhone', 'iPod'];
@@ -1477,55 +1476,55 @@ if (!window.console) {
 				iOS = true; break;
 			}
 		}
-		return !b.isWindowsPhone8() && iOS;
+		return !v.isWindowsPhone8() && iOS;
 	};
 
 	/**
 	 * Is the current client an iPhone
 	 * @alias plugin.isIPhone
 	 */
-	b.isIPhone = function(){
-		return !b.isWindowsPhone8() && navigator.userAgent.indexOf('iPhone') > -1;
+	v.isIPhone = function(){
+		return !v.isWindowsPhone8() && navigator.userAgent.indexOf('iPhone') > -1;
 	};
 
 	/**
 	 * Is the current browser iOS 6
 	 * @alias plugin.isIOS6
 	 */
-	b.isIOS6 = function(){
-		return !b.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
+	v.isIOS6 = function(){
+		return !v.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 6_/.test( navigator.userAgent );
 	};
 
 	/**
 	 * Is the current browser iOS 7
 	 * @alias plugin.isIOS7
 	 */
-	b.isIOS7 = function(){
-		return !b.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 7_/.test( navigator.userAgent );
+	v.isIOS7 = function(){
+		return !v.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 7_/.test( navigator.userAgent );
 	};
 
 	/**
 	 * Is the current browser iOS 7
 	 * @alias plugin.isIOS8
 	 */
-	b.isIOS8 = function(){
-		return !b.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 8_/.test( navigator.userAgent );
+	v.isIOS8 = function(){
+		return !v.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 8_/.test( navigator.userAgent );
 	};
 
 	/**
 	 * Is the current browser iOS 7
 	 * @alias plugin.isIOS8
 	 */
-	b.isIOS9 = function(){
-		return !b.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 9_/.test( navigator.userAgent );
+	v.isIOS9 = function(){
+		return !v.isWindowsPhone8() && /(iPad|iPhone|iPod).*OS 9_/.test( navigator.userAgent );
 	};
 
 	/**
 	 * Is the current browser Android
 	 * @alias plugin.isAndroid
 	 */
-	b.isAndroid = function(){
-		return !b.isWindowsPhone8() && navigator.userAgent.toLowerCase()
+	v.isAndroid = function(){
+		return !v.isWindowsPhone8() && navigator.userAgent.toLowerCase()
 			.indexOf("android") > -1;
 	};
 
@@ -1533,16 +1532,16 @@ if (!window.console) {
 	 * Is the current browser Android
 	 * @alias plugin.isAndroidFroyo
 	 */
-	b.isAndroidFroyo = function(){
-		return !b.isWindowsPhone8() && navigator.userAgent.indexOf("Android 2.2") > -1;
+	v.isAndroidFroyo = function(){
+		return !v.isWindowsPhone8() && navigator.userAgent.indexOf("Android 2.2") > -1;
 	};
 
 	/**
 	 * Is the current browser Android
 	 * @alias plugin.isAndroidGingerBreadOrGreater
 	 */
-	b.isAndroidGingerBreadOrGreater = function(){
-		return !b.isWindowsPhone8() && b.isAndroid() && !b.isAndroidFroyo();
+	v.isAndroidGingerBreadOrGreater = function(){
+		return !v.isWindowsPhone8() && v.isAndroid() && !v.isAndroidFroyo();
 	};
 
 
@@ -1550,7 +1549,7 @@ if (!window.console) {
 	 * Is the current browser Windows Phone 8
 	 * @alias plugin.isWindowsPhone8
 	 */
-	b.isWindowsPhone8 = function(){
+	v.isWindowsPhone8 = function(){
 		var ua = navigator.userAgent;
 		return ua.indexOf('IEMobile') > -1
 			|| ( ua.indexOf('MSIE 10') > -1 && typeof window.orientation !== 'undefined')
@@ -1560,21 +1559,21 @@ if (!window.console) {
 	
 	var android, supportedAndroid, iOS, iOS6, iOS7, iOS8, iOS9, wp8, iPhone, supportMatrix;
 
-	wp8 = b.isWindowsPhone8();
+	wp8 = v.isWindowsPhone8();
 
 	if( !wp8 ){
-		android = b.isAndroid();
-		supportedAndroid = b.isAndroidGingerBreadOrGreater();
-		iOS = b.isIOS();
-		iOS6 = b.isIOS6();
-		iOS7 = b.isIOS7();
-		iOS8 = b.isIOS8();
-		iOS9 = b.isIOS9();
-		wp8 = b.isWindowsPhone8();
-		iPhone = b.isIPhone();
+		android = v.isAndroid();
+		supportedAndroid = v.isAndroidGingerBreadOrGreater();
+		iOS = v.isIOS();
+		iOS6 = v.isIOS6();
+		iOS7 = v.isIOS7();
+		iOS8 = v.isIOS8();
+		iOS9 = v.isIOS9();
+		wp8 = v.isWindowsPhone8();
+		iPhone = v.isIPhone();
 	}
 
-	b.commands = [ 'camera', 'camcorder','microphone','fetchContacts', 'push','scan','geospy','sms',  'beacons', 'speech'];
+	v.commands = [ 'camera', 'camcorder','microphone','fetchContacts', 'push','scan','geospy','sms',  'beacons', 'speech'];
 	supportMatrix = {
 		'iPhone':{
 			'6':   [true,     true,       true,        true,           true,  false, true,    true,   false,     false],
@@ -1593,57 +1592,57 @@ if (!window.console) {
 	 *
 	 * Currently iOS, Android, and some features on Windows Phone 8 are supported.
 	 * @alias plugin.isSupportedPlatform
-	 * @param {String} command The BridgeIt API command that may or may not be supported
+	 * @param {String} command The Voyent API command that may or may not be supported
 	 */
-	b.isSupportedPlatform = function(command){
+	v.isSupportedPlatform = function(command){
 		if( 'register' == command ){
 			return true; //do not check platform for cloud push registration
 		}
 		var supported = false;
 		if( android ){
 			if( supportedAndroid ){
-				return supportMatrix['android'][b.commands.indexOf(command)];
+				return supportMatrix['android'][v.commands.indexOf(command)];
 			}
 		}
 		else if( wp8 ){
-			return supportMatrix['wp8'][b.commands.indexOf(command)];
+			return supportMatrix['wp8'][v.commands.indexOf(command)];
 		}
 		else if( iOS ){
 			//if a future iOS version requires specific checking, additional
 			//cases will be added
 			if( iPhone ){
 				if( iOS6 ){
-					return supportMatrix['iPhone']['6'][b.commands.indexOf(command)];
+					return supportMatrix['iPhone']['6'][v.commands.indexOf(command)];
 				}
 				else /* if( iOS7 ) */ {
-					return supportMatrix['iPhone']['7'][b.commands.indexOf(command)];
+					return supportMatrix['iPhone']['7'][v.commands.indexOf(command)];
 				}
 			}
 			else {
 				if( iOS6 ){
-					return supportMatrix['iPad-iPod']['6'][b.commands.indexOf(command)];
+					return supportMatrix['iPad-iPod']['6'][v.commands.indexOf(command)];
 				}
 				else /* if( iOS7 or higher ) */ {
-					return supportMatrix['iPad-iPod']['7'][b.commands.indexOf(command)];
+					return supportMatrix['iPad-iPod']['7'][v.commands.indexOf(command)];
 				}
 			}
 		}
-		console.log("bridgeIt supported platform for '" + command + "' command: " + supported);
+		console.log("voyent supported platform for '" + command + "' command: " + supported);
 		return supported;
 	};
 
 	/**
-	 * Returns the app store URL to BridgeIt for the appropirate platform
+	 * Returns the app store URL to BridgeIt for the appropriate platform
 	 * @alias plugin.appStoreURL
 	 */
-	b.appStoreURL = function(){
-		if( b.isAndroid() ) {
+	v.appStoreURL = function(){
+		if( v.isAndroid() ) {
 			return 'https://play.google.com/store/apps/details?id=mobi.bridgeit';
 		}
-		else if( b.isIOS() ) {
+		else if( v.isIOS() ) {
 			return 'https://itunes.apple.com/app/bridgeit/id727736414';
 		}
-		else if( b.isWindowsPhone8() ) {
+		else if( v.isWindowsPhone8() ) {
 			return 'http://windowsphone.com/s?appId=b9a1b29f-2b30-4e5d-9bf1-f75e773d74e1';
 		}
 
@@ -1656,7 +1655,7 @@ if (!window.console) {
 	 * an individual user without requiring a server-side session.
 	 * @alias plugin.getId
 	 */
-	b.getId = function()  {
+	v.getId = function()  {
 		var JGUID_KEY = "bridgeit.jguid";
 		if (!jguid)  {
 			jguid = getLocalStorageItem(JGUID_KEY);
@@ -1681,7 +1680,7 @@ if (!window.console) {
 	 *
 	 * @property {String} [goBridgeItURL]
 	 */
-	b.goBridgeItURL = null;
+	v.goBridgeItURL = null;
 
 	var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
 
@@ -1692,7 +1691,7 @@ if (!window.console) {
 	 * @alias plugin.handleCloudPush
 	 * @private
 	 */
-	b.handleCloudPush = function ()  {
+	v.handleCloudPush = function ()  {
 		var callbacks = getLocalStorageItem(CLOUD_CALLBACKS_KEY);
 		var parts = callbacks.split(" ");
 		var callback;
@@ -1705,13 +1704,13 @@ if (!window.console) {
 	};
 
 	/**
-	 * BridgeIt Services login.
+	 * Voyent Services login.
 	 * @alias login
 	 * @param username User name
 	 * @param password User password
 	 * @param options Additional options
 	 */
-	b.login = function(username, password, options) {
+	v.login = function(username, password, options) {
 		var auth = new Promiz();
 
 		options = overlayOptions(bridgeitServiceDefaults, options);
@@ -1740,11 +1739,11 @@ if (!window.console) {
 	}
 
 	/**
-	 * Set up BridgeIt Services.
+	 * Set up Voyent Services.
 	 * @alias useServices
 	 * @param param object with named parameters
 	 */
-	b.useServices = function(param) {
+	v.useServices = function(param) {
 		if ("object" === typeof arguments[0])  {
 			bridgeitServiceDefaults =
 					overlayOptions(bridgeitServiceDefaults, param);
@@ -1757,7 +1756,7 @@ if (!window.console) {
 	 * @param uri the location of the service
 	 * @param apikey
 	 */
-	b.usePushService = function(uri, apikey, options) {
+	v.usePushService = function(uri, apikey, options) {
 		options = overlayOptions(bridgeitServiceDefaults, options);
 
 		if (0 == arguments.length)  {
@@ -1787,12 +1786,12 @@ if (!window.console) {
 	/**
 	 * Add listner for notifications belonging to the specified group.
 	 * Callbacks must be passed by name to receive cloud push notifications,
-	 * regardless of bridgeit.allowAnonymousCallbacks setting
+	 * regardless of voyent.allowAnonymousCallbacks setting
 	 * @param group
 	 * @param callback
 	 * @alias plugin.addPushListener
 	 */
-	b.addPushListener = function(group, callback) {
+	v.addPushListener = function(group, callback) {
 		pushPromise.then(function() {
 			addPushListenerImpl(group, callback);
 		});
@@ -1805,7 +1804,7 @@ if (!window.console) {
 	 * @param url
 	 * @alias plugin.cloudPushReturnURL
 	 */
-	b.cloudPushReturnURL = function(url) {
+	v.cloudPushReturnURL = function(url) {
 		if (!url)  {
 			if (localStorage)  {
 				url = localStorage[LAST_PAGE_KEY];
@@ -1839,10 +1838,10 @@ if (!window.console) {
 	 * @param {String} options.message The message text to be sent in the notification body
 	 * @alias plugin.push
 	 */
-	b.push = function(groupName, options) {
+	v.push = function(groupName, options) {
 		if (!absoluteGoBridgeItURL)  {
-			if (!!bridgeit.goBridgeItURL)  {
-				absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
+			if (!!v.goBridgeItURL)  {
+				absoluteGoBridgeItURL = getAbsoluteURL(v.goBridgeItURL);
 			}
 		}
 		if (!!absoluteGoBridgeItURL)  {
@@ -1851,7 +1850,7 @@ if (!window.console) {
 			}
 		}
 		if (ice && ice.push && ice.push.configuration.contextPath) {
-			console.log("bridgeit.push " + JSON.stringify(options));
+			console.log("voyent.push " + JSON.stringify(options));
 			if (options && options.delay)  {
 				ice.push.notify(groupName, options, options);
 			} else {
@@ -1883,10 +1882,10 @@ if (!window.console) {
 	 * @param {String} options.message The message text to be sent in the notification body
 	 * @alias plugin.pushQuery
 	 */
- 	b.pushQuery = function(docServiceQuery, docServiceFields, docServiceOptions, options) {
+ 	v.pushQuery = function(docServiceQuery, docServiceFields, docServiceOptions, options) {
 		if (!absoluteGoBridgeItURL)  {
-			if (!!bridgeit.goBridgeItURL)  {
-				absoluteGoBridgeItURL = getAbsoluteURL(bridgeit.goBridgeItURL);
+			if (!!v.goBridgeItURL)  {
+				absoluteGoBridgeItURL = getAbsoluteURL(v.goBridgeItURL);
 			}
 		}
 		if (!!absoluteGoBridgeItURL)  {
@@ -1896,7 +1895,7 @@ if (!window.console) {
 		}
 		if (ice && ice.push && ice.push.configuration.contextPath) {
 			if (options) {
-				console.log("bridgeit.push " + JSON.stringify(options));
+				console.log("voyent.push " + JSON.stringify(options));
 			}
 			ice.push.notifyQuery(docServiceQuery, docServiceFields, docServiceOptions, options);
 		} else {
@@ -1909,4 +1908,4 @@ if (!window.console) {
 	addOnLoadListener(checkExecDeviceResponse);
     loadComplete();
 	checkExecDeviceResponse();
-})(bridgeit);
+})(voyent);

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-   <title>BridgeIt Login Test</title>
-   <script src="../src/bridgeit.js"></script>
+   <title>Voyent Login Test</title>
+   <script src="../src/voyent.js"></script>
    <script>
     var SERVICE = "http://dev.bridgeit.io";
 
@@ -13,10 +13,10 @@
 
     function login(username, password)  {
         
-        bridgeit.useServices({
+        voyent.useServices({
                 realm:"edge",
                 serviceBase:SERVICE});
-        auth = bridgeit.login(username, password);
+        auth = voyent.login(username, password);
         auth.then(
             function(result){
                 console.log("logged in ");
@@ -38,8 +38,8 @@
             }
         );
 
-        bridgeit.usePushService();
-        bridgeit.addPushListener(username, 'handlePush');
+        voyent.usePushService();
+        voyent.addPushListener(username, 'handlePush');
     }
    </script>
 </head>

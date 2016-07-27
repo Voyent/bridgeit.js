@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
      <head>
-      <title>BridgeIt  API</title>
+      <title>Voyent API</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
       <meta name='apple-itunes-app' content="app-id=727736414, app-argument=icemobile://c=register&amp;r=./index.html"/>
       <link rel="icon" type="image/png" href="favicon.png"/>
@@ -45,7 +45,7 @@
 <body>
       <div data-role="page" id="home">
         <div data-role="header" class="hdr" data-position="fixed" data-id="header">
-            <h1><span class="bridge-font-color">BridgeIt API</span></h1>
+            <h1><span class="bridge-font-color">Voyent API</span></h1>
         </div>
         <div data-role="content">
             <ul data-role="listview" data-inset="false" id="menu" class="menu" id="menu">
@@ -164,19 +164,19 @@
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2>The BridgeIt JavaScript API</h2>
+          <h2>The Voyent JavaScript API</h2>
           <p>Native Mobile integration for your web app.</p>
-          <p>BridgeIt provides a variety of device commands that allow access to
+          <p>Voyent provides a variety of device commands that allow access to
           device features from JavaScript, all while running in the stock browser
           such as Safari or Chrome. This is made possible by the BridgeIt utility app
           that runs alongside the browser and is available for each of the supported
           platforms (currently Android, iOS, and Windows Phone 8).</p>
           <p>For example..</p>
 {% highlight javascript %}
-bridgeit.camera('myCamera', 'myCallback');
+voyent.camera('myCamera', 'myCallback');
 {% endhighlight %}
           <p>
           will allow the user
@@ -201,7 +201,7 @@ bridgeit.camera('myCamera', 'myCallback');
         </div>
         <div data-role="content">
 
-         <h2><code>bridgeit.allowAnonymousCallbacks</code></h2>
+         <h2><code>voyent.allowAnonymousCallbacks</code></h2>
          <p>
             Set allowAnonymousCallbacks to true to take advantage of persistent
             callback functions currently supported on iOS (default false).
@@ -212,36 +212,36 @@ bridgeit.camera('myCamera', 'myCallback');
             <li>If true, anonymous or unnamed callbacks will be used. </li>
          </ul>
 
-         <h2><code>bridgeit.appStoreURL()</code></h2>
+         <h2><code>voyent.appStoreURL()</code></h2>
          <p>
-            The app store URL to BridgeIt for the appropirate platform.
+            The app store URL to BridgeIt for the appropriate platform.
          </p>
 
-          <h2><code>bridgeit.isAndroid()</code></h2>
+          <h2><code>voyent.isAndroid()</code></h2>
           <p>Is the current browser Android?</p>
 
-          <h2><code>bridgeit.isIOS()</code></h2>
+          <h2><code>voyent.isIOS()</code></h2>
           <p>Is the current browser iOS?</p>
 
-          <h2><code>bridgeit.isRegistered()</code></h2>
-          <p>Verify that BridgeIt Cloud Push is registered.</p>
+          <h2><code>voyent.isRegistered()</code></h2>
+          <p>Verify that Voyent Cloud Push is registered.</p>
 
 
-           <h2><code>bridgeit.isSupportedPlatform(command)</code></h2>
+           <h2><code>voyent.isSupportedPlatform(command)</code></h2>
           <p>Check if the current browser is supported by the BridgeIt Native Mobile app.</p>
           <p>Currently iOS, Android, and some features on Windows Phone 8 are supported.</p>
           <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">command (String)</li>
-            <li>The BridgeIt API command that may or may not be supported.</li>
+            <li>The Voyent API command that may or may not be supported.</li>
          </ul>
 
-          <h2><code>bridgeit.isWindowsPhone8()</code></h2>
+          <h2><code>voyent.isWindowsPhone8()</code></h2>
           <p>Is the current browser Windows Phone 8?</p>
 
 
 
-          <h2><code>bridgeit.launchFailed(id)</code></h2>
+          <h2><code>voyent.launchFailed(id)</code></h2>
           <p> Application provided callback to detect BridgeIt launch failure.
               This should be overridden with an implementation that prompts the
               user to download BridgeIt and potentially fallback with a different
@@ -252,7 +252,7 @@ bridgeit.camera('myCamera', 'myCallback');
             <li>The id passed to the command that failed </li>
          </ul>
 
-         <h2><code>bridgeit.notSupported(id, command)</code></h2>
+         <h2><code>voyent.notSupported(id, command)</code></h2>
          <p>
             Application provided callback to detect non-supported clients.
             This should be overridden with an implementation that informs the
@@ -266,11 +266,11 @@ bridgeit.camera('myCamera', 'myCallback');
             <li data-role="list-divider">id (String)</li>
             <li>The id passed to the command that failed </li>
             <li data-role="list-divider">command (String)</li>
-            <li>The BridgeIt api command that was launched </li>
+            <li>The Voyent api command that was launched </li>
          </ul>
 
-          <h2><code>bridgeit.register(id, callback, options)</code></h2>
-          <p>Register BridgeIt integration and configure Cloud Push.</p>
+          <h2><code>voyent.register(id, callback, options)</code></h2>
+          <p>Register Voyent integration and configure Cloud Push.</p>
           <p>
             This call is necessary to obtain the Cloud Push ID of the
             device so that notifications can be delivered when the
@@ -283,14 +283,14 @@ bridgeit.camera('myCamera', 'myCallback');
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">id (String)</li>
-            <li>The unique id to identify the bridgeit call </li>
+            <li>The unique id to identify the voyent call </li>
             <li data-role="list-divider">callback (Function)</li>
             <li>The callback function will be called when Cloud Push registration completes.</li>
             <li data-role="list-divider">options.postURL (String)</li>
             <li>Server-side URL accepting POST of command result (optional)</li>
          </ul>
 
-         <h2><code>bridgeit.url2Object(encoded)</code></h2>
+         <h2><code>voyent.url2Object(encoded)</code></h2>
           <p>Utility method to unpack url-encoded parameters into an object.</p>
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
@@ -298,7 +298,7 @@ bridgeit.camera('myCamera', 'myCallback');
             <li>The encoded URL string to unpack</li>
          </ul>
 
-         <h2><code>bridgeit.cloudPushReturnURL(url)</code></h2>
+         <h2><code>voyent.cloudPushReturnURL(url)</code></h2>
           <p>Augment a URL so that callbacks will be invoked upon Cloud Push return. If called with no argument, the current URL is used.</p>
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
@@ -306,7 +306,7 @@ bridgeit.camera('myCamera', 'myCallback');
             <li>The url to refresh on a cloud push (optional)</li>
          </ul>
 
-         <h2><code>bridgeit.overrideAugmentedRealityAlphaLevel</code></h2>
+         <h2><code>voyent.overrideAugmentedRealityAlphaLevel</code></h2>
           <p>Set the property to true to have Augmented Reality (in experimental status) be used on Android (default false)</p>
 
 
@@ -319,10 +319,10 @@ bridgeit.camera('myCamera', 'myCallback');
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.augmentedReality(id, callback, options)</code></h2>
+          <h2><code>voyent.augmentedReality(id, callback, options)</code></h2>
           <p>Launch an Augmented Reality view.</p>
           <p>
             The Augmented Reality view displays a set of geo-positioned images on
@@ -357,13 +357,13 @@ locations['marker-b'] = "27.0,130.0,,,image-b.png";
 var postURL = 'http://myserver/ar-post';
 
 </script>
-<button id="aug" onclick="bridgeit.augmentedReality('_loc','handleAug', {postURL:postURL, locations: locations});">
+<button id="aug" onclick="voyent.augmentedReality('_loc','handleAug', {postURL:postURL, locations: locations});">
     Reality View ... </button>
 {% endhighlight %}
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">id (String)</li>
-            <li>The unique id to identify the bridgeit call </li>
+            <li>The unique id to identify the voyent call </li>
             <li data-role="list-divider">callback (Function)</li>
             <li>The callback function will be called once the augmented reality view exits with the user selection provided in the return value. The command is invoked with a locations parameter containing an array of named locations, each with a comma-separated latitude, longitude, altitude, direction, and icon URL.</li>
             <li data-role="list-divider">options.postURL (String)</li>
@@ -380,10 +380,10 @@ var postURL = 'http://myserver/ar-post';
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.camcorder(id, callback, options)</code></h2>
+          <h2><code>voyent.camcorder(id, callback, options)</code></h2>
           <p>Launch the native video recorder.</p>
           <p>The callback function will be called once the video is captured.</p>
 {% highlight html %}
@@ -408,15 +408,15 @@ var postURL = 'http://myserver/video-upload';
 
 </script>
 <a id="camcorderBtn" type="button" class="btn"
-    onclick="bridgeit.camcorder('camcorderBtn','onAfterVideoCapture', {postURL: postURL});">
+    onclick="voyent.camcorder('camcorderBtn','onAfterVideoCapture', {postURL: postURL});">
     Record a Video</a>
 {% endhighlight %}
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">id (String)</li>
-            <li>The unique id to identify the bridgeit call </li>
+            <li>The unique id to identify the voyent call </li>
             <li data-role="list-divider">callback (Function)</li>
-            <li>The callback function that will be called by BridgeIt when the video recorder returns</li>
+            <li>The callback function that will be called by Voyent when the video recorder returns</li>
             <li data-role="list-divider">options.postURL (String)</li>
             <li>Server-side URL accepting POST of command result (optional)</li>
          </ul>
@@ -430,10 +430,10 @@ var postURL = 'http://myserver/video-upload';
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.camera(id, callback, options)</code></h2>
+          <h2><code>voyent.camera(id, callback, options)</code></h2>
           <p>Launch the native camera.</p>
           <p>The callback function will be called once the photo is captured.</p>
 {% highlight html %}
@@ -454,15 +454,15 @@ var postURL = 'http://myserver/photo-upload';
 
 </script>
 <a id="cameraBtn" type="button" class="btn"
-    onclick="bridgeit.camera('cameraBtn','onAfterPhotoCapture', {postURL: postURL});">
+    onclick="voyent.camera('cameraBtn','onAfterPhotoCapture', {postURL: postURL});">
     Take a photo</a>
 {% endhighlight %}
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">id (String)</li>
-            <li>The unique id to identify the bridgeit call </li>
+            <li>The unique id to identify the voyent call </li>
             <li data-role="list-divider">callback (Function)</li>
-            <li>The callback function that will be called by BridgeIt when the camera returns</li>
+            <li>The callback function that will be called by Voyent when the camera returns</li>
             <li data-role="list-divider">options.postURL (String)</li>
             <li>Server-side URL accepting POST of command result (optional)</li>
             <li data-role="list-divider">options.maxwidth (Number)</li>
@@ -479,16 +479,16 @@ var postURL = 'http://myserver/photo-upload';
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.fetchContact(id, callback, options)</code></h2>
+          <h2><code>voyent.fetchContact(id, callback, options)</code></h2>
           <p>Launch the native contact list app to select a contact.</p>
           <p>The callback function will be called once a contact is seleted.</p>
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">id (String)</li>
-            <li>The unique id to identify the bridgeit call </li>
+            <li>The unique id to identify the voyent call </li>
             <li data-role="list-divider">callback (Function)</li>
             <li>The callback function will be called once the contact is retrieved.</li>
          </ul>
@@ -501,10 +501,10 @@ var postURL = 'http://myserver/photo-upload';
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.geoTrack(id, callback, options)</code></h2>
+          <h2><code>voyent.geoTrack(id, callback, options)</code></h2>
           <p>Activate location tracking. </p>
           <p>
             Location tracking will run in the
@@ -524,7 +524,7 @@ var postURL = 'http://myserver/photo-upload';
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">id (String)</li>
-            <li>The unique id to identify the bridgeit call </li>
+            <li>The unique id to identify the voyent call </li>
             <li data-role="list-divider">callback (Function)</li>
             <li>The callback function will be called once location tracking is activated.</li>
             <li data-role="list-divider">options.postURL (String)</li>
@@ -546,16 +546,16 @@ var postURL = 'http://myserver/photo-upload';
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.microphone(id, callback, options)</code></h2>
+          <h2><code>voyent.microphone(id, callback, options)</code></h2>
           <p>Launch the native audio recorder.</p>
           <p>The callback function will be called once the audio is captured.</p>
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">id (String)</li>
-            <li>The unique id to identify the bridgeit call </li>
+            <li>The unique id to identify the voyent call </li>
             <li data-role="list-divider">callback (Function)</li>
             <li>The callback function will be called once the audio is captured</li>
             <li data-role="list-divider">options.postURL (String)</li>
@@ -570,10 +570,10 @@ var postURL = 'http://myserver/photo-upload';
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.push(groupName, options)</code></h2>
+          <h2><code>voyent.push(groupName, options)</code></h2>
           <p>Push a notification to the group.</p>
           <p>
               This will result in an Ajax Push (and associated callback)
@@ -587,19 +587,19 @@ var postURL = 'http://myserver/photo-upload';
 
 {% highlight html %}
 <a id="regBtn" type="button" class="btn"
-    onclick="bridgeit.register('_reg', 'handlePushRegistration');">Enable Cloud Push</a>
+    onclick="voyent.register('_reg', 'handlePushRegistration');">Enable Cloud Push</a>
 
 <a id="pushBtn" type="button" class="btn"
     onclick="delayedPush();">Push in 10 seconds ...</a>
 <script type="text/javascript">
 function delayedPush()  {
-    bridgeit.push( bridgeit.getId(),
-        {subject:'BridgeIt Cloud Push',
+    voyent.push( voyent.getId(),
+        {subject:'Voyent Cloud Push',
         detail:'You have been notified.', delay:10000} );
 }
 
 function handlePushRegistration(event)  {
-    if (bridgeit.isRegistered())  {
+    if (voyent.isRegistered())  {
         document.getElementById('regBtn').style.display = 'none';
     }
 }
@@ -610,8 +610,8 @@ function handlePush()  {
 //api key for push service available from bridgeit.mobi
 var apikey = 'xxx';
 var pushHub = 'http://api.bridgeit.mobi/push/';
-bridgeit.usePushService(pushHub, apikey);
-bridgeit.addPushListener(bridgeit.getId(), 'handlePush');
+voyent.usePushService(pushHub, apikey);
+voyent.addPushListener(voyent.getId(), 'handlePush');
 
 </script>
 {% endhighlight %}
@@ -634,16 +634,16 @@ bridgeit.addPushListener(bridgeit.getId(), 'handlePush');
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.scan(id, callback, options)</code></h2>
+          <h2><code>voyent.scan(id, callback, options)</code></h2>
           <p>Launch the device scanner. Scan QR codes or bar codes (iOS 7).</p>
           <p>The callback function will be called once the scan is captured.</p>
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
             <li data-role="list-divider">id (String)</li>
-            <li>The unique id to identify the bridgeit call </li>
+            <li>The unique id to identify the voyent call </li>
             <li data-role="list-divider">callback (Function)</li>
             <li>The callback function will be called once the scan is captured.</li>
             <li data-role="list-divider">options.postURL (String)</li>
@@ -658,10 +658,10 @@ bridgeit.addPushListener(bridgeit.getId(), 'handlePush');
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.sms(number, message)</code></h2>
+          <h2><code>voyent.sms(number, message)</code></h2>
           <p>The sms function will send an SMS message to a number on supported
              platforms. On iOS devices, a native SMS call is made through the
              BridgeIt utility app. On other platforms an SMS URL protocol is used in a
@@ -683,10 +683,10 @@ bridgeit.addPushListener(bridgeit.getId(), 'handlePush');
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.speech(id, callback, options)</code></h2>
+          <h2><code>voyent.speech(id, callback, options)</code></h2>
           <p>Text-to-speech.</p>
          <h4>Parameters</h4>
           <ul data-role="listview" data-inset="true">
@@ -718,10 +718,10 @@ bridgeit.addPushListener(bridgeit.getId(), 'handlePush');
               data-transition="slide" data-direction="reverse">
               <i class="fa fa-chevron-left"></i>
             </a>
-            <h1><span class="bridge-font-color">BridgeIt</span></h1>
+            <h1><span class="bridge-font-color">Voyent</span></h1>
         </div>
         <div data-role="content">
-          <h2><code>bridgeit.beacons(id, callback, options)</code></h2>
+          <h2><code>voyent.beacons(id, callback, options)</code></h2>
           <p>Detect nearby iBeacons.</p>
           <p>The callback function will be called when an iBeacon is detected.
               The return value will be set to the range, major, and minor values
