@@ -134,11 +134,6 @@ if (!window.console) {
         return useLocalStorage() ? sessionStorage.setItem(key, value) : setCookie(key, value, 1);
     };
 
-    if (window.jQuery && jQuery.mobile) {
-        //jquery mobile insists on parsing Voyent hashchange data
-        v.useBase64 = true;
-    }
-
     var checkTimeout;
 
     function url2Object(encoded) {
@@ -238,20 +233,9 @@ if (!window.console) {
             }
         }, false);
 
-        window.addEventListener("pageshow", function () {
-            if (ice.push && ice.push.connection) {
-                resumePush();
-            }
-        }, false);
+        window.addEventListener("pageshow", resumePush, false);
 
-        window.addEventListener("hashchange", function () {
-            console.log('entered hashchange listener hash=' + window.location.hash);
-            checkExecDeviceResponse();
-        }, false);
-
-        window.addEventListener("load", function () {
-            storeLastPage();
-        }, false);
+        window.addEventListener("load", storeLastPage, false);
 
         document.addEventListener("webkitvisibilitychange", function () {
             console.log(new Date().getTime() + ' voyent webkitvisibilitychange document.hidden=' + document.hidden + ' visibilityState=' + document.visibilityState);
@@ -600,31 +584,6 @@ if (!window.console) {
     };
 
     /**
-     * Set allowAnonymousCallbacks to true to take advantage of persistent
-     * callback functions currently supported on iOS.
-     * @property {Boolean} [allowAnonymousCallbacks=false]
-     */
-    v.allowAnonymousCallbacks = false;
-
-    /**
-     * Set useJSON64 to true to take advantage of Base64 JSON
-     * data interchange between the browser and Voyent App.
-     * This property may be removed and become the default with
-     * legacy applications required to import an older copy of voyent.js.
-     * @property {Boolean} [useJSON64=false]
-     */
-    v.useJSON64 = false;
-
-    /**
-     * Set useBase64 to true to take advantage of Base64
-     * encoding in the return URL from the BridgeIt App.
-     * This property may be removed with
-     * legacy applications required to import an older copy of voyent.js.
-     * @property {Boolean} [useBase64=true]
-     */
-    v.useBase64 = true;
-
-    /**
      * Returns the app store URL to BridgeIt for the appropriate platform
      * @alias plugin.appStoreURL
      */
@@ -779,8 +738,7 @@ if (!window.console) {
 
     /**
      * Add listener for notifications belonging to the specified group.
-     * Callbacks must be passed by name to receive cloud push notifications,
-     * regardless of voyent.allowAnonymousCallbacks setting
+     * Callbacks must be passed by name to receive cloud push notifications.
      * @param group
      * @param callback
      * @alias plugin.addPushListener
