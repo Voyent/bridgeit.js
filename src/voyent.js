@@ -106,20 +106,8 @@ if (!window.console) {
         return useLocalStorage() ? localStorage.getItem(key) : getCookie(key);
     }
 
-    function getSessionStorageItem(key) {
-        return useLocalStorage() ? sessionStorage.getItem(key) : getCookie(key);
-    }
-
     function setLocalStorageItem(key, value) {
         return useLocalStorage() ? localStorage.setItem(key, value) : setCookie(key, value);
-    }
-
-    function removeSessionStorageItem(key) {
-        if (useLocalStorage()) {
-            sessionStorage.removeItem(key);
-        } else {
-            setCookie(key, null);
-        }
     }
 
     function removeLocalStorageItem(key) {
@@ -128,10 +116,6 @@ if (!window.console) {
         } else {
             setCookie(key, null);
         }
-    }
-
-    function setSessionStorageItem(key, value) {
-        return useLocalStorage() ? sessionStorage.setItem(key, value) : setCookie(key, value, 1);
     }
 
     function getNamedObject(name) {
@@ -581,8 +565,7 @@ if (!window.console) {
             url = window.location.href;
         }
         var seq = (new Date()).getTime();
-        var urlExtra =
-            btoa("!h=" + escape("c=bridgeit.handleCloudPush&seq=" + seq));
+        var urlExtra =  btoa("!h=" + escape("c=bridgeit.handleCloudPush&seq=" + seq));
         urlExtra = urlExtra.replace(/=/g, "~");
         urlExtra = urlExtra.replace(/\//g, ".");
         var returnURL = url + "#icemobilesx_" + urlExtra;
