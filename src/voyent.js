@@ -134,20 +134,6 @@ if (!window.console) {
         return useLocalStorage() ? sessionStorage.setItem(key, value) : setCookie(key, value, 1);
     }
 
-    var checkTimeout;
-
-    function url2Object(encoded) {
-        var parts = encoded.split("&");
-        var record = {};
-        for (var i = 0; i < parts.length; i++) {
-            if (!!parts[i]) {
-                var pair = parts[i].split("=");
-                record[unescape(pair[0])] = decodeURIComponent(pair[1]);
-            }
-        }
-        return record;
-    }
-
     function getNamedObject(name) {
         if (!name) {
             return null;
@@ -227,7 +213,6 @@ if (!window.console) {
             //hiding the page either indicates user does not require
             //Voyent or the url scheme invocation has succeeded
             console.log('voyent clearing lauchFailed timeout on pagehide ' + new Date().getTime());
-            clearTimeout(checkTimeout);
             if (ice.push && ice.push.connection) {
                 pausePush();
             }
@@ -241,7 +226,6 @@ if (!window.console) {
             console.log(new Date().getTime() + ' voyent webkitvisibilitychange document.hidden=' + document.hidden + ' visibilityState=' + document.visibilityState);
             if (document.webkitHidden) {
                 console.log('voyent clearing lauchFailed timeout on webkitvisibilitychange ' + new Date().getTime());
-                clearTimeout(checkTimeout);
                 pausePush();
             } else {
                 resumePush();
@@ -252,7 +236,6 @@ if (!window.console) {
             console.log(new Date().getTime() + ' voyent visibilitychange document.hidden=' + document.hidden + ' visibilityState=' + document.visibilityState);
             if (document.hidden) {
                 console.log('voyent clearing lauchFailed timeout on visibilitychange ' + new Date().getTime());
-                clearTimeout(checkTimeout);
                 pausePush();
             } else {
                 resumePush();
@@ -297,13 +280,6 @@ if (!window.console) {
 
     function endsWith(s, pattern) {
         return s.lastIndexOf(pattern) == s.length - pattern.length;
-    }
-
-    function getAbsoluteURL(url) {
-        var img = document.createElement('img');
-        img.src = url;
-        url = img.src;
-        return url;
     }
 
     var pushPromise = new Promiz();
@@ -362,8 +338,6 @@ if (!window.console) {
             console.error('Push service is not active');
         }
     }
-
-    var LASTVERSION_KEY = "bridgeit.lastappversion";
 
     function addOptions(base, options) {
         for (var prop in options) {
@@ -433,30 +407,6 @@ if (!window.console) {
      */
     v.version = "1.0.8";
 
-    /**
-     * The last detected version of tje Voyent App
-     * @alias plugin.lastAppVersion
-     */
-    v.lastAppVersion = function () {
-        return getLocalStorageItem(LASTVERSION_KEY);
-    };
-
-    /**
-     * Application provided callback to detect non-supported clients.
-     * This should be overridden with an implementation that informs the
-     * user the user that native mobile functionality is only available
-     * on supported platforms or potentially fallback with a different
-     * browser control such as input file, which would be available on
-     * all browsers.
-     * @param {String} id The id passed to the command that failed
-     * @param {String} command The Voyent api command that was launched
-     * @alias plugin.notSupported
-     * @template
-     */
-    v.notSupported = function (id, command) {
-        alert('Sorry, the command ' + command + ' for Voyent is not supported on this platform');
-    };
-
     /* Remove client from cloud push notifications
      * Currently this just removes the cloud push id (notifyBackURI)
      * but in the future will make a call to the push service
@@ -475,16 +425,6 @@ if (!window.console) {
      */
     v.isRegistered = function () {
         return !!(getCloudPushId());
-    };
-
-    /**
-     * Utility method to unpack url-encoded parameters into an object.
-     *
-     * @alias plugin.url2Object
-     * @param {String} encoded The encoded URL string to unpack
-     */
-    v.url2Object = function (encoded) {
-        return url2Object(encoded);
     };
 
     var jguid;
@@ -511,16 +451,6 @@ if (!window.console) {
         return jguid;
     };
 
-    /**
-     * Set goBridgeItURL to the URL of your goBridgeIt.html file
-     * to allow {@link bridgeit#push Cloud Push} to go back to the most recent page
-     * The defaults of the host root and the current relative
-     * directory URL do not need to be specified. For an example, see
-     * http://bridgeit.mobi/demo/goBridgeIt.html
-     *
-     * @property {String} [goBridgeItURL]
-     */
-    v.goBridgeItURL = null;
 
     var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
 
