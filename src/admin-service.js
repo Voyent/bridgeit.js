@@ -29,7 +29,7 @@ function AdminService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var protocol = params.ssl ? 'https://' : 'http://';
                     var txParam = getTransactionURLParam();
                     var url = protocol + services.authAdminURL + '/system/services/?access_token=' + token +
@@ -52,8 +52,8 @@ function AdminService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var protocol = params.ssl ? 'https://' : 'http://';
                 var txParam = getTransactionURLParam();
@@ -78,8 +78,8 @@ function AdminService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var protocol = params.ssl ? 'https://' : 'http://';
                 var url = protocol + services.authAdminURL + '/' + account + '/realms/'
@@ -100,11 +100,11 @@ function AdminService(b, utils) {
                 params = params ? params : {};
                 services.checkHost(params);
 
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 var realm = validateAndReturnRequiredRealmName(params, reject);
 
-                var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                     '', token, params.ssl);
 
                 b.$.getJSON(url).then(function(json){
@@ -122,11 +122,11 @@ function AdminService(b, utils) {
                 params = params ? params : {};
                 services.checkHost(params);
 
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 validateRequiredRealm(params, reject);
 
-                var url = getRealmResourceURL(services.authAdminURL, account, params.realm.name,
+                var url = utils.getRealmResourceURL(services.authAdminURL, account, params.realm.name,
                     '', token, params.ssl);
 
                 b.$.put(url, {realm: params.realm}).then(function(){
@@ -144,8 +144,8 @@ function AdminService(b, utils) {
                 params = params ? params : {};
                 services.checkHost(params);
 
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 var realmName = validateAndReturnRequiredRealmName(params, reject);
                 validateRequiredRealm(params, reject);
 
@@ -169,11 +169,11 @@ function AdminService(b, utils) {
                 params = params ? params : {};
                 services.checkHost(params);
 
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 var realmName = validateAndReturnRequiredRealmName(params, reject);
 
-                var url = getRealmResourceURL(services.authAdminURL, account, realmName,
+                var url = utils.getRealmResourceURL(services.authAdminURL, account, realmName,
                     '', token, params.ssl);
 
                 b.$.doDelete(url).then(function(){
@@ -195,11 +195,11 @@ function AdminService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = validateAndReturnRequiredRealmName(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'users', token, params.ssl);
 
                     b.$.getJSON(url).then(function(json){
@@ -219,13 +219,13 @@ function AdminService(b, utils) {
                     params = params ? params : {};
                     services.checkHost(params);
 
-                    var account = validateAndReturnRequiredAccount(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = validateAndReturnRequiredRealmName(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     validateRequiredUser(params, reject);
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'users', services.auth.getLastAccessToken(), params.ssl);
 
                     b.$.post(url, {user: params.user}).then(function(response){
@@ -245,12 +245,12 @@ function AdminService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = validateAndReturnRequiredRealmName(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var username = utils.validateAndReturnRequiredUsername(params, reject);
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'users/' + username, token, params.ssl);
 
                     b.$.getJSON(url).then(function(json){
@@ -270,13 +270,13 @@ function AdminService(b, utils) {
                     params = params ? params : {};
                     services.checkHost(params);
 
-                    var account = validateAndReturnRequiredAccount(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = validateAndReturnRequiredRealmName(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     validateRequiredUser(params, reject);
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'users/' + params.user.username, services.auth.getLastAccessToken(), params.ssl);
 
                     b.$.put(url, {user: params.user}).then(function(response){
@@ -295,13 +295,13 @@ function AdminService(b, utils) {
                     params = params ? params : {};
                     services.checkHost(params);
 
-                    var account = validateAndReturnRequiredAccount(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = validateAndReturnRequiredRealmName(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     utils.validateRequiredUsername(params, reject);
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'users/' + params.username, services.auth.getLastAccessToken(), params.ssl);
 
                     b.$.doDelete(url).then(function(){
@@ -323,11 +323,11 @@ function AdminService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = validateAndReturnRequiredRealmName(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'roles', token, params.ssl);
 
                     b.$.getJSON(url).then(function(json){
@@ -349,11 +349,11 @@ function AdminService(b, utils) {
                     validateRequiredRole(params, reject);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = validateAndReturnRequiredRealmName(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'roles', token, params.ssl);
 
                     b.$.post(url, {role: params.role}).then(function(response){
@@ -375,11 +375,11 @@ function AdminService(b, utils) {
                     validateRequiredRole(params, reject);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = validateAndReturnRequiredRealmName(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'roles/' + params.role.name, token, params.ssl);
 
                     b.$.put(url, {role: params.role}).then(function(response){
@@ -398,13 +398,13 @@ function AdminService(b, utils) {
                     params = params ? params : {};
                     services.checkHost(params);
 
-                    validateRequiredId(params, reject);
+                    utils.validateRequiredId(params, reject);
 
-                    var account = validateAndReturnRequiredAccount(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = validateAndReturnRequiredRealmName(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'roles/' + params.id, token, params.ssl);
 
                     b.$.doDelete(url).then(function(response){
@@ -423,8 +423,8 @@ function AdminService(b, utils) {
                 services.checkHost(params);
 
                 var protocol = params.ssl ? 'https://' : 'http://';
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var query = params.query ? encodeURIComponent(JSON.stringify(params.query)) : '{}';
                 var fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';
@@ -449,9 +449,9 @@ function AdminService(b, utils) {
                 services.checkHost(params);
 
                 var protocol = params.ssl ? 'https://' : 'http://';
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var query = params.query ? encodeURIComponent(JSON.stringify(params.query)) : '{}';
                 var fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';

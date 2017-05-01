@@ -31,9 +31,9 @@ function PushService(b, utils) {
 
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var pushURL = (params.ssl ? 'https://' : 'http://') + services.pushURL + '/';
 
@@ -69,7 +69,7 @@ function PushService(b, utils) {
 
                 function storePushListener(pushId, group, cb){
                     var pushListeners = {};
-                    var pushListenersStr = getSessionStorageItem(PUSH_CALLBACKS);
+                    var pushListenersStr = utils.getSessionStorageItem(PUSH_CALLBACKS);
                     if( pushListenersStr ){
                         try{
                             pushListeners = JSON.parse(pushListenersStr);
@@ -80,31 +80,31 @@ function PushService(b, utils) {
                         pushListeners[group] = [];
                     }
                     pushListeners[group].push({pushId: pushId, callback: cb});
-                    setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListeners));
+                    utils.setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListeners));
                 }
 
                 function addCloudPushListener(){
-                    var callback = findFunctionInGlobalScope(params.callback);
+                    var callback = utils.findFunctionInGlobalScope(params.callback);
                     if( !callback ){
                         reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
                     }
                     else{
-                        var callbacks = getLocalStorageItem(CLOUD_CALLBACKS_KEY);
-                        var callbackName = getFunctionName(callback);
+                        var callbacks = utils.getLocalStorageItem(CLOUD_CALLBACKS_KEY);
+                        var callbackName = utils.getFunctionName(callback);
                         if (!callbacks)  {
                             callbacks = " ";
                         }
                         if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
                             callbacks += callbackName + " ";
                         }
-                        setLocalStorageItem(CLOUD_CALLBACKS_KEY, callbacks);
+                        utils.setLocalStorageItem(CLOUD_CALLBACKS_KEY, callbacks);
                     }
                 }
 
                 function addPushGroupMember(){
                     ice.push.createPushId(function(pushId) {
                         ice.push.addGroupMember(params.group, pushId);
-                        var fn = findFunctionInGlobalScope(params.callback);
+                        var fn = utils.findFunctionInGlobalScope(params.callback);
                         if( !fn ){
                             reject('could not find function in global scope: ' + params.callback);
                         }
@@ -157,7 +157,7 @@ function PushService(b, utils) {
                 params = params ? params : {};
                 services.checkHost(params);
                 validateRequiredGroup(params, reject);
-                var pushListenersStr = getSessionStorageItem(PUSH_CALLBACKS);
+                var pushListenersStr = utils.getSessionStorageItem(PUSH_CALLBACKS);
                 if( !pushListenersStr ){
                     console.error('Cannot remove push listener ' + params.group + ', missing push listener storage.');
                 }
@@ -200,7 +200,7 @@ function PushService(b, utils) {
                             }
                             delete pushListenerStorage[params.group];
                         }
-                        setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListenerStorage));
+                        utils.setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListenerStorage));
                     } catch(e){
                         console.error(e);
                     }

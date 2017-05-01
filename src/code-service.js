@@ -31,12 +31,12 @@ function CodeService(b, utils) {
                     httpMethod = httpMethod.toLowerCase();
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredFlow(params, reject);
 
-                    var url = getRealmResourceURL(services.codeURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.codeURL, account, realm,
                         'nodes/' + encodeURI(params.flow), token, params.ssl);
 
                     if( 'get' === httpMethod ){
@@ -69,11 +69,11 @@ function CodeService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.codeURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.codeURL, account, realm,
                         '', token, params.ssl);
 
                     b.$.post(url).then(function(response){
@@ -95,11 +95,11 @@ function CodeService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.codeURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.codeURL, account, realm,
                         '', token, params.ssl);
 
                     b.$.doDelete(url).then(function(response){

@@ -87,10 +87,6 @@ function PrivateUtils(services) {
         validateParameter('id', 'The id is required', params, reject);
     }
 
-    function validateRequiredData(params, reject){
-        validateParameter('data', 'The data parameter is required', params, reject);
-    }
-
     function validateParameter(name, msg, params, reject){
         if( !params[name] ){
             reject(Error(msg));
@@ -270,7 +266,6 @@ function PrivateUtils(services) {
         'validateAndReturnRequiredRealmName': validateAndReturnRequiredRealmName,
         'validateAndReturnRequiredAccount': validateAndReturnRequiredAccount,
         'validateAndReturnRequiredAccessToken': validateAndReturnRequiredAccessToken,
-        'validateRequiredId': validateRequiredId,
-        'validateRequiredData': validateRequiredData
+        'validateRequiredId': validateRequiredId
     }
 }

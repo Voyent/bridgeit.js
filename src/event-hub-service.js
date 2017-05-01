@@ -29,12 +29,12 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredHandler(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'handlers/' + (params.id ? params.id : ''), token, params.ssl);
 
                     b.$.post(url, params.handler).then(function(response){
@@ -68,13 +68,13 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
                     validateRequiredHandler(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'handlers/' + params.id, token, params.ssl);
 
                     b.$.put(url, params.handler).then(function(){
@@ -107,12 +107,12 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'handlers/' + params.id, token, params.ssl);
 
                     b.$.getJSON(url).then(function(handler){
@@ -148,11 +148,11 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'handlers/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -189,12 +189,12 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'handlers/' + params.id, token, params.ssl);
 
                     b.$.doDelete(url).then(function(){
@@ -228,11 +228,11 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'handlers/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -270,12 +270,12 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredRecognizer(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'recognizers/' + (params.id ? params.id : ''), token, params.ssl);
 
                     b.$.post(url, params.recognizer).then(function(response) {
@@ -309,13 +309,13 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
                     validateRequiredRecognizer(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'recognizers/' + params.id, token, params.ssl);
 
                     b.$.put(url, params.recognizer).then(function() {
@@ -348,12 +348,12 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'recognizers/' + params.id, token, params.ssl);
 
                     b.$.getJSON(url).then(function(recognizer) {
@@ -389,11 +389,11 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'recognizers/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -430,12 +430,12 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'recognizers/' + params.id, token, params.ssl);
 
                     b.$.doDelete(url).then(function() {
@@ -469,11 +469,11 @@ function EventHubService (b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
                         'recognizers/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},

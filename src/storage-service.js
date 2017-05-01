@@ -30,11 +30,11 @@ function StorageService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                var url = getRealmResourceURL(services.storageURL, account, realm,
+                var url = utils.getRealmResourceURL(services.storageURL, account, realm,
                     'meta', token, params.ssl, params.scope ? {scope: params.scope} : null);
 
 
@@ -68,15 +68,15 @@ function StorageService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 validateRequiredBlob(params, reject);
 
                 var formData = new FormData();
                 formData.append('file', params.blob);
 
-                var url = getRealmResourceURL(services.storageURL, account, realm,
+                var url = utils.getRealmResourceURL(services.storageURL, account, realm,
                     'blobs' + (params.id ? '/' + params.id : ''), token, params.ssl);
 
                 b.$.post(url, formData, null, true, null, params.progressCallback).then(function(response){
@@ -111,12 +111,12 @@ function StorageService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 validateRequiredFile(params, reject);
 
-                var url = getRealmResourceURL(services.storageURL, account, realm,
+                var url = utils.getRealmResourceURL(services.storageURL, account, realm,
                     'blobs' + (params.id ? '/' + params.id : ''), token, params.ssl);
                 var formData = new FormData();
                 formData.append('file', params.file);
@@ -149,12 +149,12 @@ function StorageService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
-                validateRequiredId(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                utils.validateRequiredId(params, reject);
 
-                var url = getRealmResourceURL(services.storageURL, account, realm,
+                var url = utils.getRealmResourceURL(services.storageURL, account, realm,
                     'blobs/' + params.id, token, params.ssl);
 
                 b.$.getBlob(url).then(function(response){
@@ -184,12 +184,12 @@ function StorageService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
-                validateRequiredId(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                utils.validateRequiredId(params, reject);
 
-                var url = getRealmResourceURL(services.storageURL, account, realm,
+                var url = utils.getRealmResourceURL(services.storageURL, account, realm,
                     'blobs/' + params.id, token, params.ssl);
 
                 b.$.doDelete(url).then(function(response){

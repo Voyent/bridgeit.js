@@ -190,12 +190,12 @@ function AuthService(b, utils) {
                         if( !params.suppressUpdateTimestamp ){
                             services.auth.updateLastActiveTimestamp();
                         }
-                        setSessionStorageItem(btoa(TOKEN_KEY), authResponse.access_token);
-                        setSessionStorageItem(btoa(TOKEN_EXPIRES_KEY), authResponse.expires_in);
-                        setSessionStorageItem(btoa(TOKEN_SET_KEY), loggedInAt);
-                        setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
-                        setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
-                        setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
+                        utils.setSessionStorageItem(btoa(TOKEN_KEY), authResponse.access_token);
+                        utils.setSessionStorageItem(btoa(TOKEN_EXPIRES_KEY), authResponse.expires_in);
+                        utils.setSessionStorageItem(btoa(TOKEN_SET_KEY), loggedInAt);
+                        utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
+                        utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
 
                         resolve(authResponse);
                     })['catch'](function(error){
@@ -277,10 +277,10 @@ function AuthService(b, utils) {
                             if( (connectSettings.connectionTimeout * 1000 * 60 ) > services.auth.getTimeRemainingBeforeExpiry()){
 
                                 var loginParams = services.auth.getConnectSettings();
-                                loginParams.account = atob(getSessionStorageItem(btoa(ACCOUNT_KEY)));
-                                loginParams.realm = atob(getSessionStorageItem(btoa(REALM_KEY)));
-                                loginParams.username = atob(getSessionStorageItem(btoa(USERNAME_KEY)));
-                                loginParams.password = atob(getSessionStorageItem(btoa(PASSWORD_KEY)));
+                                loginParams.account = atob(utils.getSessionStorageItem(btoa(ACCOUNT_KEY)));
+                                loginParams.realm = atob(utils.getSessionStorageItem(btoa(REALM_KEY)));
+                                loginParams.username = atob(utils.getSessionStorageItem(btoa(USERNAME_KEY)));
+                                loginParams.password = atob(utils.getSessionStorageItem(btoa(PASSWORD_KEY)));
                                 loginParams.suppressUpdateTimestamp = true;
 
                                 services.auth.login(loginParams).then(function(authResponse){
@@ -324,7 +324,7 @@ function AuthService(b, utils) {
                                     expiredCallbackFunction = expiredCallback;
                                 }
                                 else if( typeof expiredCallback === 'string'){
-                                    expiredCallbackFunction = findFunctionInGlobalScope(expiredCallback);
+                                    expiredCallbackFunction = utils.findFunctionInGlobalScope(expiredCallback);
                                 }
                                 if( expiredCallbackFunction ){
                                     var expiredCallbackPromise = expiredCallbackFunction();
@@ -365,7 +365,7 @@ function AuthService(b, utils) {
 
                     console.log( new Date().toISOString() + ' bridgeit connect: setting timeout to ' + callbackTimeout / 1000 / 60 + ' mins, expiresIn: ' + services.auth.getExpiresIn() + ', remaining: '  + services.auth.getTimeRemainingBeforeExpiry());
                     var cbId = setTimeout(connectCallback, callbackTimeout);
-                    setSessionStorageItem(btoa(RELOGIN_CB_KEY), cbId);
+                    utils.setSessionStorageItem(btoa(RELOGIN_CB_KEY), cbId);
                 }
 
                 var timeoutPadding = 500;
@@ -384,11 +384,11 @@ function AuthService(b, utils) {
                     storeCredentials: params.storeCredentials || true,
                     onSessionExpiry: params.onSessionExpiry
                 };
-                setSessionStorageItem(btoa(CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
+                utils.setSessionStorageItem(btoa(CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
                 if( params.onSessionExpiry ){
                     if( typeof params.onSessionExpiry === 'function'){
-                        var name = getFunctionName(params.onSessionExpiry);
+                        var name = utils.getFunctionName(params.onSessionExpiry);
                         if( name ){
                             settings.onSessionExpiry = name;
                         }
@@ -407,10 +407,10 @@ function AuthService(b, utils) {
                 else{
                     services.auth.login(params).then(function(authResponse){
                         console.log('bridgeit.io.auth.connect: ' + new Date().toISOString() + ' received auth response');
-                        setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(bridgeit.io.auth.getLastKnownAccount()));
-                        setSessionStorageItem(btoa(REALM_KEY), btoa(bridgeit.io.auth.getLastKnownRealm()));
-                        setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
-                        setSessionStorageItem(btoa(PASSWORD_KEY), btoa(params.password));
+                        utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(bridgeit.io.auth.getLastKnownAccount()));
+                        utils.setSessionStorageItem(btoa(REALM_KEY), btoa(bridgeit.io.auth.getLastKnownRealm()));
+                        utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
+                        utils.setSessionStorageItem(btoa(PASSWORD_KEY), btoa(params.password));
                         initConnectCallback();
                         if( settings.usePushService ){
                             services.push.startPushService(settings);
@@ -434,10 +434,10 @@ function AuthService(b, utils) {
                         reject('bridgeit.io.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else{
-                        loginParams.account = atob(getSessionStorageItem(btoa(ACCOUNT_KEY)));
-                        loginParams.realm = atob(getSessionStorageItem(btoa(REALM_KEY)));
-                        loginParams.username = atob(getSessionStorageItem(btoa(USERNAME_KEY)));
-                        loginParams.password = atob(getSessionStorageItem(btoa(PASSWORD_KEY)));
+                        loginParams.account = atob(utils.getSessionStorageItem(btoa(ACCOUNT_KEY)));
+                        loginParams.realm = atob(utils.getSessionStorageItem(btoa(REALM_KEY)));
+                        loginParams.username = atob(utils.getSessionStorageItem(btoa(USERNAME_KEY)));
+                        loginParams.password = atob(utils.getSessionStorageItem(btoa(PASSWORD_KEY)));
                         loginParams.suppressUpdateTimestamp = true;
 
                         services.auth.login(loginParams).then(function(authResponse){
@@ -478,36 +478,36 @@ function AuthService(b, utils) {
          *
          */
         disconnect: function(){
-            removeSessionStorageItem(btoa(TOKEN_KEY));
-            removeSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
-            removeSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
-            removeSessionStorageItem(btoa(TOKEN_SET_KEY));
-            removeSessionStorageItem(btoa(ACCOUNT_KEY));
-            removeSessionStorageItem(btoa(REALM_KEY));
-            removeSessionStorageItem(btoa(USERNAME_KEY));
-            removeSessionStorageItem(btoa(PASSWORD_KEY));
-            removeSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
-            var cbId = getSessionStorageItem(btoa(RELOGIN_CB_KEY));
+            utils.removeSessionStorageItem(btoa(TOKEN_KEY));
+            utils.removeSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
+            utils.removeSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
+            utils.removeSessionStorageItem(btoa(TOKEN_SET_KEY));
+            utils.removeSessionStorageItem(btoa(ACCOUNT_KEY));
+            utils.removeSessionStorageItem(btoa(REALM_KEY));
+            utils.removeSessionStorageItem(btoa(USERNAME_KEY));
+            utils.removeSessionStorageItem(btoa(PASSWORD_KEY));
+            utils.removeSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
+            var cbId = utils.getSessionStorageItem(btoa(RELOGIN_CB_KEY));
             if( cbId ){
                 clearTimeout(cbId);
             }
-            removeSessionStorageItem(btoa(RELOGIN_CB_KEY));
+            utils.removeSessionStorageItem(btoa(RELOGIN_CB_KEY));
             console.log(new Date().toISOString() + ' bridgeit has disconnected')
         },
 
         getLastAccessToken: function(){
-            return getSessionStorageItem(btoa(TOKEN_KEY));
+            return utils.getSessionStorageItem(btoa(TOKEN_KEY));
         },
 
         getExpiresIn: function(){
-            var expiresInStr = getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
+            var expiresInStr = utils.getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
             if( expiresInStr ){
                 return parseInt(expiresInStr,10);
             }
         },
 
         getTokenSetAtTime: function(){
-            var tokenSetAtStr = getSessionStorageItem(btoa(TOKEN_SET_KEY));
+            var tokenSetAtStr = utils.getSessionStorageItem(btoa(TOKEN_SET_KEY));
             if( tokenSetAtStr ){
                 return parseInt(tokenSetAtStr,10);
             }
@@ -523,38 +523,38 @@ function AuthService(b, utils) {
         },
 
         getConnectSettings: function(){
-            var settingsStr = getSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
+            var settingsStr = utils.getSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
             if( settingsStr ){
                 return JSON.parse(atob(settingsStr));
             }
         },
 
         isLoggedIn: function(){
-            var token = getSessionStorageItem(btoa(TOKEN_KEY)),
-                tokenExpiresInStr = getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY)),
+            var token = utils.getSessionStorageItem(btoa(TOKEN_KEY)),
+                tokenExpiresInStr = utils.getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY)),
                 tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr,10) : null,
-                tokenSetAtStr = getSessionStorageItem(btoa(TOKEN_SET_KEY)),
+                tokenSetAtStr = utils.getSessionStorageItem(btoa(TOKEN_SET_KEY)),
                 tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr,10) : null,
                 result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) );
             return !!result;
         },
 
         getLastKnownAccount: function(){
-            var accountCipher = getSessionStorageItem(btoa(ACCOUNT_KEY));
+            var accountCipher = utils.getSessionStorageItem(btoa(ACCOUNT_KEY));
             if( accountCipher ){
                 return atob(accountCipher);
             }
         },
 
         getLastKnownRealm: function(){
-            var realmCipher = getSessionStorageItem(btoa(REALM_KEY));
+            var realmCipher = utils.getSessionStorageItem(btoa(REALM_KEY));
             if( realmCipher ){
                 return atob(realmCipher);
             }
         },
 
         getLastKnownUsername: function () {
-            var usernameCipher = getSessionStorageItem(btoa(USERNAME_KEY));
+            var usernameCipher = utils.getSessionStorageItem(btoa(USERNAME_KEY));
             if (usernameCipher) {
                 return atob(usernameCipher);
             }
@@ -584,9 +584,9 @@ function AuthService(b, utils) {
                     params = params ? params : {};
                     services.checkHost(params);
 
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     utils.validateRequiredUsername(params, reject);
                     validateRequiredPassword(params, reject);
@@ -609,7 +609,7 @@ function AuthService(b, utils) {
                         user.custom = params.custom;
                     }
 
-                    var url = getRealmResourceURL(services.authAdminURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
                         'quickuser', services.auth.getLastAccessToken(), params.ssl);
 
                     b.$.post(url, {user: user}).then(function(response){
@@ -642,11 +642,11 @@ function AuthService(b, utils) {
 
                     validateRequiredPermissions(params, reject);
 
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.authURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.authURL, account, realm,
                         'permission', token, params.ssl);
 
                     b.$.post(url, {permissions: params.permissions}).then(function(response){
@@ -718,7 +718,7 @@ function AuthService(b, utils) {
          * @alias updateLastActiveTimestamp
          */
         updateLastActiveTimestamp: function(){
-            setSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY), new Date().getTime());
+            utils.setSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY), new Date().getTime());
         },
 
         /**
@@ -727,7 +727,7 @@ function AuthService(b, utils) {
          * @alias getLastActiveTimestamp
          */
         getLastActiveTimestamp: function(){
-            return getSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
+            return utils.getSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
         },
 
         /**
@@ -748,7 +748,7 @@ function AuthService(b, utils) {
                 console.log('username not available, cannot access user store');
                 return;
             }
-            var userStoreSettingsStr = getLocalStorageItem(btoa(USER_STORE_SETTING_KEY));
+            var userStoreSettingsStr = utils.getLocalStorageItem(btoa(USER_STORE_SETTING_KEY));
             if( !userStoreSettingsStr ){
                 userStoreSettings = {};
             }
@@ -756,7 +756,7 @@ function AuthService(b, utils) {
                 userStoreSettings = JSON.parse(atob(userStoreSettingsStr));
             }
             userStoreSettings[username] = new Date().getTime();
-            setLocalStorageItem(btoa(USER_STORE_SETTING_KEY), btoa(JSON.stringify(userStoreSettings)));
+            utils.setLocalStorageItem(btoa(USER_STORE_SETTING_KEY), btoa(JSON.stringify(userStoreSettings)));
 
         },
 
@@ -777,7 +777,7 @@ function AuthService(b, utils) {
                 console.log('username not available, cannot access user store');
                 return;
             }
-            var userStoreSettingsStr = getLocalStorageItem(btoa(USER_STORE_SETTING_KEY));
+            var userStoreSettingsStr = utils.getLocalStorageItem(btoa(USER_STORE_SETTING_KEY));
             if( !userStoreSettingsStr ){
                 userStoreSettings = {};
             }
@@ -785,7 +785,7 @@ function AuthService(b, utils) {
                 userStoreSettings = JSON.parse(atob(userStoreSettingsStr));
             }
             userStoreSettings[username] = null;
-            setLocalStorageItem(btoa(USER_STORE_SETTING_KEY), btoa(JSON.stringify(userStoreSettings)));
+            utils.setLocalStorageItem(btoa(USER_STORE_SETTING_KEY), btoa(JSON.stringify(userStoreSettings)));
 
         },
 
@@ -805,7 +805,7 @@ function AuthService(b, utils) {
                 console.log('username not available, cannot access user store');
                 return;
             }
-            var userStoreSettingsStr = getLocalStorageItem(btoa(USER_STORE_SETTING_KEY));
+            var userStoreSettingsStr = utils.getLocalStorageItem(btoa(USER_STORE_SETTING_KEY));
             if( !userStoreSettingsStr ){
                 return false;
             }
@@ -1010,7 +1010,7 @@ function AuthService(b, utils) {
                 else{
                     return services.auth.getUserStore().then(function(userStore){
                         var storeKeyCipher = btoa(USER_STORE_KEY);
-                        var userStoreCacheStr = getLocalStorageItem(storeKeyCipher);
+                        var userStoreCacheStr = utils.getLocalStorageItem(storeKeyCipher);
                         var userStoreCache;
                         if( userStoreCacheStr ){
                             userStoreCache = JSON.parse(atob(userStoreCacheStr));
@@ -1019,7 +1019,7 @@ function AuthService(b, utils) {
                             userStoreCache = {};
                         }
                         userStoreCache[username] = userStore;
-                        setLocalStorageItem(storeKeyCipher, btoa(JSON.stringify(userStoreCache)));
+                        utils.setLocalStorageItem(storeKeyCipher, btoa(JSON.stringify(userStoreCache)));
                         resolve();
                         return;
                     })['catch'](function(error){
@@ -1050,7 +1050,7 @@ function AuthService(b, utils) {
                 return;
             }
             var storeKeyCipher = btoa(USER_STORE_KEY);
-            var userStoreCacheStr = getLocalStorageItem(storeKeyCipher);
+            var userStoreCacheStr = utils.getLocalStorageItem(storeKeyCipher);
             var userStoreCache;
             if( userStoreCacheStr ){
                 userStoreCache = JSON.parse(atob(userStoreCacheStr));

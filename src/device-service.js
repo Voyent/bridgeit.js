@@ -18,12 +18,12 @@ function DeviceService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
-                validateRequiredId(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                utils.validateRequiredId(params, reject);
 
-                var url = getRealmResourceURL(services.deviceURL, account, realm,
+                var url = utils.getRealmResourceURL(services.deviceURL, account, realm,
                     params.macAddress+'/start', token, params.ssl);
 
                 b.$.put(url, {}).then(function(){
@@ -51,12 +51,12 @@ function DeviceService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
-                validateRequiredId(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                utils.validateRequiredId(params, reject);
 
-                var url = getRealmResourceURL(services.deviceURL, account, realm,
+                var url = utils.getRealmResourceURL(services.deviceURL, account, realm,
                     params.macAddress+'/stop', token, params.ssl);
 
                 b.$.put(url, {}).then(function(){
@@ -83,12 +83,12 @@ function DeviceService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
-                validateRequiredId(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                utils.validateRequiredId(params, reject);
 
-                var url = getRealmResourceURL(services.deviceURL, account, realm,'/stop', token, params.ssl);
+                var url = utils.getRealmResourceURL(services.deviceURL, account, realm,'/stop', token, params.ssl);
 
                 b.$.put(url, {}).then(function(){
                     services.auth.updateLastActiveTimestamp();
@@ -114,12 +114,12 @@ function DeviceService(b, utils) {
                 services.checkHost(params);
 
                 //validate
-                var account = validateAndReturnRequiredAccount(params, reject);
-                var realm = validateAndReturnRequiredRealm(params, reject);
-                var token = validateAndReturnRequiredAccessToken(params, reject);
-                validateRequiredId(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                utils.validateRequiredId(params, reject);
 
-                var url = getRealmResourceURL(services.deviceURL, account, realm,'/running', token, params.ssl);
+                var url = utils.getRealmResourceURL(services.deviceURL, account, realm,'/running', token, params.ssl);
 
                 b.$.getJSON(url).then(function(devices){
                     services.auth.updateLastActiveTimestamp();

@@ -25,12 +25,12 @@ function MailboxService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredMailbox(params, reject);
 
-                    var url = getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
                         'mailboxes/' + (params.id ? params.id : ''), token, params.ssl);
 
                     b.$.post(url, params.mailbox).then(function (response) {
@@ -64,13 +64,13 @@ function MailboxService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
                     validateRequiredMailbox(params, reject);
 
-                    var url = getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
                         'mailboxes/' + params.id, token, params.ssl);
 
                     b.$.put(url, params.mailbox).then(function () {
@@ -103,12 +103,12 @@ function MailboxService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
 
-                    var url = getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
                         'mailboxes/' + params.id, token, params.ssl);
 
                     b.$.getJSON(url).then(function (mailbox) {
@@ -144,11 +144,11 @@ function MailboxService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
                         'mailboxes/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -185,12 +185,12 @@ function MailboxService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
 
-                    var url = getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
                         'mailboxes/' + params.id, token, params.ssl);
 
                     b.$.doDelete(url).then(function () {
@@ -224,11 +224,11 @@ function MailboxService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
                         'mailboxes/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},

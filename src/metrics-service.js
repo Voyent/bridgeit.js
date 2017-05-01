@@ -29,11 +29,11 @@ function MetricsService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.metricsURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.metricsURL, account, realm,
                         'events', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -70,12 +70,12 @@ function MetricsService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredEvent(params, reject);
 
-                    var url = getRealmResourceURL(services.metricsURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.metricsURL, account, realm,
                         'events', token, params.ssl);
 
                     b.$.post(url, params.event).then(function(response){
@@ -109,11 +109,11 @@ function MetricsService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.metricsURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.metricsURL, account, realm,
                         'time', token, params.ssl, {
                             clientTime: encodeURIComponent(new Date().toISOString())
                         });

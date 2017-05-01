@@ -2,6 +2,11 @@ function ContextService(b, utils) {
     function validateRequiredState(params, reject){
         utils.validateParameter('state', 'The state parameter is required', params, reject);
     }
+
+    function validateRequiredData(params, reject){
+        utils.validateParameter('data', 'The data parameter is required', params, reject);
+    }
+
     var services = b.io;
 
     return {
@@ -13,12 +18,12 @@ function ContextService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var username = utils.validateAndReturnRequiredUsername(params, reject);
 
-                    var url = getRealmResourceURL(services.contextURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.contextURL, account, realm,
                         'users/' + username, token, params.ssl);
 
                     b.$.getJSON(url).then(function(response){
@@ -38,12 +43,12 @@ function ContextService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var username = utils.validateAndReturnRequiredUsername(params, reject);
 
-                    var url = getRealmResourceURL(services.contextURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.contextURL, account, realm,
                         'users/' + username + '/state', token, params.ssl);
 
                     b.$.getJSON(url).then(function(response){
@@ -65,12 +70,12 @@ function ContextService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var username = utils.validateAndReturnRequiredUsername(params, reject);
 
-                    var url = getRealmResourceURL(services.contextURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.contextURL, account, realm,
                         'users/' + username + '/state', token, params.ssl);
 
                     b.$.post(url, params.state).then(function(response){
@@ -90,12 +95,12 @@ function ContextService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var username = utils.validateAndReturnRequiredUsername(params, reject);
 
-                    var url = getRealmResourceURL(services.contextURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.contextURL, account, realm,
                         'users/' + username + '/info', token, params.ssl);
 
                     b.$.getJSON(url).then(function(response){
@@ -115,12 +120,12 @@ function ContextService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var username = utils.validateAndReturnRequiredUsername(params, reject);
 
-                    var url = getRealmResourceURL(services.contextURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.contextURL, account, realm,
                         'users/' + username + '/updates', token, params.ssl);
 
                     b.$.getJSON(url).then(function(response){
@@ -140,12 +145,12 @@ function ContextService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var username = utils.validateAndReturnRequiredUsername(params, reject);
 
-                    var url = getRealmResourceURL(services.contextURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.contextURL, account, realm,
                         'users/' + username + '/updates/unread', token, params.ssl);
 
                     b.$.getJSON(url).then(function(response){
@@ -167,11 +172,11 @@ function ContextService(b, utils) {
                     services.checkHost(params);
 
                     //validate
-                    var account = validateAndReturnRequiredAccount(params, reject);
-                    var realm = validateAndReturnRequiredRealm(params, reject);
-                    var token = validateAndReturnRequiredAccessToken(params, reject);
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = getRealmResourceURL(services.contextURL, account, realm,
+                    var url = utils.getRealmResourceURL(services.contextURL, account, realm,
                         'contexts/' + params.name, token, params.ssl, {
                             op: 'exec'
                         });
