@@ -225,7 +225,6 @@ if(!window.voyent){
     function validateParameter(name, msg, params, reject){
         if( !params[name] ){
             reject(Error(msg));
-            return;
         }
     }
 
@@ -4380,21 +4379,12 @@ if(!window.voyent){
 
                     var pushURL = (params.ssl ? 'https://' : 'http://') + services.pushURL + '/';
 
-                    //todo: determine how to configure the location of the ICEpush code
-                    var codeURI = 'http://localhost:8080/icepush-basic/' + 'code.icepush';
-                    var code = b.$.get(codeURI).then(function(responseBody) {
-                        try {
-                            eval(responseBody);
-                        } catch (ex) {
-                            reject(ex);
-                        }
-
-                        window.ice.push = ice.setupPush({
-                            'uri': pushURL,
-                            'account': account,
-                            'realm': realm,
-                            'access_token': token
-                        });
+                    //make sure the ICEpush code is evaluated before this
+                    window.ice.push = ice.setupPush({
+                        'uri': pushURL,
+                        'account': account,
+                        'realm': realm,
+                        'access_token': token
                     });
 
                     console.log('bridgeit.io.push.connect() connected');
@@ -4454,8 +4444,7 @@ if(!window.voyent){
                 }
 
                 function addPushGroupMember(){
-                    ice.push.connection.resumeConnection();
-                    ice.push.createPushId(3, function(pushId) {
+                    ice.push.createPushId(function(pushId) {
                         ice.push.addGroupMember(params.group, pushId);
                         var fn = findFunctionInGlobalScope(params.callback);
                         if( !fn ){
@@ -4501,6 +4490,8 @@ if(!window.voyent){
          * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
          * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
          * @param {String} params.group The push group name
+         * @param {String} params.callback The callback function to be called on the push event. This parameter is optional, when missing
+         * all callbacks within the group are removed.
          */
         removePushListener: function(params){
             return new Promise(function(resolve, reject) {
@@ -4513,7 +4504,7 @@ if(!window.voyent){
                     console.error('Cannot remove push listener ' + params.group + ', missing push listener storage.');
                 }
                 else{
-                    try{
+                    try {
                         var pushListenerStorage = JSON.parse(pushListenersStr);
                         var listeners = pushListenerStorage[params.group];
                         console.log('found push listeners in storage: ' + ( listeners ? JSON.stringify(listeners) : null ) );
@@ -4521,17 +4512,38 @@ if(!window.voyent){
                             console.error('could not find listeners for group ' + params.group);
                             return;
                         }
-                        ice.push.connection.resumeConnection();
-                        for( var i = 0 ; i < listeners.length ; i++ ){
-                            var pushId = listeners[i].pushId;
-                            ice.push.removeGroupMember(params.group, pushId);
-                            ice.push.deregister(pushId);
-                            console.log('removed push id ' + pushId);
+                        if (params.callback) {
+                            //remove only the listener/pushId corresponding to the provided callback
+                            var remainingListeners = [];
+                            for (var i = 0; i < listeners.length; i++) {
+                                var listener = listeners[i];
+                                if (listener.callback == params.callback) {
+                                    var pushId = listener.pushId;
+                                    ice.push.removeGroupMember(params.group, pushId);
+                                    ice.push.deregister(pushId);
+                                    console.log('removed push id ' + pushId);
+                                } else {
+                                    remainingListeners.push(listener);
+                                }
+
+                                if (remainingListeners.length > 0) {
+                                    pushListenerStorage[params.group] = remainingListeners;
+                                } else {
+                                    delete pushListenerStorage[params.group];
+                                }
+                            }
+                        } else {
+                            //remove all the listeners for the group
+                            for (var i = 0; i < listeners.length; i++) {
+                                var pushId = listeners[i].pushId;
+                                ice.push.removeGroupMember(params.group, pushId);
+                                ice.push.deregister(pushId);
+                                console.log('removed push id ' + pushId);
+                            }
+                            delete pushListenerStorage[params.group];
                         }
-                        delete pushListenerStorage[params.group];
                         setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListenerStorage));
-                    }
-                    catch(e){
+                    } catch(e){
                         console.error(e);
                     }
                 }
