@@ -44,15 +44,15 @@ if (!window.voyent) {
         }
     };
     services.startTransaction = function () {
-        setSessionStorageItem(btoa(TRANSACTION_KEY), b.$.newUUID());
+        utils.setSessionStorageItem(btoa(TRANSACTION_KEY), b.$.newUUID());
         console.log('bridgeit: started transaction ' + services.getLastTransactionId());
     };
     services.endTransaction = function () {
-        removeSessionStorageItem(btoa(TRANSACTION_KEY));
+        utils.removeSessionStorageItem(btoa(TRANSACTION_KEY));
         console.log('bridgeit: ended transaction ' + services.getLastTransactionId());
     };
     services.getLastTransactionId = function () {
-        return getSessionStorageItem(btoa(TRANSACTION_KEY));
+        return utils.getSessionStorageItem(btoa(TRANSACTION_KEY));
     };
 
     services.action = ActionService(b, utils);
