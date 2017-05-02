@@ -1,4 +1,4 @@
-function AuthService(b, utils) {
+function AuthService(v, utils) {
     function validateRequiredPassword(params, reject){
         utils.validateParameter('password', 'The password parameter is required', params, reject);
     }
@@ -46,8 +46,6 @@ function AuthService(b, utils) {
     var TOKEN_SET_KEY = 'bridgeitTokenSet';
     var LAST_UPDATED = "last_updated";
 
-    var services = b.io;
-
     return {
 
         /**
@@ -83,7 +81,7 @@ function AuthService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     if( !params.realm ){
                         params.realm = 'admin';
@@ -103,10 +101,10 @@ function AuthService(b, utils) {
                         return;
                     }
                     var protocol = params.ssl ? 'https://' : 'http://';
-                    var url = protocol + services.authURL + '/' + encodeURI(params.account) +
+                    var url = protocol + v.authURL + '/' + encodeURI(params.account) +
                         '/realms/' + encodeURI(params.realm) + '/token/?' + utils.getTransactionURLParam();
 
-                    b.$.post(url, {
+                    v.$.post(url, {
                         strategy: 'query',
                         username: params.username,
                         password: params.password
@@ -153,7 +151,7 @@ function AuthService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     if( !params.realm ){
                         params.realm = 'admin';
@@ -174,17 +172,17 @@ function AuthService(b, utils) {
                     }
                     var protocol = params.ssl ? 'https://' : 'http://';
                     var txParam = utils.getTransactionURLParam();
-                    var url = protocol + services.authURL + '/' + encodeURI(params.account) +
+                    var url = protocol + v.authURL + '/' + encodeURI(params.account) +
                         '/realms/' + encodeURI(params.realm) + '/token/' + ( txParam ? ('?' + txParam) : '');
 
                     var loggedInAt = new Date().getTime();
-                    b.$.post(url, {
+                    v.$.post(url, {
                         strategy: 'query',
                         username: params.username,
                         password: params.password
                     }).then(function(authResponse){
                         if( !params.suppressUpdateTimestamp ){
-                            services.auth.updateLastActiveTimestamp();
+                            v.auth.updateLastActiveTimestamp();
                         }
                         utils.setSessionStorageItem(btoa(TOKEN_KEY), authResponse.access_token);
                         utils.setSessionStorageItem(btoa(TOKEN_EXPIRES_KEY), authResponse.expires_in);
@@ -254,7 +252,7 @@ function AuthService(b, utils) {
 
                     function connectCallback(){
                         console.log(new Date().toISOString() + ' bridgeit connect: callback running')
-                        var connectSettings = services.auth.getConnectSettings();
+                        var connectSettings = v.auth.getConnectSettings();
                         if( !connectSettings ){
                             console.log(new Date().toISOString() + ' bridgeit connect: error, could not retrieve settings');
                             return;
@@ -264,27 +262,27 @@ function AuthService(b, utils) {
 
                         //first check if connectionTimeout has expired
                         var now = new Date().getTime();
-                        console.log('bridgeit.getLastActiveTimestamp: ' + services.auth.getLastActiveTimestamp());
+                        console.log('bridgeit.getLastActiveTimestamp: ' + v.auth.getLastActiveTimestamp());
                         console.log('bridgeit timeout ms: ' + timeoutMillis);
                         console.log('bridgeit now ms: ' + now);
-                        if( ( now - services.auth.getLastActiveTimestamp()) < timeoutMillis ){
-                            console.log(new Date().toISOString() + ' bridgeit connect: timeout has not been exceeded, ' + services.auth.getTimeRemainingBeforeExpiry()/1000/60 + ' mins remaining');
+                        if( ( now - v.auth.getLastActiveTimestamp()) < timeoutMillis ){
+                            console.log(new Date().toISOString() + ' bridgeit connect: timeout has not been exceeded, ' + v.auth.getTimeRemainingBeforeExpiry()/1000/60 + ' mins remaining');
 
-                            if( (connectSettings.connectionTimeout * 1000 * 60 ) > services.auth.getTimeRemainingBeforeExpiry()){
+                            if( (connectSettings.connectionTimeout * 1000 * 60 ) > v.auth.getTimeRemainingBeforeExpiry()){
 
-                                var loginParams = services.auth.getConnectSettings();
+                                var loginParams = v.auth.getConnectSettings();
                                 loginParams.account = atob(utils.getSessionStorageItem(btoa(ACCOUNT_KEY)));
                                 loginParams.realm = atob(utils.getSessionStorageItem(btoa(REALM_KEY)));
                                 loginParams.username = atob(utils.getSessionStorageItem(btoa(USERNAME_KEY)));
                                 loginParams.password = atob(utils.getSessionStorageItem(btoa(PASSWORD_KEY)));
                                 loginParams.suppressUpdateTimestamp = true;
 
-                                services.auth.login(loginParams).then(function(authResponse){
-                                    fireEvent(window, 'bridgeit-access-token-refreshed', services.auth.getLastAccessToken());
+                                v.auth.login(loginParams).then(function(authResponse){
+                                    fireEvent(window, 'bridgeit-access-token-refreshed', v.auth.getLastAccessToken());
                                     if( loginParams.usePushService ){
-                                        services.push.startPushService(loginParams);
+                                        v.push.startPushService(loginParams);
                                     }
-                                    setTimeout(connectCallback, services.auth.getTimeRemainingBeforeExpiry() - timeoutPadding);
+                                    setTimeout(connectCallback, v.auth.getTimeRemainingBeforeExpiry() - timeoutPadding);
                                 })['catch'](function(response){
                                     var msg = new Date().toISOString() + ' bridgeit connect: error relogging in: ' + response.responseText;
                                     console.error(msg);
@@ -325,22 +323,22 @@ function AuthService(b, utils) {
                                 if( expiredCallbackFunction ){
                                     var expiredCallbackPromise = expiredCallbackFunction();
                                     if( expiredCallbackPromise && expiredCallbackPromise.then ){
-                                        expiredCallbackPromise.then(services.auth.disconnect)
-                                            ['catch'](services.auth.disconnect);
+                                        expiredCallbackPromise.then(v.auth.disconnect)
+                                            ['catch'](v.auth.disconnect);
                                     }
                                     else{
-                                        setTimeout(services.auth.disconnect, 500);
+                                        setTimeout(v.auth.disconnect, 500);
                                     }
                                 }
                                 else{
                                     console.log( new Date().toISOString() + ' bridgeit connect: error calling onSessionExpiry callback, ' +
                                         'could not find function: ' + expiredCallback);
-                                    services.auth.disconnect();
+                                    v.auth.disconnect();
                                 }
 
                             }
                             else{
-                                services.auth.disconnect();
+                                v.auth.disconnect();
                             }
 
                         }
@@ -350,8 +348,8 @@ function AuthService(b, utils) {
 
                     //if the desired connection timeout is greater the token expiry
                     //set the callback check for just before the token expires
-                    if( connectionTimeoutMillis > services.auth.getExpiresIn()){
-                        callbackTimeout = services.auth.getTimeRemainingBeforeExpiry() - timeoutPadding;
+                    if( connectionTimeoutMillis > v.auth.getExpiresIn()){
+                        callbackTimeout = v.auth.getTimeRemainingBeforeExpiry() - timeoutPadding;
                     }
                     //otherwise the disired timeout is less then the token expiry
                     //so set the callback to happen just at specified timeout
@@ -359,21 +357,21 @@ function AuthService(b, utils) {
                         callbackTimeout = connectionTimeoutMillis;
                     }
 
-                    console.log( new Date().toISOString() + ' bridgeit connect: setting timeout to ' + callbackTimeout / 1000 / 60 + ' mins, expiresIn: ' + services.auth.getExpiresIn() + ', remaining: '  + services.auth.getTimeRemainingBeforeExpiry());
+                    console.log( new Date().toISOString() + ' bridgeit connect: setting timeout to ' + callbackTimeout / 1000 / 60 + ' mins, expiresIn: ' + v.auth.getExpiresIn() + ', remaining: '  + v.auth.getTimeRemainingBeforeExpiry());
                     var cbId = setTimeout(connectCallback, callbackTimeout);
                     utils.setSessionStorageItem(btoa(RELOGIN_CB_KEY), cbId);
                 }
 
                 var timeoutPadding = 500;
                 params = params ? params : {};
-                services.checkHost(params);
+                v.checkHost(params);
                 if( !params.storeCredentials){
                     params.storeCredentials = true;
                 }
 
                 //store connect settings
                 var settings = {
-                    host: services.baseURL,
+                    host: v.baseURL,
                     usePushService: params.usePushService,
                     connectionTimeout: params.connectionTimeout || 20,
                     ssl: params.ssl,
@@ -393,15 +391,15 @@ function AuthService(b, utils) {
 
                 var connectionTimeoutMillis =  settings.connectionTimeout * 60 * 1000;
 
-                if( services.auth.isLoggedIn()){
+                if( v.auth.isLoggedIn()){
                     initConnectCallback();
                     if( settings.usePushService ){
-                        services.push.startPushService(settings);
+                        v.push.startPushService(settings);
                     }
                     resolve();
                 }
                 else{
-                    services.auth.login(params).then(function(authResponse){
+                    v.auth.login(params).then(function(authResponse){
                         console.log('bridgeit.io.auth.connect: ' + new Date().toISOString() + ' received auth response');
                         utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(bridgeit.io.auth.getLastKnownAccount()));
                         utils.setSessionStorageItem(btoa(REALM_KEY), btoa(bridgeit.io.auth.getLastKnownRealm()));
@@ -409,7 +407,7 @@ function AuthService(b, utils) {
                         utils.setSessionStorageItem(btoa(PASSWORD_KEY), btoa(params.password));
                         initConnectCallback();
                         if( settings.usePushService ){
-                            services.push.startPushService(settings);
+                            v.push.startPushService(settings);
                         }
                         resolve();
                     })['catch'](function(error){
@@ -421,11 +419,11 @@ function AuthService(b, utils) {
 
         refreshAccessToken: function(){
             return new Promise(function(resolve, reject) {
-                if( !services.auth.isLoggedIn()){
+                if( !v.auth.isLoggedIn()){
                     reject('bridgeit.io.auth.refreshAccessToken() not logged in, cant refresh token');
                 }
                 else{
-                    var loginParams = services.auth.getConnectSettings();
+                    var loginParams = v.auth.getConnectSettings();
                     if( !loginParams ){
                         reject('bridgeit.io.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
@@ -436,10 +434,10 @@ function AuthService(b, utils) {
                         loginParams.password = atob(utils.getSessionStorageItem(btoa(PASSWORD_KEY)));
                         loginParams.suppressUpdateTimestamp = true;
 
-                        services.auth.login(loginParams).then(function(authResponse){
-                            fireEvent(window, 'bridgeit-access-token-refreshed', services.auth.getLastAccessToken());
+                        v.auth.login(loginParams).then(function(authResponse){
+                            fireEvent(window, 'bridgeit-access-token-refreshed', v.auth.getLastAccessToken());
                             if( loginParams.usePushService ){
-                                services.push.startPushService(loginParams);
+                                v.push.startPushService(loginParams);
                             }
                             resolve(authResponse);
                         })['catch'](function(response){
@@ -510,11 +508,11 @@ function AuthService(b, utils) {
         },
 
         getTimeRemainingBeforeExpiry: function(){
-            var expiresIn = services.auth.getExpiresIn();
-            var token = services.auth.getExpiresIn();
+            var expiresIn = v.auth.getExpiresIn();
+            var token = v.auth.getExpiresIn();
             if( expiresIn && token ){
                 var now = new Date().getTime();
-                return (services.auth.getTokenSetAtTime() + expiresIn) - now;
+                return (v.auth.getTokenSetAtTime() + expiresIn) - now;
             }
         },
 
@@ -578,7 +576,7 @@ function AuthService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
@@ -605,11 +603,11 @@ function AuthService(b, utils) {
                         user.custom = params.custom;
                     }
 
-                    var url = utils.getRealmResourceURL(services.authAdminURL, account, realm,
-                        'quickuser', services.auth.getLastAccessToken(), params.ssl);
+                    var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                        'quickuser', v.auth.getLastAccessToken(), params.ssl);
 
-                    b.$.post(url, {user: user}).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, {user: user}).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         reject(error);
@@ -634,7 +632,7 @@ function AuthService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     validateRequiredPermissions(params, reject);
 
@@ -642,15 +640,15 @@ function AuthService(b, utils) {
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.authURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.authURL, account, realm,
                         'permission', token, params.ssl);
 
-                    b.$.post(url, {permissions: params.permissions}).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, {permissions: params.permissions}).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(true);
                     })['catch'](function(response){
                         if( response.status == 403){
-                            services.auth.updateLastActiveTimestamp();
+                            v.auth.updateLastActiveTimestamp();
                             resolve(false);
                         }
                         else{
@@ -734,12 +732,12 @@ function AuthService(b, utils) {
          *
          */
         enableUserStoreCache: function(){
-            if( !services.auth.isLoggedIn() ){
+            if( !v.auth.isLoggedIn() ){
                 console.log('not logged in, cannot access user store');
                 return;
             }
             var userStoreSettings;
-            var username = services.auth.getLastKnownUsername();
+            var username = v.auth.getLastKnownUsername();
             if( !username ){
                 console.log('username not available, cannot access user store');
                 return;
@@ -763,12 +761,12 @@ function AuthService(b, utils) {
          *
          */
         disableUserStoreCache: function(){
-            if( !services.auth.isLoggedIn() ){
+            if( !v.auth.isLoggedIn() ){
                 console.log('not logged in, cannot access user store');
                 return;
             }
             var userStoreSettings;
-            var username = services.auth.getLastKnownUsername();
+            var username = v.auth.getLastKnownUsername();
             if( !username ){
                 console.log('username not available, cannot access user store');
                 return;
@@ -791,12 +789,12 @@ function AuthService(b, utils) {
          * @alias isUserStoreCacheActive
          */
         isUserStoreCacheActive: function(){
-            if( !services.auth.isLoggedIn() ){
+            if( !v.auth.isLoggedIn() ){
                 console.log('not logged in, cannot access user store');
                 return;
             }
             var userStoreSettings;
-            var username = services.auth.getLastKnownUsername();
+            var username = v.auth.getLastKnownUsername();
             if( !username ){
                 console.log('username not available, cannot access user store');
                 return;
@@ -833,7 +831,7 @@ function AuthService(b, utils) {
         setItemInUserStore: function(key, value){
             return new Promise(function(resolve, reject) {
                 function updateServerUserStore(userStore, previousLastUpdated){
-                    return services.admin.getRealmUser().then(function(user){
+                    return v.admin.getRealmUser().then(function(user){
                         var customProp = user.custom;
                         if( !customProp ){
                             user.custom = userStore;
@@ -863,7 +861,7 @@ function AuthService(b, utils) {
                             }
 
                         }
-                        return services.admin.updateRealmUser({user: user}).then(function(){
+                        return v.admin.updateRealmUser({user: user}).then(function(){
                             resolve();
                         })['catch'](function(error){
                             console.log('could not update server side user object: ' + error);
@@ -876,12 +874,12 @@ function AuthService(b, utils) {
                     return;
                 }
 
-                return services.auth.getUserStore().then(function(userStore){
+                return v.auth.getUserStore().then(function(userStore){
                     userStore[key] = value;
                     var prevTS = userStore[LAST_UPDATED];
                     userStore[LAST_UPDATED] = new Date().getTime();
-                    if( services.auth.isUserStoreCacheActive() ){
-                        return services.auth.saveUserStoreToCache().then(function(){
+                    if( v.auth.isUserStoreCacheActive() ){
+                        return v.auth.saveUserStoreToCache().then(function(){
                             return updateServerUserStore(userStore, prevTS);
                         });
                     }
@@ -903,7 +901,7 @@ function AuthService(b, utils) {
          */
         getItemInUserStore: function(key){
             return new Promise(function(resolve, reject) {
-                return services.auth.getUserStore().then(function(userStore){
+                return v.auth.getUserStore().then(function(userStore){
                     resolve(userStore[key]);
                 })['catch'](function(error){
                     reject(error);
@@ -922,17 +920,17 @@ function AuthService(b, utils) {
          */
         getUserStore: function(){
             return new Promise(function(resolve, reject) {
-                if( !services.auth.isLoggedIn() ){
+                if( !v.auth.isLoggedIn() ){
                     console.log('not logged in, cannot access user store');
                     return null;
                 }
                 if( !(USER_STORE_KEY in window) ){
                     var userStoreCache;
-                    if( services.auth.isUserStoreCacheActive()){
-                        userStoreCache = services.auth.getUserStoreCache();
+                    if( v.auth.isUserStoreCacheActive()){
+                        userStoreCache = v.auth.getUserStoreCache();
                     }
                     if( navigator.onLine ){
-                        return services.admin.getRealmUser().then( function(user){
+                        return v.admin.getRealmUser().then( function(user){
                             console.log('getUserStore() retrieved realm user');
                             var userStore = user.custom;
                             if( !userStore ){
@@ -952,8 +950,8 @@ function AuthService(b, utils) {
                                 return;
                             }
                             window[USER_STORE_KEY] = userStore;
-                            if( services.auth.isUserStoreCacheActive()){
-                                return services.auth.saveUserStoreToCache().then(function(){
+                            if( v.auth.isUserStoreCacheActive()){
+                                return v.auth.saveUserStoreToCache().then(function(){
                                     return resolve(userStore);
                                 });
                             }
@@ -987,24 +985,24 @@ function AuthService(b, utils) {
 
         saveUserStoreToCache: function(){
             return new Promise(function(resolve, reject) {
-                if( !services.auth.isLoggedIn() ){
+                if( !v.auth.isLoggedIn() ){
                     console.log('not logged in, cannot access user store');
                     reject('not logged in, cannot access user store');
                     return;
                 }
-                if( !services.auth.isUserStoreCacheActive() ){
+                if( !v.auth.isUserStoreCacheActive() ){
                     console.log('user store cache is not active, cannot save locally');
                     reject('user store cache is not active, cannot save locally')
                     return;
                 }
-                var username = services.auth.getLastKnownUsername();
+                var username = v.auth.getLastKnownUsername();
                 if( !username ){
                     console.log('username not available, cannot access user store');
                     reject('username not available, cannot access user store')
                     return;
                 }
                 else{
-                    return services.auth.getUserStore().then(function(userStore){
+                    return v.auth.getUserStore().then(function(userStore){
                         var storeKeyCipher = btoa(USER_STORE_KEY);
                         var userStoreCacheStr = utils.getLocalStorageItem(storeKeyCipher);
                         var userStoreCache;
@@ -1029,17 +1027,17 @@ function AuthService(b, utils) {
         },
 
         getUserStoreCache: function(){
-            if( !services.auth.isLoggedIn() ){
+            if( !v.auth.isLoggedIn() ){
                 console.log('not logged in, cannot access user store');
                 reject('not logged in, cannot access user store');
                 return;
             }
-            if( !services.auth.isUserStoreCacheActive() ){
+            if( !v.auth.isUserStoreCacheActive() ){
                 console.log('user store cache is not active, cannot save locally');
                 reject('user store cache is not active, cannot save locally')
                 return;
             }
-            var username = services.auth.getLastKnownUsername();
+            var username = v.auth.getLastKnownUsername();
             if( !username ){
                 console.log('username not available, cannot access user store');
                 reject('username not available, cannot access user store')

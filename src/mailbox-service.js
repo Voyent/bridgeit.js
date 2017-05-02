@@ -1,4 +1,4 @@
-function MailboxService(b, utils) {
+function MailboxService(v, utils) {
     function validateRequiredMailbox(params, reject){
         utils.validateParameter('handler', 'The mailbox parameter is required', params, reject);
     }
@@ -22,7 +22,7 @@ function MailboxService(b, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -30,11 +30,11 @@ function MailboxService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredMailbox(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/' + (params.id ? params.id : ''), token, params.ssl);
 
-                    b.$.post(url, params.mailbox).then(function (response) {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.mailbox).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
                     })['catch'](function (error) {
                         reject(error);
@@ -61,7 +61,7 @@ function MailboxService(b, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -70,11 +70,11 @@ function MailboxService(b, utils) {
                     utils.validateRequiredId(params, reject);
                     validateRequiredMailbox(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/' + params.id, token, params.ssl);
 
-                    b.$.put(url, params.mailbox).then(function () {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.put(url, params.mailbox).then(function () {
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function (error) {
                         reject(error);
@@ -100,7 +100,7 @@ function MailboxService(b, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -108,11 +108,11 @@ function MailboxService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/' + params.id, token, params.ssl);
 
-                    b.$.getJSON(url).then(function (mailbox) {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function (mailbox) {
+                        v.auth.updateLastActiveTimestamp();
                         resolve(mailbox);
                     })['catch'](function (error) {
                         reject(error);
@@ -141,22 +141,22 @@ function MailboxService(b, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function (mailboxes) {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function (mailboxes) {
+                        v.auth.updateLastActiveTimestamp();
                         resolve(mailboxes);
                     })['catch'](function (response) {
                         reject(response);
@@ -182,7 +182,7 @@ function MailboxService(b, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -190,11 +190,11 @@ function MailboxService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/' + params.id, token, params.ssl);
 
-                    b.$.doDelete(url).then(function () {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function () {
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function (error) {
                         reject(error);
@@ -221,22 +221,22 @@ function MailboxService(b, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.mailboxURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.doDelete(url).then(function () {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function () {
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function (error) {
                         reject(error);

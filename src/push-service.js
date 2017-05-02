@@ -1,4 +1,4 @@
-function PushService(b, utils) {
+function PushService(v, utils) {
     function validateRequiredGroup(params, reject){
         utils.validateParameter('group', 'The group parameter is required', params, reject);
     }
@@ -9,7 +9,6 @@ function PushService(b, utils) {
 
     var PUSH_CALLBACKS = 'pushCallbacks';
     var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
-    var services = b.io;
 
     function storePushListener(pushId, group, cb){
         var pushListeners = {};
@@ -77,14 +76,14 @@ function PushService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var pushURL = (params.ssl ? 'https://' : 'http://') + services.pushURL + '/';
+                    var pushURL = (params.ssl ? 'https://' : 'http://') + v.pushURL + '/';
 
                     //make sure the ICEpush code is evaluated before this
                     window.ice.push = ice.setupPush({
@@ -116,7 +115,7 @@ function PushService(b, utils) {
         addPushListener: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                services.checkHost(params);
+                v.checkHost(params);
 
                 validateRequiredGroup(params, reject);
                 validateRequiredCallback(params, reject);
@@ -152,7 +151,7 @@ function PushService(b, utils) {
             return new Promise(function(resolve, reject) {
                 console.log('bridgeit.io.push.removePushListener() group: ' + params.group);
                 params = params ? params : {};
-                services.checkHost(params);
+                v.checkHost(params);
                 validateRequiredGroup(params, reject);
                 var pushListenersStr = utils.getSessionStorageItem(PUSH_CALLBACKS);
                 if( !pushListenersStr ){
@@ -228,7 +227,7 @@ function PushService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     validateRequiredGroup(params, reject);
 

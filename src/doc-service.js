@@ -1,4 +1,4 @@
-function DocService(b, utils) {
+function DocService(v, utils) {
     function validateCollection(params, reject){
         return params.collection ? params.collection : 'documents';
     }
@@ -24,7 +24,7 @@ function DocService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -32,11 +32,11 @@ function DocService(b, utils) {
                     var collection = validateCollection(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.documentsURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.documentsURL, account, realm,
                         collection + '/' + (params.id ? params.id : ''), token, params.ssl);
 
-                    b.$.post(url, params.document).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.document).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
                     })['catch'](function(error){
                         reject(error);
@@ -65,7 +65,7 @@ function DocService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -74,11 +74,11 @@ function DocService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.documentsURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.documentsURL, account, realm,
                         collection + '/' + params.id, token, params.ssl);
 
-                    b.$.put(url, params.document).then(function(){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.put(url, params.document).then(function(){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -105,7 +105,7 @@ function DocService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -114,11 +114,11 @@ function DocService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.documentsURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.documentsURL, account, realm,
                         collection + '/' + params.id, token, params.ssl);
 
-                    b.$.getJSON(url).then(function(doc){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(doc){
+                        v.auth.updateLastActiveTimestamp();
                         //the document service always returns a list, so
                         //check if we have a list of one, and if so, return the single item
                         if( doc.length && doc.length === 1 ){
@@ -155,7 +155,7 @@ function DocService(b, utils) {
                 function(resolve, reject) {
 
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -163,15 +163,15 @@ function DocService(b, utils) {
                     var collection = validateCollection(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.documentsURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.documentsURL, account, realm,
                         collection, token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function(doc){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(doc){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(doc);
                     })['catch'](function(response){
                         //service currently returns a 404 when no documents are found
@@ -204,7 +204,7 @@ function DocService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -213,11 +213,11 @@ function DocService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.documentsURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.documentsURL, account, realm,
                         collection + '/' + params.id, token, params.ssl);
 
-                    b.$.doDelete(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);

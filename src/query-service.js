@@ -1,6 +1,4 @@
-function QueryService(b, utils) {
-    var services = b.io;
-
+function QueryService(v, utils) {
     return {
 
         /**
@@ -21,18 +19,18 @@ function QueryService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.queryURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.queryURL, account, realm,
                         'queries/' + (params.id ? params.id : ''), token, params.ssl);
 
-                    b.$.post(url, params.query).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.query).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
                     })['catch'](function(error){
                         reject(error);
@@ -60,7 +58,7 @@ function QueryService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -68,11 +66,11 @@ function QueryService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.queryURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.queryURL, account, realm,
                         'queries/' + params.id, token, params.ssl);
 
-                    b.$.put(url, params.query).then(function(){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.put(url, params.query).then(function(){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -98,7 +96,7 @@ function QueryService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -106,11 +104,11 @@ function QueryService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.queryURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.queryURL, account, realm,
                         'queries/' + params.id, token, params.ssl);
 
-                    b.$.getJSON(url).then(function(query){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(query){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(query);
                     })['catch'](function(error){
                         reject(error);
@@ -139,22 +137,22 @@ function QueryService(b, utils) {
                 function(resolve, reject) {
 
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.queryURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.queryURL, account, realm,
                         'queries/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function(doc){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(doc){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(doc);
                     })['catch'](function(response){
                         reject(response);
@@ -180,7 +178,7 @@ function QueryService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -188,11 +186,11 @@ function QueryService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.queryURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.queryURL, account, realm,
                         'queries/' + params.id, token, params.ssl);
 
-                    b.$.doDelete(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);

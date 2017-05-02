@@ -1,9 +1,7 @@
-function CodeService(b, utils) {
+function CodeService(v, utils) {
     function validateRequiredFlow(params, reject){
         utils.validateParameter('flow', 'The flow parameter is required', params, reject);
     }
-
-    var services = b.io;
 
     return {
 
@@ -25,7 +23,7 @@ function CodeService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     var httpMethod = params.httpMethod || 'post';
                     httpMethod = httpMethod.toLowerCase();
@@ -36,21 +34,21 @@ function CodeService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredFlow(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.codeURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.codeURL, account, realm,
                         'nodes/' + encodeURI(params.flow), token, params.ssl);
 
                     if( 'get' === httpMethod ){
                         //TODO encode params.data into URL?
-                        b.$.get(url).then(function(response){
-                            services.auth.updateLastActiveTimestamp();
+                        v.$.get(url).then(function(response){
+                            v.auth.updateLastActiveTimestamp();
                             resolve();
                         })['catch'](function(error){
                             reject(error);
                         });
                     }
                     else if( 'post' === httpMethod ){
-                        b.$.post(url, params.data).then(function(response){
-                            services.auth.updateLastActiveTimestamp();
+                        v.$.post(url, params.data).then(function(response){
+                            v.auth.updateLastActiveTimestamp();
                             resolve();
                         })['catch'](function(error){
                             reject(error);
@@ -66,18 +64,18 @@ function CodeService(b, utils) {
                 function(resolve, reject) {
 
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.codeURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.codeURL, account, realm,
                         '', token, params.ssl);
 
-                    b.$.post(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -92,18 +90,18 @@ function CodeService(b, utils) {
                 function(resolve, reject) {
 
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.codeURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.codeURL, account, realm,
                         '', token, params.ssl);
 
-                    b.$.doDelete(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -113,8 +111,8 @@ function CodeService(b, utils) {
         },
 
         restart: function(params){
-            return services.code.stop(params).then(function(){
-                return services.code.start(params);
+            return v.code.stop(params).then(function(){
+                return v.code.start(params);
             });
         }
     };

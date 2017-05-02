@@ -1,4 +1,4 @@
-function EventHubService (b, utils) {
+function EventHubService (v, utils) {
     function validateRequiredHandler(params, reject){
         utils.validateParameter('handler', 'The handler parameter is required', params, reject);
     }
@@ -26,7 +26,7 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -34,11 +34,11 @@ function EventHubService (b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredHandler(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/' + (params.id ? params.id : ''), token, params.ssl);
 
-                    b.$.post(url, params.handler).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.handler).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
                     })['catch'](function(error){
                         reject(error);
@@ -65,7 +65,7 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -74,11 +74,11 @@ function EventHubService (b, utils) {
                     utils.validateRequiredId(params, reject);
                     validateRequiredHandler(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/' + params.id, token, params.ssl);
 
-                    b.$.put(url, params.handler).then(function(){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.put(url, params.handler).then(function(){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -104,7 +104,7 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -112,11 +112,11 @@ function EventHubService (b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/' + params.id, token, params.ssl);
 
-                    b.$.getJSON(url).then(function(handler){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(handler){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(handler);
                     })['catch'](function(error){
                         reject(error);
@@ -145,22 +145,22 @@ function EventHubService (b, utils) {
                 function(resolve, reject) {
 
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function(handlers){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(handlers){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(handlers);
                     })['catch'](function(response){
                         reject(response);
@@ -186,7 +186,7 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -194,11 +194,11 @@ function EventHubService (b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/' + params.id, token, params.ssl);
 
-                    b.$.doDelete(url).then(function(){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function(){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -225,22 +225,22 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.doDelete(url).then(function(){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function(){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -267,7 +267,7 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -275,11 +275,11 @@ function EventHubService (b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredRecognizer(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/' + (params.id ? params.id : ''), token, params.ssl);
 
-                    b.$.post(url, params.recognizer).then(function(response) {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.recognizer).then(function(response) {
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
                     })['catch'](function(error) {
                         reject(error);
@@ -306,7 +306,7 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -315,11 +315,11 @@ function EventHubService (b, utils) {
                     utils.validateRequiredId(params, reject);
                     validateRequiredRecognizer(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/' + params.id, token, params.ssl);
 
-                    b.$.put(url, params.recognizer).then(function() {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.put(url, params.recognizer).then(function() {
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error) {
                         reject(error);
@@ -345,7 +345,7 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -353,11 +353,11 @@ function EventHubService (b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/' + params.id, token, params.ssl);
 
-                    b.$.getJSON(url).then(function(recognizer) {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(recognizer) {
+                        v.auth.updateLastActiveTimestamp();
                         resolve(recognizer);
                     })['catch'](function(error) {
                         reject(error);
@@ -386,22 +386,22 @@ function EventHubService (b, utils) {
                 function(resolve, reject) {
 
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function(recognizers) {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(recognizers) {
+                        v.auth.updateLastActiveTimestamp();
                         resolve(recognizers);
                     })['catch'](function(response) {
                         reject(response);
@@ -427,7 +427,7 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -435,11 +435,11 @@ function EventHubService (b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/' + params.id, token, params.ssl);
 
-                    b.$.doDelete(url).then(function() {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function() {
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error) {
                         reject(error);
@@ -466,22 +466,22 @@ function EventHubService (b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.eventhubURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.doDelete(url).then(function() {
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function() {
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error) {
                         reject(error);

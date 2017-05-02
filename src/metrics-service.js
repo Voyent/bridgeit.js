@@ -1,10 +1,8 @@
-function MetricsService(b, utils) {
+function MetricsService(v, utils) {
     function validateRequiredEvent(params, reject){
         utils.validateParameter('event', 'The event parameter is required', params, reject);
     }
-
-    var services = b.io;
-
+    
     return {
 
         /**
@@ -26,22 +24,22 @@ function MetricsService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.metricsURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.metricsURL, account, realm,
                         'events', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function(events){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(events){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(events);
                     })['catch'](function(error){
                         reject(error);
@@ -67,7 +65,7 @@ function MetricsService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -75,11 +73,11 @@ function MetricsService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredEvent(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.metricsURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.metricsURL, account, realm,
                         'events', token, params.ssl);
 
-                    b.$.post(url, params.event).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.event).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
                     })['catch'](function(error){
                         reject(error);
@@ -106,21 +104,21 @@ function MetricsService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.metricsURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.metricsURL, account, realm,
                         'time', token, params.ssl, {
                             clientTime: encodeURIComponent(new Date().toISOString())
                         });
 
-                    b.$.getJSON(url).then(function(response){
+                    v.$.getJSON(url).then(function(response){
                         if( response.timeOffset){
-                            services.auth.updateLastActiveTimestamp();
+                            v.auth.updateLastActiveTimestamp();
                             resolve(response.timeOffset);
                         }
                         else{

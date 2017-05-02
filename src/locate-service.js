@@ -1,4 +1,4 @@
-function LocateService(b, utils) {
+function LocateService(v, utils) {
     function validateRequiredRegion(params, reject){
         utils.validateParameter('region', 'The region parameter is required', params, reject);
     }
@@ -23,8 +23,6 @@ function LocateService(b, utils) {
         utils.validateParameter('lon', 'The lon parameter is required', params, reject);
     }
 
-    var services = b.io;
-
     return {
         /**
          * Create a new region
@@ -44,7 +42,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -52,11 +50,11 @@ function LocateService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredRegion(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'regions/' + (params.id ? params.id : ''), token, params.ssl);
 
-                    b.$.post(url, params.region).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.region).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
                     })['catch'](function(error){
                         reject(error);
@@ -82,7 +80,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -91,11 +89,11 @@ function LocateService(b, utils) {
                     utils.validateRequiredId(params, reject);
                     validateRequiredRegion(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'regions/' + params.id, token, params.ssl);
 
-                    b.$.put(url, params.region).then(function(){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.put(url, params.region).then(function(){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -120,7 +118,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -128,11 +126,11 @@ function LocateService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'regions/' + params.id, token, params.ssl);
 
-                    b.$.doDelete(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -158,18 +156,18 @@ function LocateService(b, utils) {
                 function(resolve, reject) {
 
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'regions', token, params.ssl);
 
-                    b.$.getJSON(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         reject(error);
@@ -197,22 +195,22 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'regions', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         if( error.status === 404 ){
@@ -245,22 +243,22 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'monitors', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         if( error.status === 404 ){
@@ -292,7 +290,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -300,11 +298,11 @@ function LocateService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredMonitor(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'monitors' + (params.id ? '/' + params.id : ''), token, params.ssl);
 
-                    b.$.post(url, params.monitor).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.monitor).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
                     })['catch'](function(error){
                         reject(error);
@@ -329,7 +327,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -337,11 +335,11 @@ function LocateService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'monitors/' + params.id, token, params.ssl);
 
-                    b.$.doDelete(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -366,18 +364,18 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'monitors', token, params.ssl);
 
-                    b.$.getJSON(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         reject(error);
@@ -404,7 +402,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -412,11 +410,11 @@ function LocateService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredPOI(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'poi' + (params.id ? '/' + params.id : ''), token, params.ssl);
 
-                    b.$.post(url, params.poi).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.poi).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
                     })['catch'](function(error){
                         reject(error);
@@ -442,7 +440,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -451,11 +449,11 @@ function LocateService(b, utils) {
                     utils.validateRequiredId(params, reject);
                     validateRequiredPOI(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'poi/' + params.id, token, params.ssl);
 
-                    b.$.put(url, params.poi).then(function(){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.put(url, params.poi).then(function(){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -483,22 +481,22 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'poi', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         if( error.status === 404 ){
@@ -528,7 +526,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -536,11 +534,11 @@ function LocateService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'poi/' + params.id, token, params.ssl);
 
-                    b.$.doDelete(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.doDelete(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function(error){
                         reject(error);
@@ -565,18 +563,18 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'poi', token, params.ssl);
 
-                    b.$.getJSON(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         reject(error);
@@ -604,22 +602,22 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'locations', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    b.$.getJSON(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         if( error.status === 404 ){
@@ -649,7 +647,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -657,11 +655,11 @@ function LocateService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     validateRequiredLocation(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'locations', token, params.ssl);
 
-                    b.$.post(url, params.location).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, params.location).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         reject(error);
@@ -688,7 +686,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -713,11 +711,11 @@ function LocateService(b, utils) {
                         location.label = params.label;
                     }
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'locations', token, params.ssl);
 
-                    b.$.post(url, location).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.post(url, location).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(error){
                         reject(error);
@@ -758,7 +756,7 @@ function LocateService(b, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    services.checkHost(params);
+                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -766,13 +764,13 @@ function LocateService(b, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var username = utils.validateAndReturnRequiredUsername(params, reject);
 
-                    var url = utils.getRealmResourceURL(services.locateURL, account, realm,
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'locations/' + username, token, params.ssl, {
                             'results': 'last'
                         });
 
-                    b.$.getJSON(url).then(function(response){
-                        services.auth.updateLastActiveTimestamp();
+                    v.$.getJSON(url).then(function(response){
+                        v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function(response){
                         if( response.status === 403 ){
