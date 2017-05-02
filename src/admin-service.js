@@ -31,7 +31,7 @@ function AdminService(b, utils) {
                     //validate
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var protocol = params.ssl ? 'https://' : 'http://';
-                    var txParam = getTransactionURLParam();
+                    var txParam = utils.getTransactionURLParam();
                     var url = protocol + services.authAdminURL + '/system/services/?access_token=' + token +
                         (txParam ? '&' + txParam : '');
 
@@ -56,7 +56,7 @@ function AdminService(b, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var protocol = params.ssl ? 'https://' : 'http://';
-                var txParam = getTransactionURLParam();
+                var txParam = utils.getTransactionURLParam();
                 var url = protocol + services.authAdminURL + '/' + account + '?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
@@ -83,7 +83,7 @@ function AdminService(b, utils) {
 
                 var protocol = params.ssl ? 'https://' : 'http://';
                 var url = protocol + services.authAdminURL + '/' + account + '/realms/'
-                    + '?access_token=' + token + getTransactionURLParam();
+                    + '?access_token=' + token + utils.getTransactionURLParam();
 
                 b.$.getJSON(url).then(function(json){
                     services.auth.updateLastActiveTimestamp();
@@ -150,7 +150,7 @@ function AdminService(b, utils) {
                 validateRequiredRealm(params, reject);
 
                 var protocol = params.ssl ? 'https://' : 'http://';
-                var txParam = getTransactionURLParam();
+                var txParam = utils.getTransactionURLParam();
                 var url = protocol + services.authAdminURL + '/' + account + '/realms?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
