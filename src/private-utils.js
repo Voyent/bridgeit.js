@@ -1,4 +1,8 @@
 function PrivateUtils(services) {
+    //acquire the constants from global context
+    var ACCOUNT_KEY = 'bridgeitAccount';
+    var REALM_KEY = 'bridgeitRealm';
+
     function validateRequiredRealm(params, reject){
         validateParameter('realm', 'The BridgeIt realm is required', params, reject);
     }
