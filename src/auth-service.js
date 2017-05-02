@@ -1,8 +1,4 @@
 function AuthService(b, utils) {
-    function validateRequiredRealm(params, reject){
-        utils.validateParameter('realm', 'The BridgeIt realm is required', params, reject);
-    }
-
     function validateRequiredPassword(params, reject){
         utils.validateParameter('password', 'The password parameter is required', params, reject);
     }
