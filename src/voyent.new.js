@@ -2,13 +2,13 @@ if (!window.voyent) {
     window.voyent = {};
 }
 
-(function (b) {
-    if (!b['io']) {
-        b.io = {};
+(function (v) {
+    if (!v['io']) {
+        v.io = {};
     }
-    var services = b.io;
-    var utils = PrivateUtils(services);
-    b.$ = PublicUtils(utils);
+    var services = v.io;
+    var privateUtils = PrivateUtils(services);
+    v.$ = PublicUtils(privateUtils);
 
     var TRANSACTION_KEY = 'bridgeitTransaction';
 
@@ -44,31 +44,31 @@ if (!window.voyent) {
         }
     };
     services.startTransaction = function () {
-        utils.setSessionStorageItem(btoa(TRANSACTION_KEY), b.$.newUUID());
+        privateUtils.setSessionStorageItem(btoa(TRANSACTION_KEY), v.$.newUUID());
         console.log('bridgeit: started transaction ' + services.getLastTransactionId());
     };
     services.endTransaction = function () {
-        utils.removeSessionStorageItem(btoa(TRANSACTION_KEY));
+        privateUtils.removeSessionStorageItem(btoa(TRANSACTION_KEY));
         console.log('bridgeit: ended transaction ' + services.getLastTransactionId());
     };
     services.getLastTransactionId = function () {
-        return utils.getSessionStorageItem(btoa(TRANSACTION_KEY));
+        return privateUtils.getSessionStorageItem(btoa(TRANSACTION_KEY));
     };
 
-    services.action = ActionService(b, utils);
-    services.admin = AdminService(b, utils);
-    services.auth = AuthService(b, utils);
-    services.documents = DocService(b, utils);
-    services.eventhub = EventHubService(b, utils);
-    services.location = LocateService(b, utils);
-    services.mailbox = MailboxService(b, utils);
-    services.metrics = MetricsService(b, utils);
-    services.push = PushService(b, utils);
-    services.context = ContextService(b, utils);
-    services.code = CodeService(b, utils);
-    services.storage = StorageService(b, utils);
-    services.query = QueryService(b, utils);
-    services.device = DeviceService(b, utils);
+    services.action = ActionService(v, privateUtils);
+    services.admin = AdminService(v, privateUtils);
+    services.auth = AuthService(v, privateUtils);
+    services.documents = DocService(v, privateUtils);
+    services.eventhub = EventHubService(v, privateUtils);
+    services.location = LocateService(v, privateUtils);
+    services.mailbox = MailboxService(v, privateUtils);
+    services.metrics = MetricsService(v, privateUtils);
+    services.push = PushService(v, privateUtils);
+    services.context = ContextService(v, privateUtils);
+    services.code = CodeService(v, privateUtils);
+    services.storage = StorageService(v, privateUtils);
+    services.query = QueryService(v, privateUtils);
+    services.device = DeviceService(v, privateUtils);
 
     /* Initialization */
     services.configureHosts();
