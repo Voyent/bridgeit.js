@@ -11,6 +11,57 @@ function PushService(b, utils) {
     var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
     var services = b.io;
 
+    function storePushListener(pushId, group, cb){
+        var pushListeners = {};
+        var pushListenersStr = utils.getSessionStorageItem(PUSH_CALLBACKS);
+        if( pushListenersStr ){
+            try{
+                pushListeners = JSON.parse(pushListenersStr);
+            }
+            catch(e){}
+        }
+        if( !pushListeners[group] ){
+            pushListeners[group] = [];
+        }
+        pushListeners[group].push({pushId: pushId, callback: cb});
+        utils.setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListeners));
+    }
+
+    function addCloudPushListener(){
+        var callback = utils.findFunctionInGlobalScope(params.callback);
+        if( !callback ){
+            reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
+        }
+        else{
+            var callbacks = utils.getLocalStorageItem(CLOUD_CALLBACKS_KEY);
+            var callbackName = utils.getFunctionName(callback);
+            if (!callbacks)  {
+                callbacks = " ";
+            }
+            if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
+                callbacks += callbackName + " ";
+            }
+            utils.setLocalStorageItem(CLOUD_CALLBACKS_KEY, callbacks);
+        }
+    }
+
+    function addPushGroupMember(){
+        ice.push.createPushId(function(pushId) {
+            ice.push.addGroupMember(params.group, pushId);
+            var fn = utils.findFunctionInGlobalScope(params.callback);
+            if( !fn ){
+                reject('could not find function in global scope: ' + params.callback);
+            }
+            else{
+                ice.push.register([ pushId ], fn);
+                storePushListener(pushId, params.group, params.callback);
+                if( params.useCloudPush ){
+                    addCloudPushListener();
+                }
+            }
+        });
+    }
+
     return {
 
         /**
@@ -25,10 +76,8 @@ function PushService(b, utils) {
 
             return new Promise(
                 function(resolve, reject) {
-
                     params = params ? params : {};
                     services.checkHost(params);
-
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -66,58 +115,6 @@ function PushService(b, utils) {
          */
         addPushListener: function(params){
             return new Promise(function(resolve, reject) {
-
-                function storePushListener(pushId, group, cb){
-                    var pushListeners = {};
-                    var pushListenersStr = utils.getSessionStorageItem(PUSH_CALLBACKS);
-                    if( pushListenersStr ){
-                        try{
-                            pushListeners = JSON.parse(pushListenersStr);
-                        }
-                        catch(e){}
-                    }
-                    if( !pushListeners[group] ){
-                        pushListeners[group] = [];
-                    }
-                    pushListeners[group].push({pushId: pushId, callback: cb});
-                    utils.setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListeners));
-                }
-
-                function addCloudPushListener(){
-                    var callback = utils.findFunctionInGlobalScope(params.callback);
-                    if( !callback ){
-                        reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
-                    }
-                    else{
-                        var callbacks = utils.getLocalStorageItem(CLOUD_CALLBACKS_KEY);
-                        var callbackName = utils.getFunctionName(callback);
-                        if (!callbacks)  {
-                            callbacks = " ";
-                        }
-                        if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
-                            callbacks += callbackName + " ";
-                        }
-                        utils.setLocalStorageItem(CLOUD_CALLBACKS_KEY, callbacks);
-                    }
-                }
-
-                function addPushGroupMember(){
-                    ice.push.createPushId(function(pushId) {
-                        ice.push.addGroupMember(params.group, pushId);
-                        var fn = utils.findFunctionInGlobalScope(params.callback);
-                        if( !fn ){
-                            reject('could not find function in global scope: ' + params.callback);
-                        }
-                        else{
-                            ice.push.register([ pushId ], fn);
-                            storePushListener(pushId, params.group, params.callback);
-                            if( params.useCloudPush ){
-                                addCloudPushListener();
-                            }
-                        }
-                    });
-                }
-
                 params = params ? params : {};
                 services.checkHost(params);
 
