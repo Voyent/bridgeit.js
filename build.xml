@@ -3,52 +3,53 @@
 <project name="voyent" default="build">
     <property file="build.properties"/>
     <property file="../build.properties"/>
-    <property name="src.dir" location="${basedir}/src/main/javascript"/>
+    <property name="src.dir" location="${basedir}/src"/>
     <property name="build.dir" location="${basedir}/build/dist"/>
     <property name="tmp" value="${build.dir}/tmp.js"/>
 
     <target name="prepare" description="Collate Voyent services code">
         <tstamp/>
-        <echoproperties/>
         <mkdir dir="${build.dir}"/>
+        <touch file="${tmp}"/>
         <concat destfile="${tmp}" overwrite="yes">
             <filelist dir="${src.dir}">
-                <file name="header.js"/>
-                <file name="module.js"/>
-                <file name="oo.js"/>
-                <file name="functional.js"/>
-                <file name="delay.js"/>
-                <file name="string.js"/>
-                <file name="collection.js"/>
-                <file name="configuration.js"/>
-                <file name="window.js"/>
-                <file name="cookie.js"/>
-                <file name="http.js"/>
-                <file name="hashtable.js"/>
-                <file name="element.js"/>
-                <file name="event.js"/>
-                <file name="logger.js"/>
+                <file name="auth-service.js"/>
+                <file name="admin-service.js"/>
+                <file name="action-service.js"/>
+                <file name="code-service.js"/>
+                <file name="context-service.js"/>
+                <file name="device-service.js"/>
+                <file name="doc-service.js"/>
+                <file name="event-hub-service.js"/>
+                <file name="locate-service.js"/>
+                <file name="mailbox-service.js"/>
+                <file name="metrics-service.js"/>
+                <file name="push-service.js"/>
+                <file name="query-service.js"/>
+                <file name="storage-service.js"/>
+                <file name="private-utils.js"/>
+                <file name="public-utils.js"/>
+                <file name="voyent.new.js"/>
             </filelist>
         </concat>
     </target>
 
-    <target name="build.voyent.compressed" depends="prepare">
+    <target name="build.voyent.compressed" depends="prepare" if="compress">
         <echo message="Compressing Javascript code..."/>
-        <java jar="lib/shrinksafe.jar" fork="true" output="${build.dir}/voyent.js">
+        <java jar="lib/js-compiler.jar" fork="true">
+            <arg value="--js"/>
             <arg value="${tmp}"/>
-            <classpath>
-                <pathelement location="lib/js.jar"/>
-            </classpath>
+            <arg value="--js_output_file"/>
+            <arg value="${build.dir}/voyent.js"/>
         </java>
     </target>
 
-    <target name="build.voyent.uncompressed" depends="prepare">
-        <move file="${tmp}" tofile="${build.dir}/voyent.js" overwrite="yes">
+    <target name="build.voyent.uncompressed" depends="prepare" unless="compress">
+        <copy file="${tmp}" tofile="${build.dir}/voyent.js" overwrite="yes">
             <filterchain>
-                <stripjavacomments/>
                 <ignoreblank/>
             </filterchain>
-        </move>
+        </copy>
     </target>
 
     <target name="build.cleanup">
