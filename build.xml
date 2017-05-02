@@ -29,7 +29,7 @@
                 <file name="storage-service.js"/>
                 <file name="private-utils.js"/>
                 <file name="public-utils.js"/>
-                <file name="voyent.new.js"/>
+                <file name="voyent.js"/>
             </filelist>
         </concat>
     </target>
