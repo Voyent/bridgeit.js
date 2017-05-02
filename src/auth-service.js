@@ -108,7 +108,7 @@ function AuthService(b, utils) {
                     }
                     var protocol = params.ssl ? 'https://' : 'http://';
                     var url = protocol + services.authURL + '/' + encodeURI(params.account) +
-                        '/realms/' + encodeURI(params.realm) + '/token/?' + getTransactionURLParam();
+                        '/realms/' + encodeURI(params.realm) + '/token/?' + utils.getTransactionURLParam();
 
                     b.$.post(url, {
                         strategy: 'query',
@@ -177,7 +177,7 @@ function AuthService(b, utils) {
                         return;
                     }
                     var protocol = params.ssl ? 'https://' : 'http://';
-                    var txParam = getTransactionURLParam();
+                    var txParam = utils.getTransactionURLParam();
                     var url = protocol + services.authURL + '/' + encodeURI(params.account) +
                         '/realms/' + encodeURI(params.realm) + '/token/' + ( txParam ? ('?' + txParam) : '');
 
