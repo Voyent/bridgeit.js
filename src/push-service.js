@@ -27,7 +27,7 @@ function PushService(b, utils) {
         utils.setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListeners));
     }
 
-    function addCloudPushListener(){
+    function addCloudPushListener(params){
         var callback = utils.findFunctionInGlobalScope(params.callback);
         if( !callback ){
             reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
@@ -45,7 +45,7 @@ function PushService(b, utils) {
         }
     }
 
-    function addPushGroupMember(){
+    function addPushGroupMember(params){
         ice.push.createPushId(function(pushId) {
             ice.push.addGroupMember(params.group, pushId);
             var fn = utils.findFunctionInGlobalScope(params.callback);
@@ -56,7 +56,7 @@ function PushService(b, utils) {
                 ice.push.register([ pushId ], fn);
                 storePushListener(pushId, params.group, params.callback);
                 if( params.useCloudPush ){
-                    addCloudPushListener();
+                    addCloudPushListener(params);
                 }
             }
         });
@@ -126,7 +126,7 @@ function PushService(b, utils) {
                 }
 
                 if (ice && ice.push) {
-                    addPushGroupMember();
+                    addPushGroupMember(params);
                     console.log('bridgeit.io.push.addPushListener() added listener ' +
                         params.callback + ' to group ' + params.group);
                     resolve();
