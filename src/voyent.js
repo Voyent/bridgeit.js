@@ -7,64 +7,351 @@ if (!window.voyent) {
     v.$ = PublicUtils(privateUtils);
 
     var TRANSACTION_KEY = 'bridgeitTransaction';
+    var REALM_KEY = 'voyentRealm';
 
     v.configureHosts = function (url) {
-        var isLocal = ['localhost', '127.0.0.1'].indexOf(url) > -1;
         if (!url) {
-            v.baseURL = 'latest.voyent.cloud';
-        }
-        else {
+            v.baseURL = privateUtils.isNode ? 'dev.voyent.cloud' : window.location.hostname;
+        } else {
             v.baseURL = url;
         }
+        //remove any trailing '/'
+        if (v.baseURL.substr(v.baseURL.length - 1) === '/') {
+            v.baseURL = v.baseURL.slice(0,-1);
+        }
         var baseURL = v.baseURL;
-        v.authURL = baseURL + (isLocal ? ':55010' : '') + '/auth';
-        v.authAdminURL = baseURL + (isLocal ? ':55010' : '') + '/authadmin';
-        v.locateURL = baseURL + (isLocal ? ':55020' : '') + '/locate';
-        v.documentsURL = baseURL + (isLocal ? ':55080' : '') + '/docs';
-        v.storageURL = baseURL + (isLocal ? ':55030' : '') + '/storage';
-        v.metricsURL = baseURL + (isLocal ? ':55040' : '') + '/metrics';
-        v.contextURL = baseURL + (isLocal ? ':55060' : '') + '/context';
-        v.codeURL = baseURL + (isLocal ? ':55090' : '') + '/code';
-        v.pushURL = baseURL + (isLocal ? ':8080' : '') + '/notify';
-        v.pushRESTURL = v.pushURL + '/rest';
-        v.queryURL = baseURL + (isLocal ? ':55110' : '') + '/query';
-        v.actionURL = baseURL + (isLocal ? ':55130' : '') + '/action';
-        v.eventhubURL = baseURL + (isLocal ? ':55200' : '') + '/eventhub';
-        v.mailboxURL = baseURL + (isLocal ? ':55120' : '') + '/mailbox';
-        v.deviceURL = baseURL + (isLocal ? ':55160' : '') + '/device';
+        v.authURL = baseURL + '/auth';
+        v.authAdminURL = baseURL + '/authadmin';
+        v.locateURL = baseURL + '/locate';
+        v.docsURL = baseURL + '/docs';
+        v.storageURL = baseURL + '/storage';
+        v.eventURL = baseURL + '/event';
+        v.queryURL = baseURL + '/query';
+        v.actionURL = baseURL + '/action';
+        v.eventhubURL = baseURL + '/eventhub';
+        v.mailboxURL = baseURL + '/mailbox';
+        v.deviceURL = baseURL + '/device';
+        v.scopeURL = baseURL + '/scope';
     };
     v.checkHost = function (params) {
-        //TODO use last configured host if available
         if (params.host) {
             v.configureHosts(params.host);
         }
+        else {
+            var lastHost = v.auth.getLastKnownHost();
+            if (lastHost) {
+                v.configureHosts(lastHost);
+            }
+        }
     };
+
+    /**
+     * Start a Voyent transaction.
+     *
+     * This function will create a new transaction id, and automatially append the id to all voyent network calls.
+     * A Voyent transaction is not a ACID transaction, but simply a useful method to aid in auditing and diagnosing
+     * distributed network calls, especially among different services.
+     *
+     * @alias startTransaction
+     * @private
+     * @global
+     * @example
+     *   voyent.io.startTransaction();
+     *   console.log('started transaction: ' + voyent.io.getLastTransactionId());
+     *
+     *   voyent.io.auth.login({
+     *       account: accountId,
+     *       username: adminId,
+     *       password: adminPassword,
+     *       host: host
+     *   }).then(function (authResponse) {
+     *       return voyent.io.docs.createDocument({
+     *           document: newDoc,
+     *           realm: realmId
+     *       });
+     *   }).then(function (docURI) {
+     *       newDocURI = docURI;
+     *       var uriParts = docURI.split('/');
+     *       var docId = uriParts[uriParts.length - 1];
+     *       return voyent.io.docs.deleteDocument({
+     *           account: accountId,
+     *           realm: realmId,
+     *           host: host,
+     *           id: docId
+     *       })
+     *   }).then(function () {
+     *       console.log('completed transaction: ' + voyent.io.getLastTransactionId());
+     *       voyent.io.endTransaction();
+     *   }).catch(function (error) {
+     *       console.log('something went wrong with transaction: ' + voyent.io.getLastTransactionId());
+     *       voyent.io.endTransaction();
+     *   });
+     */
     v.startTransaction = function () {
         privateUtils.setSessionStorageItem(btoa(TRANSACTION_KEY), v.$.newUUID());
         console.log('bridgeit: started transaction ' + v.getLastTransactionId());
     };
+
+    /**
+     * End a Voyent transaction.
+     *
+     * This function will remove the current Voyent transaction id, if one exists.
+     *
+     * @alias endTransaction
+     * @private
+     * @global
+     */
     v.endTransaction = function () {
         privateUtils.removeSessionStorageItem(btoa(TRANSACTION_KEY));
         console.log('bridgeit: ended transaction ' + v.getLastTransactionId());
     };
+
+    /**
+     * Get last transaction.
+     *
+     * Return the last stored Voyent transaction id.
+     *
+     * @alias getLastTransactionId
+     * @private
+     * @global
+     */
     v.getLastTransactionId = function () {
         return privateUtils.getSessionStorageItem(btoa(TRANSACTION_KEY));
+    };
+
+    /**
+     * Sets the current realm for all subsequent operations. This is useful when logging in as an admin, who is not
+     * in any realm, but needing to ensure that all other operations are done with a particular realm.
+     *
+     * @example
+     *    voyent.io.auth.login({
+     *      account: accountId,
+     *    	username: adminId,
+     *    	password: adminPassword,
+     *    	host: host
+     *    }).then(function(authResponse){
+     *    	voyent.io.setCurrentRealm('myRealm');
+     *    	//realm is no longer required for all subsequent operations
+     *    	return voyent.io.docs.createDocument({
+     *    		document: newDoc
+     *    	});
+     *    }).then(function(docURI){
+     *    	newDocURI = docURI;
+     *    	var uriParts = docURI.split('/');
+     *    	var docId = uriParts[uriParts.length-1];
+     *    	return voyent.io.docs.deleteDocument({
+     *    		account: accountId,
+     *    		host: host,
+     *    		id: docId
+     *    	})
+     *    });
+     *
+     *
+     * @alias setCurrentRealm
+     * @global
+     * @param {String} realm The name of thre realm to use for future operations.
+     */
+    v.setCurrentRealm = function(realm){
+        privateUtils.setSessionStorageItem(btoa(REALM_KEY), btoa(realm));
+    };
+
+    /**
+     * Return the permissions block for a resource. A permissions block has the following structure:
+     *
+     * @example
+     *    {
+     *        "_id": "de6959d0-a885-425c-847a-3289d07321ae",
+     *        "owner": "jo.smith",
+     *        "rights": {
+     *            "owner": ["r","u","d","x","pr","pu"],
+     *            "realm": ["r","x"],
+     *            "roles": {
+     *                "demoAdmin": ["r","u","d","x","pu"]
+     *            }
+     *        }
+     *    }
+     *
+     *
+     * The permissions codes:
+     *
+     *     r: Read
+     *     u: Update
+     *     d: Delete
+     *     x: Execute
+     *    pr: Permissions Read
+     *    pu: Permissions Update
+     *    mu: Client Metadata Update
+     *
+     *
+     * @example
+     *    voyent.io.getResourcePermissions({
+     *    	account: accountId,
+     *    	username: adminId,
+     *    	password: adminPassword,
+     *    	host: host,
+     *    	service: 'docs',
+     *    	path: 'documents',
+     *    	id: 'resourceId'
+     *    }).then(function(permissions){
+     *    	console.log('permissions', permissions);
+     *    });
+     *
+     * @alias getResourcePermissions
+     * @global
+     *
+     * @param {Object} params params
+     * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+     *     will be used.
+     * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+     *     will be used.
+     * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+     *     voyent.io.auth.connect() will be used
+     * @param {String} params.id The id of the resource to get permissions for.
+     * @param {String} params.service The service that manages the resource.
+     * @param {String} params.path The path to the resource.
+     * @returns {Object} The permissions block for the resource.
+     */
+    v.getResourcePermissions = function(params){
+        return new Promise(
+            function(resolve, reject) {
+                params = params ? params : {};
+                v.checkHost(params);
+
+                //validate
+                var account = privateUtils.validateAndReturnRequiredAccount(params, reject);
+                var realm = privateUtils.validateAndReturnRequiredRealm(params, reject);
+                var token = privateUtils.validateAndReturnRequiredAccessToken(params, reject);
+                privateUtils.validateRequiredId(params, reject);
+                privateUtils.validateParameter('service', 'The service parameter is required', params, reject);
+                privateUtils.validateParameter('path', 'The path parameter is required', params, reject);
+
+                var serviceURL;
+                switch(params.service){
+                    case 'docs': serviceURL = v.docsURL; break;
+                    case 'action': serviceURL = v.actionURL; break;
+                    case 'eventhub': serviceURL = v.eventhubURL; break;
+                    case 'query': serviceURL = v.queryURL; break;
+                    case 'storage': serviceURL = v.storageURL; break;
+                    case 'mailbox': serviceURL = v.mailboxURL; break;
+                    case 'locate': serviceURL = v.locateURL; break;
+                }
+
+                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token, params.ssl);
+
+                v.$.getJSON(url).then(function(json){
+                    v.auth.updateLastActiveTimestamp();
+                    var permissionsBlock;
+                    if( json.directory && json.directory.length > 0 ){
+                        permissionsBlock = json.directory[0];
+                    }
+                    else{
+                        permissionsBlock = json;
+                    }
+                    resolve(permissionsBlock);
+                })['catch'](function(error){
+                    reject(error);
+                });
+            }
+        );
+    };
+
+    /**
+     * Modify the permissions block for a resource. See {@link getResourcePermissions} for additional details.
+     *
+     * @example
+     *    var permissionsBlock == {
+     *        "_id": "de6959d0-a885-425c-847a-3289d07321ae",
+     *        "owner": "jo.smith",
+     *        "rights": {
+     *            "owner": ["r","u","d","x","pr","pu"],
+     *            "realm": ["r","x"],
+     *            "roles": {
+     *                "demoAdmin": ["r","u","d","x","pu"]
+     *            }
+     *        }
+     *    };
+     *
+     * @example
+     *    voyent.io.updateResourcePermissions({
+     *    	account: accountId,
+     *    	username: adminId,
+     *    	password: adminPassword,
+     *    	host: host,
+     *    	service: 'docs',
+     *    	path: 'documents',
+     *    	id: 'resourceId',
+     *    	permissions: permissionsBlock
+     *    }).then(function(permissions){
+     *    	console.log('permissions', permissions);
+     *    });
+     *
+     *
+     * @alias updateResourcePermissions
+     * @global
+     *
+     * @param {Object} params params
+     * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+     *     will be used.
+     * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+     *     will be used.
+     * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+     *     voyent.io.auth.connect() will be used
+     * @param {String} params.id The id of the resource to get permissions for.
+     * @param {String} params.service The service that manages the resource.
+     * @param {String} params.path The path to the resource.
+     * @returns {Object} The permissions block for the resource.
+     */
+    v.updateResourcePermissions = function(params){
+        return new Promise(
+            function(resolve, reject) {
+                params = params ? params : {};
+                v.checkHost(params);
+
+                //validate
+                var account = privateUtils.validateAndReturnRequiredAccount(params, reject);
+                var realm = privateUtils.validateAndReturnRequiredRealm(params, reject);
+                var token = privateUtils.validateAndReturnRequiredAccessToken(params, reject);
+                privateUtils.validateRequiredId(params, reject);
+                privateUtils.validateParameter('permissions', 'The permissions parameter is required', params, reject);
+                privateUtils.validateParameter('service', 'The service parameter is required', params, reject);
+                privateUtils.validateParameter('path', 'The path parameter is required', params, reject);
+
+                var serviceURL;
+                switch(params.service){
+                    case 'docs': serviceURL = v.io.docsURL; break;
+                    case 'action': serviceURL = v.io.actionURL; break;
+                }
+
+                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token, params.ssl);
+
+                v.$.put(url, params.permissions).then(function(json){
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(json);
+                })['catch'](function(error){
+                    reject(error);
+                });
+            }
+        );
     };
 
     v.action = ActionService(v, privateUtils);
     v.admin = AdminService(v, privateUtils);
     v.auth = AuthService(v, privateUtils);
-    v.documents = DocService(v, privateUtils);
+    v.docs = DocService(v, privateUtils);
     v.eventhub = EventHubService(v, privateUtils);
-    v.location = LocateService(v, privateUtils);
+    v.locate = LocateService(v, privateUtils);
     v.mailbox = MailboxService(v, privateUtils);
+    v.scope = ScopeService(v, privateUtils);
     v.metrics = MetricsService(v, privateUtils);
+    v.event = EventService(v, privateUtils);
     v.push = PushService(v, privateUtils);
-    v.context = ContextService(v, privateUtils);
-    v.code = CodeService(v, privateUtils);
     v.storage = StorageService(v, privateUtils);
     v.query = QueryService(v, privateUtils);
     v.device = DeviceService(v, privateUtils);
+
+    //aliases for backward compatibility
+    v.documents = v.docs;
+    v.location = v.locate;
 
     /* Initialization */
     v.configureHosts();

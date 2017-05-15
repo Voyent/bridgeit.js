@@ -1,24 +1,32 @@
 function MailboxService(v, utils) {
-    function validateRequiredMailbox(params, reject){
-        utils.validateParameter('handler', 'The mailbox parameter is required', params, reject);
+    function validateRequiredMessages(params, reject) {
+        utils.validateParameter('mailbox', 'The messages parameter is required', params, reject);
     }
 
-    return {
+    function validateRequiredConfig(params, reject) {
+        utils.validateParameter('config', 'The config parameter is required', params, reject);
+    }
+
+    var mailbox = {
         /**
-         * Create a new mailbox
+         * Create one or more messages for one or more users.
          *
-         * @alias createMailbox
+         * @memberOf voyent.mailbox
+         * @alias createMultiUserMessages
          * @param {Object} params params
-         * @param {String} params.id The user id
-         * @param {Object} params.mailbox The mailbox to be created
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. (optional)
+         * @param {Array} params.messages The message(s) to be created.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @returns {String} The resource URI
+         * @returns {String} The resource URI(s).
          */
-        createMailbox: function (params) {
+        createMultiUserMessages: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
@@ -28,14 +36,14 @@ function MailboxService(v, utils) {
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredMailbox(params, reject);
+                    validateRequiredMessages(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + (params.id ? params.id : ''), token, params.ssl);
+                        'mailboxes', token, params.ssl);
 
-                    v.$.post(url, params.mailbox).then(function (response) {
+                    v.$.post(url, params.messages).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
-                        resolve(response.uri);
+                        resolve(response.uris);
                     })['catch'](function (error) {
                         reject(error);
                     });
@@ -45,19 +53,71 @@ function MailboxService(v, utils) {
         },
 
         /**
-         * Update a mailbox
+         * Create one or more messages for a specific user.
          *
-         * @alias updateMailbox
+         * @memberOf voyent.mailbox
+         * @alias createMessages
          * @param {Object} params params
-         * @param {String} params.id The user id, the user's mailbox to be updated
-         * @param {Object} params.mailbox The new mailbox
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {Array} params.messages The message(s) to be created.
+         * @param {String} params.username The user to create the message(s) for.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         * @returns {String} The resource URI(s).
          */
-        updateMailbox: function (params) {
+        createMessages: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    validateRequiredMessages(params, reject);
+                    utils.validateRequiredUsername(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
+                        'mailboxes/' + params.username + '/messages', token, params.ssl);
+
+                    v.$.post(url, params.messages).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response.uris);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+
+                }
+            );
+        },
+
+        /**
+         * Retrieve a single specific message for a specific user.
+         *
+         * @memberOf voyent.mailbox
+         * @alias getMessage
+         * @param {Object} params params
+         * @param {String} params.id The message id, the message to fetch.
+         * @param {String} params.username The user to create the message(s) for.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         * @returns {Object} The message.
+         */
+        getMessage: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
@@ -68,14 +128,14 @@ function MailboxService(v, utils) {
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
-                    validateRequiredMailbox(params, reject);
+                    utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + params.id, token, params.ssl);
+                        'mailboxes/' + params.username + '/messages/' + params.id, token, params.ssl);
 
-                    v.$.put(url, params.mailbox).then(function () {
+                    v.$.getJSON(url).then(function (message) {
                         v.auth.updateLastActiveTimestamp();
-                        resolve();
+                        resolve(message);
                     })['catch'](function (error) {
                         reject(error);
                     });
@@ -84,59 +144,29 @@ function MailboxService(v, utils) {
         },
 
         /**
-         * Fetch a mailbox
+         * Retrieve messages for a specific user based on the results returned from query parameters. Optionally include
+         * a type property to further refine the search.
          *
-         * @alias getMailbox
+         * @memberOf voyent.mailbox
+         * @alias findMessages
          * @param {Object} params params
-         * @param {String} params.id The user id, the user's mailbox to fetch
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.username The user to find message(s) for.
+         * @param {String} params.type The type of messages to get. Valid options are "read" or "unread". Not required.
+         * @param {Object} params.query A mongo query for the messages.
+         * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set.
+         * @param {Object} params.options Additional query options such as limit and sort.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @returns {Object} The mailbox
+         * @returns {Object} The results.
          */
-        getMailbox: function (params) {
-            return new Promise(
-                function (resolve, reject) {
-                    params = params ? params : {};
-                    v.checkHost(params);
-
-                    //validate
-                    var account = utils.validateAndReturnRequiredAccount(params, reject);
-                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
-                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-                    utils.validateRequiredId(params, reject);
-
-                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + params.id, token, params.ssl);
-
-                    v.$.getJSON(url).then(function (mailbox) {
-                        v.auth.updateLastActiveTimestamp();
-                        resolve(mailbox);
-                    })['catch'](function (error) {
-                        reject(error);
-                    });
-                }
-            );
-        },
-
-        /**
-         * Searches for mailboxes in a realm based on a query
-         *
-         * @alias findMailboxes
-         * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @param {Object} params.query A mongo query for the mailboxes
-         * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
-         * @param {Object} params.options Additional query options such as limit and sort
-         * @returns {Object} The results
-         */
-        findMailboxes: function (params) {
+        findMessages: function (params) {
             return new Promise(
                 function (resolve, reject) {
 
@@ -147,17 +177,19 @@ function MailboxService(v, utils) {
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/', token, params.ssl, {
+                        'mailboxes/' + params.username + '/messages' + (params.type ? ('/type/' + params.type) : ''),
+                        token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    v.$.getJSON(url).then(function (mailboxes) {
+                    v.$.getJSON(url).then(function (messages) {
                         v.auth.updateLastActiveTimestamp();
-                        resolve(mailboxes);
+                        resolve(messages);
                     })['catch'](function (response) {
                         reject(response);
                     });
@@ -167,18 +199,24 @@ function MailboxService(v, utils) {
         },
 
         /**
-         * Delete a mailbox
+         * Remove a single specific message for a specific user.
          *
-         * @alias deleteMailbox
+         * @memberOf voyent.mailbox
+         * @alias deleteMessage
          * @param {Object} params params
-         * @param {String} params.id The user id, the user's mailbox to be deleted
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.id The message id, the message to delete.
+         * @param {String} params.username The user to create the message(s) for.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
-        deleteMailbox: function (params) {
+        deleteMessage: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
@@ -189,9 +227,10 @@ function MailboxService(v, utils) {
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
+                    utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + params.id, token, params.ssl);
+                        'mailboxes/' + params.username + '/messages/' + params.id, token, params.ssl);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -204,22 +243,32 @@ function MailboxService(v, utils) {
         },
 
         /**
-         * Delete mailboxes in a realm based on a query
+         * Remove messages for a specific user based on the results returned from query parameters. Optionally include a
+         * type property to further refine the search.
          *
-         * @alias deleteMailboxes
+         * @memberOf voyent.mailbox
+         * @alias deleteMessages
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.username The user to find message(s) for.
+         * @param {String} params.type The type of messages to get. Valid options are "read" or "unread". Not required.
+         * @param {Object} params.query A mongo query for the messages.
+         * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set.
+         * @param {Object} params.options Additional query options such as limit and sort.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @param {Object} params.query A mongo query for the mailboxes
-         * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
-         * @param {Object} params.options Additional query options such as limit and sort
+         * @returns {Object} The results
          */
-        deleteMailboxes: function (params) {
+        deleteMessages: function (params) {
             return new Promise(
                 function (resolve, reject) {
+
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -227,9 +276,11 @@ function MailboxService(v, utils) {
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/', token, params.ssl, {
+                        'mailboxes/' + params.username + '/messages' + (params.type ? ('/type/' + params.type) : ''),
+                        token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -243,6 +294,127 @@ function MailboxService(v, utils) {
                     });
                 }
             );
+        },
+
+        /**
+         * Retrieve the configuration options for this service.
+         *
+         * @memberOf voyent.mailbox
+         * @alias getConfig
+         * @param {Object} params params
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         * @returns {Object} The config
+         */
+        getConfig: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
+                        'config', token, params.ssl);
+
+                    v.$.getJSON(url).then(function (config) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(config);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Update the configuration options for this service.
+         *
+         * @memberOf voyent.mailbox
+         * @alias updateConfig
+         * @param {Object} params params
+         * @param {Object} params.config The new config.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         */
+        updateConfig: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    validateRequiredConfig(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
+                        'config', token, params.ssl);
+
+                    v.$.put(url, params.config).then(function () {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve();
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        getMailboxResourcePermissions: function (params) {
+            if (!params.username || params.username.length === 0) {
+                return;
+            }
+            params.path = 'mailboxes/' + params.username + '/messages';
+            return mailbox.getResourcePermissions(params);
+        },
+
+        updateMailboxResourcePermissions: function (params) {
+            if (!params.username || params.username.length === 0) {
+                return;
+            }
+            params.path = 'mailboxes/' + params.username + '/messages';
+            return mailbox.getResourcePermissions(params);
+        },
+
+        getConfigResourcePermissions: function (params) {
+            params.path = 'config';
+            return mailbox.getResourcePermissions(params);
+        },
+
+        updateConfigResourcePermissions: function (params) {
+            params.path = 'config';
+            return mailbox.getResourcePermissions(params);
+        },
+
+        getResourcePermissions: function (params) {
+            params.service = 'mailbox';
+            return v.getResourcePermissions(params);
+        },
+
+        updateResourcePermissions: function (params) {
+            params.service = 'mailbox';
+            return v.updateResourcePermissions(params);
         }
     };
+
+    return mailbox;
 }

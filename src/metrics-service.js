@@ -8,12 +8,17 @@ function MetricsService(v, utils) {
         /**
          * Searches for events in a realm based on a query
          *
+         * @memberOf voyent.metrics
          * @alias findEvents
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.io.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the events
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
@@ -49,14 +54,19 @@ function MetricsService(v, utils) {
         },
 
         /**
-         * Store a custom event in the metrics service.
+         * Store a custom event in the event service.
          *
+         * @memberOf voyent.metrics
          * @alias createCustomEvent
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.io.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.event The custom event that you would like to store, in JSON format.
          * @returns {String} The resource URI
@@ -78,7 +88,7 @@ function MetricsService(v, utils) {
 
                     v.$.post(url, params.event).then(function(response){
                         v.auth.updateLastActiveTimestamp();
-                        resolve(response.uri);
+                        resolve();
                     })['catch'](function(error){
                         reject(error);
                     });
@@ -87,16 +97,22 @@ function MetricsService(v, utils) {
         },
 
         /**
-         * Retrieve the time difference in milliseconds between the provided time and the metrics server time.
+         * Retrieve the time difference in milliseconds between the provided time and the event server time.
          *
-         * Useful for displaying accurate live metrics views. The time difference is returned as client time - server time.
+         * Useful for displaying accurate live metrics views. The time difference is returned as client time - server
+         * time.
          *
+         * @memberOf voyent.metrics
          * @alias getClientServerTimeGap
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.io.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Number} The time difference in milliseconds
          */
@@ -131,7 +147,5 @@ function MetricsService(v, utils) {
                 }
             );
         }
-
-
     };
 }

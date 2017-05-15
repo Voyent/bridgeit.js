@@ -1,30 +1,35 @@
-function EventHubService (v, utils) {
-    function validateRequiredHandler(params, reject){
+function EventHubService(v, utils) {
+    function validateRequiredHandler(params, reject) {
         utils.validateParameter('handler', 'The handler parameter is required', params, reject);
     }
 
-    function validateRequiredRecognizer(params, reject){
+    function validateRequiredRecognizer(params, reject) {
         utils.validateParameter('handler', 'The recognizer parameter is required', params, reject);
     }
 
-    return {
+    var eventhub = {
         /**
          * Create a new event handler
          *
+         * @memberOf voyent.eventhub
          * @alias createHandler
          * @param {Object} params params
          * @param {String} params.id The handler id
          * @param {Object} params.handler The event handler to be created
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
-        createHandler: function(params){
+        createHandler: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -37,10 +42,10 @@ function EventHubService (v, utils) {
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/' + (params.id ? params.id : ''), token, params.ssl);
 
-                    v.$.post(url, params.handler).then(function(response){
+                    v.$.post(url, params.handler).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
-                    })['catch'](function(error){
+                    })['catch'](function (error) {
                         reject(error);
                     });
 
@@ -51,19 +56,24 @@ function EventHubService (v, utils) {
         /**
          * Update an event handler
          *
+         * @memberOf voyent.eventhub
          * @alias updateHandler
          * @param {Object} params params
          * @param {String} params.id The handler id, the event handler to be updated
          * @param {Object} params.handler The new event handler
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
-        updateHandler: function(params){
+        updateHandler: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -77,10 +87,10 @@ function EventHubService (v, utils) {
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/' + params.id, token, params.ssl);
 
-                    v.$.put(url, params.handler).then(function(){
+                    v.$.put(url, params.handler).then(function () {
                         v.auth.updateLastActiveTimestamp();
                         resolve();
-                    })['catch'](function(error){
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
@@ -90,19 +100,24 @@ function EventHubService (v, utils) {
         /**
          * Fetch an event handler
          *
+         * @memberOf voyent.eventhub
          * @alias getHandler
          * @param {Object} params params
          * @param {String} params.id The handler id, the event handler to fetch
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The event handler
          */
-        getHandler: function(params){
+        getHandler: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -115,10 +130,10 @@ function EventHubService (v, utils) {
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/' + params.id, token, params.ssl);
 
-                    v.$.getJSON(url).then(function(handler){
+                    v.$.getJSON(url).then(function (handler) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(handler);
-                    })['catch'](function(error){
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
@@ -128,21 +143,26 @@ function EventHubService (v, utils) {
         /**
          * Searches for event handlers in a realm based on a query
          *
+         * @memberOf voyent.eventhub
          * @alias findHandlers
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event handlers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
          * @returns {Object} The results
          */
-        findHandlers: function(params){
+        findHandlers: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
 
                     params = params ? params : {};
                     v.checkHost(params);
@@ -159,10 +179,10 @@ function EventHubService (v, utils) {
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    v.$.getJSON(url).then(function(handlers){
+                    v.$.getJSON(url).then(function (handlers) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(handlers);
-                    })['catch'](function(response){
+                    })['catch'](function (response) {
                         reject(response);
                     });
 
@@ -173,18 +193,23 @@ function EventHubService (v, utils) {
         /**
          * Delete an event handler
          *
+         * @memberOf voyent.eventhub
          * @alias deleteHandler
          * @param {Object} params params
          * @param {String} params.id The handler id, the event handler to be deleted
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
-        deleteHandler: function(params){
+        deleteHandler: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -197,10 +222,10 @@ function EventHubService (v, utils) {
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'handlers/' + params.id, token, params.ssl);
 
-                    v.$.doDelete(url).then(function(){
+                    v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
                         resolve();
-                    })['catch'](function(error){
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
@@ -210,20 +235,25 @@ function EventHubService (v, utils) {
         /**
          * Delete event handlers in a realm based on a query
          *
+         * @memberOf voyent.eventhub
          * @alias deleteHandlers
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event handlers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
          */
-        deleteHandlers: function(params){
+        deleteHandlers: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -239,10 +269,10 @@ function EventHubService (v, utils) {
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    v.$.doDelete(url).then(function(){
+                    v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
                         resolve();
-                    })['catch'](function(error){
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
@@ -252,20 +282,25 @@ function EventHubService (v, utils) {
         /**
          * Create a new event recognizer
          *
+         * @memberOf voyent.eventhub
          * @alias createRecognizer
          * @param {Object} params params
          * @param {String} params.id The recognizer id
          * @param {Object} params.recognizer The event recognizer to be created
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIt host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
-        createRecognizer: function(params) {
+        createRecognizer: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -278,10 +313,10 @@ function EventHubService (v, utils) {
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/' + (params.id ? params.id : ''), token, params.ssl);
 
-                    v.$.post(url, params.recognizer).then(function(response) {
+                    v.$.post(url, params.recognizer).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(response.uri);
-                    })['catch'](function(error) {
+                    })['catch'](function (error) {
                         reject(error);
                     });
 
@@ -292,19 +327,24 @@ function EventHubService (v, utils) {
         /**
          * Update an event recognizer
          *
+         * @memberOf voyent.eventhub
          * @alias updateRecognizer
          * @param {Object} params params
          * @param {String} params.id The recognizer id, the event recognizer to be updated
          * @param {Object} params.recognizer The new event recognizer
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
-        updateRecognizer: function(params) {
+        updateRecognizer: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -318,10 +358,10 @@ function EventHubService (v, utils) {
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/' + params.id, token, params.ssl);
 
-                    v.$.put(url, params.recognizer).then(function() {
+                    v.$.put(url, params.recognizer).then(function () {
                         v.auth.updateLastActiveTimestamp();
                         resolve();
-                    })['catch'](function(error) {
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
@@ -331,19 +371,24 @@ function EventHubService (v, utils) {
         /**
          * Fetch an event recognizer
          *
+         * @memberOf voyent.eventhub
          * @alias getRecognizer
          * @param {Object} params params
          * @param {String} params.id The recognizer id, the event recognizer to fetch
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The event recognizer
          */
-        getRecognizer: function(params) {
+        getRecognizer: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -356,10 +401,10 @@ function EventHubService (v, utils) {
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/' + params.id, token, params.ssl);
 
-                    v.$.getJSON(url).then(function(recognizer) {
+                    v.$.getJSON(url).then(function (recognizer) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(recognizer);
-                    })['catch'](function(error) {
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
@@ -369,21 +414,26 @@ function EventHubService (v, utils) {
         /**
          * Searches for event recognizers in a realm based on a query
          *
+         * @memberOf voyent.eventhub
          * @alias findRecognizers
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event recognizers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
          * @returns {Object} The results
          */
-        findRecognizers: function(params) {
+        findRecognizers: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
 
                     params = params ? params : {};
                     v.checkHost(params);
@@ -400,10 +450,10 @@ function EventHubService (v, utils) {
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    v.$.getJSON(url).then(function(recognizers) {
+                    v.$.getJSON(url).then(function (recognizers) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(recognizers);
-                    })['catch'](function(response) {
+                    })['catch'](function (response) {
                         reject(response);
                     });
 
@@ -414,18 +464,23 @@ function EventHubService (v, utils) {
         /**
          * Delete an event recognizer
          *
+         * @memberOf voyent.eventhub
          * @alias deleteRecognizer
          * @param {Object} params params
          * @param {String} params.id The recognizer id, the event recognizer to be deleted
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
-        deleteRecognizer: function(params) {
+        deleteRecognizer: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -438,10 +493,10 @@ function EventHubService (v, utils) {
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
                         'recognizers/' + params.id, token, params.ssl);
 
-                    v.$.doDelete(url).then(function() {
+                    v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
                         resolve();
-                    })['catch'](function(error) {
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
@@ -451,20 +506,25 @@ function EventHubService (v, utils) {
         /**
          * Delete event recognizers in a realm based on a query
          *
+         * @memberOf voyent.eventhub
          * @alias deleteRecognizers
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event recognizers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
          */
-        deleteRecognizers: function(params) {
+        deleteRecognizers: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -480,14 +540,46 @@ function EventHubService (v, utils) {
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
                         });
 
-                    v.$.doDelete(url).then(function() {
+                    v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
                         resolve();
-                    })['catch'](function(error) {
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
             );
+        },
+
+        getRecognizerResourcePermissions: function (params) {
+            params.path = 'recognizers';
+            return eventhub.getResourcePermissions(params);
+        },
+
+        updateRecognizerResourcePermissions: function (params) {
+            params.path = 'recognizers';
+            return eventhub.getResourcePermissions(params);
+        },
+
+        getHandlerResourcePermissions: function (params) {
+            params.path = 'handlers';
+            return eventhub.getResourcePermissions(params);
+        },
+
+        updateHandlerResourcePermissions: function (params) {
+            params.path = 'handlers';
+            return eventhub.updateResourcePermissions(params);
+        },
+
+        getResourcePermissions: function (params) {
+            params.service = 'eventhub';
+            return v.getResourcePermissions(params);
+        },
+
+        updateResourcePermissions: function (params) {
+            params.service = 'eventhub';
+            return v.updateResourcePermissions(params);
         }
     };
+
+    return eventhub;
 }

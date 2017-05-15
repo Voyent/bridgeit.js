@@ -1,34 +1,50 @@
 function AuthService(v, utils) {
-    function validateRequiredPassword(params, reject){
+    function validateRequiredPassword(params, reject) {
         utils.validateParameter('password', 'The password parameter is required', params, reject);
     }
 
-    function validateRequiredPermissions(params, reject){
-        utils.validateParameter('permissions', 'The permissions parameter is required', params, reject);
+    function validateAndReturnRequiredRole(params, reject){
+        var role = params.role;
+        if( role ){
+            return role;
+        }
+        else{
+            return reject(Error('The Voyent role parameter is required'));
+        }
     }
 
-    function fireEvent(el, eventName, detail){
-        var event;
-        if( 'CustomEvent' in window ){
-            event = new CustomEvent(eventName, { 'detail': detail });
+    function validateAndReturnRequiredRoles(params, reject){
+        var roles = params.roles;
+        if( roles ){
+            return roles;
         }
-        else if(document.createEvent){//IE 10 & other older browsers
+        else{
+            return reject(Error('The Voyent roles parameter is required'));
+        }
+    }
+
+    function fireEvent(el, eventName, detail) {
+        var event;
+        if ('CustomEvent' in window) {
+            event = new CustomEvent(eventName, {'detail': detail});
+        }
+        else if (document.createEvent) {//IE 10 & other older browsers
             event = document.createEvent('HTMLEvents');
             event.initEvent(eventName, true, true);
         }
-        else if(document.createEventObject){// IE < 9
+        else if (document.createEventObject) {// IE < 9
             event = document.createEventObject();
             event.eventType = eventName;
         }
         event.eventName = eventName;
-        if(el.dispatchEvent){
+        if (el.dispatchEvent) {
             el.dispatchEvent(event);
-        }else if(el.fireEvent && htmlEvents['on'+eventName]){// IE < 9
-            el.fireEvent('on'+event.eventType, event);// can trigger only real event (e.g. 'click')
-        }else if(el[eventName]){
+        } else if (el.fireEvent && htmlEvents['on' + eventName]) {// IE < 9
+            el.fireEvent('on' + event.eventType, event);// can trigger only real event (e.g. 'click')
+        } else if (el[eventName]) {
             el[eventName]();
-        }else if(el['on'+eventName]){
-            el['on'+eventName]();
+        } else if (el['on' + eventName]) {
+            el['on' + eventName]();
         }
     }
 
@@ -36,20 +52,20 @@ function AuthService(v, utils) {
     var ACCOUNT_KEY = 'bridgeitAccount';
     var USERNAME_KEY = 'bridgeitUsername';
     var PASSWORD_KEY = 'bridgeitPassword';
-    var USER_STORE_KEY = "bridgeitUserStore";
-    var USER_STORE_SETTING_KEY = "bridgeitUserStoreSetting";
+    var HOST_KEY = 'voyentHost';
+    var ADMIN_KEY = 'voyentAdmin';
+    var SCOPE_TO_PATH_KEY = "voyentScopeToPath";
     var CONNECT_SETTINGS_KEY = 'bridgeitConnectSettings';
     var RELOGIN_CB_KEY = 'bridgeitReloginCallback';
     var LAST_ACTIVE_TS_KEY = 'bridgeitLastActiveTimestamp';
     var TOKEN_KEY = 'bridgeitToken';
     var TOKEN_EXPIRES_KEY = 'bridgeitTokenExpires';
     var TOKEN_SET_KEY = 'bridgeitTokenSet';
-    var LAST_UPDATED = "last_updated";
 
     return {
 
         /**
-         * Retrieve a new access token from the BridgeIt auth service.
+         * Retrieve a new access token from the Voyent auth service.
          *
          * The function returns a Promise that, when successful, returns an object with the following structure:
          *    {
@@ -62,55 +78,56 @@ function AuthService(v, utils) {
          * Unlike the login, and connect functions, this function does not store the access token after it
          * is retrieved.
          *
+         * @memberOf voyent.auth
          * @alias getNewAccessToken
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name (required)
-         * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+         * @param {String} params.account Voyent Services account name (required)
+         * @param {String} params.realm Voyent Services realm (required only for non-admin logins)
          * @param {String} params.username User name (required)
          * @param {String} params.password User password (required)
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @returns Promise with the following argument:
+         * @returns {Promise} with the following argument:
          *      {
 		 *          access_token: 'xxx',
 		 *          expires_in: 99999
 		 *      }
          *
          */
-        getNewAccessToken: function(params){
+        getNewAccessToken: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
-                    if( !params.realm ){
+                    if (!params.realm) {
                         params.realm = 'admin';
                     }
 
                     //validation
-                    if( !params.account ){
-                        reject(Error('BridgeIt account required for new access token'));
+                    if (!params.account) {
+                        reject(Error('Voyent account required for new access token'));
                         return;
                     }
-                    if( !params.password ){
+                    if (!params.password) {
                         reject(Error('password required for new access token'));
                         return;
                     }
-                    if( !params.username ){
+                    if (!params.username) {
                         reject(Error('username required for new access token'));
                         return;
                     }
-                    var protocol = params.ssl ? 'https://' : 'http://';
-                    var url = protocol + v.authURL + '/' + encodeURI(params.account) +
+                    var url = utils.determineProtocol(params.ssl) + v.authURL + '/' + encodeURI(params.account) +
                         '/realms/' + encodeURI(params.realm) + '/token/?' + utils.getTransactionURLParam();
 
                     v.$.post(url, {
                         strategy: 'query',
                         username: params.username,
                         password: params.password
-                    }).then(function(authResponse){
+                    }).then(function (authResponse) {
                         resolve(authResponse);
-                    })['catch'](function(error){
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
@@ -118,10 +135,10 @@ function AuthService(v, utils) {
         },
 
         /**
-         * Login into bridgeit services.
+         * Login into voyent.
          *
-         * This function will login into the BridgeIt auth service and return a user token and expiry timestamp upon
-         * successful authentication. This function does not need to be called if bridgeit.connect has already been
+         * This function will login into the Voyent auth service and return a user token and expiry timestamp upon
+         * successful authentication. This function does not need to be called if v.connect has already been
          * called, as that function will automatically extend the user session, unless the timeout has passed.
          *
          * The function returns a Promise that, when successful, returns an object with the following structure:
@@ -132,315 +149,351 @@ function AuthService(v, utils) {
          *
          * Which contains the access token and the time, in milliseconds that the session will expire in.
          *
+         * @memberOf voyent.auth
          * @alias login
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name (required)
-         * @param {String} params.realm BridgeIt Services realm (required only for non-admin logins)
+         * @param {String} params.account Voyent Services account name (required)
+         * @param {String} params.realm Voyent Services realm (required only for non-admin logins)
+         * @param {Boolean} params.admin The client should or should not log in as an account administrator
          * @param {String} params.username User name (required)
          * @param {String} params.password User password (required)
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @returns Promise with the following argument:
+         * @param {String} params.scopeToPath (default '/') If set, the authentication token will be restricted to the
+         *     given path, unless on localhost.
+         * @returns {Promise} with the following argument:
          *      {
 		 *          access_token: 'xxx',
 		 *          expires_in: 99999
 		 *      }
          *
          */
-        login: function(params) {
-            return new Promise(
-                function(resolve, reject) {
-                    params = params ? params : {};
-                    v.checkHost(params);
+        login: function (params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+                v.checkHost(params);
 
-                    if( !params.realm ){
-                        params.realm = 'admin';
-                    }
-
-                    //validation
-                    if( !params.account ){
-                        reject(Error('BridgeIt account required for login'));
-                        return;
-                    }
-                    if( !params.password ){
-                        reject(Error('password required for login'));
-                        return;
-                    }
-                    if( !params.username ){
-                        reject(Error('username required for login'));
-                        return;
-                    }
-                    var protocol = params.ssl ? 'https://' : 'http://';
-                    var txParam = utils.getTransactionURLParam();
-                    var url = protocol + v.authURL + '/' + encodeURI(params.account) +
-                        '/realms/' + encodeURI(params.realm) + '/token/' + ( txParam ? ('?' + txParam) : '');
-
-                    var loggedInAt = new Date().getTime();
-                    v.$.post(url, {
-                        strategy: 'query',
-                        username: params.username,
-                        password: params.password
-                    }).then(function(authResponse){
-                        if( !params.suppressUpdateTimestamp ){
-                            v.auth.updateLastActiveTimestamp();
-                        }
-                        utils.setSessionStorageItem(btoa(TOKEN_KEY), authResponse.access_token);
-                        utils.setSessionStorageItem(btoa(TOKEN_EXPIRES_KEY), authResponse.expires_in);
-                        utils.setSessionStorageItem(btoa(TOKEN_SET_KEY), loggedInAt);
-                        utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
-                        utils.setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
-                        utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
-
-                        resolve(authResponse);
-                    })['catch'](function(error){
-                        reject(error);
-                    });
+                if (!params.realm) {
+                    params.realm = 'admin';
                 }
-            );
+
+                //validation
+                if (!params.account) {
+                    reject(Error('Voyent account required for login'));
+                    return;
+                }
+                if (!params.password) {
+                    reject(Error('password required for login'));
+                    return;
+                }
+                if (!params.username) {
+                    reject(Error('username required for login'));
+                    return;
+                }
+                var txParam = utils.getTransactionURLParam();
+                var url = utils.determineProtocol(params.ssl) + v.authURL + '/' + encodeURI(params.account) +
+                    '/realms/' + (params.admin === 'true' ? 'admin' : encodeURI(params.realm)) + '/token/' + ( txParam ? ('?' + txParam) : '');
+
+                var loggedInAt = new Date().getTime();
+                v.$.post(url, {
+                    strategy: 'query',
+                    username: params.username,
+                    password: params.password
+                }).then(function (authResponse) {
+                    if (!params.suppressUpdateTimestamp) {
+                        v.auth.updateLastActiveTimestamp();
+                    }
+                    utils.setSessionStorageItem(btoa(TOKEN_KEY), authResponse.access_token);
+                    utils.setSessionStorageItem(btoa(TOKEN_EXPIRES_KEY), authResponse.expires_in);
+                    utils.setSessionStorageItem(btoa(TOKEN_SET_KEY), loggedInAt);
+                    utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
+                    if (params.host) {
+                        utils.setSessionStorageItem(btoa(HOST_KEY), btoa(params.host));
+                    }
+                    utils.setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
+                    utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
+                    utils.setSessionStorageItem(btoa(ADMIN_KEY), btoa(params.admin));
+                    if (params.scopeToPath) {
+                        utils.setSessionStorageItem(btoa(SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
+                    }
+                    fireEvent(window, 'voyent-login-succeeded', {});
+                    resolve(authResponse);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
         },
 
         /**
-         * Connect to bridgeit services.
+         * Connect to voyent.
          *
-         * This function will connect to the BridgeIt services, and maintain the connection for the specified
-         * timeout period (default 20 minutes). By default, the BridgeIt push service is also activated, so the client
+         * This function will connect to the Voyent voyent, and maintain the connection for the specified
+         * timeout period (default 20 minutes). By default, the Voyent push service is also activated, so the client
          * may send and receive push notifications after connecting.
          *
-         * After connecting to BridgeIt Services, any BridgeIt service API may be used without needing to re-authenticate.
-         * After successfully connection an authentication will be stored in session storage and available through
-         * sessionStorage.bridgeitToken. This authentication information will automatically be used by other BridgeIt API
+         * After connecting to Voyent Services, any Voyent service API may be used without needing to re-authenticate.
+         * After successfully connecting an authentication will be stored in session storage and available through
+         * sessionStorage.voyentToken. This authentication information will automatically be used by other Voyent API
          * calls, so the token does not be included in subsequent calls, but is available if desired.
          *
-         * A simple example of connecting to the BridgeIt Services and then making a service call is the following:
-         *
-         * bridgeit.connect({
+         * A simple example of connecting to the Voyent Services and then making a service call is the following:
+         * @example
+         * v.connect({
 		 *           account: 'my_account',
 		 *           realm: 'realmA',
 		 *           user: 'user',
 		 *           password: 'secret'})
          *   .then( function(){
-		 *      console.log("successfully connnected to BridgeIt Services");
-		 *      //now we can fetch some docs
-		 *      return bridgeit.docService.get('documents');
+		 *      console.log("successfully connnected to Voyent Services");
 		 *   })
          *   .then( function(docs){
 		 *      for( var d in docs ){ ... };
 		 *   })
          *   .catch( function(error){
-		 *      console.log("error connecting to BridgeIt Services: " + error);
+		 *      console.log("error connecting to Voyent Services: " + error);
 		 *   });
          *
+         * @memberOf voyent.auth
          * @alias connect
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name
-         * @param {String} params.realm BridgeIt Services realm
+         * @param {String} params.account Voyent Services account name
+         * @param {Boolean} params.admin The client should or should not log in as an account administrator
+         * @param {String} params.realm Voyent Services realm
          * @param {String} params.username User name
          * @param {String} params.password User password
-         * @param {String} params.host The BridgeIt Services host url, defaults to api.bridgeit.io
-         * @param {Boolean} params.usePushService Open and connect to the BridgeIt push service, default true
-         * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the BridgeIt login will last during inactivity. Default 20 minutes.
+         * @param {String} params.host The Voyent Services host url, defaults to api.voyent.cloud
+         * @param {Boolean} params.usePushService Open and connect to the Voyent push service, default true
+         * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the Voyent login will last
+         *     during inactivity. Default 20 minutes.
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session storage. If set to false, bridgeit will not attempt to relogin before the session expires.
-         * @param {Function} params.onSessionExpiry Function callback to be called on session expiry. If you wish to ensure that disconnect is not called until after your onSessionExpiry callback has completed, please return a Promise from your function.
+         * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session
+         *     storage. If set to false, voyent will not attempt to relogin before the session expires.
+         * @param {Function} params.onSessionExpiry Function callback to be called on session expiry. If you wish to
+         *     ensure that disconnect is not called until after your onSessionExpiry callback has completed, please
+         *     return a Promise from your function.
+         * @param {String} params.scopeToPath (default '/') If set, the authentication token will be restricted to the
+         *     given path, unless on localhost.
          * @returns Promise with service definitions
          *
          */
-        connect: function(params){
-            return new Promise(function(resolve, reject) {
+        connect: function (params) {
+            return new Promise(function (resolve, reject) {
 
-                function initConnectCallback(){
+                /* The function callback set to run before the next timeout,
+                 will automatically reset the next setTimeout call if necessary */
+                function connectCallback() {
+                    console.log(new Date().toISOString() + ' voyent.auth.connect: callback running');
+                    var connectSettings = v.auth.getConnectSettings();
+                    if (!connectSettings) {
+                        console.log(new Date().toISOString() + ' voyent.auth.connect: error, could not retrieve settings');
+                        return;
+                    }
 
-                    function connectCallback(){
-                        console.log(new Date().toISOString() + ' bridgeit connect: callback running')
-                        var connectSettings = v.auth.getConnectSettings();
-                        if( !connectSettings ){
-                            console.log(new Date().toISOString() + ' bridgeit connect: error, could not retrieve settings');
-                            return;
+                    var timeoutMillis = connectSettings.connectionTimeout * 60 * 1000;
+
+                    //first check if connectionTimeout has expired
+                    var now = new Date().getTime();
+                    var inactiveMillis = now - v.auth.getLastActiveTimestamp();
+                    var millisUntilTimeoutExpires = timeoutMillis - inactiveMillis;
+                    console.log('voyent.auth.connect: getLastActiveTimestamp: ' + v.auth.getLastActiveTimestamp());
+                    console.log('voyent.auth.connect: connection timeout ms: ' + timeoutMillis);
+                    console.log('voyent.auth.connect: current timestamp: ' + now);
+                    console.log('voyent.auth.connect: inactive ms: ' + inactiveMillis + '(' + (inactiveMillis / 1000 / 60) + ' mins)');
+                    console.log('voyent.auth.connect: ms until timeout: ' + millisUntilTimeoutExpires + '(' + (millisUntilTimeoutExpires / 1000 / 60) + ' mins)');
+
+                    //if we haven't exceeded the connection timeout, reconnect
+                    if (millisUntilTimeoutExpires > 0) {
+                        console.log(new Date().toISOString() + ' voyent.auth.connect: timeout has not been exceeded, ' +
+                            v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60 + ' mins remaining before token expires, ' +
+                            millisUntilTimeoutExpires / 1000 / 60 + ' mins remaining before timeout expires');
+
+                        //if we the time remaining before expiry is less than the session timeout
+                        //refresh the access token and set the timeout
+                        if (timeoutMillis > millisUntilTimeoutExpires) {
+                            v.auth.refreshAccessToken().then(function () {
+                                var cbId = setTimeout(connectCallback, v.auth.getExpiresIn() - timeoutPadding);
+                                utils.setSessionStorageItem(btoa(RELOGIN_CB_KEY), cbId);
+                                console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + v.auth.getExpiresIn() / 1000 / 60 + ' mins, expiresIn: ' +
+                                    (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
+                                    (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins');
+
+                            });
+                        }
+                    } else {
+                        console.log(new Date().toISOString() + ' voyent.auth.connect: timeout has expired, disconnecting..');
+
+                        //look for the onSessionExpiry callback on the params first,
+                        //as functions could be passed by reference
+                        //secondly by settings, which would only be passed by name
+                        var expiredCallback = params.onSessionExpiry;
+                        if (!expiredCallback) {
+                            expiredCallback = connectSettings.onSessionExpiry;
                         }
 
-                        var timeoutMillis = connectSettings.connectionTimeout * 60 * 1000;
-
-                        //first check if connectionTimeout has expired
-                        var now = new Date().getTime();
-                        console.log('bridgeit.getLastActiveTimestamp: ' + v.auth.getLastActiveTimestamp());
-                        console.log('bridgeit timeout ms: ' + timeoutMillis);
-                        console.log('bridgeit now ms: ' + now);
-                        if( ( now - v.auth.getLastActiveTimestamp()) < timeoutMillis ){
-                            console.log(new Date().toISOString() + ' bridgeit connect: timeout has not been exceeded, ' + v.auth.getTimeRemainingBeforeExpiry()/1000/60 + ' mins remaining');
-
-                            if( (connectSettings.connectionTimeout * 1000 * 60 ) > v.auth.getTimeRemainingBeforeExpiry()){
-
-                                var loginParams = v.auth.getConnectSettings();
-                                loginParams.account = atob(utils.getSessionStorageItem(btoa(ACCOUNT_KEY)));
-                                loginParams.realm = atob(utils.getSessionStorageItem(btoa(REALM_KEY)));
-                                loginParams.username = atob(utils.getSessionStorageItem(btoa(USERNAME_KEY)));
-                                loginParams.password = atob(utils.getSessionStorageItem(btoa(PASSWORD_KEY)));
-                                loginParams.suppressUpdateTimestamp = true;
-
-                                v.auth.login(loginParams).then(function(authResponse){
-                                    fireEvent(window, 'bridgeit-access-token-refreshed', v.auth.getLastAccessToken());
-                                    if( loginParams.usePushService ){
-                                        v.push.startPushService(loginParams);
-                                    }
-                                    setTimeout(connectCallback, v.auth.getTimeRemainingBeforeExpiry() - timeoutPadding);
-                                })['catch'](function(response){
-                                    var msg = new Date().toISOString() + ' bridgeit connect: error relogging in: ' + response.responseText;
-                                    console.error(msg);
-                                    reject(response);
-                                    throw new Error(msg);
-                                });
+                        //if there's no onSessionExpiry, call disconnect immediately
+                        //otherwise search for onSessionExpiry function, if not found
+                        //call disconnect() immediately, otherwise call onSessionExpiry
+                        //if callback if a promise, wait until the promise completes
+                        //before disconnecting, otherwise, wait 500ms then disconnect
+                        if (expiredCallback) {
+                            var expiredCallbackFunction;
+                            if (typeof expiredCallback === 'function') {
+                                expiredCallbackFunction = expiredCallback;
                             }
-                            else{
-                                console.log( new Date().toISOString() + ' bridgeit connect: setting callback for ' + connectSettings.connectionTimeout + ' minutes');
-                                setTimeout(connectCallback, connectSettings.connectionTimeout * 60 * 1000);
+                            else if (typeof expiredCallback === 'string') {
+                                expiredCallbackFunction = utils.findFunctionInGlobalScope(expiredCallback);
                             }
-                        }
-                        else{
-                            console.log( new Date().toISOString() + ' bridgeit connect: timeout has expired, disconnecting..');
-
-
-                            //look for the onSessionExpiry callback on the params first,
-                            //as functions could be passed by reference
-                            //secondly by settings, which would only be passed by name
-                            var expiredCallback = params.onSessionExpiry;
-                            if( !expiredCallback ){
-                                expiredCallback = connectSettings.onSessionExpiry;
+                            if (expiredCallbackFunction) {
+                                var expiredCallbackPromise = expiredCallbackFunction();
+                                if (expiredCallbackPromise && expiredCallbackPromise.then) {
+                                    expiredCallbackPromise.then(v.auth.disconnect)
+                                        ['catch'](v.auth.disconnect);
+                                }
+                                else {
+                                    setTimeout(v.auth.disconnect, 500);
+                                }
                             }
-
-                            //if there's no onSessionExpiry, call disconnect immediately
-                            //otherwise search for onSessionExpiry function, if not found
-                            //call disconnect() immediately, otherwise call onSessionExpiry
-                            //if callback if a promise, wait until the promise completes
-                            //before disconnecting, otherwise, wait 500ms then disconnect
-                            if( expiredCallback ){
-                                var expiredCallbackFunction;
-                                if( typeof expiredCallback === 'function'){
-                                    expiredCallbackFunction = expiredCallback;
-                                }
-                                else if( typeof expiredCallback === 'string'){
-                                    expiredCallbackFunction = utils.findFunctionInGlobalScope(expiredCallback);
-                                }
-                                if( expiredCallbackFunction ){
-                                    var expiredCallbackPromise = expiredCallbackFunction();
-                                    if( expiredCallbackPromise && expiredCallbackPromise.then ){
-                                        expiredCallbackPromise.then(v.auth.disconnect)
-                                            ['catch'](v.auth.disconnect);
-                                    }
-                                    else{
-                                        setTimeout(v.auth.disconnect, 500);
-                                    }
-                                }
-                                else{
-                                    console.log( new Date().toISOString() + ' bridgeit connect: error calling onSessionExpiry callback, ' +
-                                        'could not find function: ' + expiredCallback);
-                                    v.auth.disconnect();
-                                }
-
-                            }
-                            else{
+                            else {
+                                console.log(new Date().toISOString() + ' voyent.auth.connect: error calling onSessionExpiry callback, ' +
+                                    'could not find function: ' + expiredCallback);
                                 v.auth.disconnect();
                             }
 
                         }
-                    }
+                        else {
+                            v.auth.disconnect();
+                        }
 
-                    var callbackTimeout;
+                    }
+                }
+
+                /* initialize the timing for the callback check */
+                function initConnectCallback() {
 
                     //if the desired connection timeout is greater the token expiry
                     //set the callback check for just before the token expires
-                    if( connectionTimeoutMillis > v.auth.getExpiresIn()){
+                    var callbackTimeout;
+                    if (connectionTimeoutMillis > v.auth.getTimeRemainingBeforeExpiry()) {
                         callbackTimeout = v.auth.getTimeRemainingBeforeExpiry() - timeoutPadding;
                     }
                     //otherwise the disired timeout is less then the token expiry
                     //so set the callback to happen just at specified timeout
-                    else{
+                    else {
                         callbackTimeout = connectionTimeoutMillis;
                     }
 
-                    console.log( new Date().toISOString() + ' bridgeit connect: setting timeout to ' + callbackTimeout / 1000 / 60 + ' mins, expiresIn: ' + v.auth.getExpiresIn() + ', remaining: '  + v.auth.getTimeRemainingBeforeExpiry());
+                    var tokenSetAt = new Date();
+                    tokenSetAt.setTime(v.auth.getTokenSetAtTime());
+                    console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + callbackTimeout / 1000 / 60 + ' mins, expiresIn: ' +
+                        (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
+                        (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins, token set at ' + tokenSetAt);
                     var cbId = setTimeout(connectCallback, callbackTimeout);
                     utils.setSessionStorageItem(btoa(RELOGIN_CB_KEY), cbId);
+
+                    if (settings.usePushService) {
+                        // v.push.startPushService(settings);
+                    }
                 }
 
-                var timeoutPadding = 500;
-                params = params ? params : {};
-                v.checkHost(params);
-                if( !params.storeCredentials){
-                    params.storeCredentials = true;
-                }
+                /* initialize basic settings */
+                function initSettings() {
 
-                //store connect settings
-                var settings = {
-                    host: v.baseURL,
-                    usePushService: params.usePushService,
-                    connectionTimeout: params.connectionTimeout || 20,
-                    ssl: params.ssl,
-                    storeCredentials: params.storeCredentials || true,
-                    onSessionExpiry: params.onSessionExpiry
-                };
-                utils.setSessionStorageItem(btoa(CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
+                    params = params ? params : {};
+                    v.checkHost(params);
+                    if (!params.storeCredentials) {
+                        params.storeCredentials = true;
+                    }
 
-                if( params.onSessionExpiry ){
-                    if( typeof params.onSessionExpiry === 'function'){
-                        var name = utils.getFunctionName(params.onSessionExpiry);
-                        if( name ){
-                            settings.onSessionExpiry = name;
+                    //store connect settings
+                    settings = {
+                        host: v.baseURL,
+                        usePushService: params.usePushService,
+                        connectionTimeout: params.connectionTimeout || 20,
+                        ssl: params.ssl,
+                        storeCredentials: params.storeCredentials || true,
+                        onSessionExpiry: params.onSessionExpiry,
+                        admin: params.admin
+                    };
+                    if (params.scopeToPath) {
+                        settings.scopeToPath = params.scopeToPath;
+                    }
+
+                    //settings.connectionTimeout = 5;
+
+                    utils.setSessionStorageItem(btoa(CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
+
+                    if (params.onSessionExpiry) {
+                        if (typeof params.onSessionExpiry === 'function') {
+                            var name = getFunctionName(params.onSessionExpiry);
+                            if (name) {
+                                settings.onSessionExpiry = name;
+                            }
                         }
                     }
+
+
+                    connectionTimeoutMillis = (settings.connectionTimeout) * 60 * 1000;
+
                 }
 
-                var connectionTimeoutMillis =  settings.connectionTimeout * 60 * 1000;
+                /* store the provided credentials */
+                function saveCredentials() {
+                    utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(v.auth.getLastKnownAccount()));
+                    utils.setSessionStorageItem(btoa(REALM_KEY), btoa(v.auth.getLastKnownRealm()));
+                    utils.setSessionStorageItem(btoa(HOST_KEY), btoa(v.auth.getLastKnownHost()));
+                    utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
+                    utils.setSessionStorageItem(btoa(PASSWORD_KEY), btoa(params.password));
+                }
 
-                if( v.auth.isLoggedIn()){
+                var timeoutPadding = 60000;
+                var settings;
+                var connectionTimeoutMillis;
+                initSettings();
+
+                if (v.auth.isLoggedIn()) {
                     initConnectCallback();
-                    if( settings.usePushService ){
-                        v.push.startPushService(settings);
-                    }
                     resolve();
                 }
-                else{
-                    v.auth.login(params).then(function(authResponse){
-                        console.log('bridgeit.io.auth.connect: ' + new Date().toISOString() + ' received auth response');
-                        utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(bridgeit.io.auth.getLastKnownAccount()));
-                        utils.setSessionStorageItem(btoa(REALM_KEY), btoa(bridgeit.io.auth.getLastKnownRealm()));
-                        utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
-                        utils.setSessionStorageItem(btoa(PASSWORD_KEY), btoa(params.password));
+                else {
+                    v.auth.login(params).then(function (authResponse) {
+                        console.log(new Date().toISOString() + ' voyent.auth.connect: received auth response');
+                        saveCredentials();
                         initConnectCallback();
-                        if( settings.usePushService ){
-                            v.push.startPushService(settings);
-                        }
-                        resolve();
-                    })['catch'](function(error){
+                        resolve(authResponse);
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
             });
         },
 
-        refreshAccessToken: function(){
-            return new Promise(function(resolve, reject) {
-                if( !v.auth.isLoggedIn()){
-                    reject('bridgeit.io.auth.refreshAccessToken() not logged in, cant refresh token');
+        refreshAccessToken: function () {
+            return new Promise(function (resolve, reject) {
+                if (!v.auth.isLoggedIn()) {
+                    reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
                 }
-                else{
+                else {
                     var loginParams = v.auth.getConnectSettings();
-                    if( !loginParams ){
-                        reject('bridgeit.io.auth.refreshAccessToken() no connect settings, cant refresh token');
+                    if (!loginParams) {
+                        reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
-                    else{
+                    else {
                         loginParams.account = atob(utils.getSessionStorageItem(btoa(ACCOUNT_KEY)));
                         loginParams.realm = atob(utils.getSessionStorageItem(btoa(REALM_KEY)));
+                        loginParams.host = atob(utils.getSessionStorageItem(btoa(HOST_KEY)));
                         loginParams.username = atob(utils.getSessionStorageItem(btoa(USERNAME_KEY)));
                         loginParams.password = atob(utils.getSessionStorageItem(btoa(PASSWORD_KEY)));
                         loginParams.suppressUpdateTimestamp = true;
-
-                        v.auth.login(loginParams).then(function(authResponse){
-                            fireEvent(window, 'bridgeit-access-token-refreshed', v.auth.getLastAccessToken());
-                            if( loginParams.usePushService ){
-                                v.push.startPushService(loginParams);
+                        loginParams.admin = atob(utils.getSessionStorageItem(btoa(ADMIN_KEY)));
+                        console.log('voyent.auth.refreshAccessToken()');
+                        v.auth.login(loginParams).then(function (authResponse) {
+                            fireEvent(window, 'voyent-access-token-refreshed', v.auth.getLastAccessToken());
+                            if (loginParams.usePushService) {
+                                // v.push.startPushService(loginParams);
                             }
                             resolve(authResponse);
-                        })['catch'](function(response){
+                        })['catch'](function (response) {
                             reject(response);
                         });
                     }
@@ -450,28 +503,32 @@ function AuthService(v, utils) {
         },
 
         /**
-         * Disconnect from BridgeIt Services.
+         * Disconnect from Voyent Services.
          *
-         * This function will logout from BridgeIt Services and remove all session information from the client.
+         * This function will logout from Voyent Services and remove all session information from the client.
          *
          * TODO
          *
+         * @memberOf voyent.auth
          * @alias disconnect
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
          * @param {String} params.username User name (required)
          * @param {String} params.password User password (required)
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @returns Promise with the following argument:
+         * @returns {Promise} with the following argument:
          *      {
 		 *          access_token: 'xxx',
 		 *          expires_in: 99999
 		 *      }
          *
          */
-        disconnect: function(){
+        disconnect: function () {
             utils.removeSessionStorageItem(btoa(TOKEN_KEY));
             utils.removeSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
             utils.removeSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
@@ -479,70 +536,79 @@ function AuthService(v, utils) {
             utils.removeSessionStorageItem(btoa(ACCOUNT_KEY));
             utils.removeSessionStorageItem(btoa(REALM_KEY));
             utils.removeSessionStorageItem(btoa(USERNAME_KEY));
+            utils.removeSessionStorageItem(btoa(HOST_KEY));
             utils.removeSessionStorageItem(btoa(PASSWORD_KEY));
             utils.removeSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
             var cbId = utils.getSessionStorageItem(btoa(RELOGIN_CB_KEY));
-            if( cbId ){
+            if (cbId) {
                 clearTimeout(cbId);
             }
             utils.removeSessionStorageItem(btoa(RELOGIN_CB_KEY));
-            console.log(new Date().toISOString() + ' bridgeit has disconnected')
+            console.log(new Date().toISOString() + ' voyent has disconnected')
         },
 
-        getLastAccessToken: function(){
+        getLastAccessToken: function () {
             return utils.getSessionStorageItem(btoa(TOKEN_KEY));
         },
 
-        getExpiresIn: function(){
+        getExpiresIn: function () {
             var expiresInStr = utils.getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
-            if( expiresInStr ){
-                return parseInt(expiresInStr,10);
+            if (expiresInStr) {
+                return parseInt(expiresInStr, 10);
             }
         },
 
-        getTokenSetAtTime: function(){
+        getTokenSetAtTime: function () {
             var tokenSetAtStr = utils.getSessionStorageItem(btoa(TOKEN_SET_KEY));
-            if( tokenSetAtStr ){
-                return parseInt(tokenSetAtStr,10);
+            if (tokenSetAtStr) {
+                return parseInt(tokenSetAtStr, 10);
             }
         },
 
-        getTimeRemainingBeforeExpiry: function(){
+        getTimeRemainingBeforeExpiry: function () {
             var expiresIn = v.auth.getExpiresIn();
             var token = v.auth.getExpiresIn();
-            if( expiresIn && token ){
+            if (expiresIn && token) {
                 var now = new Date().getTime();
                 return (v.auth.getTokenSetAtTime() + expiresIn) - now;
             }
         },
 
-        getConnectSettings: function(){
+        getConnectSettings: function () {
             var settingsStr = utils.getSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
-            if( settingsStr ){
+            if (settingsStr) {
                 return JSON.parse(atob(settingsStr));
             }
         },
 
-        isLoggedIn: function(){
+        isLoggedIn: function () {
             var token = utils.getSessionStorageItem(btoa(TOKEN_KEY)),
                 tokenExpiresInStr = utils.getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY)),
-                tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr,10) : null,
+                tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr, 10) : null,
                 tokenSetAtStr = utils.getSessionStorageItem(btoa(TOKEN_SET_KEY)),
-                tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr,10) : null,
-                result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) );
+                tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
+                scopeToPathCipher = utils.getSessionStorageItem(btoa(SCOPE_TO_PATH_KEY)),
+                scopeToPath = scopeToPathCipher ? atob(scopeToPathCipher) : '/',
+                isDev, currentPath;
+            if (!utils.isNode) {
+                isDev = window.location.port !== '';
+                currentPath = window.location.pathname;
+            }
+            //console.log('v.auth.isLoggedIn: token=' + token + ' tokenExpiresIn=' + tokenExpiresIn + 'tokenSetAt=' + tokenSetAt + ' (new Date().getTime() < (tokenExpiresIn + tokenSetAt))=' + (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) + ' (currentPath.indexOf(scopeToPath) === 0)=' + (currentPath.indexOf(scopeToPath) === 0));
+            var result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) ) && (utils.isNode || (!utils.isNode && (isDev || currentPath.indexOf(scopeToPath) === 0)));
             return !!result;
         },
 
-        getLastKnownAccount: function(){
+        getLastKnownAccount: function () {
             var accountCipher = utils.getSessionStorageItem(btoa(ACCOUNT_KEY));
-            if( accountCipher ){
+            if (accountCipher) {
                 return atob(accountCipher);
             }
         },
 
-        getLastKnownRealm: function(){
+        getLastKnownRealm: function () {
             var realmCipher = utils.getSessionStorageItem(btoa(REALM_KEY));
-            if( realmCipher ){
+            if (realmCipher) {
                 return atob(realmCipher);
             }
         },
@@ -554,17 +620,27 @@ function AuthService(v, utils) {
             }
         },
 
+        getLastKnownHost: function () {
+            var hostCipher = utils.getSessionStorageItem(btoa(HOST_KEY));
+            if (hostCipher) {
+                return atob(hostCipher);
+            }
+        },
 
         /**
          * Register a new user for a realm that supports open user registrations.
          *
+         * @memberOf voyent.auth
          * @alias registerAsNewUser
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
          * @param {String} params.username User name (required)
          * @param {String} params.password User password (required)
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.firstname The user's first name (optional)
          * @param {String} params.lastname The user's last name (optional)
@@ -572,9 +648,9 @@ function AuthService(v, utils) {
          * @param {Object} params.custom Custom user information
          * @returns Promise
          */
-        registerAsNewUser: function(params){
+        registerAsNewUser: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -583,33 +659,33 @@ function AuthService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     utils.validateRequiredUsername(params, reject);
-                    validateRequiredPassword(params, reject);
+                    utils.validateRequiredPassword(params, reject);
 
                     var user = {
                         username: params.username,
                         password: params.password
                     };
 
-                    if( 'firstname' in params ){
+                    if ('firstname' in params) {
                         user.firstname = params.firstname;
                     }
-                    if( 'lastname' in params ){
+                    if ('lastname' in params) {
                         user.lastname = params.lastname;
                     }
-                    if( 'email' in params ){
+                    if ('email' in params) {
                         user.email = params.email;
                     }
-                    if( 'custom' in params ){
+                    if ('custom' in params) {
                         user.custom = params.custom;
                     }
 
                     var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                        'quickuser', v.auth.getLastAccessToken(), params.ssl);
+                        'quickuser', token, params.ssl);
 
-                    v.$.post(url, {user: user}).then(function(response){
+                    v.$.post(url, {user: user}).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(response);
-                    })['catch'](function(error){
+                    })['catch'](function (error) {
                         reject(error);
                     });
                 }
@@ -617,447 +693,207 @@ function AuthService(v, utils) {
         },
 
         /**
-         * Check if the current user has a set of permissions.
+         * Check if the current user has a single role.
          *
-         * @alias checkUserPermissions
+         * @memberOf voyent.auth
+         * @alias checkUserRole
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @param {String} params.permissions A space-delimited list of permissions
+         * @param {String} params.role The single role to check for
          * @returns Promise
          */
-        checkUserPermissions: function(params){
-            return new Promise(
-                function(resolve, reject) {
-                    params = params ? params : {};
-                    v.checkHost(params);
+        checkUserRole: function (params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+                v.checkHost(params);
 
-                    validateRequiredPermissions(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                var role = validateAndReturnRequiredRole(params, reject);
 
-                    var account = utils.validateAndReturnRequiredAccount(params, reject);
-                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
-                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'rolecheck/', token, params.ssl, {roleName: role});
 
-                    var url = utils.getRealmResourceURL(v.authURL, account, realm,
-                        'permission', token, params.ssl);
-
-                    v.$.post(url, {permissions: params.permissions}).then(function(response){
+                v.$.getJSON(url).then(function (response) {
+                    if (response.results) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(true);
-                    })['catch'](function(response){
-                        if( response.status == 403){
-                            v.auth.updateLastActiveTimestamp();
-                            resolve(false);
-                        }
-                        else{
-                            reject(error);
-                        }
-                    });
-                }
-            );
+                    }
+                    else {
+                        reject(response);
+                    }
+                })['catch'](function (response) {
+                    if (response.status == 403) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(false);
+                    }
+                    else {
+                        reject(response);
+                    }
+                });
+            });
         },
 
         /**
-         * Check if the current user has a set of roles.
+         * Check if the current user has a set of roles. The 'op' params can be added to check for 'or' or 'and'.
          *
-         * @alias checkUserRoles
+         * @memberOf voyent.auth
+         * @alias checkUserRole
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @param {String} params.roles A space-delimited list of permissions
-         * @param {String} params.op 'and' (default) or 'or' or 'single'
+         * @param {Array} params.roles The array of roles to check for
+         * @param {Array} params.roles The array of roles to check for
+         * @param {String} params.op The operator 'and' or 'or' ??? TODO
+         * @param {String} params.username The username parameter TODO may be later removed
+         *     http://jira.icesoft.org/browse/NTFY-216
          * @returns Promise
-
-         checkUserRoles: function(params){
-			return new Promise(
-				function(resolve, reject) {
-					params = params ? params : {};
-					services.checkHost(params);
-
-					validateRequiredPermissions(params, reject);
-
-					var account = validateAndReturnRequiredAccount(params, reject);
-					var realm = validateAndReturnRequiredRealm(params, reject);
-					var token = validateAndReturnRequiredAccessToken(params, reject);
-
-					 /authadmin/:accountname/realms/:realmname/roles/:username/rolecheck
-
-					var url = getRealmResourceURL(services.authAdminURL, account, realm,
-						'roles/' + , token, params.ssl);
-
-					b.$.post(url, {permissions: params.permissions}).then(function(response){
-						services.auth.updateLastActiveTimestamp();
-						resolve(true);
-					})['catch'](function(response){
-						if( response.status == 403){
-							services.auth.updateLastActiveTimestamp();
-							resolve(false);
-						}
-						else{
-							reject(error);
-						}
-					});
-				}
-			);
-		},
          */
+        checkUserRoles: function (params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+                v.checkHost(params);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                var roles = validateAndReturnRequiredRoles(params, reject);
+                var username = utils.validateAndReturnRequiredUsername(params, reject);
+
+                var payload = {
+                    roleBlock: [{
+                        name: 'first',
+                        roles: roles,
+                        op: params.op
+                    }]
+                };
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'users/' + username + '/rolecheck', token, params.ssl);
+
+                v.$.post(url, payload).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(true);
+                })['catch'](function (response) {
+                    if (response.status == 403) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(false);
+                    }
+                    else {
+                        reject(response);
+                    }
+                });
+            });
+        },
+
 
         /**
-         * Update the last active timestamp for BridgeIt auth. This value is used
+         * Update the last active timestamp for Voyent auth. This value is used
          * when checking for clients-side session timeouts.
+         * @memberOf voyent.auth
          * @alias updateLastActiveTimestamp
          */
-        updateLastActiveTimestamp: function(){
+        updateLastActiveTimestamp: function () {
             utils.setSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY), new Date().getTime());
         },
 
         /**
-         * Return the timestamp of the last bridgeit op or when bridgeit.io.auth.updateLastActiveTimestamp()
+         * Return the timestamp of the last voyent op or when voyent.auth.updateLastActiveTimestamp()
          * was called.
+         * @memberOf voyent.auth
          * @alias getLastActiveTimestamp
          */
-        getLastActiveTimestamp: function(){
+        getLastActiveTimestamp: function () {
             return utils.getSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
         },
 
-        /**
-         * User the browser local storage to cache the user store. This will allow access to the user store
-         * when the user is offline or when the server is not accessible.
-         *
-         * @alias enableUserStoreCache
-         *
-         */
-        enableUserStoreCache: function(){
-            if( !v.auth.isLoggedIn() ){
-                console.log('not logged in, cannot access user store');
-                return;
-            }
-            var userStoreSettings;
-            var username = v.auth.getLastKnownUsername();
-            if( !username ){
-                console.log('username not available, cannot access user store');
-                return;
-            }
-            var userStoreSettingsStr = utils.getLocalStorageItem(btoa(USER_STORE_SETTING_KEY));
-            if( !userStoreSettingsStr ){
-                userStoreSettings = {};
-            }
-            else{
-                userStoreSettings = JSON.parse(atob(userStoreSettingsStr));
-            }
-            userStoreSettings[username] = new Date().getTime();
-            utils.setLocalStorageItem(btoa(USER_STORE_SETTING_KEY), btoa(JSON.stringify(userStoreSettings)));
+        forgotPassword: function (params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+                v.checkHost(params);
 
-        },
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var username = utils.validateAndReturnRequiredUsername(params, reject);
 
-        /**
-         * Disaled the browser local storage to cache the user store.
-         *
-         * @alias disableUserStoreCache
-         *
-         */
-        disableUserStoreCache: function(){
-            if( !v.auth.isLoggedIn() ){
-                console.log('not logged in, cannot access user store');
-                return;
-            }
-            var userStoreSettings;
-            var username = v.auth.getLastKnownUsername();
-            if( !username ){
-                console.log('username not available, cannot access user store');
-                return;
-            }
-            var userStoreSettingsStr = utils.getLocalStorageItem(btoa(USER_STORE_SETTING_KEY));
-            if( !userStoreSettingsStr ){
-                userStoreSettings = {};
-            }
-            else{
-                userStoreSettings = JSON.parse(atob(userStoreSettingsStr));
-            }
-            userStoreSettings[username] = null;
-            utils.setLocalStorageItem(btoa(USER_STORE_SETTING_KEY), btoa(JSON.stringify(userStoreSettings)));
+                var txParam = utils.getTransactionURLParam();
+                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/';
 
-        },
-
-        /**
-         * Returns true if enableUserStoreCache() has previously been called and the user store
-         * cache is active.
-         * @alias isUserStoreCacheActive
-         */
-        isUserStoreCacheActive: function(){
-            if( !v.auth.isLoggedIn() ){
-                console.log('not logged in, cannot access user store');
-                return;
-            }
-            var userStoreSettings;
-            var username = v.auth.getLastKnownUsername();
-            if( !username ){
-                console.log('username not available, cannot access user store');
-                return;
-            }
-            var userStoreSettingsStr = utils.getLocalStorageItem(btoa(USER_STORE_SETTING_KEY));
-            if( !userStoreSettingsStr ){
-                return false;
-            }
-            else{
-                userStoreSettings = JSON.parse(atob(userStoreSettingsStr));
-                return !!userStoreSettings[username];
-            }
-        },
-
-        /**
-         * Set an item by key and value in the user store. The user store is updated
-         * on the server side user record 'custom' property.
-         *
-         * If the user store cache is active, the cache will also be updated.
-         *
-         * The userStore.last_updated property will be updated with the current time.
-         * When the server side store is updated, this 'last_updated' timestamp will
-         * be verified. If the server side timestamp is later than the previous 'last_updated'
-         * timestamp, the operation will be rejected, and the returned promise will reject
-         * with the current server side userStore value.
-         *
-         * The key and value must be parsable as JSON strings.
-         *
-         * @alias setItemInUserStore
-         * @param {string} key the key
-         * @param {string} value the value
-         * @returns a Promise with no argument, if successful, or with the server side userStore if a conflict occurs
-         */
-        setItemInUserStore: function(key, value){
-            return new Promise(function(resolve, reject) {
-                function updateServerUserStore(userStore, previousLastUpdated){
-                    return v.admin.getRealmUser().then(function(user){
-                        var customProp = user.custom;
-                        if( !customProp ){
-                            user.custom = userStore;
-                        }
-                        else{
-                            //compare timestamps
-                            var customObj;
-                            try{
-                                customObj = JSON.parse(customProp);
-                                var thatTS = customObj[LAST_UPDATED];
-                                if( !thatTS || !previousLastUpdated){
-                                    user.custom = userStore;
-                                }
-                                else{
-                                    if( thatTS > previousLastUpdated ){
-                                        console.log('ERROR: userStore update conflict' );
-                                        reject(userStore);
-                                        return;
-                                    }
-                                    else{
-                                        user.custom = userStore;
-                                    }
-                                }
-                            }
-                            catch(e){
-                                user.custom = userStore;
-                            }
-
-                        }
-                        return v.admin.updateRealmUser({user: user}).then(function(){
-                            resolve();
-                        })['catch'](function(error){
-                            console.log('could not update server side user object: ' + error);
-                            reject('could not update server side user object: ' + error);
-                        });
-                    })
+                if (params.realm) {
+                    url += 'realms/' + params.realm + '/users/' + username + '/emailpassword';
                 }
-                if( !key ){
-                    reject('The key is required');
-                    return;
+                else { //admin
+                    url += 'admins/' + username + '/emailpassword';
                 }
+                url += (txParam ? '?' + txParam : '');
 
-                return v.auth.getUserStore().then(function(userStore){
-                    userStore[key] = value;
-                    var prevTS = userStore[LAST_UPDATED];
-                    userStore[LAST_UPDATED] = new Date().getTime();
-                    if( v.auth.isUserStoreCacheActive() ){
-                        return v.auth.saveUserStoreToCache().then(function(){
-                            return updateServerUserStore(userStore, prevTS);
-                        });
-                    }
-                    else{
-                        return updateServerUserStore(userStore);
-                    }
-                })['catch'](function(error){
-                    reject(error);
-                })
+                v.$.post(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(true);
+                })['catch'](function (response) {
+                    reject(response);
+                });
             });
         },
 
         /**
-         * Get an item by key from the user store. The user store is checked
-         * on the server side user record 'custom' property.
+         * Return a generated password that matches the requirements of our service
+         * Specifically: /^[A-Za-z0-9!@#%^&*_\s]*$/
+         * This can be leveraged as part of anonymous user creation
          *
-         * @alias getItemInUserStore
-         * @param {string} key the key
-         */
-        getItemInUserStore: function(key){
-            return new Promise(function(resolve, reject) {
-                return v.auth.getUserStore().then(function(userStore){
-                    resolve(userStore[key]);
-                })['catch'](function(error){
-                    reject(error);
-                })
-            });
-        },
-
-        /**
-         * Get the user store for the current user. The user must be logged in to
-         * access the store. The user store is persisted on the 'custom' property
-         * of the user record, and can be used to store any relevant information for
-         * user.
+         * Credit goes to http://stackoverflow.com/a/12635919
          *
-         * @alias getUserStore
-         * @returns A promise with the userStore object if successful.
+         * @returns String password
          */
-        getUserStore: function(){
-            return new Promise(function(resolve, reject) {
-                if( !v.auth.isLoggedIn() ){
-                    console.log('not logged in, cannot access user store');
-                    return null;
-                }
-                if( !(USER_STORE_KEY in window) ){
-                    var userStoreCache;
-                    if( v.auth.isUserStoreCacheActive()){
-                        userStoreCache = v.auth.getUserStoreCache();
-                    }
-                    if( navigator.onLine ){
-                        return v.admin.getRealmUser().then( function(user){
-                            console.log('getUserStore() retrieved realm user');
-                            var userStore = user.custom;
-                            if( !userStore ){
-                                userStore = {};
-                            }
-                            else if( typeof userStore === 'string'){
-                                try{
-                                    userStore = JSON.parse(userStore);
-                                }
-                                catch(e){
-                                    userStore = {};
-                                }
-                            }
-                            else if( typeof userStore !== 'object' ){
-                                console.log('getUserStore() could not process user record store object: ' + userStore);
-                                reject();
-                                return;
-                            }
-                            window[USER_STORE_KEY] = userStore;
-                            if( v.auth.isUserStoreCacheActive()){
-                                return v.auth.saveUserStoreToCache().then(function(){
-                                    return resolve(userStore);
-                                });
-                            }
-                            else{
-                                resolve(userStore);
-                            }
-                        })['catch'](function(error){
-                            console.log('getUserStore() could not retrieve user from server: ' + error);
-                            if( userStoreCache ){
-                                resolve(userStoreCache);
-                            }
-                            else{
-                                reject(error);
-                            }
+        generatePassword: function () {
+            var specials = '!@#%^&*_';
+            var lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            var uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            var numbers = '0123456789';
+            var all = specials + lowercase + uppercase + numbers;
 
-                        });
-                    }
-                    else if( userStoreCache ){
-                        resolve(userStoreCache);
-                    }
-                    else{
-                        reject('could not retrieve uncached user store while offline');
-                    }
+            String.prototype.pick = function (min, max) {
+                var n, chars = '';
 
+                if (typeof max === 'undefined') {
+                    n = min;
+                } else {
+                    n = min + Math.floor(Math.random() * (max - min));
                 }
-                else{
-                    resolve(window[USER_STORE_KEY]);
-                }
-            });
-        },
 
-        saveUserStoreToCache: function(){
-            return new Promise(function(resolve, reject) {
-                if( !v.auth.isLoggedIn() ){
-                    console.log('not logged in, cannot access user store');
-                    reject('not logged in, cannot access user store');
-                    return;
+                for (var i = 0; i < n; i++) {
+                    chars += this.charAt(Math.floor(Math.random() * this.length));
                 }
-                if( !v.auth.isUserStoreCacheActive() ){
-                    console.log('user store cache is not active, cannot save locally');
-                    reject('user store cache is not active, cannot save locally')
-                    return;
-                }
-                var username = v.auth.getLastKnownUsername();
-                if( !username ){
-                    console.log('username not available, cannot access user store');
-                    reject('username not available, cannot access user store')
-                    return;
-                }
-                else{
-                    return v.auth.getUserStore().then(function(userStore){
-                        var storeKeyCipher = btoa(USER_STORE_KEY);
-                        var userStoreCacheStr = utils.getLocalStorageItem(storeKeyCipher);
-                        var userStoreCache;
-                        if( userStoreCacheStr ){
-                            userStoreCache = JSON.parse(atob(userStoreCacheStr));
-                        }
-                        else{
-                            userStoreCache = {};
-                        }
-                        userStoreCache[username] = userStore;
-                        utils.setLocalStorageItem(storeKeyCipher, btoa(JSON.stringify(userStoreCache)));
-                        resolve();
-                        return;
-                    })['catch'](function(error){
-                        reject(error);
-                        return;
-                    })
 
+                return chars;
+            };
+
+            String.prototype.shuffle = function () {
+                var array = this.split('');
+                var tmp, current, top = array.length;
+
+                if (top) while (--top) {
+                    current = Math.floor(Math.random() * (top + 1));
+                    tmp = array[current];
+                    array[current] = array[top];
+                    array[top] = tmp;
                 }
-            });
 
-        },
+                return array.join('');
+            };
 
-        getUserStoreCache: function(){
-            if( !v.auth.isLoggedIn() ){
-                console.log('not logged in, cannot access user store');
-                reject('not logged in, cannot access user store');
-                return;
-            }
-            if( !v.auth.isUserStoreCacheActive() ){
-                console.log('user store cache is not active, cannot save locally');
-                reject('user store cache is not active, cannot save locally')
-                return;
-            }
-            var username = v.auth.getLastKnownUsername();
-            if( !username ){
-                console.log('username not available, cannot access user store');
-                reject('username not available, cannot access user store')
-                return;
-            }
-            var storeKeyCipher = btoa(USER_STORE_KEY);
-            var userStoreCacheStr = utils.getLocalStorageItem(storeKeyCipher);
-            var userStoreCache;
-            if( userStoreCacheStr ){
-                userStoreCache = JSON.parse(atob(userStoreCacheStr));
-            }
-            else{
-                userStoreCache = {};
-            }
-            var userStoreCacheObject = userStoreCache[username];
-            if( !userStoreCacheObject ){
-                userStoreCacheObject = {};
-            }
-            return userStoreCacheObject;
+            return (specials.pick(1) + lowercase.pick(1) + uppercase.pick(1) + all.pick(5, 10)).shuffle();
         }
-
     };
 }

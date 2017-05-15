@@ -16,14 +16,14 @@
                 <file name="auth-service.js"/>
                 <file name="admin-service.js"/>
                 <file name="action-service.js"/>
-                <file name="code-service.js"/>
-                <file name="context-service.js"/>
                 <file name="device-service.js"/>
                 <file name="doc-service.js"/>
                 <file name="event-hub-service.js"/>
                 <file name="locate-service.js"/>
                 <file name="mailbox-service.js"/>
+                <file name="scope-service.js"/>
                 <file name="metrics-service.js"/>
+                <file name="event-service.js"/>
                 <file name="push-service.js"/>
                 <file name="query-service.js"/>
                 <file name="storage-service.js"/>

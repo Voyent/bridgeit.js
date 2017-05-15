@@ -7,19 +7,25 @@ function StorageService(v, utils) {
         utils.validateParameter('file', 'The file parameter is required', params, reject);
     }
 
-    return {
+    var storage = {
 
         /**
          * Retrieve the storage meta info for the realm
          *
+         * @memberOf voyent.storage
          * @alias getMetaInfo
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @param {String} params.scope (default 'self') 'all' or 'self', return meta information for blobs belonging to all users, or only those belonging to the current user
+         * @param {String} params.scope (default 'self') 'all' or 'self', return meta information for blobs belonging
+         *     to all users, or only those belonging to the current user
          * @returns {Object} The results
          */
         getMetaInfo: function(params){
@@ -48,16 +54,22 @@ function StorageService(v, utils) {
         /**
          * Stores a blob
          *
+         * @memberOf voyent.storage
          * @alias uploadBlob
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
          * @param {String} params.id The blob id. If not provided, the service will return a new id
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Object} params.blob The Blob to store
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @param {Function} params.progressCallback The callback function to call on progress events. eg. function progressCallback(percentComplete, xhr){..}
+         * @param {Function} params.progressCallback The callback function to call on progress events. eg. function
+         *     progressCallback(percentComplete, xhr){..}
          * @returns {Object} The results
          */
         uploadBlob: function(params){
@@ -89,16 +101,22 @@ function StorageService(v, utils) {
         /**
          * Stores a file
          *
+         * @memberOf voyent.storage
          * @alias uploadBlob
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
          * @param {String} params.id The blob id. If not provided, the service will return a new id
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Object} params.file The Blob to store
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @param {Function} params.progressCallback The callback function to call on progress events. eg. function progressCallback(percentComplete, xhr){..}
+         * @param {Function} params.progressCallback The callback function to call on progress events. eg. function
+         *     progressCallback(percentComplete, xhr){..}
          * @param {Function} params.onabort The callback for the XMLHttpRequest onabort event
          * @param {Function} params.onerror The callback for the XMLHttpRequest onerror event
          * @returns {Object} The results
@@ -131,13 +149,18 @@ function StorageService(v, utils) {
         /**
          * Retrieves a blob file from the storage service
          *
+         * @memberOf voyent.storage
          * @alias getBlob
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
          * @param {String} params.id The blob id.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The blob arraybuffer
          */
@@ -167,13 +190,18 @@ function StorageService(v, utils) {
         /**
          * Deletes a blob file from the storage service
          *
+         * @memberOf voyent.storage
          * @alias deleteBlob
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
          * @param {String} params.id The blob id.
-         * @param {String} params.accessToken The BridgeIt authentication token. If not provided, the stored token from bridgeit.io.auth.connect() will be used
-         * @param {String} params.host The BridgeIt Services host url. If not supplied, the last used BridgeIT host, or the default will be used. (optional)
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteBlob: function(params){
@@ -197,6 +225,28 @@ function StorageService(v, utils) {
                     reject(error);
                 });
             });
+        },
+
+        getBlobResourcePermissions: function(params){
+            params.path = 'blobs';
+            return storage.getResourcePermissions(params);
+        },
+
+        updateBlobResourcePermissions: function(params){
+            params.path = 'blobs';
+            return storage.getResourcePermissions(params);
+        },
+
+        getResourcePermissions: function(params){
+            params.service = 'storage';
+            return v.getResourcePermissions(params);
+        },
+
+        updateResourcePermissions: function(params){
+            params.service = 'storage';
+            return v.updateResourcePermissions(params);
         }
     };
+
+    return storage;
 }

@@ -46,7 +46,12 @@ function PublicUtils(utils) {
                 request.onreadystatechange = function() {
                     if (this.readyState === 4) {
                         if (this.status >= 200 && this.status < 400) {
-                            resolve(JSON.parse(this.responseText));
+                            if (this.responseText) {
+                                resolve(JSON.parse(this.responseText));
+                            }
+                            else {
+                                resolve();
+                            }
                         } else {
                             reject(utils.extractResponseValues(this));
                         }
@@ -252,7 +257,5 @@ function PublicUtils(utils) {
                 return v.toString(16);
             });
         }
-
-
     };
 }
