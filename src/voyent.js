@@ -33,6 +33,7 @@ if (!window.voyent) {
         v.deviceURL = baseURL + '/device';
         v.scopeURL = baseURL + '/scope';
     };
+
     v.checkHost = function (params) {
         if (params.host) {
             v.configureHosts(params.host);
@@ -56,16 +57,16 @@ if (!window.voyent) {
      * @private
      * @global
      * @example
-     *   voyent.io.startTransaction();
-     *   console.log('started transaction: ' + voyent.io.getLastTransactionId());
+     *    voyent.startTransaction();
+     *   console.log('started transaction: ' +  voyent.getLastTransactionId());
      *
-     *   voyent.io.auth.login({
+     *    voyent.auth.login({
      *       account: accountId,
      *       username: adminId,
      *       password: adminPassword,
      *       host: host
      *   }).then(function (authResponse) {
-     *       return voyent.io.docs.createDocument({
+     *       return  voyent.docs.createDocument({
      *           document: newDoc,
      *           realm: realmId
      *       });
@@ -73,18 +74,18 @@ if (!window.voyent) {
      *       newDocURI = docURI;
      *       var uriParts = docURI.split('/');
      *       var docId = uriParts[uriParts.length - 1];
-     *       return voyent.io.docs.deleteDocument({
+     *       return  voyent.docs.deleteDocument({
      *           account: accountId,
      *           realm: realmId,
      *           host: host,
      *           id: docId
      *       })
      *   }).then(function () {
-     *       console.log('completed transaction: ' + voyent.io.getLastTransactionId());
-     *       voyent.io.endTransaction();
+     *       console.log('completed transaction: ' +  voyent.getLastTransactionId());
+     *        voyent.endTransaction();
      *   }).catch(function (error) {
-     *       console.log('something went wrong with transaction: ' + voyent.io.getLastTransactionId());
-     *       voyent.io.endTransaction();
+     *       console.log('something went wrong with transaction: ' +  voyent.getLastTransactionId());
+     *        voyent.endTransaction();
      *   });
      */
     v.startTransaction = function () {
@@ -124,22 +125,22 @@ if (!window.voyent) {
      * in any realm, but needing to ensure that all other operations are done with a particular realm.
      *
      * @example
-     *    voyent.io.auth.login({
+     *     voyent.auth.login({
      *      account: accountId,
      *    	username: adminId,
      *    	password: adminPassword,
      *    	host: host
      *    }).then(function(authResponse){
-     *    	voyent.io.setCurrentRealm('myRealm');
+     *    	 voyent.setCurrentRealm('myRealm');
      *    	//realm is no longer required for all subsequent operations
-     *    	return voyent.io.docs.createDocument({
+     *    	return  voyent.docs.createDocument({
      *    		document: newDoc
      *    	});
      *    }).then(function(docURI){
      *    	newDocURI = docURI;
      *    	var uriParts = docURI.split('/');
      *    	var docId = uriParts[uriParts.length-1];
-     *    	return voyent.io.docs.deleteDocument({
+     *    	return  voyent.docs.deleteDocument({
      *    		account: accountId,
      *    		host: host,
      *    		id: docId
@@ -184,7 +185,7 @@ if (!window.voyent) {
      *
      *
      * @example
-     *    voyent.io.getResourcePermissions({
+     *     voyent.getResourcePermissions({
      *    	account: accountId,
      *    	username: adminId,
      *    	password: adminPassword,
@@ -205,7 +206,7 @@ if (!window.voyent) {
      * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
      *     will be used.
      * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
-     *     voyent.io.auth.connect() will be used
+     *      voyent.auth.connect() will be used
      * @param {String} params.id The id of the resource to get permissions for.
      * @param {String} params.service The service that manages the resource.
      * @param {String} params.path The path to the resource.
@@ -272,7 +273,7 @@ if (!window.voyent) {
      *    };
      *
      * @example
-     *    voyent.io.updateResourcePermissions({
+     *     voyent.updateResourcePermissions({
      *    	account: accountId,
      *    	username: adminId,
      *    	password: adminPassword,
@@ -295,7 +296,7 @@ if (!window.voyent) {
      * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
      *     will be used.
      * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
-     *     voyent.io.auth.connect() will be used
+     *      voyent.auth.connect() will be used
      * @param {String} params.id The id of the resource to get permissions for.
      * @param {String} params.service The service that manages the resource.
      * @param {String} params.path The path to the resource.
