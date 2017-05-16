@@ -13,6 +13,8 @@
         <touch file="${tmp}"/>
         <concat destfile="${tmp}" overwrite="yes">
             <filelist dir="${src.dir}">
+                <file name="../lib/bridge-support.js"/>
+                <file name="../lib/icepush.js"/>
                 <file name="auth-service.js"/>
                 <file name="admin-service.js"/>
                 <file name="action-service.js"/>
@@ -47,7 +49,7 @@
     <target name="build.voyent.uncompressed" depends="prepare" unless="compress">
         <copy file="${tmp}" tofile="${build.dir}/voyent.js" overwrite="yes">
             <filterchain>
-                <ignoreblank/>
+                <!--<ignoreblank/>-->
             </filterchain>
         </copy>
     </target>

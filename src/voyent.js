@@ -32,6 +32,7 @@ if (!window.voyent) {
         v.mailboxURL = baseURL + '/mailbox';
         v.deviceURL = baseURL + '/device';
         v.scopeURL = baseURL + '/scope';
+        v.pushURL = baseURL + '/notify';
     };
 
     v.checkHost = function (params) {
