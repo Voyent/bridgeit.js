@@ -239,6 +239,9 @@ function PushService(v, utils) {
                         if( params.detail ){
                             post.detail = params.detail;
                         }
+                        if (params.forceCloudNotification) {
+                            post.cloud_notification_forced = true;
+                        }
                         ice.push.notify(params.group, post);
                         resolve();
                     } else {
