@@ -222,6 +222,7 @@ function PushService(v, utils) {
          * @param {String} params.group The push group name
          * @param {String} params.subject The subject heading for the notification
          * @param {String} params.detail The message text to be sent in the notification body
+         * @param {String} params.forceCloudNotification Force a Cloud notification regardless of the connection status on the device
          */
         sendPushEvent: function(params) {
             return new Promise(
