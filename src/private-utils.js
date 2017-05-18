@@ -1,4 +1,4 @@
-function PrivateUtils(services) {
+function PrivateUtils(services, keys) {
 
     function validateRequiredRealm(params, reject) {
         validateParameter('realm', 'The Voyent realm is required', params, reject);
