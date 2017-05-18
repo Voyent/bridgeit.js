@@ -3,11 +3,20 @@ if (!window.voyent) {
 }
 
 (function (v) {
-    var privateUtils = PrivateUtils(v);
+    var keys = {
+        TRANSACTION_KEY: 'voyentTransaction',
+        REALM_KEY: 'voyentRealm',
+        ADMIN_KEY: 'voyentAdmin',
+        USERNAME_KEY: 'voyentUsername',
+        ACCOUNT_KEY: 'voyentAccount',
+        HOST_KEY: 'voyentHost',
+        TOKEN_KEY: 'voyentToken',
+        TOKEN_EXPIRES_KEY: 'voyentTokenExpires',
+        TOKEN_SET_KEY: 'voyentTokenSet'
+    };
+    
+    var privateUtils = PrivateUtils(v, keys);
     v.$ = PublicUtils(privateUtils);
-
-    var TRANSACTION_KEY = 'bridgeitTransaction';
-    var REALM_KEY = 'voyentRealm';
 
     v.configureHosts = function (url) {
         if (!url) {
@@ -54,9 +63,6 @@ if (!window.voyent) {
      * A Voyent transaction is not a ACID transaction, but simply a useful method to aid in auditing and diagnosing
      * distributed network calls, especially among different services.
      *
-     * @alias startTransaction
-     * @private
-     * @global
      * @example
      *    voyent.startTransaction();
      *   console.log('started transaction: ' +  voyent.getLastTransactionId());
@@ -90,7 +96,7 @@ if (!window.voyent) {
      *   });
      */
     v.startTransaction = function () {
-        privateUtils.setSessionStorageItem(btoa(TRANSACTION_KEY), v.$.newUUID());
+        privateUtils.setSessionStorageItem(btoa(keys.TRANSACTION_KEY), v.$.newUUID());
         console.log('bridgeit: started transaction ' + v.getLastTransactionId());
     };
 
@@ -98,13 +104,9 @@ if (!window.voyent) {
      * End a Voyent transaction.
      *
      * This function will remove the current Voyent transaction id, if one exists.
-     *
-     * @alias endTransaction
-     * @private
-     * @global
      */
     v.endTransaction = function () {
-        privateUtils.removeSessionStorageItem(btoa(TRANSACTION_KEY));
+        privateUtils.removeSessionStorageItem(btoa(keys.TRANSACTION_KEY));
         console.log('bridgeit: ended transaction ' + v.getLastTransactionId());
     };
 
@@ -112,13 +114,9 @@ if (!window.voyent) {
      * Get last transaction.
      *
      * Return the last stored Voyent transaction id.
-     *
-     * @alias getLastTransactionId
-     * @private
-     * @global
      */
     v.getLastTransactionId = function () {
-        return privateUtils.getSessionStorageItem(btoa(TRANSACTION_KEY));
+        return privateUtils.getSessionStorageItem(btoa(keys.TRANSACTION_KEY));
     };
 
     /**
@@ -154,7 +152,7 @@ if (!window.voyent) {
      * @param {String} realm The name of thre realm to use for future operations.
      */
     v.setCurrentRealm = function(realm){
-        privateUtils.setSessionStorageItem(btoa(REALM_KEY), btoa(realm));
+        privateUtils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
     };
 
     /**
@@ -337,8 +335,8 @@ if (!window.voyent) {
     };
 
     v.action = ActionService(v, privateUtils);
-    v.admin = AdminService(v, privateUtils);
-    v.auth = AuthService(v, privateUtils);
+    v.admin = AdminService(v, keys, privateUtils);
+    v.auth = AuthService(v, keys, privateUtils);
     v.docs = DocService(v, privateUtils);
     v.eventhub = EventHubService(v, privateUtils);
     v.locate = LocateService(v, privateUtils);

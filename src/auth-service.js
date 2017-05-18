@@ -1,4 +1,13 @@
-function AuthService(v, utils) {
+function AuthService(v, keys, utils) {
+
+    var authKeys = {
+        PASSWORD_KEY: 'voyentPassword',
+        SCOPE_TO_PATH_KEY: "voyentScopeToPath",
+        CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
+        RELOGIN_CB_KEY: 'voyentReloginCallback',
+        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp'
+    };
+
     function validateRequiredPassword(params, reject) {
         utils.validateParameter('password', 'The password parameter is required', params, reject);
     }
@@ -47,20 +56,6 @@ function AuthService(v, utils) {
             el['on' + eventName]();
         }
     }
-
-    var REALM_KEY = 'bridgeitRealm';
-    var ACCOUNT_KEY = 'bridgeitAccount';
-    var USERNAME_KEY = 'bridgeitUsername';
-    var PASSWORD_KEY = 'bridgeitPassword';
-    var HOST_KEY = 'voyentHost';
-    var ADMIN_KEY = 'voyentAdmin';
-    var SCOPE_TO_PATH_KEY = "voyentScopeToPath";
-    var CONNECT_SETTINGS_KEY = 'bridgeitConnectSettings';
-    var RELOGIN_CB_KEY = 'bridgeitReloginCallback';
-    var LAST_ACTIVE_TS_KEY = 'bridgeitLastActiveTimestamp';
-    var TOKEN_KEY = 'bridgeitToken';
-    var TOKEN_EXPIRES_KEY = 'bridgeitTokenExpires';
-    var TOKEN_SET_KEY = 'bridgeitTokenSet';
 
     return {
 
@@ -204,18 +199,18 @@ function AuthService(v, utils) {
                     if (!params.suppressUpdateTimestamp) {
                         v.auth.updateLastActiveTimestamp();
                     }
-                    utils.setSessionStorageItem(btoa(TOKEN_KEY), authResponse.access_token);
-                    utils.setSessionStorageItem(btoa(TOKEN_EXPIRES_KEY), authResponse.expires_in);
-                    utils.setSessionStorageItem(btoa(TOKEN_SET_KEY), loggedInAt);
-                    utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
+                    utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), authResponse.access_token);
+                    utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), authResponse.expires_in);
+                    utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), loggedInAt);
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
                     if (params.host) {
-                        utils.setSessionStorageItem(btoa(HOST_KEY), btoa(params.host));
+                        utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(params.host));
                     }
-                    utils.setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
-                    utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
-                    utils.setSessionStorageItem(btoa(ADMIN_KEY), btoa(params.admin));
+                    utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
+                    utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+                    utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa(params.admin));
                     if (params.scopeToPath) {
-                        utils.setSessionStorageItem(btoa(SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
+                        utils.setSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
                     }
                     fireEvent(window, 'voyent-login-succeeded', {});
                     resolve(authResponse);
@@ -313,7 +308,7 @@ function AuthService(v, utils) {
                         if (timeoutMillis > millisUntilTimeoutExpires) {
                             v.auth.refreshAccessToken().then(function () {
                                 var cbId = setTimeout(connectCallback, v.auth.getExpiresIn() - timeoutPadding);
-                                utils.setSessionStorageItem(btoa(RELOGIN_CB_KEY), cbId);
+                                utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
                                 console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + v.auth.getExpiresIn() / 1000 / 60 + ' mins, expiresIn: ' +
                                     (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
                                     (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins');
@@ -389,7 +384,7 @@ function AuthService(v, utils) {
                         (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
                         (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins, token set at ' + tokenSetAt);
                     var cbId = setTimeout(connectCallback, callbackTimeout);
-                    utils.setSessionStorageItem(btoa(RELOGIN_CB_KEY), cbId);
+                    utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
 
                     if (settings.usePushService) {
                         // v.push.startPushService(settings);
@@ -421,7 +416,7 @@ function AuthService(v, utils) {
 
                     //settings.connectionTimeout = 5;
 
-                    utils.setSessionStorageItem(btoa(CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
+                    utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
                     if (params.onSessionExpiry) {
                         if (typeof params.onSessionExpiry === 'function') {
@@ -439,11 +434,11 @@ function AuthService(v, utils) {
 
                 /* store the provided credentials */
                 function saveCredentials() {
-                    utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(v.auth.getLastKnownAccount()));
-                    utils.setSessionStorageItem(btoa(REALM_KEY), btoa(v.auth.getLastKnownRealm()));
-                    utils.setSessionStorageItem(btoa(HOST_KEY), btoa(v.auth.getLastKnownHost()));
-                    utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
-                    utils.setSessionStorageItem(btoa(PASSWORD_KEY), btoa(params.password));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(v.auth.getLastKnownAccount()));
+                    utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(v.auth.getLastKnownRealm()));
+                    utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(v.auth.getLastKnownHost()));
+                    utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+                    utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
                 }
 
                 var timeoutPadding = 60000;
@@ -479,13 +474,13 @@ function AuthService(v, utils) {
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
-                        loginParams.account = atob(utils.getSessionStorageItem(btoa(ACCOUNT_KEY)));
-                        loginParams.realm = atob(utils.getSessionStorageItem(btoa(REALM_KEY)));
-                        loginParams.host = atob(utils.getSessionStorageItem(btoa(HOST_KEY)));
-                        loginParams.username = atob(utils.getSessionStorageItem(btoa(USERNAME_KEY)));
-                        loginParams.password = atob(utils.getSessionStorageItem(btoa(PASSWORD_KEY)));
+                        loginParams.account = atob(utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY)));
+                        loginParams.realm = atob(utils.getSessionStorageItem(btoa(keys.REALM_KEY)));
+                        loginParams.host = atob(utils.getSessionStorageItem(btoa(keys.HOST_KEY)));
+                        loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
+                        loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
                         loginParams.suppressUpdateTimestamp = true;
-                        loginParams.admin = atob(utils.getSessionStorageItem(btoa(ADMIN_KEY)));
+                        loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
                         console.log('voyent.auth.refreshAccessToken()');
                         v.auth.login(loginParams).then(function (authResponse) {
                             fireEvent(window, 'voyent-access-token-refreshed', v.auth.getLastAccessToken());
@@ -529,37 +524,37 @@ function AuthService(v, utils) {
          *
          */
         disconnect: function () {
-            utils.removeSessionStorageItem(btoa(TOKEN_KEY));
-            utils.removeSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
-            utils.removeSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
-            utils.removeSessionStorageItem(btoa(TOKEN_SET_KEY));
-            utils.removeSessionStorageItem(btoa(ACCOUNT_KEY));
-            utils.removeSessionStorageItem(btoa(REALM_KEY));
-            utils.removeSessionStorageItem(btoa(USERNAME_KEY));
-            utils.removeSessionStorageItem(btoa(HOST_KEY));
-            utils.removeSessionStorageItem(btoa(PASSWORD_KEY));
-            utils.removeSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
-            var cbId = utils.getSessionStorageItem(btoa(RELOGIN_CB_KEY));
+            utils.removeSessionStorageItem(btoa(keys.TOKEN_KEY));
+            utils.removeSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
+            utils.removeSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
+            utils.removeSessionStorageItem(btoa(keys.TOKEN_SET_KEY));
+            utils.removeSessionStorageItem(btoa(keys.ACCOUNT_KEY));
+            utils.removeSessionStorageItem(btoa(keys.REALM_KEY));
+            utils.removeSessionStorageItem(btoa(keys.USERNAME_KEY));
+            utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
+            utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
+            utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
+            var cbId = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
             if (cbId) {
                 clearTimeout(cbId);
             }
-            utils.removeSessionStorageItem(btoa(RELOGIN_CB_KEY));
+            utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
             console.log(new Date().toISOString() + ' voyent has disconnected')
         },
 
         getLastAccessToken: function () {
-            return utils.getSessionStorageItem(btoa(TOKEN_KEY));
+            return utils.getSessionStorageItem(btoa(keys.TOKEN_KEY));
         },
 
         getExpiresIn: function () {
-            var expiresInStr = utils.getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
+            var expiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
             if (expiresInStr) {
                 return parseInt(expiresInStr, 10);
             }
         },
 
         getTokenSetAtTime: function () {
-            var tokenSetAtStr = utils.getSessionStorageItem(btoa(TOKEN_SET_KEY));
+            var tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY));
             if (tokenSetAtStr) {
                 return parseInt(tokenSetAtStr, 10);
             }
@@ -575,19 +570,19 @@ function AuthService(v, utils) {
         },
 
         getConnectSettings: function () {
-            var settingsStr = utils.getSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
+            var settingsStr = utils.getSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
             if (settingsStr) {
                 return JSON.parse(atob(settingsStr));
             }
         },
 
         isLoggedIn: function () {
-            var token = utils.getSessionStorageItem(btoa(TOKEN_KEY)),
-                tokenExpiresInStr = utils.getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY)),
+            var token = utils.getSessionStorageItem(btoa(keys.TOKEN_KEY)),
+                tokenExpiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY)),
                 tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr, 10) : null,
-                tokenSetAtStr = utils.getSessionStorageItem(btoa(TOKEN_SET_KEY)),
+                tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY)),
                 tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
-                scopeToPathCipher = utils.getSessionStorageItem(btoa(SCOPE_TO_PATH_KEY)),
+                scopeToPathCipher = utils.getSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY)),
                 scopeToPath = scopeToPathCipher ? atob(scopeToPathCipher) : '/',
                 isDev, currentPath;
             if (!utils.isNode) {
@@ -600,28 +595,28 @@ function AuthService(v, utils) {
         },
 
         getLastKnownAccount: function () {
-            var accountCipher = utils.getSessionStorageItem(btoa(ACCOUNT_KEY));
+            var accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
             if (accountCipher) {
                 return atob(accountCipher);
             }
         },
 
         getLastKnownRealm: function () {
-            var realmCipher = utils.getSessionStorageItem(btoa(REALM_KEY));
+            var realmCipher = utils.getSessionStorageItem(btoa(keys.REALM_KEY));
             if (realmCipher) {
                 return atob(realmCipher);
             }
         },
 
         getLastKnownUsername: function () {
-            var usernameCipher = utils.getSessionStorageItem(btoa(USERNAME_KEY));
+            var usernameCipher = utils.getSessionStorageItem(btoa(keys.USERNAME_KEY));
             if (usernameCipher) {
                 return atob(usernameCipher);
             }
         },
 
         getLastKnownHost: function () {
-            var hostCipher = utils.getSessionStorageItem(btoa(HOST_KEY));
+            var hostCipher = utils.getSessionStorageItem(btoa(keys.HOST_KEY));
             if (hostCipher) {
                 return atob(hostCipher);
             }
@@ -806,7 +801,7 @@ function AuthService(v, utils) {
          * @alias updateLastActiveTimestamp
          */
         updateLastActiveTimestamp: function () {
-            utils.setSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY), new Date().getTime());
+            utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
         },
 
         /**
@@ -816,7 +811,7 @@ function AuthService(v, utils) {
          * @alias getLastActiveTimestamp
          */
         getLastActiveTimestamp: function () {
-            return utils.getSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
+            return utils.getSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
         },
 
         forgotPassword: function (params) {

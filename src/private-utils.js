@@ -1,8 +1,4 @@
 function PrivateUtils(services) {
-    //acquire the constants from global context
-    var ACCOUNT_KEY = 'VoyentAccount';
-    var REALM_KEY = 'VoyentRealm';
-    var USERNAME_KEY = 'bridgeitUsername';
 
     function validateRequiredRealm(params, reject) {
         validateParameter('realm', 'The Voyent realm is required', params, reject);
@@ -26,7 +22,7 @@ function PrivateUtils(services) {
             realm = services.auth.getLastKnownRealm();
         }
         if (realm) {
-            setSessionStorageItem(btoa(REALM_KEY), btoa(realm));
+            setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
             return realm;
         } else {
             return reject(Error('The Voyent realm is required'));
@@ -42,7 +38,7 @@ function PrivateUtils(services) {
             realm = services.auth.getLastKnownRealm();
         }
         if (realm) {
-            setSessionStorageItem(btoa(REALM_KEY), btoa(realm));
+            setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
             return realm;
         }
         else {
@@ -58,7 +54,7 @@ function PrivateUtils(services) {
             account = services.auth.getLastKnownAccount();
         }
         if (account) {
-            setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(account));
+            setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
             return account;
         } else {
             return reject(Error('The Voyent account is required'));
@@ -71,7 +67,7 @@ function PrivateUtils(services) {
             username = services.auth.getLastKnownUsername();
         }
         if (username) {
-            setSessionStorageItem(btoa(USERNAME_KEY), btoa(username));
+            setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
             return username;
         } else {
             return reject(Error('The Voyent username is required'));
@@ -210,12 +206,7 @@ function PrivateUtils(services) {
 
     function getTransactionURLParam() {
         var txId = services.getLastTransactionId();
-        if (txId) {
-            return 'tx=' + txId;
-        }
-        else {
-            return 'tx=null';
-        }
+        return txId ? 'tx=' + txId : '';
     }
 
     function getRealmResourceURL(servicePath, account, realm, resourcePath, token, ssl, params) {

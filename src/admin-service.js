@@ -1,8 +1,4 @@
-function AdminService(v, utils) {
-    var REALM_KEY = 'voyentRealm';
-    var ADMIN_KEY = 'voyentAdmin';
-    var USERNAME_KEY = 'voyentUsername';
-
+function AdminService(v, keys, utils) {
     function validateRequiredUser(params, reject) {
         utils.validateParameter('user', 'The user parameter is required', params, reject);
     }
@@ -192,9 +188,9 @@ function AdminService(v, utils) {
                 admin.username = username;
                 utils.validateRequiredPassword(params, reject);
                 admin.password = params.password;
-                admin.email = utils.validateAndReturnRequiredEmail(params, reject);
-                admin.firstname = utils.validateAndReturnRequiredFirstname(params, reject);
-                admin.lastname = utils.validateAndReturnRequiredLastname(params, reject);
+                admin.email = validateAndReturnRequiredEmail(params, reject);
+                admin.firstname = validateAndReturnRequiredFirstname(params, reject);
+                admin.lastname = validateAndReturnRequiredLastname(params, reject);
 
                 // Check for email metadata
                 // If present we need to mark the admin unconfirmed, and pass the metadata
@@ -217,18 +213,18 @@ function AdminService(v, utils) {
                 v.$.post(url, {account: account}).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
 
-                    utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(accountname));
-                    utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(username));
-                    utils.setSessionStorageItem(btoa(ADMIN_KEY), btoa('true'));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(accountname));
+                    utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
+                    utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa('true'));
                     if (params.host) {
-                        utils.setSessionStorageItem(btoa(HOST_KEY), btoa(params.host));
+                        utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(params.host));
                     }
 
                     // May not have a token if the account required email confirmation validation first
                     if (json.token) {
-                        utils.setSessionStorageItem(btoa(TOKEN_KEY), json.token.access_token);
-                        utils.setSessionStorageItem(btoa(TOKEN_EXPIRES_KEY), json.token.expires_in);
-                        utils.setSessionStorageItem(btoa(TOKEN_SET_KEY), loggedInAt);
+                        utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), json.token.access_token);
+                        utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), json.token.expires_in);
+                        utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), loggedInAt);
 
                         resolve(json.token.access_token);
                     }
@@ -265,13 +261,13 @@ function AdminService(v, utils) {
                 v.$.post(url, {confirmationId: params.confirmationId}).then(function (json) {
                     // Store the returned username, and also the param account and realm if available
                     if (json.username) {
-                        utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(json.username));
+                        utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
                     }
                     if (params.realm) {
-                        utils.setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
+                        utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
                     }
 
                     resolve(json);
@@ -579,13 +575,13 @@ function AdminService(v, utils) {
                 v.$.post(url, {confirmationId: params.confirmationId}).then(function (json) {
                     // Store the returned username, and also the param account and realm if available
                     if (json.username) {
-                        utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(json.username));
+                        utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
                     }
                     if (params.realm) {
-                        utils.setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
+                        utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
                     }
 
                     resolve(json);

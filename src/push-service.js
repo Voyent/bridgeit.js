@@ -7,12 +7,14 @@ function PushService(v, utils) {
         utils.validateParameter('group', 'The callback parameter is required', params, reject);
     }
 
-    var PUSH_CALLBACKS = 'pushCallbacks';
-    var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
+    var pushKeys = {
+        PUSH_CALLBACKS_KEY: 'pushCallbacks',
+        CLOUD_CALLBACKS_KEY: "pushCloudCallbacks"
+    };
 
     function storePushListener(pushId, group, cb){
         var pushListeners = {};
-        var pushListenersStr = utils.getSessionStorageItem(PUSH_CALLBACKS);
+        var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
         if( pushListenersStr ){
             try{
                 pushListeners = JSON.parse(pushListenersStr);
@@ -23,7 +25,7 @@ function PushService(v, utils) {
             pushListeners[group] = [];
         }
         pushListeners[group].push({pushId: pushId, callback: cb});
-        utils.setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListeners));
+        utils.setSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY, JSON.stringify(pushListeners));
     }
 
     function addCloudPushListener(params){
@@ -32,7 +34,7 @@ function PushService(v, utils) {
             reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
         }
         else{
-            var callbacks = utils.getLocalStorageItem(CLOUD_CALLBACKS_KEY);
+            var callbacks = utils.getLocalStorageItem(pushKeys.CLOUD_CALLBACKS_KEY);
             var callbackName = utils.getFunctionName(callback);
             if (!callbacks)  {
                 callbacks = " ";
@@ -40,7 +42,7 @@ function PushService(v, utils) {
             if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
                 callbacks += callbackName + " ";
             }
-            utils.setLocalStorageItem(CLOUD_CALLBACKS_KEY, callbacks);
+            utils.setLocalStorageItem(pushKeys.CLOUD_CALLBACKS_KEY, callbacks);
         }
     }
 
@@ -153,7 +155,7 @@ function PushService(v, utils) {
                 params = params ? params : {};
                 v.checkHost(params);
                 validateRequiredGroup(params, reject);
-                var pushListenersStr = utils.getSessionStorageItem(PUSH_CALLBACKS);
+                var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
                 if( !pushListenersStr ){
                     console.error('Cannot remove push listener ' + params.group + ', missing push listener storage.');
                 }
@@ -196,7 +198,7 @@ function PushService(v, utils) {
                             }
                             delete pushListenerStorage[params.group];
                         }
-                        utils.setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListenerStorage));
+                        utils.setSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY, JSON.stringify(pushListenerStorage));
                     } catch(e){
                         console.error(e);
                     }
