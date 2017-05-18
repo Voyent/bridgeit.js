@@ -8,10 +8,6 @@ function AuthService(v, keys, utils) {
         LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp'
     };
 
-    function validateRequiredPassword(params, reject) {
-        utils.validateParameter('password', 'The password parameter is required', params, reject);
-    }
-
     function validateAndReturnRequiredRole(params, reject){
         var role = params.role;
         if( role ){

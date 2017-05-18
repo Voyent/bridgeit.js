@@ -3242,10 +3242,6 @@ function AuthService(v, keys, utils) {
         LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp'
     };
 
-    function validateRequiredPassword(params, reject) {
-        utils.validateParameter('password', 'The password parameter is required', params, reject);
-    }
-
     function validateAndReturnRequiredRole(params, reject){
         var role = params.role;
         if( role ){
@@ -4171,10 +4167,6 @@ function AdminService(v, keys, utils) {
 
     function validateRequiredAccount(params, reject) {
         utils.validateParameter('account', 'The account parameter is required', params, reject);
-    }
-
-    function validateRequiredPassword(params, reject) {
-        utils.validateParameter('password', 'The password parameter is required', params, reject);
     }
 
     function validateRequiredMetadata(params, reject) {
@@ -10546,6 +10538,9 @@ function PrivateUtils(services, keys) {
         validateParameter('username', 'The username parameter is required', params, reject);
     }
 
+    function validateRequiredPassword(params, reject) {
+        validateParameter('password', 'The password parameter is required', params, reject);
+    }
 
     function validateRequiredId(params, reject) {
         validateParameter('id', 'The id is required', params, reject);
@@ -10766,6 +10761,7 @@ function PrivateUtils(services, keys) {
         'findFunctionInGlobalScope': findFunctionInGlobalScope,
         'validateParameter': validateParameter,
         'validateRequiredUsername': validateRequiredUsername,
+        'validateRequiredPassword': validateRequiredPassword,
         'validateAndReturnRequiredUsername': validateAndReturnRequiredUsername,
         'validateRequiredRealm': validateRequiredRealm,
         'validateAndReturnRequiredRealm': validateAndReturnRequiredRealm,

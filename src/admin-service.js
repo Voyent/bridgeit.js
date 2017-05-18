@@ -45,10 +45,6 @@ function AdminService(v, keys, utils) {
         utils.validateParameter('account', 'The account parameter is required', params, reject);
     }
 
-    function validateRequiredPassword(params, reject) {
-        utils.validateParameter('password', 'The password parameter is required', params, reject);
-    }
-
     function validateRequiredMetadata(params, reject) {
         utils.validateParameter('metadata', 'The metadata parameter is required', params, reject);
     }
