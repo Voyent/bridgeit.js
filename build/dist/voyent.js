@@ -3033,7 +3033,8 @@ var PushIDExpiryMonitor;
                     var body = JSON.stringify({
                         'access_token': configuration.access_token,
                         'browser': browserID(),
-                        'op': 'push'
+                        'op': 'push',
+                        'push_configuration': options
                     });
                     postAsynchronously(apiChannel, uri, body, JSONRequest, $witch(function (condition) {
                         condition(ServerInternalError, throwServerError);
@@ -3231,7 +3232,16 @@ var PushIDExpiryMonitor;
         }
     })(window.ice);
 }
-function AuthService(v, utils) {
+function AuthService(v, keys, utils) {
+
+    var authKeys = {
+        PASSWORD_KEY: 'voyentPassword',
+        SCOPE_TO_PATH_KEY: "voyentScopeToPath",
+        CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
+        RELOGIN_CB_KEY: 'voyentReloginCallback',
+        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp'
+    };
+
     function validateRequiredPassword(params, reject) {
         utils.validateParameter('password', 'The password parameter is required', params, reject);
     }
@@ -3280,20 +3290,6 @@ function AuthService(v, utils) {
             el['on' + eventName]();
         }
     }
-
-    var REALM_KEY = 'bridgeitRealm';
-    var ACCOUNT_KEY = 'bridgeitAccount';
-    var USERNAME_KEY = 'bridgeitUsername';
-    var PASSWORD_KEY = 'bridgeitPassword';
-    var HOST_KEY = 'voyentHost';
-    var ADMIN_KEY = 'voyentAdmin';
-    var SCOPE_TO_PATH_KEY = "voyentScopeToPath";
-    var CONNECT_SETTINGS_KEY = 'bridgeitConnectSettings';
-    var RELOGIN_CB_KEY = 'bridgeitReloginCallback';
-    var LAST_ACTIVE_TS_KEY = 'bridgeitLastActiveTimestamp';
-    var TOKEN_KEY = 'bridgeitToken';
-    var TOKEN_EXPIRES_KEY = 'bridgeitTokenExpires';
-    var TOKEN_SET_KEY = 'bridgeitTokenSet';
 
     return {
 
@@ -3437,18 +3433,18 @@ function AuthService(v, utils) {
                     if (!params.suppressUpdateTimestamp) {
                         v.auth.updateLastActiveTimestamp();
                     }
-                    utils.setSessionStorageItem(btoa(TOKEN_KEY), authResponse.access_token);
-                    utils.setSessionStorageItem(btoa(TOKEN_EXPIRES_KEY), authResponse.expires_in);
-                    utils.setSessionStorageItem(btoa(TOKEN_SET_KEY), loggedInAt);
-                    utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
+                    utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), authResponse.access_token);
+                    utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), authResponse.expires_in);
+                    utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), loggedInAt);
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
                     if (params.host) {
-                        utils.setSessionStorageItem(btoa(HOST_KEY), btoa(params.host));
+                        utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(params.host));
                     }
-                    utils.setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
-                    utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
-                    utils.setSessionStorageItem(btoa(ADMIN_KEY), btoa(params.admin));
+                    utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
+                    utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+                    utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa(params.admin));
                     if (params.scopeToPath) {
-                        utils.setSessionStorageItem(btoa(SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
+                        utils.setSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
                     }
                     fireEvent(window, 'voyent-login-succeeded', {});
                     resolve(authResponse);
@@ -3546,7 +3542,7 @@ function AuthService(v, utils) {
                         if (timeoutMillis > millisUntilTimeoutExpires) {
                             v.auth.refreshAccessToken().then(function () {
                                 var cbId = setTimeout(connectCallback, v.auth.getExpiresIn() - timeoutPadding);
-                                utils.setSessionStorageItem(btoa(RELOGIN_CB_KEY), cbId);
+                                utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
                                 console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + v.auth.getExpiresIn() / 1000 / 60 + ' mins, expiresIn: ' +
                                     (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
                                     (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins');
@@ -3622,7 +3618,7 @@ function AuthService(v, utils) {
                         (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
                         (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins, token set at ' + tokenSetAt);
                     var cbId = setTimeout(connectCallback, callbackTimeout);
-                    utils.setSessionStorageItem(btoa(RELOGIN_CB_KEY), cbId);
+                    utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
 
                     if (settings.usePushService) {
                         // v.push.startPushService(settings);
@@ -3654,7 +3650,7 @@ function AuthService(v, utils) {
 
                     //settings.connectionTimeout = 5;
 
-                    utils.setSessionStorageItem(btoa(CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
+                    utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
                     if (params.onSessionExpiry) {
                         if (typeof params.onSessionExpiry === 'function') {
@@ -3672,11 +3668,11 @@ function AuthService(v, utils) {
 
                 /* store the provided credentials */
                 function saveCredentials() {
-                    utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(v.auth.getLastKnownAccount()));
-                    utils.setSessionStorageItem(btoa(REALM_KEY), btoa(v.auth.getLastKnownRealm()));
-                    utils.setSessionStorageItem(btoa(HOST_KEY), btoa(v.auth.getLastKnownHost()));
-                    utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(params.username));
-                    utils.setSessionStorageItem(btoa(PASSWORD_KEY), btoa(params.password));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(v.auth.getLastKnownAccount()));
+                    utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(v.auth.getLastKnownRealm()));
+                    utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(v.auth.getLastKnownHost()));
+                    utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+                    utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
                 }
 
                 var timeoutPadding = 60000;
@@ -3712,13 +3708,13 @@ function AuthService(v, utils) {
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
-                        loginParams.account = atob(utils.getSessionStorageItem(btoa(ACCOUNT_KEY)));
-                        loginParams.realm = atob(utils.getSessionStorageItem(btoa(REALM_KEY)));
-                        loginParams.host = atob(utils.getSessionStorageItem(btoa(HOST_KEY)));
-                        loginParams.username = atob(utils.getSessionStorageItem(btoa(USERNAME_KEY)));
-                        loginParams.password = atob(utils.getSessionStorageItem(btoa(PASSWORD_KEY)));
+                        loginParams.account = atob(utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY)));
+                        loginParams.realm = atob(utils.getSessionStorageItem(btoa(keys.REALM_KEY)));
+                        loginParams.host = atob(utils.getSessionStorageItem(btoa(keys.HOST_KEY)));
+                        loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
+                        loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
                         loginParams.suppressUpdateTimestamp = true;
-                        loginParams.admin = atob(utils.getSessionStorageItem(btoa(ADMIN_KEY)));
+                        loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
                         console.log('voyent.auth.refreshAccessToken()');
                         v.auth.login(loginParams).then(function (authResponse) {
                             fireEvent(window, 'voyent-access-token-refreshed', v.auth.getLastAccessToken());
@@ -3762,37 +3758,37 @@ function AuthService(v, utils) {
          *
          */
         disconnect: function () {
-            utils.removeSessionStorageItem(btoa(TOKEN_KEY));
-            utils.removeSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
-            utils.removeSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
-            utils.removeSessionStorageItem(btoa(TOKEN_SET_KEY));
-            utils.removeSessionStorageItem(btoa(ACCOUNT_KEY));
-            utils.removeSessionStorageItem(btoa(REALM_KEY));
-            utils.removeSessionStorageItem(btoa(USERNAME_KEY));
-            utils.removeSessionStorageItem(btoa(HOST_KEY));
-            utils.removeSessionStorageItem(btoa(PASSWORD_KEY));
-            utils.removeSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
-            var cbId = utils.getSessionStorageItem(btoa(RELOGIN_CB_KEY));
+            utils.removeSessionStorageItem(btoa(keys.TOKEN_KEY));
+            utils.removeSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
+            utils.removeSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
+            utils.removeSessionStorageItem(btoa(keys.TOKEN_SET_KEY));
+            utils.removeSessionStorageItem(btoa(keys.ACCOUNT_KEY));
+            utils.removeSessionStorageItem(btoa(keys.REALM_KEY));
+            utils.removeSessionStorageItem(btoa(keys.USERNAME_KEY));
+            utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
+            utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
+            utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
+            var cbId = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
             if (cbId) {
                 clearTimeout(cbId);
             }
-            utils.removeSessionStorageItem(btoa(RELOGIN_CB_KEY));
+            utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
             console.log(new Date().toISOString() + ' voyent has disconnected')
         },
 
         getLastAccessToken: function () {
-            return utils.getSessionStorageItem(btoa(TOKEN_KEY));
+            return utils.getSessionStorageItem(btoa(keys.TOKEN_KEY));
         },
 
         getExpiresIn: function () {
-            var expiresInStr = utils.getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY));
+            var expiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
             if (expiresInStr) {
                 return parseInt(expiresInStr, 10);
             }
         },
 
         getTokenSetAtTime: function () {
-            var tokenSetAtStr = utils.getSessionStorageItem(btoa(TOKEN_SET_KEY));
+            var tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY));
             if (tokenSetAtStr) {
                 return parseInt(tokenSetAtStr, 10);
             }
@@ -3808,19 +3804,19 @@ function AuthService(v, utils) {
         },
 
         getConnectSettings: function () {
-            var settingsStr = utils.getSessionStorageItem(btoa(CONNECT_SETTINGS_KEY));
+            var settingsStr = utils.getSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
             if (settingsStr) {
                 return JSON.parse(atob(settingsStr));
             }
         },
 
         isLoggedIn: function () {
-            var token = utils.getSessionStorageItem(btoa(TOKEN_KEY)),
-                tokenExpiresInStr = utils.getSessionStorageItem(btoa(TOKEN_EXPIRES_KEY)),
+            var token = utils.getSessionStorageItem(btoa(keys.TOKEN_KEY)),
+                tokenExpiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY)),
                 tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr, 10) : null,
-                tokenSetAtStr = utils.getSessionStorageItem(btoa(TOKEN_SET_KEY)),
+                tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY)),
                 tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
-                scopeToPathCipher = utils.getSessionStorageItem(btoa(SCOPE_TO_PATH_KEY)),
+                scopeToPathCipher = utils.getSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY)),
                 scopeToPath = scopeToPathCipher ? atob(scopeToPathCipher) : '/',
                 isDev, currentPath;
             if (!utils.isNode) {
@@ -3833,28 +3829,28 @@ function AuthService(v, utils) {
         },
 
         getLastKnownAccount: function () {
-            var accountCipher = utils.getSessionStorageItem(btoa(ACCOUNT_KEY));
+            var accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
             if (accountCipher) {
                 return atob(accountCipher);
             }
         },
 
         getLastKnownRealm: function () {
-            var realmCipher = utils.getSessionStorageItem(btoa(REALM_KEY));
+            var realmCipher = utils.getSessionStorageItem(btoa(keys.REALM_KEY));
             if (realmCipher) {
                 return atob(realmCipher);
             }
         },
 
         getLastKnownUsername: function () {
-            var usernameCipher = utils.getSessionStorageItem(btoa(USERNAME_KEY));
+            var usernameCipher = utils.getSessionStorageItem(btoa(keys.USERNAME_KEY));
             if (usernameCipher) {
                 return atob(usernameCipher);
             }
         },
 
         getLastKnownHost: function () {
-            var hostCipher = utils.getSessionStorageItem(btoa(HOST_KEY));
+            var hostCipher = utils.getSessionStorageItem(btoa(keys.HOST_KEY));
             if (hostCipher) {
                 return atob(hostCipher);
             }
@@ -4039,7 +4035,7 @@ function AuthService(v, utils) {
          * @alias updateLastActiveTimestamp
          */
         updateLastActiveTimestamp: function () {
-            utils.setSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY), new Date().getTime());
+            utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
         },
 
         /**
@@ -4049,7 +4045,7 @@ function AuthService(v, utils) {
          * @alias getLastActiveTimestamp
          */
         getLastActiveTimestamp: function () {
-            return utils.getSessionStorageItem(btoa(LAST_ACTIVE_TS_KEY));
+            return utils.getSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
         },
 
         forgotPassword: function (params) {
@@ -4130,11 +4126,7 @@ function AuthService(v, utils) {
         }
     };
 }
-function AdminService(v, utils) {
-    var REALM_KEY = 'voyentRealm';
-    var ADMIN_KEY = 'voyentAdmin';
-    var USERNAME_KEY = 'voyentUsername';
-
+function AdminService(v, keys, utils) {
     function validateRequiredUser(params, reject) {
         utils.validateParameter('user', 'The user parameter is required', params, reject);
     }
@@ -4324,9 +4316,9 @@ function AdminService(v, utils) {
                 admin.username = username;
                 utils.validateRequiredPassword(params, reject);
                 admin.password = params.password;
-                admin.email = utils.validateAndReturnRequiredEmail(params, reject);
-                admin.firstname = utils.validateAndReturnRequiredFirstname(params, reject);
-                admin.lastname = utils.validateAndReturnRequiredLastname(params, reject);
+                admin.email = validateAndReturnRequiredEmail(params, reject);
+                admin.firstname = validateAndReturnRequiredFirstname(params, reject);
+                admin.lastname = validateAndReturnRequiredLastname(params, reject);
 
                 // Check for email metadata
                 // If present we need to mark the admin unconfirmed, and pass the metadata
@@ -4349,18 +4341,18 @@ function AdminService(v, utils) {
                 v.$.post(url, {account: account}).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
 
-                    utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(accountname));
-                    utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(username));
-                    utils.setSessionStorageItem(btoa(ADMIN_KEY), btoa('true'));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(accountname));
+                    utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
+                    utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa('true'));
                     if (params.host) {
-                        utils.setSessionStorageItem(btoa(HOST_KEY), btoa(params.host));
+                        utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(params.host));
                     }
 
                     // May not have a token if the account required email confirmation validation first
                     if (json.token) {
-                        utils.setSessionStorageItem(btoa(TOKEN_KEY), json.token.access_token);
-                        utils.setSessionStorageItem(btoa(TOKEN_EXPIRES_KEY), json.token.expires_in);
-                        utils.setSessionStorageItem(btoa(TOKEN_SET_KEY), loggedInAt);
+                        utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), json.token.access_token);
+                        utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), json.token.expires_in);
+                        utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), loggedInAt);
 
                         resolve(json.token.access_token);
                     }
@@ -4397,13 +4389,13 @@ function AdminService(v, utils) {
                 v.$.post(url, {confirmationId: params.confirmationId}).then(function (json) {
                     // Store the returned username, and also the param account and realm if available
                     if (json.username) {
-                        utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(json.username));
+                        utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
                     }
                     if (params.realm) {
-                        utils.setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
+                        utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
                     }
 
                     resolve(json);
@@ -4711,13 +4703,13 @@ function AdminService(v, utils) {
                 v.$.post(url, {confirmationId: params.confirmationId}).then(function (json) {
                     // Store the returned username, and also the param account and realm if available
                     if (json.username) {
-                        utils.setSessionStorageItem(btoa(USERNAME_KEY), btoa(json.username));
+                        utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
                     }
                     if (params.realm) {
-                        utils.setSessionStorageItem(btoa(REALM_KEY), btoa(params.realm));
+                        utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
                     }
 
                     resolve(json);
@@ -9430,12 +9422,14 @@ function EventService(v, utils) {
         utils.validateParameter('group', 'The callback parameter is required', params, reject);
     }
 
-    var PUSH_CALLBACKS = 'pushCallbacks';
-    var CLOUD_CALLBACKS_KEY = "bridgeit.cloudcallbacks";
+    var pushKeys = {
+        PUSH_CALLBACKS_KEY: 'pushCallbacks',
+        CLOUD_CALLBACKS_KEY: "pushCloudCallbacks"
+    };
 
     function storePushListener(pushId, group, cb){
         var pushListeners = {};
-        var pushListenersStr = utils.getSessionStorageItem(PUSH_CALLBACKS);
+        var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
         if( pushListenersStr ){
             try{
                 pushListeners = JSON.parse(pushListenersStr);
@@ -9446,7 +9440,7 @@ function EventService(v, utils) {
             pushListeners[group] = [];
         }
         pushListeners[group].push({pushId: pushId, callback: cb});
-        utils.setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListeners));
+        utils.setSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY, JSON.stringify(pushListeners));
     }
 
     function addCloudPushListener(params){
@@ -9455,7 +9449,7 @@ function EventService(v, utils) {
             reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
         }
         else{
-            var callbacks = utils.getLocalStorageItem(CLOUD_CALLBACKS_KEY);
+            var callbacks = utils.getLocalStorageItem(pushKeys.CLOUD_CALLBACKS_KEY);
             var callbackName = utils.getFunctionName(callback);
             if (!callbacks)  {
                 callbacks = " ";
@@ -9463,7 +9457,7 @@ function EventService(v, utils) {
             if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
                 callbacks += callbackName + " ";
             }
-            utils.setLocalStorageItem(CLOUD_CALLBACKS_KEY, callbacks);
+            utils.setLocalStorageItem(pushKeys.CLOUD_CALLBACKS_KEY, callbacks);
         }
     }
 
@@ -9576,7 +9570,7 @@ function EventService(v, utils) {
                 params = params ? params : {};
                 v.checkHost(params);
                 validateRequiredGroup(params, reject);
-                var pushListenersStr = utils.getSessionStorageItem(PUSH_CALLBACKS);
+                var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
                 if( !pushListenersStr ){
                     console.error('Cannot remove push listener ' + params.group + ', missing push listener storage.');
                 }
@@ -9619,7 +9613,7 @@ function EventService(v, utils) {
                             }
                             delete pushListenerStorage[params.group];
                         }
-                        utils.setSessionStorageItem(PUSH_CALLBACKS, JSON.stringify(pushListenerStorage));
+                        utils.setSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY, JSON.stringify(pushListenerStorage));
                     } catch(e){
                         console.error(e);
                     }
@@ -9645,6 +9639,7 @@ function EventService(v, utils) {
          * @param {String} params.group The push group name
          * @param {String} params.subject The subject heading for the notification
          * @param {String} params.detail The message text to be sent in the notification body
+         * @param {String} params.forceCloudNotification When true force a Cloud notification regardless of the connection status on the device
          */
         sendPushEvent: function(params) {
             return new Promise(
@@ -9661,6 +9656,9 @@ function EventService(v, utils) {
                         }
                         if( params.detail ){
                             post.detail = params.detail;
+                        }
+                        if (params.forceCloudNotification) {
+                            post.cloud_notification_forced = true;
                         }
                         ice.push.notify(params.group, post);
                         resolve();
@@ -10469,10 +10467,6 @@ function StorageService(v, utils) {
     return storage;
 }
 function PrivateUtils(services) {
-    //acquire the constants from global context
-    var ACCOUNT_KEY = 'VoyentAccount';
-    var REALM_KEY = 'VoyentRealm';
-    var USERNAME_KEY = 'bridgeitUsername';
 
     function validateRequiredRealm(params, reject) {
         validateParameter('realm', 'The Voyent realm is required', params, reject);
@@ -10496,7 +10490,7 @@ function PrivateUtils(services) {
             realm = services.auth.getLastKnownRealm();
         }
         if (realm) {
-            setSessionStorageItem(btoa(REALM_KEY), btoa(realm));
+            setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
             return realm;
         } else {
             return reject(Error('The Voyent realm is required'));
@@ -10512,7 +10506,7 @@ function PrivateUtils(services) {
             realm = services.auth.getLastKnownRealm();
         }
         if (realm) {
-            setSessionStorageItem(btoa(REALM_KEY), btoa(realm));
+            setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
             return realm;
         }
         else {
@@ -10528,7 +10522,7 @@ function PrivateUtils(services) {
             account = services.auth.getLastKnownAccount();
         }
         if (account) {
-            setSessionStorageItem(btoa(ACCOUNT_KEY), btoa(account));
+            setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
             return account;
         } else {
             return reject(Error('The Voyent account is required'));
@@ -10541,7 +10535,7 @@ function PrivateUtils(services) {
             username = services.auth.getLastKnownUsername();
         }
         if (username) {
-            setSessionStorageItem(btoa(USERNAME_KEY), btoa(username));
+            setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
             return username;
         } else {
             return reject(Error('The Voyent username is required'));
@@ -10680,12 +10674,7 @@ function PrivateUtils(services) {
 
     function getTransactionURLParam() {
         var txId = services.getLastTransactionId();
-        if (txId) {
-            return 'tx=' + txId;
-        }
-        else {
-            return 'tx=null';
-        }
+        return txId ? 'tx=' + txId : '';
     }
 
     function getRealmResourceURL(servicePath, account, realm, resourcePath, token, ssl, params) {
@@ -11051,11 +11040,20 @@ function PrivateUtils(services) {
 }
 
 (function (v) {
-    var privateUtils = PrivateUtils(v);
+    var keys = {
+        TRANSACTION_KEY: 'voyentTransaction',
+        REALM_KEY: 'voyentRealm',
+        ADMIN_KEY: 'voyentAdmin',
+        USERNAME_KEY: 'voyentUsername',
+        ACCOUNT_KEY: 'voyentAccount',
+        HOST_KEY: 'voyentHost',
+        TOKEN_KEY: 'voyentToken',
+        TOKEN_EXPIRES_KEY: 'voyentTokenExpires',
+        TOKEN_SET_KEY: 'voyentTokenSet'
+    };
+    
+    var privateUtils = PrivateUtils(v, keys);
     v.$ = PublicUtils(privateUtils);
-
-    var TRANSACTION_KEY = 'bridgeitTransaction';
-    var REALM_KEY = 'voyentRealm';
 
     v.configureHosts = function (url) {
         if (!url) {
@@ -11102,9 +11100,6 @@ function PrivateUtils(services) {
      * A Voyent transaction is not a ACID transaction, but simply a useful method to aid in auditing and diagnosing
      * distributed network calls, especially among different services.
      *
-     * @alias startTransaction
-     * @private
-     * @global
      * @example
      *    voyent.startTransaction();
      *   console.log('started transaction: ' +  voyent.getLastTransactionId());
@@ -11138,7 +11133,7 @@ function PrivateUtils(services) {
      *   });
      */
     v.startTransaction = function () {
-        privateUtils.setSessionStorageItem(btoa(TRANSACTION_KEY), v.$.newUUID());
+        privateUtils.setSessionStorageItem(btoa(keys.TRANSACTION_KEY), v.$.newUUID());
         console.log('bridgeit: started transaction ' + v.getLastTransactionId());
     };
 
@@ -11146,13 +11141,9 @@ function PrivateUtils(services) {
      * End a Voyent transaction.
      *
      * This function will remove the current Voyent transaction id, if one exists.
-     *
-     * @alias endTransaction
-     * @private
-     * @global
      */
     v.endTransaction = function () {
-        privateUtils.removeSessionStorageItem(btoa(TRANSACTION_KEY));
+        privateUtils.removeSessionStorageItem(btoa(keys.TRANSACTION_KEY));
         console.log('bridgeit: ended transaction ' + v.getLastTransactionId());
     };
 
@@ -11160,13 +11151,9 @@ function PrivateUtils(services) {
      * Get last transaction.
      *
      * Return the last stored Voyent transaction id.
-     *
-     * @alias getLastTransactionId
-     * @private
-     * @global
      */
     v.getLastTransactionId = function () {
-        return privateUtils.getSessionStorageItem(btoa(TRANSACTION_KEY));
+        return privateUtils.getSessionStorageItem(btoa(keys.TRANSACTION_KEY));
     };
 
     /**
@@ -11202,7 +11189,7 @@ function PrivateUtils(services) {
      * @param {String} realm The name of thre realm to use for future operations.
      */
     v.setCurrentRealm = function(realm){
-        privateUtils.setSessionStorageItem(btoa(REALM_KEY), btoa(realm));
+        privateUtils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
     };
 
     /**
@@ -11385,8 +11372,8 @@ function PrivateUtils(services) {
     };
 
     v.action = ActionService(v, privateUtils);
-    v.admin = AdminService(v, privateUtils);
-    v.auth = AuthService(v, privateUtils);
+    v.admin = AdminService(v, keys, privateUtils);
+    v.auth = AuthService(v, keys, privateUtils);
     v.docs = DocService(v, privateUtils);
     v.eventhub = EventHubService(v, privateUtils);
     v.locate = LocateService(v, privateUtils);
