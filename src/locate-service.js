@@ -1066,7 +1066,7 @@ function LocateService(v, utils) {
          * Searches for Tracker in a realm based on a query
          *
          * @memberOf voyent.location
-         * @alias findTracker
+         * @alias findTrackers
          * @param {Object} params params
          * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
          *     will be used.
@@ -1082,7 +1082,7 @@ function LocateService(v, utils) {
          * @param {Object} params.options Additional query options such as limit and sort
          * @returns {Object} The results
          */
-        findTracker: function (params) {
+        findTrackers: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
@@ -1094,7 +1094,7 @@ function LocateService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'tracker', token, params.ssl, {
+                        'trackers', token, params.ssl, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
