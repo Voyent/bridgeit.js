@@ -3650,7 +3650,7 @@ function AuthService(v, keys, utils) {
 
                     if (params.onSessionExpiry) {
                         if (typeof params.onSessionExpiry === 'function') {
-                            var name = getFunctionName(params.onSessionExpiry);
+                            var name = utils.getFunctionName(params.onSessionExpiry);
                             if (name) {
                                 settings.onSessionExpiry = name;
                             }
