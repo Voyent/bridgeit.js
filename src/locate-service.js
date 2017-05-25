@@ -24,7 +24,7 @@ function LocateService(v, utils) {
     }
 
     function validateRequiredTracker(params, reject) {
-        validateParameter('tracker', 'The tracker parameter is required', params, reject);
+        utils.validateParameter('tracker', 'The tracker parameter is required', params, reject);
     }
 
     function validateRequiredProperties(params, reject) {
@@ -34,7 +34,7 @@ function LocateService(v, utils) {
     }
 
     function validateRequiredZoneNamespace(params, reject) {
-        validateParameter('zoneNamespace', 'The zoneNamespace is required', params, reject);
+        utils.validateParameter('zoneNamespace', 'The zoneNamespace is required', params, reject);
     }
 
 
