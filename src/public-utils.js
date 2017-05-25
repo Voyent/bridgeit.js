@@ -256,6 +256,21 @@ function PublicUtils(utils) {
                 var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                 return v.toString(16);
             });
+        },
+
+        isIOS: function(){
+            var iDevice = ['iPad', 'iPhone', 'iPod'];
+            for (var i = 0; i < iDevice.length ; i++ ) {
+                if (navigator.userAgent.indexOf(iDevice[i]) > -1) {
+                    return true;
+                }
+            }
+
+            return false;
+        },
+
+        isAndroid: function(){
+            return navigator.userAgent.toLowerCase().indexOf("android") > -1;
         }
     };
 }
