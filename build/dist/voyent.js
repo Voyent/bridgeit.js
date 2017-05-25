@@ -4484,7 +4484,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 utils.validateRequiredRealm(params, reject);
 
-                var url = getRealmResourceURL(v.authAdminURL, account, params.realm.name,
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, params.realm.name,
                     '', token, params.ssl);
 
                 v.$.put(url, {realm: params.realm}).then(function () {
