@@ -11029,6 +11029,21 @@ function PrivateUtils(services, keys) {
                 var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                 return v.toString(16);
             });
+        },
+
+        isIOS: function(){
+            var iDevice = ['iPad', 'iPhone', 'iPod'];
+            for (var i = 0; i < iDevice.length ; i++ ) {
+                if (navigator.userAgent.indexOf(iDevice[i]) > -1) {
+                    return true;
+                }
+            }
+
+            return false;
+        },
+
+        isAndroid: function(){
+            return navigator.userAgent.toLowerCase().indexOf("android") > -1;
         }
     };
 }if (!window.voyent) {
@@ -11050,6 +11065,15 @@ function PrivateUtils(services, keys) {
     
     var privateUtils = PrivateUtils(v, keys);
     v.$ = PublicUtils(privateUtils);
+
+    //publish some of the private utility functions
+    //todo: move the functions into the public-utils.js file if indeed needed
+    v.$.getLocalStorageItem = privateUtils.getLocalStorageItem;
+    v.$.setLocalStorageItem = privateUtils.setLocalStorageItem;
+    v.$.removeLocalStorageItem = privateUtils.removeLocalStorageItem;
+    v.$.getSessionStorageItem = privateUtils.getSessionStorageItem;
+    v.$.setSessionStorageItem = privateUtils.setSessionStorageItem;
+    v.$.removeSessionStorageItem = privateUtils.removeSessionStorageItem;
 
     v.configureHosts = function (url) {
         if (!url) {
