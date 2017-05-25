@@ -10889,7 +10889,7 @@ function PrivateUtils(services, keys) {
                 }
                 if( progressCallback ){
                     request.upload.addEventListener("progress", function(evt){
-                        services.auth.updateLastActiveTimestamp();
+                        v.auth.updateLastActiveTimestamp();
                         if (evt.lengthComputable){
                             var percentComplete = evt.loaded / evt.total;
                             progressCallback(percentComplete, request);
@@ -11006,7 +11006,7 @@ function PrivateUtils(services, keys) {
                 request.onreadystatechange = function() {
                     if (this.readyState === 4) {
                         if (this.status >= 200 && this.status < 400) {
-                            services.auth.updateLastActiveTimestamp();
+                            v.auth.updateLastActiveTimestamp();
                             resolve();
                         } else {
                             reject(utils.extractResponseValues(this));
