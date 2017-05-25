@@ -19,7 +19,7 @@ if (!window.voyent) {
     v.$ = PublicUtils(privateUtils);
 
     //publish some of the private utility functions
-    //todo: move the function into the public-utils.js if indeed needed
+    //todo: move the functions into the public-utils.js file if indeed needed
     v.$.getLocalStorageItem = privateUtils.getLocalStorageItem;
     v.$.setLocalStorageItem = privateUtils.setLocalStorageItem;
     v.$.removeLocalStorageItem = privateUtils.removeLocalStorageItem;
