@@ -9406,66 +9406,43 @@ function EventService(v, utils) {
         }
     };
 }function PushService(v, utils) {
-    function validateRequiredGroup(params, reject){
+    function validateRequiredGroup(params, reject) {
         utils.validateParameter('group', 'The group parameter is required', params, reject);
     }
 
-    function validateRequiredCallback(params, reject){
+    function validateRequiredCallback(params, reject) {
         utils.validateParameter('group', 'The callback parameter is required', params, reject);
     }
 
     var pushKeys = {
         PUSH_CALLBACKS_KEY: 'pushCallbacks',
-        CLOUD_CALLBACKS_KEY: "pushCloudCallbacks"
     };
 
-    function storePushListener(pushId, group, cb){
+    function storePushListener(pushId, group, cb) {
         var pushListeners = {};
         var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
-        if( pushListenersStr ){
-            try{
+        if (pushListenersStr) {
+            try {
                 pushListeners = JSON.parse(pushListenersStr);
+            } catch (e) {
             }
-            catch(e){}
         }
-        if( !pushListeners[group] ){
+        if (!pushListeners[group]) {
             pushListeners[group] = [];
         }
         pushListeners[group].push({pushId: pushId, callback: cb});
         utils.setSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY, JSON.stringify(pushListeners));
     }
 
-    function addCloudPushListener(params){
-        var callback = utils.findFunctionInGlobalScope(params.callback);
-        if( !callback ){
-            reject('BridgeIt Cloud Push callbacks must be in window scope. Please pass either a reference to or a name of a global function.');
-        }
-        else{
-            var callbacks = utils.getLocalStorageItem(pushKeys.CLOUD_CALLBACKS_KEY);
-            var callbackName = utils.getFunctionName(callback);
-            if (!callbacks)  {
-                callbacks = " ";
-            }
-            if (callbacks.indexOf(" " + callbackName + " ") < 0)  {
-                callbacks += callbackName + " ";
-            }
-            utils.setLocalStorageItem(pushKeys.CLOUD_CALLBACKS_KEY, callbacks);
-        }
-    }
-
-    function addPushGroupMember(params){
-        ice.push.createPushId(function(pushId) {
+    function addPushGroupMember(params) {
+        ice.push.createPushId(function (pushId) {
             ice.push.addGroupMember(params.group, pushId);
             var fn = utils.findFunctionInGlobalScope(params.callback);
-            if( !fn ){
+            if (!fn) {
                 reject('could not find function in global scope: ' + params.callback);
-            }
-            else{
-                ice.push.register([ pushId ], fn);
+            } else {
+                ice.push.register([pushId], fn);
                 storePushListener(pushId, params.group, params.callback);
-                if( params.useCloudPush ){
-                    addCloudPushListener(params);
-                }
             }
         });
     }
@@ -9473,17 +9450,18 @@ function EventService(v, utils) {
     return {
 
         /**
-         * Connect to the BridgeIt Push Service
+         * Connect to the Voyent Push Service
          *
          * @alias startPushService
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name will be used.
+         * @param {String} params.cloudPushURI If provided, Cloud Push notifications will be enabled.
          */
-        startPushService: function(params){
+        startPushService: function (params) {
 
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -9502,7 +9480,11 @@ function EventService(v, utils) {
                         'access_token': token
                     });
 
-                    console.log('bridgeit.io.push.connect() connected');
+                    if (params.cloudPushURI) {
+                        window.ice.push.addNotifyBackURI(params.cloudPushURI);
+                    }
+
+                    console.log('voyent.push.connect() connected');
                     resolve();
                 }
             );
@@ -9515,28 +9497,22 @@ function EventService(v, utils) {
          *
          * @alias addPushListener
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name will be used.
          * @param {String} params.group The push group name
          * @param {String} params.callback The callback function to be called on the push event
-         * @param {Boolean} params.useCloudPush Use BridgeIt Cloud Push to call the callback through native cloud notification channels when necessary (default true)
          */
-        addPushListener: function(params){
-            return new Promise(function(resolve, reject) {
+        addPushListener: function (params) {
+            return new Promise(function (resolve, reject) {
                 params = params ? params : {};
                 v.checkHost(params);
 
                 validateRequiredGroup(params, reject);
                 validateRequiredCallback(params, reject);
 
-                if( !('useCloudPush' in params )){
-                    params.useCloudPush = true;
-                }
-
                 if (ice && ice.push) {
                     addPushGroupMember(params);
-                    console.log('bridgeit.io.push.addPushListener() added listener ' +
-                        params.callback + ' to group ' + params.group);
+                    console.log('voyent.push.addPushListener() added listener ' + params.callback + ' to group ' + params.group);
                     resolve();
                 } else {
                     reject('Push service is not active');
@@ -9550,28 +9526,28 @@ function EventService(v, utils) {
          *
          * @alias removePushListener
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name will be used.
          * @param {String} params.group The push group name
          * @param {String} params.callback The callback function to be called on the push event. This parameter is optional, when missing
          * all callbacks within the group are removed.
          */
-        removePushListener: function(params){
-            return new Promise(function(resolve, reject) {
-                console.log('bridgeit.io.push.removePushListener() group: ' + params.group);
+        removePushListener: function (params) {
+            return new Promise(function (resolve, reject) {
+                console.log('voyent.push.removePushListener() group: ' + params.group);
                 params = params ? params : {};
                 v.checkHost(params);
                 validateRequiredGroup(params, reject);
                 var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
-                if( !pushListenersStr ){
+                if (!pushListenersStr) {
                     console.error('Cannot remove push listener ' + params.group + ', missing push listener storage.');
                 }
-                else{
+                else {
                     try {
                         var pushListenerStorage = JSON.parse(pushListenersStr);
                         var listeners = pushListenerStorage[params.group];
-                        console.log('found push listeners in storage: ' + ( listeners ? JSON.stringify(listeners) : null ) );
-                        if( !listeners ){
+                        console.log('found push listeners in storage: ' + ( listeners ? JSON.stringify(listeners) : null ));
+                        if (!listeners) {
                             console.error('could not find listeners for group ' + params.group);
                             return;
                         }
@@ -9606,7 +9582,7 @@ function EventService(v, utils) {
                             delete pushListenerStorage[params.group];
                         }
                         utils.setSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY, JSON.stringify(pushListenerStorage));
-                    } catch(e){
+                    } catch (e) {
                         console.error(e);
                     }
                 }
@@ -9626,16 +9602,16 @@ function EventService(v, utils) {
          *
          * @alias sendPushEvent
          * @param {Object} params params
-         * @param {String} params.account BridgeIt Services account name. If not provided, the last known BridgeIt Account will be used.
-         * @param {String} params.realm The BridgeIt Services realm. If not provided, the last known BridgeIt Realm name will be used.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name will be used.
          * @param {String} params.group The push group name
          * @param {String} params.subject The subject heading for the notification
          * @param {String} params.detail The message text to be sent in the notification body
          * @param {String} params.forceCloudNotification When true force a Cloud notification regardless of the connection status on the device
          */
-        sendPushEvent: function(params) {
+        sendPushEvent: function (params) {
             return new Promise(
-                function(resolve, reject) {
+                function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
 
@@ -9643,10 +9619,10 @@ function EventService(v, utils) {
 
                     if (ice && ice.push) {
                         var post = {};
-                        if( params.subject ){
+                        if (params.subject) {
                             post.subject = params.subject;
                         }
-                        if( params.detail ){
+                        if (params.detail) {
                             post.detail = params.detail;
                         }
                         if (params.forceCloudNotification) {
