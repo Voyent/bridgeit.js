@@ -198,9 +198,35 @@ function PushService(v, utils) {
          * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account will be used.
          * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name will be used.
          * @param {String} params.group The push group name
-         * @param {String} params.subject The subject heading for the notification
-         * @param {String} params.detail The message text to be sent in the notification body
-         * @param {String} params.forceCloudNotification When true force a Cloud notification regardless of the connection status on the device
+         * @param {String} params.message The message is the push notification configuration
+         *
+         * @example
+         * sendPushEvent({
+         *      account: "<account>",
+         *      realm: "<realm>",
+         *      group: "<group>",
+         *      message: {
+         *           "cloud_notification_forced": <boolean>,
+         *           "global": {
+         *              "detail": "<detail-string>",
+         *               "expire_time": <long>,
+         *               "icon": "<url-string>",
+         *               "payload": {},
+         *               "priority": "<string>",
+         *               "subject": "<subject-string>",
+         *               "url": "<url-string>"
+         *           },
+         *           "cloud": {
+         *               "detail": "<detail-string>",
+         *               "expire_time": <long>,
+         *               "icon": "<url-string>",
+         *               "payload": {},
+         *               "priority": "<string>",
+         *               "subject": "<subject-string>",
+         *               "url": "<url-string>"
+         *           }
+         *       }
+         * });
          */
         sendPushEvent: function (params) {
             return new Promise(
@@ -211,17 +237,7 @@ function PushService(v, utils) {
                     validateRequiredGroup(params, reject);
 
                     if (ice && ice.push) {
-                        var post = {};
-                        if (params.subject) {
-                            post.subject = params.subject;
-                        }
-                        if (params.detail) {
-                            post.detail = params.detail;
-                        }
-                        if (params.forceCloudNotification) {
-                            post.cloud_notification_forced = true;
-                        }
-                        ice.push.notify(params.group, post);
+                        ice.push.notify(params.group, params.message);
                         resolve();
                     } else {
                         reject('Push service is not active');
