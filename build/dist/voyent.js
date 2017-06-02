@@ -2931,9 +2931,6 @@ if (!window.ice.icepush) {
         }
         var commandDispatcher = CommandDispatcher();
         register(commandDispatcher, 'error', CommandError);
-        register(commandDispatcher, 'browser', function (message) {
-            Cookie(BrowserIDName, message.browser.id);
-        });
         namespace.setupPush = function(configuration) {
             var apiChannel = Client(true);
             var API = {
