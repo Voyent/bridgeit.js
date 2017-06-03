@@ -2164,11 +2164,14 @@ if (!window.ice.icepush) {
                         var result = JSON.parse(content);
                         if (result.noop) {
                             executeCommand('noop',[]);
-                        } else if (result.notifications) {
+                        }
+                        if (result.notifications) {
                             executeCommand('notifications', result.notifications);
-                        } else if (result.configuration) {
+                        }
+                        if (result.configuration) {
                             executeCommand('configuration', result.configuration);
-                        } else if (result.browser) {
+                        }
+                        if (result.browser) {
                             executeCommand('browser', result.browser);
                         }
                     } catch (e) {
