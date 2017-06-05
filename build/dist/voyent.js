@@ -2934,7 +2934,7 @@ if (!window.ice.icepush) {
         }
         var commandDispatcher = CommandDispatcher();
         register(commandDispatcher, 'error', CommandError);
-        namespace.setupPush = function(configuration) {
+        namespace.setupPush = function(configuration, setupFinishedCallback) {
             var apiChannel = Client(true);
             var API = {
                 register: function (pushIds, callback) {
@@ -2997,14 +2997,18 @@ if (!window.ice.icepush) {
                         condition(ServerInternalError, throwServerError);
                     }));
                 },
-                getConfiguration: function () {
+                getConfiguration: function (callback) {
                     var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/configuration';
                     getAsynchronously(apiChannel, uri, function (query) {
                         addNameValue(query, "access_token", configuration.access_token);
                         addNameValue(query, "op", "get");
                     }, JSONRequest, $witch(function (condition) {
                         condition(OK, function (response) {
-                            deserializeAndExecute(commandDispatcher, contentAsText(response));
+                            try {
+                                deserializeAndExecute(commandDispatcher, contentAsText(response));
+                            } finally {
+                                callback();
+                            }
                         });
                         condition(ServerInternalError, throwServerError);
                     }));
@@ -3080,14 +3084,14 @@ if (!window.ice.icepush) {
                     }));
                 }
             };
-            Bridge(configuration, API);
+            Bridge(configuration, API, setupFinishedCallback);
             onKeyPress(document, function(ev) {
                 var e = $event(ev);
                 if (isEscKey(e)) cancelDefaultAction(e);
             });
             return API;
         };
-        function Bridge(configuration, pushAPI) {
+        function Bridge(configuration, pushAPI, setupFinishedCallback) {
             var windowID = namespace.windowID;
             var logger = childLogger(namespace.logger, windowID);
             var pushIdExpiryMonitor = PushIDExpiryMonitor(logger);
@@ -3100,9 +3104,6 @@ if (!window.ice.icepush) {
                     resumeConnection(asyncConnection);
                 }
             };
-            if (!configuration.configuration) {
-                pushAPI.getConfiguration();
-            }
             function purgeNonRegisteredPushIDs(ids) {
                 var registeredIDs = split(getValue(pushIDsSlot), ' ');
                 return intersect(ids, registeredIDs);
@@ -3213,7 +3214,17 @@ if (!window.ice.icepush) {
                 broadcast(blockingConnectionUnstableListeners);
             });
             info(logger, 'bridge loaded!');
-            startConnection(asyncConnection);
+            function finishStartup() {
+                startConnection(asyncConnection);
+                if (setupFinishedCallback) {
+                    setupFinishedCallback();
+                }
+            }
+            if (configuration.configuration && existsCookie(BrowserIDName)) {
+                finishStartup();
+            } else {
+                pushAPI.getConfiguration(finishStartup);
+            }
         }
     })(window.ice);
 }

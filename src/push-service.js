@@ -71,11 +71,11 @@ function PushService(v, utils) {
                         'account': account,
                         'realm': realm,
                         'access_token': token
+                    }, function() {
+                        if (params.cloudPushURI) {
+                            window.ice.push.addNotifyBackURI(params.cloudPushURI);
+                        }
                     });
-
-                    if (params.cloudPushURI) {
-                        window.ice.push.addNotifyBackURI(params.cloudPushURI);
-                    }
 
                     console.log('voyent.push.connect() connected');
                     resolve();
