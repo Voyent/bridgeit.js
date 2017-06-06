@@ -9456,8 +9456,6 @@ function EventService(v, utils) {
          * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account will be used.
          * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name will be used.
          * @param {String} params.cloudPushURI If provided, Cloud Push notifications will be enabled.
-         * @param {function} params.onStartup If provided, the callback is invoked after the service has finished initializing.
-         * @param {function} params.onShutdown If provided, the callback is invoked after the service was stopped.
          */
         startPushService: function (params) {
 
@@ -9477,7 +9475,7 @@ function EventService(v, utils) {
                         if (params.cloudPushURI) {
                             window.ice.push.addNotifyBackURI(params.cloudPushURI);
                         }
-                        params.onStartup();
+                        resolve();
                     }
                     //make sure the ICEpush code is evaluated before this
                     window.ice.push = ice.setupPush({
@@ -9485,10 +9483,9 @@ function EventService(v, utils) {
                         'account': account,
                         'realm': realm,
                         'access_token': token
-                    }, notifyBack, params.onShutdown);
+                    }, notifyBack);
 
                     console.log('voyent.push.connect() connected');
-                    resolve();
                 }
             );
         },
