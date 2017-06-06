@@ -65,17 +65,18 @@ function PushService(v, utils) {
 
                     var pushURL = (params.ssl ? 'https://' : 'http://') + v.pushURL + '/';
 
+                    function notifyBack() {
+                        if (params.cloudPushURI) {
+                            window.ice.push.addNotifyBackURI(params.cloudPushURI);
+                        }
+                    }
                     //make sure the ICEpush code is evaluated before this
                     window.ice.push = ice.setupPush({
                         'uri': pushURL,
                         'account': account,
                         'realm': realm,
                         'access_token': token
-                    }, function() {
-                        if (params.cloudPushURI) {
-                            window.ice.push.addNotifyBackURI(params.cloudPushURI);
-                        }
-                    });
+                    }, notifyBack);
 
                     console.log('voyent.push.connect() connected');
                     resolve();
