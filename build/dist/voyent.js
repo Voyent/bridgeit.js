@@ -2934,7 +2934,7 @@ if (!window.ice.icepush) {
         }
         var commandDispatcher = CommandDispatcher();
         register(commandDispatcher, 'error', CommandError);
-        namespace.setupPush = function(configuration, setupFinishedCallback) {
+        namespace.setupPush = function(configuration, onStartup, onShutdown) {
             var apiChannel = Client(true);
             var API = {
                 register: function (pushIds, callback) {
@@ -3084,14 +3084,14 @@ if (!window.ice.icepush) {
                     }));
                 }
             };
-            Bridge(configuration, API, setupFinishedCallback);
+            Bridge(configuration, API, onStartup, onShutdown);
             onKeyPress(document, function(ev) {
                 var e = $event(ev);
                 if (isEscKey(e)) cancelDefaultAction(e);
             });
             return API;
         };
-        function Bridge(configuration, pushAPI, setupFinishedCallback) {
+        function Bridge(configuration, pushAPI, onStartup, onShutdown) {
             var windowID = namespace.windowID;
             var logger = childLogger(namespace.logger, windowID);
             var pushIdExpiryMonitor = PushIDExpiryMonitor(logger);
@@ -3163,6 +3163,9 @@ if (!window.ice.icepush) {
                     disposeBroadcast(notificationBroadcaster);
                 } finally {
                     shutdown(asyncConnection);
+                    if (onShutdown) {
+                        onShutdown();
+                    }
                 }
             }
             onBeforeUnload(window, function() {
@@ -3216,8 +3219,8 @@ if (!window.ice.icepush) {
             info(logger, 'bridge loaded!');
             function finishStartup() {
                 startConnection(asyncConnection);
-                if (setupFinishedCallback) {
-                    setupFinishedCallback();
+                if (onStartup) {
+                    onStartup();
                 }
             }
             if (configuration.configuration && existsCookie(BrowserIDName)) {
@@ -9453,6 +9456,8 @@ function EventService(v, utils) {
          * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account will be used.
          * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name will be used.
          * @param {String} params.cloudPushURI If provided, Cloud Push notifications will be enabled.
+         * @param {function} params.onStartup If provided, the callback is invoked after the service has finished initializing.
+         * @param {function} params.onShutdown If provided, the callback is invoked after the service was stopped.
          */
         startPushService: function (params) {
 
@@ -9472,6 +9477,7 @@ function EventService(v, utils) {
                         if (params.cloudPushURI) {
                             window.ice.push.addNotifyBackURI(params.cloudPushURI);
                         }
+                        params.onStartup();
                     }
                     //make sure the ICEpush code is evaluated before this
                     window.ice.push = ice.setupPush({
@@ -9479,7 +9485,7 @@ function EventService(v, utils) {
                         'account': account,
                         'realm': realm,
                         'access_token': token
-                    }, notifyBack);
+                    }, notifyBack, params.onShutdown);
 
                     console.log('voyent.push.connect() connected');
                     resolve();
