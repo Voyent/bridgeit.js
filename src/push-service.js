@@ -8,7 +8,7 @@ function PushService(v, utils) {
     }
 
     var pushKeys = {
-        PUSH_CALLBACKS_KEY: 'pushCallbacks',
+        PUSH_CALLBACKS_KEY: 'pushCallbacks'
     };
 
     function storePushListener(pushId, group, cb) {
@@ -25,19 +25,6 @@ function PushService(v, utils) {
         }
         pushListeners[group].push({pushId: pushId, callback: cb});
         utils.setSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY, JSON.stringify(pushListeners));
-    }
-
-    function addPushGroupMember(params) {
-        ice.push.createPushId(function (pushId) {
-            ice.push.addGroupMember(params.group, pushId);
-            var fn = utils.findFunctionInGlobalScope(params.callback);
-            if (!fn) {
-                reject('could not find function in global scope: ' + params.callback);
-            } else {
-                ice.push.register([pushId], fn);
-                storePushListener(pushId, params.group, params.callback);
-            }
-        });
     }
 
     return {
@@ -67,9 +54,10 @@ function PushService(v, utils) {
 
                     function notifyBack() {
                         if (params.cloudPushURI) {
-                            window.ice.push.addNotifyBackURI(params.cloudPushURI);
+                            window.ice.push.addNotifyBackURI(params.cloudPushURI, resolve);
+                        } else {
+                            resolve();
                         }
-                        resolve();
                     }
                     //make sure the ICEpush code is evaluated before this
                     window.ice.push = ice.setupPush({
@@ -105,9 +93,19 @@ function PushService(v, utils) {
                 validateRequiredCallback(params, reject);
 
                 if (ice && ice.push) {
-                    addPushGroupMember(params);
+                    ice.push.createPushId(function (pushId) {
+                        ice.push.addGroupMember(params.group, pushId, true, function() {
+                            var fn = utils.findFunctionInGlobalScope(params.callback);
+                            if (!fn) {
+                                reject('could not find function in global scope: ' + params.callback);
+                            } else {
+                                ice.push.register([pushId], fn);
+                                storePushListener(pushId, params.group, params.callback);
+                                resolve();
+                            }
+                        });
+                    });
                     console.log('voyent.push.addPushListener() added listener ' + params.callback + ' to group ' + params.group);
-                    resolve();
                 } else {
                     reject('Push service is not active');
                 }
