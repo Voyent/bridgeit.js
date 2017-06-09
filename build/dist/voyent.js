@@ -4422,7 +4422,7 @@ function AdminService(v, keys, utils) {
                 // Check metadata, account, and username
                 validateRequiredMetadata(params, reject);
                 validateRequiredAccount(params, reject);
-                validateRequiredUsername(params, reject);
+                utils.validateRequiredUsername(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
                 var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/'
