@@ -173,8 +173,8 @@ ice.lib.oo = ice.module(function(exportAs) {
     exportAs('objectWithAncestors', objectWithAncestors);
 });
 ice.lib.functional = ice.module(function(exportAs) {
-    function apply(fun, arguments) {
-        return fun.apply(fun, arguments);
+    function apply(fun, args) {
+        return fun.apply(fun, args);
     }
     function withArguments() {
         var args = arguments;
