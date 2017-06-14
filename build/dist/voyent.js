@@ -10596,6 +10596,10 @@ function PrivateUtils(services, keys) {
         var expires = "expires=" + d.toUTCString();
         document.cookie = cname + "=" + cvalue + "; " + expires;
     }
+    
+    function removeCookie(cname) {
+        setCookie(cname, null, -1);
+    }
 
     function getNodeStorageItem(key) {
         return typeof nodeStorage[key] !== 'undefined' ? nodeStorage[key] : null;
@@ -10638,7 +10642,7 @@ function PrivateUtils(services, keys) {
             if (useLocalStorage()) {
                 window.sessionStorage.removeItem(key);
             } else {
-                setCookie(key, null);
+                removeCookie(key);
             }
         } else {
             removeNodeStorageItem(key);
@@ -10650,7 +10654,7 @@ function PrivateUtils(services, keys) {
             if (useLocalStorage()) {
                 window.localStorage.removeItem(key);
             } else {
-                setCookie(key, null);
+                removeCookie(key);
             }
         } else {
             removeNodeStorageItem(key);
