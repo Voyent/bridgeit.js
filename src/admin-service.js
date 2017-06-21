@@ -233,6 +233,46 @@ function AdminService(v, keys, utils) {
 
             });
         },
+        
+        /**
+         * Update an account admin
+         *
+         * @memberOf voyent.admin
+         * @alias updateAccount
+         * @param {Object} params params
+         * @param {String} params.username The admin username to update (required)
+         * @param {String} params.email Updated email
+         * @param {String} params.firstname Updated first name
+         * @param {String} params.lastname Updated last name
+         * @param {String} params.custom Any custom data (optional)
+         * @param {String} params.password Password to update, if not present will remain unchanged
+         * @returns Promise
+         */
+        updateAccount: function(params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+                v.checkHost(params);
+
+                // Ensure we have an admin username
+                if (!params.username || typeof params.username === 'undefined') {
+                    reject(Error('Admin username to update is required'));
+                }
+                
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                
+                var txParam = utils.getTransactionURLParam();
+                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/'
+                           + account + '/admins/' + params.username + '?access_token=' + token + (txParam ? '&' + txParam : '');
+                
+                v.$.put(url, {'admin': params}).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve();
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
 
         /**
          * Attempt to confirm an account
