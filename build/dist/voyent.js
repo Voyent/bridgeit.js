@@ -9587,6 +9587,7 @@ function EventService(v, utils) {
                 var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
                 if (!pushListenersStr) {
                     console.error('Cannot remove push listener ' + params.group + ', missing push listener storage.');
+                    reject('Cannot remove push listener ' + params.group + ', missing push listener storage.');
                 }
                 else {
                     try {
@@ -9595,6 +9596,7 @@ function EventService(v, utils) {
                         console.log('found push listeners in storage: ' + ( listeners ? JSON.stringify(listeners) : null ));
                         if (!listeners) {
                             console.error('could not find listeners for group ' + params.group);
+                            reject('could not find listeners for group ' + params.group);
                             return;
                         }
                         if (params.callback) {
@@ -9628,8 +9630,10 @@ function EventService(v, utils) {
                             delete pushListenerStorage[params.group];
                         }
                         utils.setSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY, JSON.stringify(pushListenerStorage));
+                        resolve();
                     } catch (e) {
                         console.error(e);
+                        reject(e);
                     }
                 }
 
