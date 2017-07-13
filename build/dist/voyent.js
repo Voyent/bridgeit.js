@@ -4682,7 +4682,6 @@ function AdminService(v, keys, utils) {
          * @param {String} params.realmName to validate with
          * @returns Object with the username and password
          */
-
         createAnonUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
@@ -4694,7 +4693,7 @@ function AdminService(v, keys, utils) {
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
                     'register', false, params.ssl);
 
-                var password = v.auth.generatePassword()
+                var password = v.auth.generatePassword();
                 var toPost = {user: {password: password}};
 
                 if (params.metadata) {
@@ -4708,6 +4707,44 @@ function AdminService(v, keys, utils) {
                         username: response.resourceLocation.substring(response.resourceLocation.lastIndexOf('/') + 1)
                     };
                     resolve(anonUser);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        /**
+         * Attempt to create/register a new realm user
+         * If no password is provided (under params.users.password) one will be generated
+         *
+         * @param {Object} params
+         * @param {String} params.account to validate with
+         * @param {String} params.realm to validate with
+         * @param {Object} params.user containing details to create
+         */
+        createUser: function (params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+                v.checkHost(params);
+                
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm, 'register');
+                
+                // Check for user data
+                if (!params.user) {
+                    reject(Error('No user data to submit was found'));
+                    return;
+                }
+                
+                // If no password is found, generate one
+                if (!params.user.password) {
+                    params.user.password = v.auth.generatePassword();
+                }
+                
+                v.$.post(url, params).then(function (response) {
+                    resolve(response);
                 })['catch'](function (error) {
                     reject(error);
                 });
