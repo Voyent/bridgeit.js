@@ -3456,6 +3456,48 @@ function AuthService(v, keys, utils) {
                 });
             });
         },
+        
+        /**
+         * Store various login variables from an external source
+         *
+         * @memberOf voyent.auth
+         * @param {Object} params params
+         * @param {String} params.account Voyent Services account name (required)
+         * @param {String} params.realm Voyent Services realm (required)
+         * @param {String} params.username User name (required)
+         * @param {String} params.access_token Valid access token (required)
+         * @param {String} params.expires_in Token expiry, in milliseconds (required)
+         */
+        _storeLogin: function(params) {
+            if (!params.access_token) {
+                reject(Error('Voyent access token is required'));
+                return;
+            }
+            if (!params.expires_in) {
+                reject(Error('Voyent access token expiry is required'));
+                return;
+            }
+            if (!params.account) {
+                reject(Error('Voyent account is required'));
+                return;
+            }
+            if (!params.realm) {
+                reject(Error('Voyent realm is required'));
+                return;
+            }
+            if (!params.username) {
+                reject(Error('Voyent username is required'));
+                return;
+            }
+            
+            v.auth.updateLastActiveTimestamp();
+            utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), params.access_token);
+            utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), params.expires_in);
+            utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), new Date().getTime());
+            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+            utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
+            utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+        },
 
         /**
          * Connect to voyent.
