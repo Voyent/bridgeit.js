@@ -778,8 +778,8 @@ function LocateService(v, utils) {
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
          * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
-         * @param {Number} params.latitude The location latitude
-         * @param {Number} params.longitude The location longitude
+         * @param {Number} params.lat The location latitude
+         * @param {Number} params.lon The location longitude
          * @param {String} params.label An optional label
          */
         updateLocationCoordinates: function (params) {
