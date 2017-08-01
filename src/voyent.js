@@ -51,6 +51,7 @@ if (!window.voyent) {
         v.deviceURL = baseURL + '/device';
         v.scopeURL = baseURL + '/scope';
         v.pushURL = baseURL + '/notify';
+        v.cloudURL = baseURL + '/cloud';
     };
 
     v.checkHost = function (params) {
@@ -354,6 +355,7 @@ if (!window.voyent) {
     v.metrics = MetricsService(v, privateUtils);
     v.event = EventService(v, privateUtils);
     v.push = PushService(v, privateUtils);
+    v.cloud = CloudService(v, privateUtils);
     v.storage = StorageService(v, privateUtils);
     v.query = QueryService(v, privateUtils);
     v.device = DeviceService(v, privateUtils);

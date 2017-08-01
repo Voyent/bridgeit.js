@@ -9868,6 +9868,138 @@ function EventService(v, utils) {
         }
     };
 }
+function CloudService(v, utils) {
+    return {
+        /**
+         * Push cloud notification to a given notify-back URI.
+         *
+         * @alias pushToNotifyBackURI
+         * @param {String} notifyBackURI
+         * @param {Object} params params
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name will be used.
+         * @param {String} params.message The message is the cloud notification.
+         *
+         * @example
+         * sendPushEvent({
+         *      account: "<account>",
+         *      realm: "<realm>",
+         *      message: {
+         *           "asynchronous": <boolean>,
+         *           "global": {
+         *              "detail": "<detail-string>",
+         *               "expire_time": <long>,
+         *               "icon": "<url-string>",
+         *               "payload": {},
+         *               "priority": "<string>",
+         *               "subject": "<subject-string>",
+         *               "url": "<url-string>"
+         *           },
+         *           "cloud": {
+         *               "detail": "<detail-string>",
+         *               "expire_time": <long>,
+         *               "icon": "<url-string>",
+         *               "payload": {},
+         *               "priority": "<string>",
+         *               "subject": "<subject-string>",
+         *               "url": "<url-string>"
+         *           }
+         *           ....
+         *       }
+         * });
+         */
+        pushToNotifyBackURI: function (notifyBackURI, params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.cloudURL, account, realm,
+                        'notify-back-uris/' + notifyBackURI, token, params.ssl);
+
+                    v.$.post(url, params.message).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(url);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+
+                }
+            );
+        },
+
+        /**
+         * Push cloud notification to a given list of notify-back URIs.
+         *
+         * @alias pushToNotifyBackURI
+         * @param {Object} params params
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name will be used.
+         * @param {String} params.message The message is the cloud notification.
+         *
+         * @example
+         * sendPushEvent({
+         *      account: "<account>",
+         *      realm: "<realm>",
+         *      message: {
+         *           "asynchronous": <boolean>,
+         *           "notify_back_uris": [
+         *              "<notify-back-uri>",
+         *              "<notify-back-uri>",
+         *              ...
+         *           ]
+         *           "global": {
+         *              "detail": "<detail-string>",
+         *               "expire_time": <long>,
+         *               "icon": "<url-string>",
+         *               "payload": {},
+         *               "priority": "<string>",
+         *               "subject": "<subject-string>",
+         *               "url": "<url-string>"
+         *           },
+         *           "cloud": {
+         *               "detail": "<detail-string>",
+         *               "expire_time": <long>,
+         *               "icon": "<url-string>",
+         *               "payload": {},
+         *               "priority": "<string>",
+         *               "subject": "<subject-string>",
+         *               "url": "<url-string>"
+         *           }
+         *           ....
+         *       }
+         * });
+         */
+        pushToNotifyBackURIs: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.cloudURL, account, realm,
+                        'notify-back-uris/', token, params.ssl);
+
+                    v.$.post(url, params.message).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(url);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        }
+    };
+}
 function QueryService(v, utils) {
     function validateRequiredQuery(params, reject){
         utils.validateParameter('query', 'The query parameter is required', params, reject);
@@ -11088,7 +11220,6 @@ function PrivateUtils(services, keys) {
                 contentType = contentType || "application/json";
                 var request = new XMLHttpRequest();
                 request.open('POST', url, true);
-                request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 if( !isFormData ){
                     request.setRequestHeader("Content-type", contentType);
                 }
@@ -11133,7 +11264,7 @@ function PrivateUtils(services, keys) {
                                 }
                             }
                             else{
-                                resolve();
+                                resolve(url);
                             }
                         } else {
                             reject(utils.extractResponseValues(this));
@@ -11309,6 +11440,7 @@ function PrivateUtils(services, keys) {
         v.deviceURL = baseURL + '/device';
         v.scopeURL = baseURL + '/scope';
         v.pushURL = baseURL + '/notify';
+        v.cloudURL = baseURL + '/cloud';
     };
 
     v.checkHost = function (params) {
@@ -11612,6 +11744,7 @@ function PrivateUtils(services, keys) {
     v.metrics = MetricsService(v, privateUtils);
     v.event = EventService(v, privateUtils);
     v.push = PushService(v, privateUtils);
+    v.cloud = CloudService(v, privateUtils);
     v.storage = StorageService(v, privateUtils);
     v.query = QueryService(v, privateUtils);
     v.device = DeviceService(v, privateUtils);

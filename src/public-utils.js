@@ -105,7 +105,6 @@ function PublicUtils(utils) {
                 contentType = contentType || "application/json";
                 var request = new XMLHttpRequest();
                 request.open('POST', url, true);
-                request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 if( !isFormData ){
                     request.setRequestHeader("Content-type", contentType);
                 }
@@ -150,7 +149,7 @@ function PublicUtils(utils) {
                                 }
                             }
                             else{
-                                resolve();
+                                resolve(url);
                             }
                         } else {
                             reject(utils.extractResponseValues(this));
