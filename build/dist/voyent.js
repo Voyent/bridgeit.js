@@ -4687,7 +4687,7 @@ function AdminService(v, keys, utils) {
             });
         },
 
-        createRealmUser: function (params) {
+        createRealmUser: function (params, fromUser) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
                 v.checkHost(params);
@@ -4697,9 +4697,15 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 validateRequiredUser(params, reject);
-
+                
+                // By default hit the "users" endpoint, which is used for admins
+                // However if the call is from a user trying to create another user, then use the "realmUser" endpoint
+                var endpoint = 'users';
+                if (fromUser) {
+                    endpoint = 'realmUser';
+                }
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users', token, params.ssl);
+                    endpoint, token, params.ssl);
 
                 var toPost = {user: params.user};
 
