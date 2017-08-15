@@ -4708,9 +4708,6 @@ function AdminService(v, keys, utils) {
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 
-                console.log("Account: " + account);
-                console.log("Last known: " + v.auth.getLastKnownAccount());
-
                 validateRequiredUser(params, reject);
                 
                 // By default hit the "users" endpoint, which is used for admins
