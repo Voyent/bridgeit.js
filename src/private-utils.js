@@ -22,7 +22,9 @@ function PrivateUtils(services, keys) {
             realm = services.auth.getLastKnownRealm();
         }
         if (realm) {
-            setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+            if (!params.nostore) {
+                setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+            }
             return realm;
         } else {
             return reject(Error('The Voyent realm is required'));
@@ -38,7 +40,9 @@ function PrivateUtils(services, keys) {
             realm = services.auth.getLastKnownRealm();
         }
         if (realm) {
-            setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+            if (!params.nostore) {
+                setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+            }
             return realm;
         }
         else {
@@ -54,7 +58,9 @@ function PrivateUtils(services, keys) {
             account = services.auth.getLastKnownAccount();
         }
         if (account) {
-            setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
+            if (!params.nostore) {
+                setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
+            }
             return account;
         } else {
             return reject(Error('The Voyent account is required'));
@@ -67,7 +73,9 @@ function PrivateUtils(services, keys) {
             username = services.auth.getLastKnownUsername();
         }
         if (username) {
-            setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
+            if (!params.nostore) {
+                setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
+            }
             return username;
         } else {
             return reject(Error('The Voyent username is required'));

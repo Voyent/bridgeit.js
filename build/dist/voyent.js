@@ -4546,6 +4546,9 @@ function AdminService(v, keys, utils) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
                 v.checkHost(params);
+                
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -4638,6 +4641,9 @@ function AdminService(v, keys, utils) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
                 v.checkHost(params);
+                
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -4664,6 +4670,9 @@ function AdminService(v, keys, utils) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
                 v.checkHost(params);
+                
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -4692,9 +4701,15 @@ function AdminService(v, keys, utils) {
                 params = params ? params : {};
                 v.checkHost(params);
 
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
+                
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                
+                console.log("Account: " + account);
+                console.log("Last known: " + v.auth.getLastKnownAccount());
 
                 validateRequiredUser(params, reject);
                 
@@ -4882,6 +4897,9 @@ function AdminService(v, keys, utils) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
                 v.checkHost(params);
+                
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -4906,7 +4924,7 @@ function AdminService(v, keys, utils) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
                 v.checkHost(params);
-
+                
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -4929,6 +4947,9 @@ function AdminService(v, keys, utils) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
                 v.checkHost(params);
+                
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
@@ -10829,7 +10850,9 @@ function PrivateUtils(services, keys) {
             realm = services.auth.getLastKnownRealm();
         }
         if (realm) {
-            setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+            if (!params.nostore) {
+                setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+            }
             return realm;
         } else {
             return reject(Error('The Voyent realm is required'));
@@ -10845,7 +10868,9 @@ function PrivateUtils(services, keys) {
             realm = services.auth.getLastKnownRealm();
         }
         if (realm) {
-            setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+            if (!params.nostore) {
+                setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+            }
             return realm;
         }
         else {
@@ -10861,7 +10886,9 @@ function PrivateUtils(services, keys) {
             account = services.auth.getLastKnownAccount();
         }
         if (account) {
-            setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
+            if (!params.nostore) {
+                setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
+            }
             return account;
         } else {
             return reject(Error('The Voyent account is required'));
@@ -10874,7 +10901,9 @@ function PrivateUtils(services, keys) {
             username = services.auth.getLastKnownUsername();
         }
         if (username) {
-            setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
+            if (!params.nostore) {
+                setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
+            }
             return username;
         } else {
             return reject(Error('The Voyent username is required'));
