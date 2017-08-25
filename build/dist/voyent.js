@@ -8490,7 +8490,9 @@ function ScopeService(v, utils) {
                     params = params ? params : {};
                     v.checkHost(params);
 
-                    //validate
+                    // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                    params.nostore = true;
+                    
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
