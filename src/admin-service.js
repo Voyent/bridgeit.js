@@ -586,6 +586,9 @@ function AdminService(v, keys, utils) {
                 if (params.metadata) {
                     toPost.metadata = params.metadata;
                 }
+                if (params.custom) {
+                    toPost.user.custom = params.custom;
+                }
 
                 v.$.post(url, toPost).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
