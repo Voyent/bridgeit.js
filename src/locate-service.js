@@ -27,9 +27,19 @@ function LocateService(v, utils) {
         utils.validateParameter('tracker', 'The tracker parameter is required', params, reject);
     }
 
+    function validateRequiredAlertTemplate(params, reject) {
+        utils.validateParameter('alertTemplate', 'The alertTemplate parameter is required', params, reject);
+    }
+
     function validateRequiredProperties(params, reject) {
         if (!params.location.location.properties || !params.location.location.properties.trackerId || !params.location.location.properties.zoneNamespace) {
             reject(Error('The properties trackerId and zoneNamespace are required'));
+        }
+    }
+
+    function validateRequiredAlertProperties(params, reject) {
+        if (!params.location.location.properties || !params.location.location.properties.alertTemplateId) {
+            reject(Error('The property alertTemplateId is required'));
         }
     }
 
@@ -1289,6 +1299,275 @@ function LocateService(v, utils) {
             );
         },
 
+        /**
+         * Create a new alert template.
+         *
+         * @memberOf voyent.location
+         * @alias createAlertTemplate
+         * @param {Object} params params
+         * @param {String} params.id The alert template id. If not provided, the service will return a new id.
+         * @param {Object} params.alertTemplate The alert template GeoJSON document.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         * @returns {String} The resource URI
+         */
+        createAlertTemplate: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    validateRequiredAlertTemplate(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
+                              'alerts/' + (params.id ? encodeURIComponent(params.id) : ''), token, params.ssl);
+
+                    v.$.post(url, params.alertTemplate).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response.uri);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Update an alert template.
+         *
+         * @memberOf voyent.location
+         * @alias updateAlertTemplate
+         * @param {Object} params params
+         * @param {String} params.id The alert template id, the alert template to be updated.
+         * @param {Object} params.alertTemplate The new alert template GeoJSON document.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         */
+        updateAlertTemplate: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
+                    validateRequiredAlertTemplate(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
+                        'alerts/' + encodeURIComponent(params.id), token, params.ssl);
+
+                    v.$.put(url, params.alertTemplate).then(function () {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve();
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Delete an alert template.
+         *
+         * @memberOf voyent.location
+         * @alias deleteAlertTemplate
+         * @param {Object} params params
+         * @param {String} params.id The id of alert template to be deleted.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         */
+        deleteAlertTemplate: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
+                        'alerts/' + encodeURIComponent(params.id), token, params.ssl);
+
+                    v.$.doDelete(url).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve();
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Search for alert templates based on a query.
+         *
+         * @memberOf voyent.location
+         * @alias findAlertTemplates
+         * @param {Object} params params
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         * @param {Object} params.query A mongo query for the alert templates.
+         * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
+         * @param {Object} params.options Additional query options such as limit and sort
+         * @returns {Object} The results
+         */
+        findAlertTemplates: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
+                        'alerts', token, params.ssl, {
+                            'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
+                            'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
+                            'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
+                        });
+
+                    v.$.getJSON(url).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response);
+                    })['catch'](function (error) {
+                        if (error.status === 404) {
+                            resolve();
+                        }
+                        else {
+                            reject(error);
+                        }
+                    });
+                }
+            );
+        },
+
+        /**
+         * Update the location of an alert.
+         *
+         * @memberOf voyent.locate
+         * @alias updateAlertLocation
+         * @param {Object} params params
+         * @param {Object} params.location The location, must include the location.properties.alertTemplateId property.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         */
+        updateAlertLocation: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    validateRequiredLocation(params, reject);
+                    validateRequiredAlertProperties(params, reject);
+                    params.location.location.type = "Feature"; //Always set the GeoJSON type.
+
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
+                        'locations', token, params.ssl);
+
+                    v.$.post(url, params.location).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Deletes an alert instance.
+         *
+         * @memberOf voyent.location
+         * @alias deleteAlert
+         * @param {Object} params params
+         * @param {String} params.id The id of the alert template that the instance was created from.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         */
+        deleteAlert: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
+                        'alerts/instances/' + encodeURIComponent(params.id), token, params.ssl);
+
+                    v.$.doDelete(url).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve();
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
         getRegionResourcePermissions: function (params) {
             params.path = 'regions';
             return locate.getResourcePermissions(params);
@@ -1296,7 +1575,7 @@ function LocateService(v, utils) {
 
         updateRegionResourcePermissions: function (params) {
             params.path = 'regions';
-            return locate.getResourcePermissions(params);
+            return locate.updateResourcePermissions(params);
         },
 
         getPOIResourcePermissions: function (params) {
@@ -1306,6 +1585,16 @@ function LocateService(v, utils) {
 
         updatePOIResourcePermissions: function (params) {
             params.path = 'poi';
+            return locate.updateResourcePermissions(params);
+        },
+
+        getAlertResourcePermissions: function (params) {
+            params.path = 'alert';
+            return locate.getResourcePermissions(params);
+        },
+
+        updateAlertResourcePermissions: function (params) {
+            params.path = 'alert';
             return locate.updateResourcePermissions(params);
         },
 
