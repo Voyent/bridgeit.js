@@ -38,8 +38,8 @@ function LocateService(v, utils) {
     }
 
     function validateRequiredAlertProperties(params, reject) {
-        if (!params.location.location.properties || !params.location.location.properties.alertTemplateId) {
-            reject(Error('The property alertTemplateId is required'));
+        if (!params.location.location.properties || !params.location.location.properties.alertId) {
+            reject(Error('The property alertId is required'));
         }
     }
 
@@ -1419,7 +1419,7 @@ function LocateService(v, utils) {
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'alerts/' + encodeURIComponent(params.id), token, params.ssl);
 
-                    v.$.doDelete(url).then(function (response) {
+                    v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function (error) {
@@ -1488,7 +1488,7 @@ function LocateService(v, utils) {
          * @memberOf voyent.locate
          * @alias updateAlertLocation
          * @param {Object} params params
-         * @param {Object} params.location The location, must include the location.properties.alertTemplateId property.
+         * @param {Object} params.location The location, must include the location.properties.alertId property.
          * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
          *     will be used.
          * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
@@ -1558,7 +1558,7 @@ function LocateService(v, utils) {
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
                         'alerts/instances/' + encodeURIComponent(params.id), token, params.ssl);
 
-                    v.$.doDelete(url).then(function (response) {
+                    v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function (error) {
