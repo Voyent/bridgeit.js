@@ -6719,6 +6719,10 @@ function DeviceService(v, utils) {
         utils.validateParameter('zoneNamespace', 'The zoneNamespace is required', params, reject);
     }
 
+    function validateRequiredState(params, reject) {
+        utils.validateParameter('state', 'The state is required', params, reject);
+    }
+
 
     var locate = {
         /**
@@ -8231,6 +8235,50 @@ function DeviceService(v, utils) {
                         'alerts/instances/' + encodeURIComponent(params.id), token, params.ssl);
 
                     v.$.doDelete(url).then(function () {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve();
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Change the state of an alert.
+         *
+         * @memberOf voyent.locate
+         * @alias updateAlertState
+         * @param {Object} params params
+         * @param {String} params.id The alert id, the alert whose state will be changed.
+         * @param {Object} params.state The new alert state. One of draft, preview, active, deprecated, ended.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
+         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
+         */
+        updateAlertState: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    v.checkHost(params);
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    validateRequiredId(params, reject);
+                    validateRequiredState(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.locateURL, account, realm,
+                        'alerts/'+ encodeURIComponent(params.id)+'/state', token, params.ssl);
+
+                    v.$.put(url, {"state":params.state}).then(function () {
                         v.auth.updateLastActiveTimestamp();
                         resolve();
                     })['catch'](function (error) {
