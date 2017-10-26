@@ -8272,7 +8272,7 @@ function DeviceService(v, utils) {
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-                    validateRequiredId(params, reject);
+                    utils.validateRequiredId(params, reject);
                     validateRequiredState(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
