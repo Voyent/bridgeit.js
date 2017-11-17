@@ -10092,7 +10092,7 @@ function EventService(v, utils) {
                             }
                         });
                     });
-                    console.log('voyent.push.addPushListener() added listener ' + params.callback + ' to group ' + params.group);
+                    console.log('voyent.push.addPushListener() added listener to group ' + params.group);
                 } else {
                     reject('Push service is not active');
                 }
