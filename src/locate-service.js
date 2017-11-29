@@ -54,7 +54,7 @@ function LocateService(v, utils) {
 
     var locate = {
         /**
-         * Create a new region
+         * Create a new region.
          *
          * @memberOf voyent.locate
          * @alias createRegion
@@ -98,7 +98,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Update a region
+         * Update a region.
          *
          * @memberOf voyent.locate
          * @alias updateRegion
@@ -142,7 +142,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Delete a new region
+         * Delete a new region.
          *
          * @memberOf voyent.locate
          * @alias deleteRegion
@@ -184,7 +184,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Fetches all saved regions for the realm
+         * Fetches all saved regions for the realm.
          *
          * @memberOf voyent.locate
          * @alias getAllRegions
@@ -226,7 +226,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Searches for regions in a realm based on a query
+         * Searches for regions in a realm based on a query.
          *
          * @memberOf voyent.locate
          * @alias findRegions
@@ -279,7 +279,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Searches for monitors in a realm based on a query
+         * Searches for monitors in a realm based on a query.
          *
          * @memberOf voyent.locate
          * @alias findMonitors
@@ -332,7 +332,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Create a new location monitor
+         * Create a new location monitor.
          *
          * @memberOf voyent.locate
          * @alias createMonitor
@@ -376,7 +376,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Delete a new monitor
+         * Delete a new monitor.
          *
          * @memberOf voyent.locate
          * @alias deleteMonitor
@@ -418,7 +418,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Fetches all saved monitors for the realm
+         * Fetches all saved monitors for the realm.
          *
          * @memberOf voyent.locate
          * @alias getAllMonitors
@@ -459,7 +459,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Create a new location point of interest
+         * Create a new location point of interest.
          *
          * @memberOf voyent.locate
          * @alias createPOI
@@ -503,7 +503,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Update a poi
+         * Update a poi.
          *
          * @memberOf voyent.locate
          * @alias updatePOI
@@ -547,7 +547,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Searches for POIs in a realm based on a query
+         * Searches for POIs in a realm based on a query.
          *
          * @memberOf voyent.locate
          * @alias findPOIs
@@ -600,7 +600,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Delete a new POI
+         * Delete a new POI.
          *
          * @memberOf voyent.locate
          * @alias deletePOI
@@ -642,7 +642,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Fetches all saved POIs for the realm
+         * Fetches all saved POIs for the realm.
          *
          * @memberOf voyent.locate
          * @alias getAllPOIs
@@ -683,7 +683,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Searches for locations in a realm based on a query
+         * Searches for locations in a realm based on a query.
          *
          * @memberOf voyent.locate
          * @alias findLocations
@@ -778,7 +778,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Set the current users location with a latitude and longitude
+         * Set the current users location with a latitude and longitude.
          *
          * @memberOf voyent.locate
          * @alias updateLocationCoordinates
@@ -990,7 +990,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Create a new tracker
+         * Create a new tracker.
          *
          * @memberOf voyent.location
          * @alias createTracker
@@ -1034,7 +1034,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Update a tracker
+         * Update a tracker.
          *
          * @memberOf voyent.location
          * @alias updateTracker
@@ -1078,7 +1078,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Delete a tracker
+         * Delete a tracker.
          *
          * @memberOf voyent.location
          * @alias deleteTracker
@@ -1120,7 +1120,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Delete a tracker instance
+         * Delete a tracker instance.
          *
          * @memberOf voyent.location
          * @alias deleteTrackerInstance
@@ -1165,7 +1165,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Searches for Tracker in a realm based on a query
+         * Searches for Tracker in a realm based on a query.
          *
          * @memberOf voyent.location
          * @alias findTrackers
@@ -1218,7 +1218,7 @@ function LocateService(v, utils) {
         },
 
         /**
-         * Fetches all saved Trackers for the realm
+         * Fetches all saved Trackers for the realm.
          *
          * @memberOf voyent.location
          * @alias getAllTrackers
