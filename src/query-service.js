@@ -9,7 +9,7 @@ function QueryService(v, utils) {
 
     var query = {
         /**
-         * Create a new query
+         * Create a new query.
          *
          * @memberOf voyent.query
          * @alias createQuery
@@ -54,7 +54,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Update a query
+         * Update a query.
          *
          * @memberOf voyent.query
          * @alias updateQuery
@@ -99,7 +99,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Fetch a query
+         * Fetch a query.
          *
          * @memberOf voyent.query
          * @alias getQuery
@@ -142,7 +142,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Searches for queries in a realm based on a query
+         * Searches for queries in a realm based on a query.
          *
          * @memberOf voyent.query
          * @alias findQueries
@@ -192,7 +192,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Delete a query
+         * Delete a query.
          *
          * @memberOf voyent.query
          * @alias deleteQuery
@@ -234,7 +234,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Create a new transformer
+         * Create a new transformer.
          *
          * @memberOf voyent.query
          * @alias createTransformer
@@ -279,7 +279,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Update a transformer
+         * Update a transformer.
          *
          * @memberOf voyent.query
          * @alias updateTransformer
@@ -324,7 +324,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Fetch a transformer
+         * Fetch a transformer.
          *
          * @memberOf voyent.query
          * @alias getTransformer
@@ -367,7 +367,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Searches for transformers in a realm based on a transformer
+         * Searches for transformers in a realm based on a transformer.
          *
          * @memberOf voyent.query
          * @alias findTransformers
@@ -417,7 +417,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Delete a transformer
+         * Delete a transformer.
          *
          * @memberOf voyent.query
          * @alias deleteTransformer
@@ -459,7 +459,7 @@ function QueryService(v, utils) {
         },
 
         /**
-         * Execute a query or query chain
+         * Execute a query or query chain.
          *
          * @memberOf voyent.query
          * @alias executeQuery
