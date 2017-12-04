@@ -427,6 +427,7 @@ function AuthService(v, keys, utils) {
                     if (settings.usePushService) {
                         // v.push.startPushService(settings);
                     }
+                    v.auth.connected = true;
                 }
 
                 /* initialize basic settings */
@@ -577,7 +578,8 @@ function AuthService(v, keys, utils) {
                 clearTimeout(cbId);
             }
             utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-            console.log(new Date().toISOString() + ' voyent has disconnected')
+            console.log(new Date().toISOString() + ' voyent has disconnected');
+            v.auth.connected = false;
         },
 
         getLastAccessToken: function () {
