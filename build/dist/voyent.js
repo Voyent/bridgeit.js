@@ -2939,8 +2939,8 @@ if (!window.ice.icepush) {
                 namespace.access_token = accessToken;
             }
         };
-        window.addEventListener('voyent-access-token-refreshed',function() {
-            namespace.updateToken();
+        window.addEventListener('voyent-access-token-refreshed',function(e) {
+            namespace.updateToken(e.detail);
         });
         namespace.setupPush = function(configuration, onStartup, onShutdown) {
             namespace.updateToken(configuration.access_token);
