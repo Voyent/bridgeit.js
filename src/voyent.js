@@ -367,12 +367,4 @@ if (!window.voyent) {
     /* Initialization */
     v.configureHosts();
 
-    /* check connect settings */
-    if (v.auth.isLoggedIn()) {
-        var connectSettings = v.auth.getConnectSettings();
-        if (connectSettings) {
-            //user is logged in and has connect settings, so reconnect
-            v.auth.connect(connectSettings);
-        }
-    }
 })(voyent);
