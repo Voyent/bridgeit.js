@@ -602,7 +602,7 @@ function AuthService(v, keys, utils) {
 
         getTimeRemainingBeforeExpiry: function () {
             var expiresIn = v.auth.getExpiresIn();
-            var token = v.auth.getExpiresIn();
+            var token = v.auth.getLastAccessToken();
             if (expiresIn && token) {
                 var now = new Date().getTime();
                 return (v.auth.getTokenSetAtTime() + expiresIn) - now;
