@@ -250,6 +250,9 @@ function LocateService(v, utils) {
                 function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
+                    
+                    // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                    params.nostore = true;
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -1458,6 +1461,9 @@ function LocateService(v, utils) {
                 function (resolve, reject) {
                     params = params ? params : {};
                     v.checkHost(params);
+                    
+                    // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                    params.nostore = true;
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
