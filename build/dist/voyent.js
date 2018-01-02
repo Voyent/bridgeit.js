@@ -3752,7 +3752,7 @@ function AuthService(v, keys, utils) {
             });
         },
 
-        refreshAccessToken: function () {
+        refreshAccessToken: function (isRetryAttempt) {
             return new Promise(function (resolve, reject) {
                 if (!v.auth.isLoggedIn()) {
                     reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
@@ -3777,18 +3777,21 @@ function AuthService(v, keys, utils) {
                                 // v.push.startPushService(loginParams);
                             }
                             resolve(authResponse);
-                        }).catch(function () {
+                        }).catch(function (errorResponse) {
                             // Try and refresh the token once more after a small timeout
-                            console.log('Failed to refresh token, trying again');
-                            setTimeout(function() {
-                                v.auth.refreshAccessToken().then(function (response) {
-                                    resolve(response);
-                                }).catch(function (errorResponse) {
-                                    console.log('Failed to refresh token on retry:',errorResponse);
-                                    fireEvent(window, 'voyent-access-token-refresh-failed', {});
-                                    reject(errorResponse);
-                                });
-                            },2000);
+                            if (!isRetryAttempt) {
+                                console.log('Failed to refresh token, trying again');
+                                setTimeout(function() {
+                                    v.auth.refreshAccessToken(true).then(function (response) {
+                                        resolve(response);
+                                    });
+                                },2000);
+                            }
+                            else {
+                                console.log('Failed to refresh token on retry:',errorResponse);
+                                fireEvent(window, 'voyent-access-token-refresh-failed', {});
+                                reject(errorResponse);
+                            }
                         });
                     }
                 }
