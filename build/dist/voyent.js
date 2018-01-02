@@ -3777,8 +3777,18 @@ function AuthService(v, keys, utils) {
                                 // v.push.startPushService(loginParams);
                             }
                             resolve(authResponse);
-                        })['catch'](function (response) {
-                            reject(response);
+                        }).catch(function () {
+                            // Try and refresh the token once more after a small timeout
+                            console.log('Failed to refresh token, trying again');
+                            setTimeout(function() {
+                                v.auth.refreshAccessToken().then(function (response) {
+                                    resolve(response);
+                                }).catch(function (errorResponse) {
+                                    console.log('Failed to refresh token on retry:',errorResponse);
+                                    fireEvent(window, 'voyent-access-token-refresh-failed', {});
+                                    reject(errorResponse);
+                                });
+                            },2000);
                         });
                     }
                 }
