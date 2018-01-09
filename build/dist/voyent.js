@@ -3255,7 +3255,8 @@ function AuthService(v, keys, utils) {
         SCOPE_TO_PATH_KEY: "voyentScopeToPath",
         CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
         RELOGIN_CB_KEY: 'voyentReloginCallback',
-        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp'
+        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp',
+        COMPUTER_SLEEP_CB_KEY: 'voyentComputerSleepCallback',
     };
 
     function validateAndReturnRequiredRole(params, reject){
@@ -3563,6 +3564,49 @@ function AuthService(v, keys, utils) {
         connect: function (params) {
             return new Promise(function (resolve, reject) {
 
+                function startTokenExpiryTimer(timeout) {
+                    var tokenSetAt = new Date();
+                    tokenSetAt.setTime(v.auth.getTokenSetAtTime());
+
+                    var cbId = setTimeout(connectCallback, timeout);
+                    utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
+
+                    console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + timeout / 1000 / 60 + ' mins, expiresIn: ' +
+                        (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
+                        (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins, token set at ' + tokenSetAt);
+
+                    // When the computer is put to sleep our timer for the access_token refresh is no longer valid
+                    // since it will pause during sleep and then continue execution from where it left off once awake.
+                    // We will try and detect if the computer has been sleeping by using a continuously running
+                    // setInterval. If it takes longer than expected for the setInterval to execute then we will assume
+                    // that the computer has been sleeping and try and refresh the token.
+
+                    // First check if we already have a sleep timer running and if so clear it
+                    var compSleepCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+                    if (compSleepCb) {
+                        clearTimeout(compSleepCb);
+                    }
+                    var sleepTimeout = 10000; // Run the sleep timer every 10 seconds so it will detect sleep shortly after awakening
+                    var lastCheckedTime = (new Date()).getTime();
+                    var computerSleepTimer = setInterval(function() {
+                        var currentTime = (new Date()).getTime();
+                        var timerPadding = 2500; // Set a 2.5 second buffer for the timeout as setInterval does not guarantee exact timing
+                        var nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
+                        if (currentTime > (nextExpectedTime)) {
+                            // Clear the old token timer since it is not valid after computer sleep
+                            var oldCbId = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
+                            if (oldCbId) {
+                                clearTimeout(oldCbId);
+                                utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
+                            }
+                            // Try and refresh the token
+                            v.auth.refreshAccessToken().catch(function(e) {});
+                        }
+                        lastCheckedTime = currentTime;
+                    }, sleepTimeout);
+                    utils.setSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY), computerSleepTimer);
+                }
+
                 /* The function callback set to run before the next timeout,
                  will automatically reset the next setTimeout call if necessary */
                 function connectCallback() {
@@ -3595,13 +3639,8 @@ function AuthService(v, keys, utils) {
                         //refresh the access token and set the timeout
                         if (timeoutMillis > millisUntilTimeoutExpires) {
                             v.auth.refreshAccessToken().then(function () {
-                                var cbId = setTimeout(connectCallback, v.auth.getExpiresIn() - timeoutPadding);
-                                utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
-                                console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + v.auth.getExpiresIn() / 1000 / 60 + ' mins, expiresIn: ' +
-                                    (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
-                                    (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins');
-
-                            });
+                                startTokenExpiryTimer(v.auth.getExpiresIn() - timeoutPadding);
+                            }).catch(function(e) {});
                         }
                     } else {
                         console.log(new Date().toISOString() + ' voyent.auth.connect: timeout has expired, disconnecting..');
@@ -3666,13 +3705,7 @@ function AuthService(v, keys, utils) {
                         callbackTimeout = connectionTimeoutMillis;
                     }
 
-                    var tokenSetAt = new Date();
-                    tokenSetAt.setTime(v.auth.getTokenSetAtTime());
-                    console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + callbackTimeout / 1000 / 60 + ' mins, expiresIn: ' +
-                        (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
-                        (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins, token set at ' + tokenSetAt);
-                    var cbId = setTimeout(connectCallback, callbackTimeout);
-                    utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
+                    startTokenExpiryTimer(callbackTimeout);
 
                     if (settings.usePushService) {
                         // v.push.startPushService(settings);
@@ -3755,11 +3788,13 @@ function AuthService(v, keys, utils) {
         refreshAccessToken: function (isRetryAttempt) {
             return new Promise(function (resolve, reject) {
                 if (!v.auth.isLoggedIn()) {
+                    fireEvent(window, 'voyent-access-token-refresh-failed', {});
                     reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
                 }
                 else {
                     var loginParams = v.auth.getConnectSettings();
                     if (!loginParams) {
+                        fireEvent(window, 'voyent-access-token-refresh-failed', {});
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
@@ -3784,7 +3819,7 @@ function AuthService(v, keys, utils) {
                                 setTimeout(function() {
                                     v.auth.refreshAccessToken(true).then(function (response) {
                                         resolve(response);
-                                    });
+                                    }).catch(function(e) {});
                                 },2000);
                             }
                             else {
@@ -3841,6 +3876,11 @@ function AuthService(v, keys, utils) {
                 clearTimeout(cbId);
             }
             utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
+            var compSleepCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+            if (compSleepCb) {
+                clearTimeout(compSleepCb);
+            }
+            utils.removeSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
             console.log(new Date().toISOString() + ' voyent has disconnected');
             v.auth.connected = false;
         },
