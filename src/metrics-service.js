@@ -19,7 +19,6 @@ function MetricsService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the events
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -29,7 +28,6 @@ function MetricsService(v, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -37,7 +35,7 @@ function MetricsService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.metricsURL, account, realm,
-                        'events', token, params.ssl, {
+                        'events', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -67,7 +65,6 @@ function MetricsService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.event The custom event that you would like to store, in JSON format.
          * @returns {String} The resource URI
          */
@@ -75,7 +72,6 @@ function MetricsService(v, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -84,7 +80,7 @@ function MetricsService(v, utils) {
                     validateRequiredEvent(params, reject);
 
                     var url = utils.getRealmResourceURL(v.metricsURL, account, realm,
-                        'events', token, params.ssl);
+                        'events', token);
 
                     v.$.post(url, params.event).then(function(response){
                         v.auth.updateLastActiveTimestamp();
@@ -113,14 +109,12 @@ function MetricsService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Number} The time difference in milliseconds
          */
         getClientServerTimeGap: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -128,7 +122,7 @@ function MetricsService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.metricsURL, account, realm,
-                        'time', token, params.ssl, {
+                        'time', token, {
                             clientTime: encodeURIComponent(new Date().toISOString())
                         });
 

@@ -9503,11 +9503,11 @@ function EventService(v, utils) {
         /**
          * Convenience method to reduce code-reuse.
          */
-        _eventRecursion: function (resolve, reject, url, ssl, index) {
+        _eventRecursion: function (resolve, reject, url, index) {
             //if no url is provided then generate the URL using the latest account/realm/token
             if (!url) {
                 url = utils.getRealmResourceURL(v.eventURL, v.auth.getLastKnownAccount(), v.auth.getLastKnownRealm(),
-                    'events', v.auth.getLastAccessToken(), !!ssl);
+                    'events', v.auth.getLastAccessToken());
             }
             if (index === runningIndex) {
                 setTimeout(function () {
@@ -9520,7 +9520,7 @@ function EventService(v, utils) {
                             }
                             else {
                                 eventIndex += 1;
-                                v.event._eventRecursion(resolve, reject, null, ssl, index);
+                                v.event._eventRecursion(resolve, reject, null, index);
                             }
                         })['catch'](function (error) {
                             reject(error);
@@ -9571,7 +9571,7 @@ function EventService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
                         'events', token, params.ssl);
-                    v.event._eventRecursion(resolve, reject, url, params.ssl, runningIndex);
+                    v.event._eventRecursion(resolve, reject, url, runningIndex);
                 }
             );
         },

@@ -42,7 +42,6 @@ function CloudService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -50,7 +49,7 @@ function CloudService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.cloudURL, account, realm,
-                        'notify-back-uris/' + notifyBackURI, token, params.ssl);
+                        'notify-back-uris/' + notifyBackURI, token);
 
                     v.$.post(url, params.message).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -109,7 +108,6 @@ function CloudService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -117,7 +115,7 @@ function CloudService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.cloudURL, account, realm,
-                        'notify-back-uris/', token, params.ssl);
+                        'notify-back-uris/', token);
 
                     v.$.post(url, params.message).then(function (response) {
                         v.auth.updateLastActiveTimestamp();

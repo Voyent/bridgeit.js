@@ -19,7 +19,6 @@ function DeviceService(v, utils) {
         startDevice: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -27,7 +26,7 @@ function DeviceService(v, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.deviceURL, account, realm,
-                    params.macAddress + '/start', token, params.ssl);
+                    params.macAddress + '/start', token);
 
                 v.$.put(url, {}).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -57,7 +56,6 @@ function DeviceService(v, utils) {
         stopDevice: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -65,7 +63,7 @@ function DeviceService(v, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.deviceURL, account, realm,
-                    params.macAddress + '/stop', token, params.ssl);
+                    params.macAddress + '/stop', token);
 
                 v.$.put(url, {}).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -94,7 +92,6 @@ function DeviceService(v, utils) {
         stopDevices: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -102,7 +99,7 @@ function DeviceService(v, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 utils.validateRequiredId(params, reject);
 
-                var url = utils.getRealmResourceURL(v.deviceURL, account, realm, '/stop', token, params.ssl);
+                var url = utils.getRealmResourceURL(v.deviceURL, account, realm, '/stop', token);
 
                 v.$.put(url, {}).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -131,14 +128,13 @@ function DeviceService(v, utils) {
         getRunningDevices: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                var url = utils.getRealmResourceURL(v.deviceURL, account, realm, '/running', token, params.ssl);
+                var url = utils.getRealmResourceURL(v.deviceURL, account, realm, '/running', token);
 
                 v.$.getJSON(url).then(function (devices) {
                     v.auth.updateLastActiveTimestamp();

@@ -224,10 +224,9 @@ function PrivateUtils(services, keys) {
         return txId ? 'tx=' + txId : '';
     }
 
-    function getRealmResourceURL(servicePath, account, realm, resourcePath, token, ssl, params) {
-        var protocol = ssl ? 'https://' : 'http://';
+    function getRealmResourceURL(servicePath, account, realm, resourcePath, token, params) {
         var txParam = getTransactionURLParam();
-        var url = protocol + servicePath +
+        var url = servicePath +
             '/' + account + '/realms/' + realm + '/' + resourcePath + '?' +
             (token ? 'access_token=' + token : '') +
             (txParam ? '&' + txParam : '');
@@ -291,13 +290,6 @@ function PrivateUtils(services, keys) {
         }
     }
 
-    function determineProtocol(ssl) {
-        if (typeof ssl !== 'undefined' && ssl !== null) {
-            return ssl ? 'https://' : 'http://';
-        }
-        return 'https:' == document.location.protocol ? 'https://' : 'http://';
-    }
-
     return {
         'isNode': isNode,
         'getLocalStorageItem': getLocalStorageItem,
@@ -320,7 +312,6 @@ function PrivateUtils(services, keys) {
         'validateAndReturnRequiredRealmName': validateAndReturnRequiredRealmName,
         'validateAndReturnRequiredAccount': validateAndReturnRequiredAccount,
         'validateAndReturnRequiredAccessToken': validateAndReturnRequiredAccessToken,
-        'validateRequiredId': validateRequiredId,
-        'determineProtocol': determineProtocol
+        'validateRequiredId': validateRequiredId
     }
 }

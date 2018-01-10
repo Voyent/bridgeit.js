@@ -23,7 +23,6 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the events
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -33,7 +32,6 @@ function EventService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -41,7 +39,7 @@ function EventService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'events', token, params.ssl, {
+                        'events', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -71,7 +69,6 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.event The custom event that you would like to store, in JSON format.
          * @returns {String} The resource URI
          */
@@ -79,7 +76,6 @@ function EventService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -88,7 +84,7 @@ function EventService(v, utils) {
                     validateRequiredEvent(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'events', token, params.ssl);
+                        'events', token);
 
                     v.$.post(url, params.event).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -114,7 +110,6 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.eventArray An array of events that you want to fire. Events should include a 'delay'
          *     property, with the number of milliseconds to wait since the last event before firing.
          */
@@ -123,31 +118,30 @@ function EventService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'events', token, params.ssl);
+                        'events', token);
 
                     eventArray = params.eventArray;
                     eventsRunning = true;
                     runningIndex += 1;
                     eventIndex = 0;
-                    v.event._eventRecursion(resolve, reject, url, params.ssl, runningIndex);
+                    v.event._eventRecursion(resolve, reject, url, runningIndex);
                 }
             );
         },
         /**
          * Convenience method to reduce code-reuse.
          */
-        _eventRecursion: function (resolve, reject, url, ssl, index) {
+        _eventRecursion: function (resolve, reject, url, index) {
             //if no url is provided then generate the URL using the latest account/realm/token
             if (!url) {
                 url = utils.getRealmResourceURL(v.eventURL, v.auth.getLastKnownAccount(), v.auth.getLastKnownRealm(),
-                    'events', v.auth.getLastAccessToken(), !!ssl);
+                    'events', v.auth.getLastAccessToken());
             }
             if (index === runningIndex) {
                 setTimeout(function () {
@@ -160,7 +154,7 @@ function EventService(v, utils) {
                             }
                             else {
                                 eventIndex += 1;
-                                v.event._eventRecursion(resolve, reject, null, ssl, index);
+                                v.event._eventRecursion(resolve, reject, null, index);
                             }
                         })['catch'](function (error) {
                             reject(error);
@@ -196,22 +190,20 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         restartEvents: function (params) {
             eventsRunning = true;
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'events', token, params.ssl);
-                    v.event._eventRecursion(resolve, reject, url, params.ssl, runningIndex);
+                        'events', token);
+                    v.event._eventRecursion(resolve, reject, url, runningIndex);
                 }
             );
         },
@@ -252,14 +244,12 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Number} The time difference in milliseconds
          */
         getClientServerTimeGap: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -267,7 +257,7 @@ function EventService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'time', token, params.ssl, {
+                        'time', token, {
                             clientTime: encodeURIComponent(new Date().toISOString())
                         });
 

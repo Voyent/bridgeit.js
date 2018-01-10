@@ -79,7 +79,6 @@ function AuthService(v, keys, utils) {
          * @param {String} params.password User password (required)
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Promise} with the following argument:
          *      {
 		 *          access_token: 'xxx',
@@ -91,7 +90,6 @@ function AuthService(v, keys, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     if (!params.realm) {
                         params.realm = 'admin';
@@ -110,7 +108,7 @@ function AuthService(v, keys, utils) {
                         reject(Error('username required for new access token'));
                         return;
                     }
-                    var url = utils.determineProtocol(params.ssl) + v.authURL + '/' + encodeURI(params.account) +
+                    var url = v.authURL + '/' + encodeURI(params.account) +
                         '/realms/' + encodeURI(params.realm) + '/token/?' + utils.getTransactionURLParam();
 
                     v.$.post(url, {
@@ -151,7 +149,6 @@ function AuthService(v, keys, utils) {
          * @param {String} params.password User password (required)
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.scopeToPath (default '/') If set, the authentication token will be restricted to the
          *     given path, unless on localhost.
          * @returns {Promise} with the following argument:
@@ -164,7 +161,6 @@ function AuthService(v, keys, utils) {
         login: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 if (!params.realm) {
                     params.realm = 'admin';
@@ -184,7 +180,7 @@ function AuthService(v, keys, utils) {
                     return;
                 }
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authURL + '/' + encodeURI(params.account) +
+                var url = v.authURL + '/' + encodeURI(params.account) +
                     '/realms/' + (params.admin === 'true' ? 'admin' : encodeURI(params.realm)) + '/token/' + ( txParam ? ('?' + txParam) : '');
 
                 var loggedInAt = new Date().getTime();
@@ -300,7 +296,6 @@ function AuthService(v, keys, utils) {
          * @param {Boolean} params.usePushService Open and connect to the Voyent push service, default true
          * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the Voyent login will last
          *     during inactivity. Default 20 minutes.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session
          *     storage. If set to false, voyent will not attempt to relogin before the session expires.
          * @param {Function} params.onSessionExpiry Function callback to be called on session expiry. If you wish to
@@ -467,7 +462,6 @@ function AuthService(v, keys, utils) {
                 function initSettings() {
 
                     params = params ? params : {};
-                    v.checkHost(params);
                     if (!params.storeCredentials) {
                         params.storeCredentials = true;
                     }
@@ -602,7 +596,6 @@ function AuthService(v, keys, utils) {
          * @param {String} params.password User password (required)
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Promise} with the following argument:
          *      {
 		 *          access_token: 'xxx',
@@ -729,7 +722,6 @@ function AuthService(v, keys, utils) {
          * @param {String} params.password User password (required)
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.firstname The user's first name (optional)
          * @param {String} params.lastname The user's last name (optional)
          * @param {String} params.email The user's email (optional)
@@ -740,7 +732,6 @@ function AuthService(v, keys, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
@@ -768,7 +759,7 @@ function AuthService(v, keys, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                        'quickuser', token, params.ssl);
+                        'quickuser', token);
 
                     v.$.post(url, {user: user}).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -792,14 +783,12 @@ function AuthService(v, keys, utils) {
          *     will be used.
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.role The single role to check for
          * @returns Promise
          */
         checkUserRole: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
@@ -807,7 +796,7 @@ function AuthService(v, keys, utils) {
                 var role = validateAndReturnRequiredRole(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'rolecheck/', token, params.ssl, {roleName: role});
+                    'rolecheck/', token, {roleName: role});
 
                 v.$.getJSON(url).then(function (response) {
                     if (response.results) {
@@ -841,7 +830,6 @@ function AuthService(v, keys, utils) {
          *     will be used.
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Array} params.roles The array of roles to check for
          * @param {Array} params.roles The array of roles to check for
          * @param {String} params.op The operator 'and' or 'or' ??? TODO
@@ -852,7 +840,6 @@ function AuthService(v, keys, utils) {
         checkUserRoles: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
@@ -869,7 +856,7 @@ function AuthService(v, keys, utils) {
                 };
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/' + username + '/rolecheck', token, params.ssl);
+                    'users/' + username + '/rolecheck', token);
 
                 v.$.post(url, payload).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -910,13 +897,12 @@ function AuthService(v, keys, utils) {
         forgotPassword: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var username = utils.validateAndReturnRequiredUsername(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/';
+                var url = v.authAdminURL + '/' + account + '/';
 
                 if (params.realm) {
                     url += 'realms/' + params.realm + '/users/' + username + '/emailpassword';

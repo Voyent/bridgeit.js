@@ -23,7 +23,6 @@ function StorageService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.scope (default 'self') 'all' or 'self', return meta information for blobs belonging
          *     to all users, or only those belonging to the current user
          * @returns {Object} The results
@@ -31,7 +30,6 @@ function StorageService(v, utils) {
         getMetaInfo: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -39,7 +37,7 @@ function StorageService(v, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'meta', token, params.ssl, params.scope ? {scope: params.scope} : null);
+                    'meta', token, params.scope ? {scope: params.scope} : null);
 
 
                 v.$.getJSON(url).then(function(response){
@@ -67,7 +65,6 @@ function StorageService(v, utils) {
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
          * @param {Object} params.blob The Blob to store
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Function} params.progressCallback The callback function to call on progress events. eg. function
          *     progressCallback(percentComplete, xhr){..}
          * @returns {Object} The results
@@ -75,7 +72,6 @@ function StorageService(v, utils) {
         uploadBlob: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -87,7 +83,7 @@ function StorageService(v, utils) {
                 formData.append('file', params.blob);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'blobs' + (params.id ? '/' + params.id : ''), token, params.ssl);
+                    'blobs' + (params.id ? '/' + params.id : ''), token);
 
                 v.$.post(url, formData, null, true, null, params.progressCallback).then(function(response){
                     v.auth.updateLastActiveTimestamp();
@@ -114,7 +110,6 @@ function StorageService(v, utils) {
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
          * @param {Object} params.file The Blob to store
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Function} params.progressCallback The callback function to call on progress events. eg. function
          *     progressCallback(percentComplete, xhr){..}
          * @param {Function} params.onabort The callback for the XMLHttpRequest onabort event
@@ -124,7 +119,6 @@ function StorageService(v, utils) {
         uploadFile: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -133,7 +127,7 @@ function StorageService(v, utils) {
                 validateRequiredFile(params, reject);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'blobs' + (params.id ? '/' + params.id : ''), token, params.ssl);
+                    'blobs' + (params.id ? '/' + params.id : ''), token);
                 var formData = new FormData();
                 formData.append('file', params.file);
 
@@ -161,13 +155,11 @@ function StorageService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The blob arraybuffer
          */
         getBlob: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -176,7 +168,7 @@ function StorageService(v, utils) {
                 utils.validateRequiredId(params, reject);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'blobs/' + params.id, token, params.ssl);
+                    'blobs/' + params.id, token);
 
                 v.$.getBlob(url).then(function(response){
                     v.auth.updateLastActiveTimestamp();
@@ -202,12 +194,10 @@ function StorageService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteBlob: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -216,7 +206,7 @@ function StorageService(v, utils) {
                 utils.validateRequiredId(params, reject);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'blobs/' + params.id, token, params.ssl);
+                    'blobs/' + params.id, token);
 
                 v.$.doDelete(url).then(function(response){
                     v.auth.updateLastActiveTimestamp();

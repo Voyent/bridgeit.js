@@ -96,7 +96,6 @@ function AdminService(v, keys, utils) {
          * @param {Object} params params
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns Promise with a json object of the service definitions
          *
          */
@@ -105,12 +104,10 @@ function AdminService(v, keys, utils) {
                 function (resolve, reject) {
                     params = params ? params : {};
 
-                    v.checkHost(params);
-
                     //validate
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var txParam = utils.getTransactionURLParam();
-                    var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/system/services/?access_token=' + token +
+                    var url = v.authAdminURL + '/system/services/?access_token=' + token +
                         (txParam ? '&' + txParam : '');
 
                     v.$.getJSON(url).then(function (json) {
@@ -127,14 +124,13 @@ function AdminService(v, keys, utils) {
         getAccount: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '?access_token=' + token +
+                var url = v.authAdminURL + '/' + account + '?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
                 v.$.getJSON(url).then(function (json) {
@@ -156,7 +152,6 @@ function AdminService(v, keys, utils) {
          * @param {Object} params params
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.account The name of the new account (required)
          * @param {String} params.username The username for the new administrator (required)
          * @param {String} params.email The email of the new administrator (required)
@@ -169,7 +164,6 @@ function AdminService(v, keys, utils) {
         createAccount: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = {admins: []};
                 var accountname = utils.validateAndReturnRequiredAccount(params, reject);
@@ -204,7 +198,7 @@ function AdminService(v, keys, utils) {
                 }
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + (txParam ? '&' + txParam : '');
+                var url = v.authAdminURL + '/' + (txParam ? '&' + txParam : '');
                 var loggedInAt = new Date().getTime();
                 v.$.post(url, {account: account}).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -251,7 +245,6 @@ function AdminService(v, keys, utils) {
         updateAccount: function(params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Ensure we have an admin username
                 if (!params.username || typeof params.username === 'undefined') {
@@ -262,7 +255,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/'
+                var url = v.authAdminURL + '/'
                            + account + '/admins/' + params.username + '?access_token=' + token + (txParam ? '&' + txParam : '');
                 
                 v.$.put(url, {'admin': params}).then(function (response) {
@@ -286,14 +279,13 @@ function AdminService(v, keys, utils) {
         confirmAccount: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Check confirmationId and account
                 validateRequiredConfirmationId(params, reject);
                 validateRequiredAccount(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + params.account + '/confirm' + (txParam ? '&' + txParam : '');
+                var url = v.authAdminURL + '/' + params.account + '/confirm' + (txParam ? '&' + txParam : '');
                 v.$.post(url, {confirmationId: params.confirmationId}).then(function (json) {
                     // Store the returned username, and also the param account and realm if available
                     if (json.username) {
@@ -326,7 +318,6 @@ function AdminService(v, keys, utils) {
         resendConfirmAccountEmail: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Check metadata, account, and username
                 validateRequiredMetadata(params, reject);
@@ -334,7 +325,7 @@ function AdminService(v, keys, utils) {
                 utils.validateRequiredUsername(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/'
+                var url = v.authAdminURL + '/'
                     + params.account + '/admins/'
                     + params.username + '/resendLink'
                     + (txParam ? '&' + txParam : '');
@@ -351,12 +342,11 @@ function AdminService(v, keys, utils) {
         getRealms: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/realms/'
+                var url = v.authAdminURL + '/' + account + '/realms/'
                     + '?access_token=' + token + '&' + utils.getTransactionURLParam();
 
                 v.$.getJSON(url).then(function (json) {
@@ -372,8 +362,7 @@ function AdminService(v, keys, utils) {
         getRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -382,7 +371,7 @@ function AdminService(v, keys, utils) {
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    '', token, params.ssl);
+                    '', token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -397,14 +386,13 @@ function AdminService(v, keys, utils) {
         updateRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 utils.validateRequiredRealm(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, params.realm.name,
-                    '', token, params.ssl);
+                    '', token);
 
                 v.$.put(url, {realm: params.realm}).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -419,7 +407,6 @@ function AdminService(v, keys, utils) {
         createRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -427,7 +414,7 @@ function AdminService(v, keys, utils) {
                 utils.validateRequiredRealm(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/realms?access_token=' + token +
+                var url = v.authAdminURL + '/' + account + '/realms?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
                 v.$.post(url, {realm: params.realm}).then(function (json) {
@@ -443,7 +430,6 @@ function AdminService(v, keys, utils) {
         cloneRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -451,7 +437,7 @@ function AdminService(v, keys, utils) {
                 var destRealmName = validateAndReturnRequiredDestRealmName(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/realms/' + originRealmName + '/clone/' +
+                var url = v.authAdminURL + '/' + account + '/realms/' + originRealmName + '/clone/' +
                     destRealmName + '?access_token=' + token + (txParam ? '&' + txParam : '');
 
                 v.$.post(url, {realm: params.realm}).then(function (json) {
@@ -467,8 +453,7 @@ function AdminService(v, keys, utils) {
         deleteRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -477,7 +462,7 @@ function AdminService(v, keys, utils) {
                 var realmName = utils.validateAndReturnRequiredRealmName(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realmName,
-                    '', token, params.ssl);
+                    '', token);
 
                 console.log('voyent.admin.deleteRealm() ' + url);
 
@@ -496,8 +481,7 @@ function AdminService(v, keys, utils) {
         getRealmUsers: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -507,7 +491,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/', token, params.ssl, {
+                    'users/', token, {
                         'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                         'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                         'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -526,7 +510,6 @@ function AdminService(v, keys, utils) {
         createRealmUser: function (params, fromUser) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
@@ -544,7 +527,7 @@ function AdminService(v, keys, utils) {
                     endpoint = 'realmUser';
                 }
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    endpoint, token, params.ssl);
+                    endpoint, token);
 
                 var toPost = {user: params.user};
 
@@ -572,13 +555,12 @@ function AdminService(v, keys, utils) {
         createAnonUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'register', false, params.ssl);
+                    'register', false);
 
                 var password = v.auth.generatePassword();
                 var toPost = {user: {password: password}};
@@ -615,8 +597,7 @@ function AdminService(v, keys, utils) {
         createUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
                 
@@ -654,7 +635,6 @@ function AdminService(v, keys, utils) {
         confirmRealmUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Check confirmationId, account, and realm
                 validateRequiredConfirmationId(params, reject);
@@ -662,7 +642,7 @@ function AdminService(v, keys, utils) {
                 utils.validateRequiredRealm(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL
+                var url = v.authAdminURL
                     + '/' + params.account
                     + '/realms/' + params.realm
                     + '/confirm' + (txParam ? '&' + txParam : '');
@@ -698,7 +678,6 @@ function AdminService(v, keys, utils) {
         resendConfirmRealmUserEmail: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Check metadata, account, and username
                 validateRequiredMetadata(params, reject);
@@ -708,7 +687,7 @@ function AdminService(v, keys, utils) {
 
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + params.account
+                var url = v.authAdminURL + '/' + params.account
                     + '/realms/' + params.realm
                     + '/users/' + params.username + '/invalidate?access_token=' + token
                     + (txParam ? '&' + txParam : '');
@@ -723,8 +702,7 @@ function AdminService(v, keys, utils) {
         getRealmUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -735,7 +713,7 @@ function AdminService(v, keys, utils) {
                 var username = utils.validateAndReturnRequiredUsername(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/' + username, token, params.ssl);
+                    'users/' + username, token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -750,8 +728,7 @@ function AdminService(v, keys, utils) {
         updateRealmUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -759,7 +736,7 @@ function AdminService(v, keys, utils) {
                 validateRequiredUser(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/' + params.user.username, token, params.ssl);
+                    'users/' + params.user.username, token);
 
                 v.$.put(url, {user: params.user}).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -773,8 +750,7 @@ function AdminService(v, keys, utils) {
         deleteRealmUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -784,7 +760,7 @@ function AdminService(v, keys, utils) {
                 utils.validateAndReturnRequiredUsername(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/' + params.username, token, params.ssl);
+                    'users/' + params.username, token);
 
                 v.$.doDelete(url).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -800,7 +776,6 @@ function AdminService(v, keys, utils) {
         getRealmRoles: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -808,7 +783,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'roles', token, params.ssl);
+                    'roles', token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -822,7 +797,6 @@ function AdminService(v, keys, utils) {
         createRealmRole: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredRole(params, reject);
 
@@ -832,7 +806,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'roles', token, params.ssl);
+                    'roles', token);
 
                 v.$.post(url, {role: params.role}).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -846,7 +820,6 @@ function AdminService(v, keys, utils) {
         updateRealmRole: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredRole(params, reject);
 
@@ -856,7 +829,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'roles/' + params.role.name, token, params.ssl);
+                    'roles/' + params.role.name, token);
 
                 v.$.put(url, {role: params.role}).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -870,7 +843,6 @@ function AdminService(v, keys, utils) {
         deleteRealmRole: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredId(params, reject);
 
@@ -879,7 +851,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'roles/' + params.id, token, params.ssl);
+                    'roles/' + params.id, token);
 
                 v.$.doDelete(url).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -895,7 +867,6 @@ function AdminService(v, keys, utils) {
         getAllRealmContexts: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -903,7 +874,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'contexts', token, params.ssl);
+                    'contexts', token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -917,7 +888,6 @@ function AdminService(v, keys, utils) {
         getRealmContext: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -925,7 +895,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'contexts/' + params.username, token, params.ssl);
+                    'contexts/' + params.username, token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -939,7 +909,6 @@ function AdminService(v, keys, utils) {
         updateRealmContext: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredRole(params, reject);
 
@@ -949,7 +918,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'contexts/' + params.context.username, token, params.ssl);
+                    'contexts/' + params.context.username, token);
 
                 v.$.put(url, {context: params.context}).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -963,7 +932,6 @@ function AdminService(v, keys, utils) {
         getLogs: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -972,7 +940,7 @@ function AdminService(v, keys, utils) {
                 var fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';
                 var options = params.options ? encodeURIComponent(JSON.stringify(params.options)) : '{}';
 
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/logging/?access_token=' +
+                var url = v.authAdminURL + '/' + account + '/logging/?access_token=' +
                     token + '&query=' + query + '&fields=' + fields + '&options=' + options;
 
                 v.$.getJSON(url).then(function (logs) {
@@ -988,7 +956,6 @@ function AdminService(v, keys, utils) {
         getDebugLogs: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
@@ -998,7 +965,7 @@ function AdminService(v, keys, utils) {
                 var fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';
                 var options = params.options ? encodeURIComponent(JSON.stringify(params.options)) : '{}';
 
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/realms/' + realm +
+                var url = v.authAdminURL + '/' + account + '/realms/' + realm +
                     '/debugLogging/?access_token=' + token + '&query=' + query + '&fields=' + fields + '&options=' + options;
 
                 v.$.getJSON(url).then(function (logs) {
@@ -1014,14 +981,13 @@ function AdminService(v, keys, utils) {
         createAdministrator: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 var admin = utils.validateAndReturnRequiredAdmin(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/admins/?access_token=' + token +
+                var url = v.authAdminURL + '/' + account + '/admins/?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
                 v.$.post(url, {admin: admin}).then(function (response) {
@@ -1036,14 +1002,13 @@ function AdminService(v, keys, utils) {
         updateAdministrator: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 var admin = utils.validateAndReturnRequiredAdmin(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/admins/' + admin.username +
+                var url = v.authAdminURL + '/' + account + '/admins/' + admin.username +
                     '/?access_token=' + token + (txParam ? '&' + txParam : '');
 
                 v.$.put(url, {admin: admin}).then(function (response) {
@@ -1058,7 +1023,6 @@ function AdminService(v, keys, utils) {
         deleteAdministrator: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 utils.validateRequiredUsername(params, reject);
 
@@ -1067,7 +1031,7 @@ function AdminService(v, keys, utils) {
                 var username = utils.validateAndReturnRequiredUsername(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/admins/' + username + '/?access_token=' + token +
+                var url = v.authAdminURL + '/' + account + '/admins/' + username + '/?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
                 v.$.doDelete(url).then(function (response) {

@@ -43,14 +43,13 @@ function PushService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var pushURL = (params.ssl ? 'https://' : 'http://') + v.pushURL + '/';
+                    var pushURL = v.pushURL + '/';
 
                     function notifyBack() {
                         if (params.cloudPushURI) {
@@ -87,7 +86,6 @@ function PushService(v, utils) {
         addPushListener: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredGroup(params, reject);
                 validateRequiredCallback(params, reject);
@@ -128,7 +126,6 @@ function PushService(v, utils) {
             return new Promise(function (resolve, reject) {
                 console.log('voyent.push.removePushListener() group: ' + params.group);
                 params = params ? params : {};
-                v.checkHost(params);
                 validateRequiredGroup(params, reject);
                 var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
                 if (!pushListenersStr) {
@@ -235,7 +232,6 @@ function PushService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     validateRequiredGroup(params, reject);
 

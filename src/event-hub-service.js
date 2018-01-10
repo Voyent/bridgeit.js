@@ -24,14 +24,12 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createHandler: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -40,7 +38,7 @@ function EventHubService(v, utils) {
                     validateRequiredHandler(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/' + (params.id ? params.id : ''), token, params.ssl);
+                        'handlers/' + (params.id ? params.id : ''), token);
 
                     v.$.post(url, params.handler).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -69,13 +67,11 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateHandler: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -85,7 +81,7 @@ function EventHubService(v, utils) {
                     validateRequiredHandler(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/' + params.id, token, params.ssl);
+                        'handlers/' + params.id, token);
 
                     v.$.put(url, params.handler).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -112,14 +108,12 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The event handler
          */
         getHandler: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -128,7 +122,7 @@ function EventHubService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/' + params.id, token, params.ssl);
+                        'handlers/' + params.id, token);
 
                     v.$.getJSON(url).then(function (handler) {
                         v.auth.updateLastActiveTimestamp();
@@ -154,7 +148,6 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event handlers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -165,7 +158,6 @@ function EventHubService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -173,7 +165,7 @@ function EventHubService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/', token, params.ssl, {
+                        'handlers/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -205,13 +197,11 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteHandler: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -220,7 +210,7 @@ function EventHubService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/' + params.id, token, params.ssl);
+                        'handlers/' + params.id, token);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -246,7 +236,6 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event handlers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -255,7 +244,6 @@ function EventHubService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -263,7 +251,7 @@ function EventHubService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/', token, params.ssl, {
+                        'handlers/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -295,14 +283,12 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createRecognizer: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -311,7 +297,7 @@ function EventHubService(v, utils) {
                     validateRequiredRecognizer(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/' + (params.id ? params.id : ''), token, params.ssl);
+                        'recognizers/' + (params.id ? params.id : ''), token);
 
                     v.$.post(url, params.recognizer).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -340,13 +326,11 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateRecognizer: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -356,7 +340,7 @@ function EventHubService(v, utils) {
                     validateRequiredRecognizer(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/' + params.id, token, params.ssl);
+                        'recognizers/' + params.id, token);
 
                     v.$.put(url, params.recognizer).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -383,14 +367,12 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The event recognizer
          */
         getRecognizer: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -399,7 +381,7 @@ function EventHubService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/' + params.id, token, params.ssl);
+                        'recognizers/' + params.id, token);
 
                     v.$.getJSON(url).then(function (recognizer) {
                         v.auth.updateLastActiveTimestamp();
@@ -425,7 +407,6 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event recognizers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -436,7 +417,6 @@ function EventHubService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -444,7 +424,7 @@ function EventHubService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/', token, params.ssl, {
+                        'recognizers/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -476,13 +456,11 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteRecognizer: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -491,7 +469,7 @@ function EventHubService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/' + params.id, token, params.ssl);
+                        'recognizers/' + params.id, token);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -517,7 +495,6 @@ function EventHubService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event recognizers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -526,7 +503,6 @@ function EventHubService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -534,7 +510,7 @@ function EventHubService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/', token, params.ssl, {
+                        'recognizers/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}

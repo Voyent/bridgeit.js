@@ -29,7 +29,11 @@ if (!window.voyent) {
 
     v.configureHosts = function (url) {
         if (!url) {
-            v.baseURL = privateUtils.isNode ? 'dev.voyent.cloud' : window.location.hostname;
+            if (privateUtils.isNode) {
+                v.baseURL = 'http://dev.voyent.cloud';
+            } else {
+                v.baseURL = window.location.protocol + '//' + window.location.hostname;
+            }
         } else {
             v.baseURL = url;
         }
@@ -52,18 +56,6 @@ if (!window.voyent) {
         v.scopeURL = baseURL + '/scope';
         v.pushURL = baseURL + '/notify';
         v.cloudURL = baseURL + '/cloud';
-    };
-
-    v.checkHost = function (params) {
-        if (params.host) {
-            v.configureHosts(params.host);
-        }
-        else {
-            var lastHost = v.auth.getLastKnownHost();
-            if (lastHost) {
-                v.configureHosts(lastHost);
-            }
-        }
     };
 
     /**
@@ -225,7 +217,6 @@ if (!window.voyent) {
         return new Promise(
             function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = privateUtils.validateAndReturnRequiredAccount(params, reject);
@@ -246,7 +237,7 @@ if (!window.voyent) {
                     case 'locate': serviceURL = v.locateURL; break;
                 }
 
-                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token, params.ssl);
+                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);
 
                 v.$.getJSON(url).then(function(json){
                     v.auth.updateLastActiveTimestamp();
@@ -315,7 +306,6 @@ if (!window.voyent) {
         return new Promise(
             function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = privateUtils.validateAndReturnRequiredAccount(params, reject);
@@ -332,7 +322,7 @@ if (!window.voyent) {
                     case 'action': serviceURL = v.io.actionURL; break;
                 }
 
-                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token, params.ssl);
+                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);
 
                 v.$.put(url, params.permissions).then(function(json){
                     v.auth.updateLastActiveTimestamp();

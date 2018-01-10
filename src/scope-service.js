@@ -24,14 +24,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI.
          */
         createRealmData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -40,7 +38,7 @@ function ScopeService(v, utils) {
                     validateRequiredData(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/realm', token, params.ssl);
+                        'scopes/realm', token);
 
                     v.$.post(url, params.data).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -68,14 +66,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The scoped data.
          */
         getRealmData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                     params.nostore = true;
@@ -90,7 +86,7 @@ function ScopeService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/realm', token, params.ssl, queryParams);
+                        'scopes/realm', token, queryParams);
 
                     v.$.getJSON(url).then(function (data) {
                         v.auth.updateLastActiveTimestamp();
@@ -117,13 +113,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteRealmData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -135,7 +129,7 @@ function ScopeService(v, utils) {
                     queryParams[params.property] = '';
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/realm', token, params.ssl, queryParams);
+                        'scopes/realm', token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -161,13 +155,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteRealmScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -177,7 +169,7 @@ function ScopeService(v, utils) {
                     var queryParams = {"_invalidate":''};
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/realm', token, params.ssl, queryParams);
+                        'scopes/realm', token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -205,14 +197,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI.
          */
         createUserData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -222,7 +212,7 @@ function ScopeService(v, utils) {
                     validateRequiredData(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/user/' + params.id, token, params.ssl);
+                        'scopes/user/' + params.id, token);
 
                     v.$.post(url, params.data).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -251,14 +241,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The scoped data.
          */
         getUserData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -272,7 +260,7 @@ function ScopeService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/user/' + params.id, token, params.ssl, queryParams);
+                        'scopes/user/' + params.id, token, queryParams);
 
                     v.$.getJSON(url).then(function (data) {
                         v.auth.updateLastActiveTimestamp();
@@ -300,13 +288,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteUserData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -319,7 +305,7 @@ function ScopeService(v, utils) {
                     queryParams[params.property] = '';
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/user/' + params.id, token, params.ssl, queryParams);
+                        'scopes/user/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -346,13 +332,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteUserScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -363,7 +347,7 @@ function ScopeService(v, utils) {
                     var queryParams = {"_invalidate":''};
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/user/' + params.id, token, params.ssl, queryParams);
+                        'scopes/user/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -392,14 +376,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI.
          */
         createProcessData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -409,7 +391,7 @@ function ScopeService(v, utils) {
                     validateRequiredData(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/process/' + params.id, token, params.ssl);
+                        'scopes/process/' + params.id, token);
 
                     v.$.post(url, params.data).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -438,14 +420,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The scoped data.
          */
         getProcessData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -459,7 +439,7 @@ function ScopeService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/process/' + params.id, token, params.ssl, queryParams);
+                        'scopes/process/' + params.id, token, queryParams);
 
                     v.$.getJSON(url).then(function (data) {
                         v.auth.updateLastActiveTimestamp();
@@ -487,13 +467,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteProcessData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -506,7 +484,7 @@ function ScopeService(v, utils) {
                     queryParams[params.property] = '';
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/process/' + params.id, token, params.ssl, queryParams);
+                        'scopes/process/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -533,13 +511,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteProcessScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -550,7 +526,7 @@ function ScopeService(v, utils) {
                     var queryParams = {"_invalidate":''};
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/process/' + params.id, token, params.ssl, queryParams);
+                        'scopes/process/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -579,14 +555,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI.
          */
         createTransactionData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -596,7 +570,7 @@ function ScopeService(v, utils) {
                     validateRequiredData(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl);
+                        'scopes/transaction/' + params.id, token);
 
                     v.$.post(url, params.data).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -626,14 +600,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The scoped data.
          */
         getTransactionData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -647,7 +619,7 @@ function ScopeService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl, queryParams);
+                        'scopes/transaction/' + params.id, token, queryParams);
 
                     v.$.getJSON(url).then(function (data) {
                         v.auth.updateLastActiveTimestamp();
@@ -675,13 +647,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteTransactionData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -694,7 +664,7 @@ function ScopeService(v, utils) {
                     queryParams[params.property] = '';
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl, queryParams);
+                        'scopes/transaction/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -721,13 +691,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteTransactionScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -738,7 +706,7 @@ function ScopeService(v, utils) {
                     var queryParams = {"_invalidate":''};
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl, queryParams);
+                        'scopes/transaction/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -765,13 +733,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         touchTransactionScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -780,7 +746,7 @@ function ScopeService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl);
+                        'scopes/transaction/' + params.id, token);
 
                     v.$.put(url).then(function(){
                         v.auth.updateLastActiveTimestamp();

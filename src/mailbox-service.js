@@ -23,14 +23,12 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI(s).
          */
         createMultiUserMessages: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -39,7 +37,7 @@ function MailboxService(v, utils) {
                     validateRequiredMessages(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes', token, params.ssl);
+                        'mailboxes', token);
 
                     v.$.post(url, params.messages).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -68,14 +66,12 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI(s).
          */
         createMessages: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -85,7 +81,7 @@ function MailboxService(v, utils) {
                     utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + params.username + '/messages', token, params.ssl);
+                        'mailboxes/' + params.username + '/messages', token);
 
                     v.$.post(url, params.messages).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -114,14 +110,12 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The message.
          */
         getMessage: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -131,7 +125,7 @@ function MailboxService(v, utils) {
                     utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + params.username + '/messages/' + params.id, token, params.ssl);
+                        'mailboxes/' + params.username + '/messages/' + params.id, token);
 
                     v.$.getJSON(url).then(function (message) {
                         v.auth.updateLastActiveTimestamp();
@@ -163,7 +157,6 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The results.
          */
         findMessages: function (params) {
@@ -171,7 +164,6 @@ function MailboxService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -181,7 +173,7 @@ function MailboxService(v, utils) {
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/' + params.username + '/messages' + (params.type ? ('/type/' + params.type) : ''),
-                        token, params.ssl, {
+                        token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -214,13 +206,11 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteMessage: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -230,7 +220,7 @@ function MailboxService(v, utils) {
                     utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + params.username + '/messages/' + params.id, token, params.ssl);
+                        'mailboxes/' + params.username + '/messages/' + params.id, token);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -262,7 +252,6 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The results
          */
         deleteMessages: function (params) {
@@ -270,7 +259,6 @@ function MailboxService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -280,7 +268,7 @@ function MailboxService(v, utils) {
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/' + params.username + '/messages' + (params.type ? ('/type/' + params.type) : ''),
-                        token, params.ssl, {
+                        token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -310,14 +298,12 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The config
          */
         getConfig: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -325,7 +311,7 @@ function MailboxService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'config', token, params.ssl);
+                        'config', token);
 
                     v.$.getJSON(url).then(function (config) {
                         v.auth.updateLastActiveTimestamp();
@@ -352,13 +338,11 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateConfig: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -367,7 +351,7 @@ function MailboxService(v, utils) {
                     validateRequiredConfig(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'config', token, params.ssl);
+                        'config', token);
 
                     v.$.put(url, params.config).then(function () {
                         v.auth.updateLastActiveTimestamp();
