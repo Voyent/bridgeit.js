@@ -32,7 +32,7 @@ if (!window.voyent) {
             if (privateUtils.isNode) {
                 v.baseURL = 'http://dev.voyent.cloud';
             } else {
-                v.baseURL = window.location.protocol + '//' + window.location.hostname;
+                v.baseURL = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
             }
         } else {
             v.baseURL = url;
