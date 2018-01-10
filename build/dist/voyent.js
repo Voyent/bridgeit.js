@@ -11191,7 +11191,10 @@ function PrivateUtils(services, keys) {
             if (privateUtils.isNode) {
                 v.baseURL = 'http://dev.voyent.cloud';
             } else {
-                v.baseURL = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
+                v.baseURL = window.location.protocol + '//' + window.location.hostname;
+                if (window.location.port) {
+                    v.baseURL += ':' + window.location.port
+                }
             }
         } else {
             v.baseURL = url;
