@@ -3329,7 +3329,6 @@ function AuthService(v, keys, utils) {
          * @param {String} params.password User password (required)
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Promise} with the following argument:
          *      {
 		 *          access_token: 'xxx',
@@ -3341,7 +3340,6 @@ function AuthService(v, keys, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     if (!params.realm) {
                         params.realm = 'admin';
@@ -3360,7 +3358,7 @@ function AuthService(v, keys, utils) {
                         reject(Error('username required for new access token'));
                         return;
                     }
-                    var url = utils.determineProtocol(params.ssl) + v.authURL + '/' + encodeURI(params.account) +
+                    var url = v.authURL + '/' + encodeURI(params.account) +
                         '/realms/' + encodeURI(params.realm) + '/token/?' + utils.getTransactionURLParam();
 
                     v.$.post(url, {
@@ -3401,7 +3399,6 @@ function AuthService(v, keys, utils) {
          * @param {String} params.password User password (required)
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.scopeToPath (default '/') If set, the authentication token will be restricted to the
          *     given path, unless on localhost.
          * @returns {Promise} with the following argument:
@@ -3414,7 +3411,6 @@ function AuthService(v, keys, utils) {
         login: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 if (!params.realm) {
                     params.realm = 'admin';
@@ -3434,7 +3430,7 @@ function AuthService(v, keys, utils) {
                     return;
                 }
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authURL + '/' + encodeURI(params.account) +
+                var url = v.authURL + '/' + encodeURI(params.account) +
                     '/realms/' + (params.admin === 'true' ? 'admin' : encodeURI(params.realm)) + '/token/' + ( txParam ? ('?' + txParam) : '');
 
                 var loggedInAt = new Date().getTime();
@@ -3550,7 +3546,6 @@ function AuthService(v, keys, utils) {
          * @param {Boolean} params.usePushService Open and connect to the Voyent push service, default true
          * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the Voyent login will last
          *     during inactivity. Default 20 minutes.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session
          *     storage. If set to false, voyent will not attempt to relogin before the session expires.
          * @param {Function} params.onSessionExpiry Function callback to be called on session expiry. If you wish to
@@ -3717,7 +3712,6 @@ function AuthService(v, keys, utils) {
                 function initSettings() {
 
                     params = params ? params : {};
-                    v.checkHost(params);
                     if (!params.storeCredentials) {
                         params.storeCredentials = true;
                     }
@@ -3852,7 +3846,6 @@ function AuthService(v, keys, utils) {
          * @param {String} params.password User password (required)
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Promise} with the following argument:
          *      {
 		 *          access_token: 'xxx',
@@ -3979,7 +3972,6 @@ function AuthService(v, keys, utils) {
          * @param {String} params.password User password (required)
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.firstname The user's first name (optional)
          * @param {String} params.lastname The user's last name (optional)
          * @param {String} params.email The user's email (optional)
@@ -3990,7 +3982,6 @@ function AuthService(v, keys, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
@@ -4018,7 +4009,7 @@ function AuthService(v, keys, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                        'quickuser', token, params.ssl);
+                        'quickuser', token);
 
                     v.$.post(url, {user: user}).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -4042,14 +4033,12 @@ function AuthService(v, keys, utils) {
          *     will be used.
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.role The single role to check for
          * @returns Promise
          */
         checkUserRole: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
@@ -4057,7 +4046,7 @@ function AuthService(v, keys, utils) {
                 var role = validateAndReturnRequiredRole(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'rolecheck/', token, params.ssl, {roleName: role});
+                    'rolecheck/', token, {roleName: role});
 
                 v.$.getJSON(url).then(function (response) {
                     if (response.results) {
@@ -4091,7 +4080,6 @@ function AuthService(v, keys, utils) {
          *     will be used.
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Array} params.roles The array of roles to check for
          * @param {Array} params.roles The array of roles to check for
          * @param {String} params.op The operator 'and' or 'or' ??? TODO
@@ -4102,7 +4090,6 @@ function AuthService(v, keys, utils) {
         checkUserRoles: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
@@ -4119,7 +4106,7 @@ function AuthService(v, keys, utils) {
                 };
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/' + username + '/rolecheck', token, params.ssl);
+                    'users/' + username + '/rolecheck', token);
 
                 v.$.post(url, payload).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -4160,13 +4147,12 @@ function AuthService(v, keys, utils) {
         forgotPassword: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var username = utils.validateAndReturnRequiredUsername(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/';
+                var url = v.authAdminURL + '/' + account + '/';
 
                 if (params.realm) {
                     url += 'realms/' + params.realm + '/users/' + username + '/emailpassword';
@@ -4333,7 +4319,6 @@ function AdminService(v, keys, utils) {
          * @param {Object} params params
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns Promise with a json object of the service definitions
          *
          */
@@ -4342,12 +4327,10 @@ function AdminService(v, keys, utils) {
                 function (resolve, reject) {
                     params = params ? params : {};
 
-                    v.checkHost(params);
-
                     //validate
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var txParam = utils.getTransactionURLParam();
-                    var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/system/services/?access_token=' + token +
+                    var url = v.authAdminURL + '/system/services/?access_token=' + token +
                         (txParam ? '&' + txParam : '');
 
                     v.$.getJSON(url).then(function (json) {
@@ -4364,14 +4347,13 @@ function AdminService(v, keys, utils) {
         getAccount: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '?access_token=' + token +
+                var url = v.authAdminURL + '/' + account + '?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
                 v.$.getJSON(url).then(function (json) {
@@ -4393,7 +4375,6 @@ function AdminService(v, keys, utils) {
          * @param {Object} params params
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.account The name of the new account (required)
          * @param {String} params.username The username for the new administrator (required)
          * @param {String} params.email The email of the new administrator (required)
@@ -4406,7 +4387,6 @@ function AdminService(v, keys, utils) {
         createAccount: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = {admins: []};
                 var accountname = utils.validateAndReturnRequiredAccount(params, reject);
@@ -4441,7 +4421,7 @@ function AdminService(v, keys, utils) {
                 }
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + (txParam ? '&' + txParam : '');
+                var url = v.authAdminURL + '/' + (txParam ? '&' + txParam : '');
                 var loggedInAt = new Date().getTime();
                 v.$.post(url, {account: account}).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -4488,7 +4468,6 @@ function AdminService(v, keys, utils) {
         updateAccount: function(params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Ensure we have an admin username
                 if (!params.username || typeof params.username === 'undefined') {
@@ -4499,7 +4478,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/'
+                var url = v.authAdminURL + '/'
                            + account + '/admins/' + params.username + '?access_token=' + token + (txParam ? '&' + txParam : '');
                 
                 v.$.put(url, {'admin': params}).then(function (response) {
@@ -4523,14 +4502,13 @@ function AdminService(v, keys, utils) {
         confirmAccount: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Check confirmationId and account
                 validateRequiredConfirmationId(params, reject);
                 validateRequiredAccount(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + params.account + '/confirm' + (txParam ? '&' + txParam : '');
+                var url = v.authAdminURL + '/' + params.account + '/confirm' + (txParam ? '&' + txParam : '');
                 v.$.post(url, {confirmationId: params.confirmationId}).then(function (json) {
                     // Store the returned username, and also the param account and realm if available
                     if (json.username) {
@@ -4563,7 +4541,6 @@ function AdminService(v, keys, utils) {
         resendConfirmAccountEmail: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Check metadata, account, and username
                 validateRequiredMetadata(params, reject);
@@ -4571,7 +4548,7 @@ function AdminService(v, keys, utils) {
                 utils.validateRequiredUsername(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/'
+                var url = v.authAdminURL + '/'
                     + params.account + '/admins/'
                     + params.username + '/resendLink'
                     + (txParam ? '&' + txParam : '');
@@ -4588,12 +4565,11 @@ function AdminService(v, keys, utils) {
         getRealms: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/realms/'
+                var url = v.authAdminURL + '/' + account + '/realms/'
                     + '?access_token=' + token + '&' + utils.getTransactionURLParam();
 
                 v.$.getJSON(url).then(function (json) {
@@ -4609,8 +4585,7 @@ function AdminService(v, keys, utils) {
         getRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -4619,7 +4594,7 @@ function AdminService(v, keys, utils) {
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    '', token, params.ssl);
+                    '', token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -4634,14 +4609,13 @@ function AdminService(v, keys, utils) {
         updateRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 utils.validateRequiredRealm(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, params.realm.name,
-                    '', token, params.ssl);
+                    '', token);
 
                 v.$.put(url, {realm: params.realm}).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -4656,7 +4630,6 @@ function AdminService(v, keys, utils) {
         createRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -4664,7 +4637,7 @@ function AdminService(v, keys, utils) {
                 utils.validateRequiredRealm(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/realms?access_token=' + token +
+                var url = v.authAdminURL + '/' + account + '/realms?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
                 v.$.post(url, {realm: params.realm}).then(function (json) {
@@ -4680,7 +4653,6 @@ function AdminService(v, keys, utils) {
         cloneRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -4688,7 +4660,7 @@ function AdminService(v, keys, utils) {
                 var destRealmName = validateAndReturnRequiredDestRealmName(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/realms/' + originRealmName + '/clone/' +
+                var url = v.authAdminURL + '/' + account + '/realms/' + originRealmName + '/clone/' +
                     destRealmName + '?access_token=' + token + (txParam ? '&' + txParam : '');
 
                 v.$.post(url, {realm: params.realm}).then(function (json) {
@@ -4704,8 +4676,7 @@ function AdminService(v, keys, utils) {
         deleteRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -4714,7 +4685,7 @@ function AdminService(v, keys, utils) {
                 var realmName = utils.validateAndReturnRequiredRealmName(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realmName,
-                    '', token, params.ssl);
+                    '', token);
 
                 console.log('voyent.admin.deleteRealm() ' + url);
 
@@ -4733,8 +4704,7 @@ function AdminService(v, keys, utils) {
         getRealmUsers: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -4744,7 +4714,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/', token, params.ssl, {
+                    'users/', token, {
                         'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                         'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                         'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -4763,7 +4733,6 @@ function AdminService(v, keys, utils) {
         createRealmUser: function (params, fromUser) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
@@ -4781,7 +4750,7 @@ function AdminService(v, keys, utils) {
                     endpoint = 'realmUser';
                 }
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    endpoint, token, params.ssl);
+                    endpoint, token);
 
                 var toPost = {user: params.user};
 
@@ -4809,13 +4778,12 @@ function AdminService(v, keys, utils) {
         createAnonUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'register', false, params.ssl);
+                    'register', false);
 
                 var password = v.auth.generatePassword();
                 var toPost = {user: {password: password}};
@@ -4852,8 +4820,7 @@ function AdminService(v, keys, utils) {
         createUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
                 
@@ -4891,7 +4858,6 @@ function AdminService(v, keys, utils) {
         confirmRealmUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Check confirmationId, account, and realm
                 validateRequiredConfirmationId(params, reject);
@@ -4899,7 +4865,7 @@ function AdminService(v, keys, utils) {
                 utils.validateRequiredRealm(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL
+                var url = v.authAdminURL
                     + '/' + params.account
                     + '/realms/' + params.realm
                     + '/confirm' + (txParam ? '&' + txParam : '');
@@ -4935,7 +4901,6 @@ function AdminService(v, keys, utils) {
         resendConfirmRealmUserEmail: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 // Check metadata, account, and username
                 validateRequiredMetadata(params, reject);
@@ -4945,7 +4910,7 @@ function AdminService(v, keys, utils) {
 
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + params.account
+                var url = v.authAdminURL + '/' + params.account
                     + '/realms/' + params.realm
                     + '/users/' + params.username + '/invalidate?access_token=' + token
                     + (txParam ? '&' + txParam : '');
@@ -4960,8 +4925,7 @@ function AdminService(v, keys, utils) {
         getRealmUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -4972,7 +4936,7 @@ function AdminService(v, keys, utils) {
                 var username = utils.validateAndReturnRequiredUsername(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/' + username, token, params.ssl);
+                    'users/' + username, token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -4987,8 +4951,7 @@ function AdminService(v, keys, utils) {
         updateRealmUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -4996,7 +4959,7 @@ function AdminService(v, keys, utils) {
                 validateRequiredUser(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/' + params.user.username, token, params.ssl);
+                    'users/' + params.user.username, token);
 
                 v.$.put(url, {user: params.user}).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -5010,8 +4973,7 @@ function AdminService(v, keys, utils) {
         deleteRealmUser: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
-                
+
                 // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                 params.nostore = true;
 
@@ -5021,7 +4983,7 @@ function AdminService(v, keys, utils) {
                 utils.validateAndReturnRequiredUsername(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'users/' + params.username, token, params.ssl);
+                    'users/' + params.username, token);
 
                 v.$.doDelete(url).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -5037,7 +4999,6 @@ function AdminService(v, keys, utils) {
         getRealmRoles: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5045,7 +5006,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'roles', token, params.ssl);
+                    'roles', token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -5059,7 +5020,6 @@ function AdminService(v, keys, utils) {
         createRealmRole: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredRole(params, reject);
 
@@ -5069,7 +5029,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'roles', token, params.ssl);
+                    'roles', token);
 
                 v.$.post(url, {role: params.role}).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -5083,7 +5043,6 @@ function AdminService(v, keys, utils) {
         updateRealmRole: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredRole(params, reject);
 
@@ -5093,7 +5052,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'roles/' + params.role.name, token, params.ssl);
+                    'roles/' + params.role.name, token);
 
                 v.$.put(url, {role: params.role}).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -5107,7 +5066,6 @@ function AdminService(v, keys, utils) {
         deleteRealmRole: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredId(params, reject);
 
@@ -5116,7 +5074,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'roles/' + params.id, token, params.ssl);
+                    'roles/' + params.id, token);
 
                 v.$.doDelete(url).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -5132,7 +5090,6 @@ function AdminService(v, keys, utils) {
         getAllRealmContexts: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5140,7 +5097,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'contexts', token, params.ssl);
+                    'contexts', token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -5154,7 +5111,6 @@ function AdminService(v, keys, utils) {
         getRealmContext: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5162,7 +5118,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'contexts/' + params.username, token, params.ssl);
+                    'contexts/' + params.username, token);
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -5176,7 +5132,6 @@ function AdminService(v, keys, utils) {
         updateRealmContext: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredRole(params, reject);
 
@@ -5186,7 +5141,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'contexts/' + params.context.username, token, params.ssl);
+                    'contexts/' + params.context.username, token);
 
                 v.$.put(url, {context: params.context}).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
@@ -5200,7 +5155,6 @@ function AdminService(v, keys, utils) {
         getLogs: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -5209,7 +5163,7 @@ function AdminService(v, keys, utils) {
                 var fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';
                 var options = params.options ? encodeURIComponent(JSON.stringify(params.options)) : '{}';
 
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/logging/?access_token=' +
+                var url = v.authAdminURL + '/' + account + '/logging/?access_token=' +
                     token + '&query=' + query + '&fields=' + fields + '&options=' + options;
 
                 v.$.getJSON(url).then(function (logs) {
@@ -5225,7 +5179,6 @@ function AdminService(v, keys, utils) {
         getDebugLogs: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
@@ -5235,7 +5188,7 @@ function AdminService(v, keys, utils) {
                 var fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';
                 var options = params.options ? encodeURIComponent(JSON.stringify(params.options)) : '{}';
 
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/realms/' + realm +
+                var url = v.authAdminURL + '/' + account + '/realms/' + realm +
                     '/debugLogging/?access_token=' + token + '&query=' + query + '&fields=' + fields + '&options=' + options;
 
                 v.$.getJSON(url).then(function (logs) {
@@ -5251,14 +5204,13 @@ function AdminService(v, keys, utils) {
         createAdministrator: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 var admin = utils.validateAndReturnRequiredAdmin(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/admins/?access_token=' + token +
+                var url = v.authAdminURL + '/' + account + '/admins/?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
                 v.$.post(url, {admin: admin}).then(function (response) {
@@ -5273,14 +5225,13 @@ function AdminService(v, keys, utils) {
         updateAdministrator: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 var admin = utils.validateAndReturnRequiredAdmin(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/admins/' + admin.username +
+                var url = v.authAdminURL + '/' + account + '/admins/' + admin.username +
                     '/?access_token=' + token + (txParam ? '&' + txParam : '');
 
                 v.$.put(url, {admin: admin}).then(function (response) {
@@ -5295,7 +5246,6 @@ function AdminService(v, keys, utils) {
         deleteAdministrator: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 utils.validateRequiredUsername(params, reject);
 
@@ -5304,7 +5254,7 @@ function AdminService(v, keys, utils) {
                 var username = utils.validateAndReturnRequiredUsername(params, reject);
 
                 var txParam = utils.getTransactionURLParam();
-                var url = utils.determineProtocol(params.ssl) + v.authAdminURL + '/' + account + '/admins/' + username + '/?access_token=' + token +
+                var url = v.authAdminURL + '/' + account + '/admins/' + username + '/?access_token=' + token +
                     (txParam ? '&' + txParam : '');
 
                 v.$.doDelete(url).then(function (response) {
@@ -5338,14 +5288,12 @@ function ActionService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         executeAction: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5354,7 +5302,7 @@ function ActionService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.actionURL, account, realm,
-                        'actions/' + params.id, token, params.ssl, {'op': 'exec'});
+                        'actions/' + params.id, token, {'op': 'exec'});
 
                     v.$.post(url).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -5383,14 +5331,12 @@ function ActionService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createAction: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5400,7 +5346,7 @@ function ActionService(v, utils) {
                     validateRequiredAction(params, reject);
 
                     var url = utils.getRealmResourceURL(v.actionURL, account, realm,
-                        'actions/' + params.id, token, params.ssl);
+                        'actions/' + params.id, token);
 
                     v.$.post(url, params.action).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -5429,13 +5375,11 @@ function ActionService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateAction: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5445,7 +5389,7 @@ function ActionService(v, utils) {
                     validateRequiredAction(params, reject);
 
                     var url = utils.getRealmResourceURL(v.actionURL, account, realm,
-                        'actions/' + params.id, token, params.ssl);
+                        'actions/' + params.id, token);
 
                     v.$.put(url, params.action).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -5472,14 +5416,12 @@ function ActionService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The action
          */
         getAction: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5488,7 +5430,7 @@ function ActionService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.actionURL, account, realm,
-                        'actions/' + params.id, token, params.ssl);
+                        'actions/' + params.id, token);
 
                     v.$.getJSON(url).then(function (action) {
                         v.auth.updateLastActiveTimestamp();
@@ -5514,7 +5456,6 @@ function ActionService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the actions
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -5525,7 +5466,6 @@ function ActionService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5533,7 +5473,7 @@ function ActionService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.actionURL, account, realm,
-                        'actions/', token, params.ssl, {
+                        'actions/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -5565,13 +5505,11 @@ function ActionService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteAction: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5580,7 +5518,7 @@ function ActionService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.actionURL, account, realm,
-                        'actions/' + params.id, token, params.ssl);
+                        'actions/' + params.id, token);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -5606,14 +5544,12 @@ function ActionService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The task group schemas
          */
         getTaskGroups: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5621,7 +5557,7 @@ function ActionService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.actionURL, account, realm,
-                        'taskGroups/', token, params.ssl);
+                        'taskGroups/', token);
 
                     v.$.getJSON(url).then(function (tasksGroups) {
                         v.auth.updateLastActiveTimestamp();
@@ -5647,14 +5583,12 @@ function ActionService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The task schemas
          */
         getTasks: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5662,7 +5596,7 @@ function ActionService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.actionURL, account, realm,
-                        'tasks/', token, params.ssl);
+                        'tasks/', token);
 
                     v.$.getJSON(url).then(function (tasks) {
                         v.auth.updateLastActiveTimestamp();
@@ -5708,7 +5642,6 @@ function DeviceService(v, utils) {
         startDevice: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5716,7 +5649,7 @@ function DeviceService(v, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.deviceURL, account, realm,
-                    params.macAddress + '/start', token, params.ssl);
+                    params.macAddress + '/start', token);
 
                 v.$.put(url, {}).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -5746,7 +5679,6 @@ function DeviceService(v, utils) {
         stopDevice: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5754,7 +5686,7 @@ function DeviceService(v, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.deviceURL, account, realm,
-                    params.macAddress + '/stop', token, params.ssl);
+                    params.macAddress + '/stop', token);
 
                 v.$.put(url, {}).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -5783,7 +5715,6 @@ function DeviceService(v, utils) {
         stopDevices: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5791,7 +5722,7 @@ function DeviceService(v, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                 utils.validateRequiredId(params, reject);
 
-                var url = utils.getRealmResourceURL(v.deviceURL, account, realm, '/stop', token, params.ssl);
+                var url = utils.getRealmResourceURL(v.deviceURL, account, realm, '/stop', token);
 
                 v.$.put(url, {}).then(function () {
                     v.auth.updateLastActiveTimestamp();
@@ -5820,14 +5751,13 @@ function DeviceService(v, utils) {
         getRunningDevices: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealm(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                var url = utils.getRealmResourceURL(v.deviceURL, account, realm, '/running', token, params.ssl);
+                var url = utils.getRealmResourceURL(v.deviceURL, account, realm, '/running', token);
 
                 v.$.getJSON(url).then(function (devices) {
                     v.auth.updateLastActiveTimestamp();
@@ -5862,14 +5792,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createDocument: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5878,7 +5806,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.docsURL, account, realm,
-                        collection + '/' + (params.id ? params.id : ''), token, params.ssl);
+                        collection + '/' + (params.id ? params.id : ''), token);
 
                     v.$.post(url, params.document).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -5908,14 +5836,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         updateDocument: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5925,7 +5851,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.docsURL, account, realm,
-                        collection + '/' + params.id, token, params.ssl);
+                        collection + '/' + params.id, token);
 
                     v.$.put(url, params.document).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -5953,14 +5879,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The document
          */
         getDocument: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -5970,7 +5894,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.docsURL, account, realm,
-                        collection + '/' + params.id, token, params.ssl);
+                        collection + '/' + params.id, token);
 
                     v.$.getJSON(url).then(function (doc) {
                         v.auth.updateLastActiveTimestamp();
@@ -6004,7 +5928,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the documents
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -6015,7 +5938,6 @@ function DeviceService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6024,7 +5946,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.docsURL, account, realm,
-                        collection, token, params.ssl, {
+                        collection, token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -6061,14 +5983,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
 
         getCollections: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6076,7 +5996,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.docsURL, account, realm,
-                        "collections", token, params.ssl, {});
+                        "collections", token, {});
 
                     v.$.getJSON(url).then(function (collections) {
                         v.auth.updateLastActiveTimestamp();
@@ -6110,13 +6030,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteDocument: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6126,7 +6044,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.docsURL, account, realm,
-                        collection + '/' + params.id, token, params.ssl);
+                        collection + '/' + params.id, token);
 
                     v.$.doDelete(url).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -6176,14 +6094,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createHandler: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6192,7 +6108,7 @@ function DeviceService(v, utils) {
                     validateRequiredHandler(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/' + (params.id ? params.id : ''), token, params.ssl);
+                        'handlers/' + (params.id ? params.id : ''), token);
 
                     v.$.post(url, params.handler).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -6221,13 +6137,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateHandler: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6237,7 +6151,7 @@ function DeviceService(v, utils) {
                     validateRequiredHandler(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/' + params.id, token, params.ssl);
+                        'handlers/' + params.id, token);
 
                     v.$.put(url, params.handler).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -6264,14 +6178,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The event handler
          */
         getHandler: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6280,7 +6192,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/' + params.id, token, params.ssl);
+                        'handlers/' + params.id, token);
 
                     v.$.getJSON(url).then(function (handler) {
                         v.auth.updateLastActiveTimestamp();
@@ -6306,7 +6218,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event handlers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -6317,7 +6228,6 @@ function DeviceService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6325,7 +6235,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/', token, params.ssl, {
+                        'handlers/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -6357,13 +6267,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteHandler: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6372,7 +6280,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/' + params.id, token, params.ssl);
+                        'handlers/' + params.id, token);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -6398,7 +6306,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event handlers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -6407,7 +6314,6 @@ function DeviceService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6415,7 +6321,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'handlers/', token, params.ssl, {
+                        'handlers/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -6447,14 +6353,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createRecognizer: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6463,7 +6367,7 @@ function DeviceService(v, utils) {
                     validateRequiredRecognizer(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/' + (params.id ? params.id : ''), token, params.ssl);
+                        'recognizers/' + (params.id ? params.id : ''), token);
 
                     v.$.post(url, params.recognizer).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -6492,13 +6396,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateRecognizer: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6508,7 +6410,7 @@ function DeviceService(v, utils) {
                     validateRequiredRecognizer(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/' + params.id, token, params.ssl);
+                        'recognizers/' + params.id, token);
 
                     v.$.put(url, params.recognizer).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -6535,14 +6437,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The event recognizer
          */
         getRecognizer: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6551,7 +6451,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/' + params.id, token, params.ssl);
+                        'recognizers/' + params.id, token);
 
                     v.$.getJSON(url).then(function (recognizer) {
                         v.auth.updateLastActiveTimestamp();
@@ -6577,7 +6477,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event recognizers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -6588,7 +6487,6 @@ function DeviceService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6596,7 +6494,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/', token, params.ssl, {
+                        'recognizers/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -6628,13 +6526,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteRecognizer: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6643,7 +6539,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/' + params.id, token, params.ssl);
+                        'recognizers/' + params.id, token);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -6669,7 +6565,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the event recognizers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -6678,7 +6573,6 @@ function DeviceService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6686,7 +6580,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventhubURL, account, realm,
-                        'recognizers/', token, params.ssl, {
+                        'recognizers/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -6799,14 +6693,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createRegion: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6815,7 +6707,7 @@ function DeviceService(v, utils) {
                     validateRequiredRegion(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'regions/' + (params.id ? params.id : ''), token, params.ssl);
+                        'regions/' + (params.id ? params.id : ''), token);
 
                     v.$.post(url, params.region).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -6843,13 +6735,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateRegion: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6859,7 +6749,7 @@ function DeviceService(v, utils) {
                     validateRequiredRegion(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'regions/' + params.id, token, params.ssl);
+                        'regions/' + params.id, token);
 
                     v.$.put(url, params.region).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -6886,13 +6776,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteRegion: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6901,7 +6789,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'regions/' + params.id, token, params.ssl);
+                        'regions/' + params.id, token);
 
                     v.$.doDelete(url).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -6927,7 +6815,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The results
          */
         getAllRegions: function (params) {
@@ -6935,7 +6822,6 @@ function DeviceService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -6943,7 +6829,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'regions', token, params.ssl);
+                        'regions', token);
 
                     v.$.getJSON(url).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -6969,7 +6855,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the regions
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -6979,8 +6864,7 @@ function DeviceService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
-                    
+
                     // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                     params.nostore = true;
 
@@ -6990,7 +6874,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'regions', token, params.ssl, {
+                        'regions', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -7027,14 +6911,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createPOI: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7043,7 +6925,7 @@ function DeviceService(v, utils) {
                     validateRequiredPOI(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'poi' + (params.id ? '/' + params.id : ''), token, params.ssl);
+                        'poi' + (params.id ? '/' + params.id : ''), token);
 
                     v.$.post(url, params.poi).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -7071,13 +6953,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updatePOI: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7087,7 +6967,7 @@ function DeviceService(v, utils) {
                     validateRequiredPOI(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'poi/' + params.id, token, params.ssl);
+                        'poi/' + params.id, token);
 
                     v.$.put(url, params.poi).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -7113,7 +6993,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the points of interest
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -7123,7 +7002,6 @@ function DeviceService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7131,7 +7009,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'poi', token, params.ssl, {
+                        'poi', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -7167,13 +7045,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deletePOI: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7182,7 +7058,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'poi/' + params.id, token, params.ssl);
+                        'poi/' + params.id, token);
 
                     v.$.doDelete(url).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -7208,14 +7084,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The results
          */
         getAllPOIs: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7223,7 +7097,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'poi', token, params.ssl);
+                        'poi', token);
 
                     v.$.getJSON(url).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -7249,7 +7123,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the locations
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -7259,7 +7132,6 @@ function DeviceService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7267,7 +7139,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'locations', token, params.ssl, {
+                        'locations', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -7302,14 +7174,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.location The location
          */
         updateLocation: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7318,7 +7188,7 @@ function DeviceService(v, utils) {
                     validateRequiredLocation(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'locations', token, params.ssl);
+                        'locations', token);
 
                     v.$.post(url, params.location).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -7344,7 +7214,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Number} params.lat The location latitude
          * @param {Number} params.lon The location longitude
          * @param {String} params.label An optional label
@@ -7353,7 +7222,6 @@ function DeviceService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7379,7 +7247,7 @@ function DeviceService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'locations', token, params.ssl);
+                        'locations', token);
 
                     v.$.post(url, location).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -7405,7 +7273,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.username
          * @returns {Object} The single result, if any, of the user location.
          http://dev.voyent.cloud/locate/bsrtests/realms/test/locations
@@ -7424,7 +7291,6 @@ function DeviceService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7433,7 +7299,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'locations/', token, params.ssl, {
+                        'locations/', token, {
                             "query": {"username": params.username},
                             "options": {"sort": {"lastUpdated": -1}, "limit": 1}
                         });
@@ -7468,13 +7334,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteLocation: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7483,7 +7347,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'locations/' + params.id, token, params.ssl);
+                        'locations/' + params.id, token);
 
                     v.$.doDelete(url).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -7509,7 +7373,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the locations.
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set.
          * @param {Object} params.options Additional query options such as limit and sort.
@@ -7518,7 +7381,6 @@ function DeviceService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7526,7 +7388,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'locations/', token, params.ssl, {
+                        'locations/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -7558,14 +7420,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createAlertTemplate: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7574,7 +7434,7 @@ function DeviceService(v, utils) {
                     validateRequiredAlertTemplate(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                              'alerts/' + (params.id ? encodeURIComponent(params.id) : ''), token, params.ssl);
+                              'alerts/' + (params.id ? encodeURIComponent(params.id) : ''), token);
 
                     v.$.post(url, params.alertTemplate).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -7602,13 +7462,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateAlertTemplate: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7618,7 +7476,7 @@ function DeviceService(v, utils) {
                     validateRequiredAlertTemplate(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'alerts/' + encodeURIComponent(params.id), token, params.ssl);
+                        'alerts/' + encodeURIComponent(params.id), token);
 
                     v.$.put(url, params.alertTemplate).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -7645,13 +7503,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteAlertTemplate: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7660,7 +7516,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'alerts/' + encodeURIComponent(params.id), token, params.ssl);
+                        'alerts/' + encodeURIComponent(params.id), token);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -7686,7 +7542,6 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the alert templates.
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -7696,8 +7551,7 @@ function DeviceService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
-                    
+
                     // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                     params.nostore = true;
 
@@ -7707,7 +7561,7 @@ function DeviceService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'alerts', token, params.ssl, {
+                        'alerts', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -7745,14 +7599,12 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createAlert: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7762,7 +7614,7 @@ function DeviceService(v, utils) {
                     validateRequiredCoordinates(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'alerts/' + (params.id ? encodeURIComponent(params.id) : ''), token, params.ssl);
+                        'alerts/' + (params.id ? encodeURIComponent(params.id) : ''), token);
 
                     v.$.post(url,{"alert":params.alert,"coordinates":params.coordinates}).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -7791,13 +7643,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateAlert: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7808,7 +7658,7 @@ function DeviceService(v, utils) {
                     validateRequiredCoordinates(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'alerts/' + encodeURIComponent(params.id), token, params.ssl);
+                        'alerts/' + encodeURIComponent(params.id), token);
 
                     v.$.put(url,{"alert":params.alert,"coordinates":params.coordinates}).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -7835,13 +7685,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteAlert: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7850,7 +7698,7 @@ function DeviceService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'alerts/instances/' + encodeURIComponent(params.id), token, params.ssl);
+                        'alerts/instances/' + encodeURIComponent(params.id), token);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -7877,13 +7725,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateAlertLocation: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7894,7 +7740,7 @@ function DeviceService(v, utils) {
                     params.location.location.type = "Feature"; //Always set the GeoJSON type.
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'locations', token, params.ssl);
+                        'locations', token);
 
                     v.$.post(url, params.location).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -7922,13 +7768,11 @@ function DeviceService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateAlertState: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -7938,7 +7782,7 @@ function DeviceService(v, utils) {
                     validateRequiredState(params, reject);
 
                     var url = utils.getRealmResourceURL(v.locateURL, account, realm,
-                        'alerts/'+ encodeURIComponent(params.id)+'/state', token, params.ssl);
+                        'alerts/'+ encodeURIComponent(params.id)+'/state', token);
 
                     v.$.put(url, {"state":params.state}).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -8018,14 +7862,12 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI(s).
          */
         createMultiUserMessages: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8034,7 +7876,7 @@ function MailboxService(v, utils) {
                     validateRequiredMessages(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes', token, params.ssl);
+                        'mailboxes', token);
 
                     v.$.post(url, params.messages).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -8063,14 +7905,12 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI(s).
          */
         createMessages: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8080,7 +7920,7 @@ function MailboxService(v, utils) {
                     utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + params.username + '/messages', token, params.ssl);
+                        'mailboxes/' + params.username + '/messages', token);
 
                     v.$.post(url, params.messages).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -8109,14 +7949,12 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The message.
          */
         getMessage: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8126,7 +7964,7 @@ function MailboxService(v, utils) {
                     utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + params.username + '/messages/' + params.id, token, params.ssl);
+                        'mailboxes/' + params.username + '/messages/' + params.id, token);
 
                     v.$.getJSON(url).then(function (message) {
                         v.auth.updateLastActiveTimestamp();
@@ -8158,7 +7996,6 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The results.
          */
         findMessages: function (params) {
@@ -8166,7 +8003,6 @@ function MailboxService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8176,7 +8012,7 @@ function MailboxService(v, utils) {
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/' + params.username + '/messages' + (params.type ? ('/type/' + params.type) : ''),
-                        token, params.ssl, {
+                        token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -8209,13 +8045,11 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteMessage: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8225,7 +8059,7 @@ function MailboxService(v, utils) {
                     utils.validateRequiredUsername(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'mailboxes/' + params.username + '/messages/' + params.id, token, params.ssl);
+                        'mailboxes/' + params.username + '/messages/' + params.id, token);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -8257,7 +8091,6 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The results
          */
         deleteMessages: function (params) {
@@ -8265,7 +8098,6 @@ function MailboxService(v, utils) {
                 function (resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8275,7 +8107,7 @@ function MailboxService(v, utils) {
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
                         'mailboxes/' + params.username + '/messages' + (params.type ? ('/type/' + params.type) : ''),
-                        token, params.ssl, {
+                        token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -8305,14 +8137,12 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The config
          */
         getConfig: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8320,7 +8150,7 @@ function MailboxService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'config', token, params.ssl);
+                        'config', token);
 
                     v.$.getJSON(url).then(function (config) {
                         v.auth.updateLastActiveTimestamp();
@@ -8347,13 +8177,11 @@ function MailboxService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         updateConfig: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8362,7 +8190,7 @@ function MailboxService(v, utils) {
                     validateRequiredConfig(params, reject);
 
                     var url = utils.getRealmResourceURL(v.mailboxURL, account, realm,
-                        'config', token, params.ssl);
+                        'config', token);
 
                     v.$.put(url, params.config).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -8439,14 +8267,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI.
          */
         createRealmData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8455,7 +8281,7 @@ function ScopeService(v, utils) {
                     validateRequiredData(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/realm', token, params.ssl);
+                        'scopes/realm', token);
 
                     v.$.post(url, params.data).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -8483,14 +8309,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The scoped data.
          */
         getRealmData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     // Set 'nostore' to ensure the following checks don't update our lastKnown calls
                     params.nostore = true;
@@ -8505,7 +8329,7 @@ function ScopeService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/realm', token, params.ssl, queryParams);
+                        'scopes/realm', token, queryParams);
 
                     v.$.getJSON(url).then(function (data) {
                         v.auth.updateLastActiveTimestamp();
@@ -8532,13 +8356,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteRealmData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8550,7 +8372,7 @@ function ScopeService(v, utils) {
                     queryParams[params.property] = '';
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/realm', token, params.ssl, queryParams);
+                        'scopes/realm', token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -8576,13 +8398,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteRealmScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8592,7 +8412,7 @@ function ScopeService(v, utils) {
                     var queryParams = {"_invalidate":''};
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/realm', token, params.ssl, queryParams);
+                        'scopes/realm', token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -8620,14 +8440,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI.
          */
         createUserData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8637,7 +8455,7 @@ function ScopeService(v, utils) {
                     validateRequiredData(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/user/' + params.id, token, params.ssl);
+                        'scopes/user/' + params.id, token);
 
                     v.$.post(url, params.data).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -8666,14 +8484,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The scoped data.
          */
         getUserData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8687,7 +8503,7 @@ function ScopeService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/user/' + params.id, token, params.ssl, queryParams);
+                        'scopes/user/' + params.id, token, queryParams);
 
                     v.$.getJSON(url).then(function (data) {
                         v.auth.updateLastActiveTimestamp();
@@ -8715,13 +8531,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteUserData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8734,7 +8548,7 @@ function ScopeService(v, utils) {
                     queryParams[params.property] = '';
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/user/' + params.id, token, params.ssl, queryParams);
+                        'scopes/user/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -8761,13 +8575,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteUserScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8778,7 +8590,7 @@ function ScopeService(v, utils) {
                     var queryParams = {"_invalidate":''};
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/user/' + params.id, token, params.ssl, queryParams);
+                        'scopes/user/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -8807,14 +8619,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI.
          */
         createProcessData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8824,7 +8634,7 @@ function ScopeService(v, utils) {
                     validateRequiredData(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/process/' + params.id, token, params.ssl);
+                        'scopes/process/' + params.id, token);
 
                     v.$.post(url, params.data).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -8853,14 +8663,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The scoped data.
          */
         getProcessData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8874,7 +8682,7 @@ function ScopeService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/process/' + params.id, token, params.ssl, queryParams);
+                        'scopes/process/' + params.id, token, queryParams);
 
                     v.$.getJSON(url).then(function (data) {
                         v.auth.updateLastActiveTimestamp();
@@ -8902,13 +8710,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteProcessData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8921,7 +8727,7 @@ function ScopeService(v, utils) {
                     queryParams[params.property] = '';
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/process/' + params.id, token, params.ssl, queryParams);
+                        'scopes/process/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -8948,13 +8754,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteProcessScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -8965,7 +8769,7 @@ function ScopeService(v, utils) {
                     var queryParams = {"_invalidate":''};
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/process/' + params.id, token, params.ssl, queryParams);
+                        'scopes/process/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -8994,14 +8798,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI.
          */
         createTransactionData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9011,7 +8813,7 @@ function ScopeService(v, utils) {
                     validateRequiredData(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl);
+                        'scopes/transaction/' + params.id, token);
 
                     v.$.post(url, params.data).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -9041,14 +8843,12 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The scoped data.
          */
         getTransactionData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9062,7 +8862,7 @@ function ScopeService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl, queryParams);
+                        'scopes/transaction/' + params.id, token, queryParams);
 
                     v.$.getJSON(url).then(function (data) {
                         v.auth.updateLastActiveTimestamp();
@@ -9090,13 +8890,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteTransactionData: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9109,7 +8907,7 @@ function ScopeService(v, utils) {
                     queryParams[params.property] = '';
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl, queryParams);
+                        'scopes/transaction/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -9136,13 +8934,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteTransactionScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9153,7 +8949,7 @@ function ScopeService(v, utils) {
                     var queryParams = {"_invalidate":''};
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl, queryParams);
+                        'scopes/transaction/' + params.id, token, queryParams);
 
                     v.$.doDelete(url).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -9180,13 +8976,11 @@ function ScopeService(v, utils) {
          * voyent.auth.connect() will be used.
          * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
          * default will be used.
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         touchTransactionScope: function(params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9195,7 +8989,7 @@ function ScopeService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
-                        'scopes/transaction/' + params.id, token, params.ssl);
+                        'scopes/transaction/' + params.id, token);
 
                     v.$.put(url).then(function(){
                         v.auth.updateLastActiveTimestamp();
@@ -9228,7 +9022,6 @@ function ScopeService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the events
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -9238,7 +9031,6 @@ function ScopeService(v, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9246,7 +9038,7 @@ function ScopeService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.metricsURL, account, realm,
-                        'events', token, params.ssl, {
+                        'events', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -9276,7 +9068,6 @@ function ScopeService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.event The custom event that you would like to store, in JSON format.
          * @returns {String} The resource URI
          */
@@ -9284,7 +9075,6 @@ function ScopeService(v, utils) {
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9293,7 +9083,7 @@ function ScopeService(v, utils) {
                     validateRequiredEvent(params, reject);
 
                     var url = utils.getRealmResourceURL(v.metricsURL, account, realm,
-                        'events', token, params.ssl);
+                        'events', token);
 
                     v.$.post(url, params.event).then(function(response){
                         v.auth.updateLastActiveTimestamp();
@@ -9322,14 +9112,12 @@ function ScopeService(v, utils) {
          *     voyent.io.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Number} The time difference in milliseconds
          */
         getClientServerTimeGap: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9337,7 +9125,7 @@ function ScopeService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.metricsURL, account, realm,
-                        'time', token, params.ssl, {
+                        'time', token, {
                             clientTime: encodeURIComponent(new Date().toISOString())
                         });
 
@@ -9383,7 +9171,6 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the events
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -9393,7 +9180,6 @@ function EventService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9401,7 +9187,7 @@ function EventService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'events', token, params.ssl, {
+                        'events', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -9431,7 +9217,6 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.event The custom event that you would like to store, in JSON format.
          * @returns {String} The resource URI
          */
@@ -9439,7 +9224,6 @@ function EventService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9448,7 +9232,7 @@ function EventService(v, utils) {
                     validateRequiredEvent(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'events', token, params.ssl);
+                        'events', token);
 
                     v.$.post(url, params.event).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -9474,7 +9258,6 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.eventArray An array of events that you want to fire. Events should include a 'delay'
          *     property, with the number of milliseconds to wait since the last event before firing.
          */
@@ -9483,20 +9266,19 @@ function EventService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'events', token, params.ssl);
+                        'events', token);
 
                     eventArray = params.eventArray;
                     eventsRunning = true;
                     runningIndex += 1;
                     eventIndex = 0;
-                    v.event._eventRecursion(resolve, reject, url, params.ssl, runningIndex);
+                    v.event._eventRecursion(resolve, reject, url, runningIndex);
                 }
             );
         },
@@ -9556,21 +9338,19 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         restartEvents: function (params) {
             eventsRunning = true;
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'events', token, params.ssl);
+                        'events', token);
                     v.event._eventRecursion(resolve, reject, url, runningIndex);
                 }
             );
@@ -9612,14 +9392,12 @@ function EventService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Number} The time difference in milliseconds
          */
         getClientServerTimeGap: function (params) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9627,7 +9405,7 @@ function EventService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.eventURL, account, realm,
-                        'time', token, params.ssl, {
+                        'time', token, {
                             clientTime: encodeURIComponent(new Date().toISOString())
                         });
 
@@ -9692,14 +9470,13 @@ function EventService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var pushURL = (params.ssl ? 'https://' : 'http://') + v.pushURL + '/';
+                    var pushURL = v.pushURL + '/';
 
                     function notifyBack() {
                         if (params.cloudPushURI) {
@@ -9736,7 +9513,6 @@ function EventService(v, utils) {
         addPushListener: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 validateRequiredGroup(params, reject);
                 validateRequiredCallback(params, reject);
@@ -9777,7 +9553,6 @@ function EventService(v, utils) {
             return new Promise(function (resolve, reject) {
                 console.log('voyent.push.removePushListener() group: ' + params.group);
                 params = params ? params : {};
-                v.checkHost(params);
                 validateRequiredGroup(params, reject);
                 var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
                 if (!pushListenersStr) {
@@ -9884,7 +9659,6 @@ function EventService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     validateRequiredGroup(params, reject);
 
@@ -9943,7 +9717,6 @@ function CloudService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -9951,7 +9724,7 @@ function CloudService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.cloudURL, account, realm,
-                        'notify-back-uris/' + notifyBackURI, token, params.ssl);
+                        'notify-back-uris/' + notifyBackURI, token);
 
                     v.$.post(url, params.message).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -10010,7 +9783,6 @@ function CloudService(v, utils) {
             return new Promise(
                 function (resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10018,7 +9790,7 @@ function CloudService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.cloudURL, account, realm,
-                        'notify-back-uris/', token, params.ssl);
+                        'notify-back-uris/', token);
 
                     v.$.post(url, params.message).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
@@ -10057,14 +9829,12 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createQuery: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10073,7 +9843,7 @@ function QueryService(v, utils) {
                     validateRequiredQuery(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'queries/' + (params.id ? params.id : ''), token, params.ssl);
+                        'queries/' + (params.id ? params.id : ''), token);
 
                     v.$.post(url, params.query).then(function(response){
                         v.auth.updateLastActiveTimestamp();
@@ -10102,14 +9872,12 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         updateQuery: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10119,7 +9887,7 @@ function QueryService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'queries/' + params.id, token, params.ssl);
+                        'queries/' + params.id, token);
 
                     v.$.put(url, params.query).then(function(response){
                         v.auth.updateLastActiveTimestamp();
@@ -10146,14 +9914,12 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The query
          */
         getQuery: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10162,7 +9928,7 @@ function QueryService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'queries/' + params.id, token, params.ssl);
+                        'queries/' + params.id, token);
 
                     v.$.getJSON(url).then(function(query){
                         v.auth.updateLastActiveTimestamp();
@@ -10188,7 +9954,6 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.query A mongo query for the queries
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional query options such as limit and sort
@@ -10199,7 +9964,6 @@ function QueryService(v, utils) {
                 function(resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10207,7 +9971,7 @@ function QueryService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'queries/', token, params.ssl, {
+                        'queries/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -10239,13 +10003,11 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteQuery: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10254,7 +10016,7 @@ function QueryService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'queries/' + params.id, token, params.ssl);
+                        'queries/' + params.id, token);
 
                     v.$.doDelete(url).then(function(response){
                         v.auth.updateLastActiveTimestamp();
@@ -10282,14 +10044,12 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         createTransformer: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10298,7 +10058,7 @@ function QueryService(v, utils) {
                     validateRequiredTransformer(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'transformers/' + (params.id ? params.id : ''), token, params.ssl);
+                        'transformers/' + (params.id ? params.id : ''), token);
 
                     v.$.post(url, params.transformer).then(function(response){
                         v.auth.updateLastActiveTimestamp();
@@ -10327,14 +10087,12 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {String} The resource URI
          */
         updateTransformer: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10344,7 +10102,7 @@ function QueryService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'transformers/' + params.id, token, params.ssl);
+                        'transformers/' + params.id, token);
 
                     v.$.put(url, params.transformer).then(function(response){
                         v.auth.updateLastActiveTimestamp();
@@ -10371,14 +10129,12 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The transformer
          */
         getTransformer: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10387,7 +10143,7 @@ function QueryService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'transformers/' + params.id, token, params.ssl);
+                        'transformers/' + params.id, token);
 
                     v.$.getJSON(url).then(function(transformer){
                         v.auth.updateLastActiveTimestamp();
@@ -10413,7 +10169,6 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Object} params.transformer A mongo transformer for the transformers
          * @param {Object} params.fields Specify the inclusion or exclusion of fields to return in the result set
          * @param {Object} params.options Additional transformer options such as limit and sort
@@ -10424,7 +10179,6 @@ function QueryService(v, utils) {
                 function(resolve, reject) {
 
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10432,7 +10186,7 @@ function QueryService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'transformers/', token, params.ssl, {
+                        'transformers/', token, {
                             'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                             'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
                             'options': params.options ? encodeURIComponent(JSON.stringify(params.options)) : {}
@@ -10464,13 +10218,11 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteTransformer: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10479,7 +10231,7 @@ function QueryService(v, utils) {
                     utils.validateRequiredId(params, reject);
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'transformers/' + params.id, token, params.ssl);
+                        'transformers/' + params.id, token);
 
                     v.$.doDelete(url).then(function(response){
                         v.auth.updateLastActiveTimestamp();
@@ -10508,14 +10260,12 @@ function QueryService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The results
          */
         executeQuery: function(params){
             return new Promise(
                 function(resolve, reject) {
                     params = params ? params : {};
-                    v.checkHost(params);
 
                     //validate
                     var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10530,7 +10280,7 @@ function QueryService(v, utils) {
                     }
 
                     var url = utils.getRealmResourceURL(v.queryURL, account, realm,
-                        'queries/' + params.id, token, params.ssl, queryParams);
+                        'queries/' + params.id, token, queryParams);
 
                     v.$.getJSON(url).then(function(results){
                         v.auth.updateLastActiveTimestamp();
@@ -10600,7 +10350,6 @@ function StorageService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {String} params.scope (default 'self') 'all' or 'self', return meta information for blobs belonging
          *     to all users, or only those belonging to the current user
          * @returns {Object} The results
@@ -10608,7 +10357,6 @@ function StorageService(v, utils) {
         getMetaInfo: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10616,7 +10364,7 @@ function StorageService(v, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'meta', token, params.ssl, params.scope ? {scope: params.scope} : null);
+                    'meta', token, params.scope ? {scope: params.scope} : null);
 
 
                 v.$.getJSON(url).then(function(response){
@@ -10644,7 +10392,6 @@ function StorageService(v, utils) {
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
          * @param {Object} params.blob The Blob to store
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Function} params.progressCallback The callback function to call on progress events. eg. function
          *     progressCallback(percentComplete, xhr){..}
          * @returns {Object} The results
@@ -10652,7 +10399,6 @@ function StorageService(v, utils) {
         uploadBlob: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10664,7 +10410,7 @@ function StorageService(v, utils) {
                 formData.append('file', params.blob);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'blobs' + (params.id ? '/' + params.id : ''), token, params.ssl);
+                    'blobs' + (params.id ? '/' + params.id : ''), token);
 
                 v.$.post(url, formData, null, true, null, params.progressCallback).then(function(response){
                     v.auth.updateLastActiveTimestamp();
@@ -10691,7 +10437,6 @@ function StorageService(v, utils) {
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
          * @param {Object} params.file The Blob to store
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @param {Function} params.progressCallback The callback function to call on progress events. eg. function
          *     progressCallback(percentComplete, xhr){..}
          * @param {Function} params.onabort The callback for the XMLHttpRequest onabort event
@@ -10701,7 +10446,6 @@ function StorageService(v, utils) {
         uploadFile: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10710,7 +10454,7 @@ function StorageService(v, utils) {
                 validateRequiredFile(params, reject);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'blobs' + (params.id ? '/' + params.id : ''), token, params.ssl);
+                    'blobs' + (params.id ? '/' + params.id : ''), token);
                 var formData = new FormData();
                 formData.append('file', params.file);
 
@@ -10738,13 +10482,11 @@ function StorageService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          * @returns {Object} The blob arraybuffer
          */
         getBlob: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10753,7 +10495,7 @@ function StorageService(v, utils) {
                 utils.validateRequiredId(params, reject);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'blobs/' + params.id, token, params.ssl);
+                    'blobs/' + params.id, token);
 
                 v.$.getBlob(url).then(function(response){
                     v.auth.updateLastActiveTimestamp();
@@ -10779,12 +10521,10 @@ function StorageService(v, utils) {
          *     voyent.auth.connect() will be used
          * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
          *     default will be used. (optional)
-         * @param {Boolean} params.ssl (default false) Whether to use SSL for network traffic.
          */
         deleteBlob: function(params){
             return new Promise(function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
@@ -10793,7 +10533,7 @@ function StorageService(v, utils) {
                 utils.validateRequiredId(params, reject);
 
                 var url = utils.getRealmResourceURL(v.storageURL, account, realm,
-                    'blobs/' + params.id, token, params.ssl);
+                    'blobs/' + params.id, token);
 
                 v.$.doDelete(url).then(function(response){
                     v.auth.updateLastActiveTimestamp();
@@ -11053,10 +10793,9 @@ function PrivateUtils(services, keys) {
         return txId ? 'tx=' + txId : '';
     }
 
-    function getRealmResourceURL(servicePath, account, realm, resourcePath, token, ssl, params) {
-        var protocol = ssl ? 'https://' : 'http://';
+    function getRealmResourceURL(servicePath, account, realm, resourcePath, token, params) {
         var txParam = getTransactionURLParam();
-        var url = protocol + servicePath +
+        var url = servicePath +
             '/' + account + '/realms/' + realm + '/' + resourcePath + '?' +
             (token ? 'access_token=' + token : '') +
             (txParam ? '&' + txParam : '');
@@ -11120,13 +10859,6 @@ function PrivateUtils(services, keys) {
         }
     }
 
-    function determineProtocol(ssl) {
-        if (typeof ssl !== 'undefined' && ssl !== null) {
-            return ssl ? 'https://' : 'http://';
-        }
-        return 'https:' == document.location.protocol ? 'https://' : 'http://';
-    }
-
     return {
         'isNode': isNode,
         'getLocalStorageItem': getLocalStorageItem,
@@ -11149,8 +10881,7 @@ function PrivateUtils(services, keys) {
         'validateAndReturnRequiredRealmName': validateAndReturnRequiredRealmName,
         'validateAndReturnRequiredAccount': validateAndReturnRequiredAccount,
         'validateAndReturnRequiredAccessToken': validateAndReturnRequiredAccessToken,
-        'validateRequiredId': validateRequiredId,
-        'determineProtocol': determineProtocol
+        'validateRequiredId': validateRequiredId
     }
 }function PublicUtils(utils) {
     return {
@@ -11457,7 +11188,11 @@ function PrivateUtils(services, keys) {
 
     v.configureHosts = function (url) {
         if (!url) {
-            v.baseURL = privateUtils.isNode ? 'dev.voyent.cloud' : window.location.hostname;
+            if (privateUtils.isNode) {
+                v.baseURL = 'http://dev.voyent.cloud';
+            } else {
+                v.baseURL = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port;
+            }
         } else {
             v.baseURL = url;
         }
@@ -11480,18 +11215,6 @@ function PrivateUtils(services, keys) {
         v.scopeURL = baseURL + '/scope';
         v.pushURL = baseURL + '/notify';
         v.cloudURL = baseURL + '/cloud';
-    };
-
-    v.checkHost = function (params) {
-        if (params.host) {
-            v.configureHosts(params.host);
-        }
-        else {
-            var lastHost = v.auth.getLastKnownHost();
-            if (lastHost) {
-                v.configureHosts(lastHost);
-            }
-        }
     };
 
     /**
@@ -11653,7 +11376,6 @@ function PrivateUtils(services, keys) {
         return new Promise(
             function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = privateUtils.validateAndReturnRequiredAccount(params, reject);
@@ -11674,7 +11396,7 @@ function PrivateUtils(services, keys) {
                     case 'locate': serviceURL = v.locateURL; break;
                 }
 
-                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token, params.ssl);
+                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);
 
                 v.$.getJSON(url).then(function(json){
                     v.auth.updateLastActiveTimestamp();
@@ -11743,7 +11465,6 @@ function PrivateUtils(services, keys) {
         return new Promise(
             function(resolve, reject) {
                 params = params ? params : {};
-                v.checkHost(params);
 
                 //validate
                 var account = privateUtils.validateAndReturnRequiredAccount(params, reject);
@@ -11760,7 +11481,7 @@ function PrivateUtils(services, keys) {
                     case 'action': serviceURL = v.io.actionURL; break;
                 }
 
-                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token, params.ssl);
+                var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);
 
                 v.$.put(url, params.permissions).then(function(json){
                     v.auth.updateLastActiveTimestamp();
