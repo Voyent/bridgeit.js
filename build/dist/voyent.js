@@ -2374,9 +2374,9 @@ if (!window.ice.icepush) {
                             broadcast(connectionStoppedListeners, ['connection stopped, no pushIDs registered']);
                         } else {
                             debug(logger, 'connect...');
-                            var uri = mainConfiguration.uri + mainConfiguration.account + '/realms/' + mainConfiguration.realm + '/push-ids?access_token=' + encodeURIComponent(namespace.access_token) + '&op=listen';
+                            var uri = mainConfiguration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/push-ids?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken()) + '&op=listen';
                             var body = JSON.stringify({
-                                'access_token': namespace.access_token,
+                                'access_token': voyent.auth.getLastAccessToken(),
                                 'browser': lookupCookieValue(BrowserIDName),
                                 'heartbeat': {
                                     'timestamp': heartbeatTimestamp,
@@ -2934,16 +2934,7 @@ if (!window.ice.icepush) {
         }
         var commandDispatcher = CommandDispatcher();
         register(commandDispatcher, 'error', CommandError);
-        namespace.updateToken = function(accessToken) {
-            if (accessToken) {
-                namespace.access_token = accessToken;
-            }
-        };
-        window.addEventListener('voyent-access-token-refreshed',function(e) {
-            namespace.updateToken(e.detail);
-        });
         namespace.setupPush = function(configuration, onStartup, onShutdown) {
-            namespace.updateToken(configuration.access_token);
             var apiChannel = Client(true);
             var API = {
                 register: function (pushIds, callback) {
@@ -2965,10 +2956,10 @@ if (!window.ice.icepush) {
                 },
                 deregister: delistPushIDsWithWindow,
                 createPushId: function createPushId(callback, pushIdTimeout, cloudPushIdTimeout, retries) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/push-ids?access_token=' + encodeURIComponent(namespace.access_token);
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/push-ids?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken());
                     retries = retries == null ? 3 : retries;
                     var parameters = {
-                        'access_token': namespace.access_token,
+                        'access_token': voyent.auth.getLastAccessToken(),
                         'browser':  browserID(),
                         'op': 'create'
                     };
@@ -2999,18 +2990,18 @@ if (!window.ice.icepush) {
                     }));
                 },
                 deletePushId: function (id, resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/push-ids/' + encodeURIComponent(id);
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/push-ids/' + encodeURIComponent(id);
                     deleteAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                     }, JSONRequest, $witch(function (condition) {
                         condition(NOCONTENT, resultCallback || noop);
                         condition(ServerInternalError, throwServerError);
                     }));
                 },
                 getConfiguration: function (callback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/configuration';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/configuration';
                     getAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                         addNameValue(query, "op", "get");
                     }, JSONRequest, $witch(function (condition) {
                         condition(OK, function (response) {
@@ -3024,9 +3015,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 notify: function (group, options) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/groups/' + group + '?access_token=' + encodeURIComponent(namespace.access_token) + '&op=push';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/groups/' + group + '?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken()) + '&op=push';
                     var body = JSON.stringify({
-                        'access_token': namespace.access_token,
+                        'access_token': voyent.auth.getLastAccessToken(),
                         'browser': browserID(),
                         'op': 'push',
                         'push_configuration': options
@@ -3036,9 +3027,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 addGroupMember: function (group, id, cloudEnabled, resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/groups/' + group + '/push-ids/' + id + '?access_token=' + encodeURIComponent(namespace.access_token) + '&op=add';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/groups/' + group + '/push-ids/' + id + '?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken()) + '&op=add';
                     var parameters = {
-                        'access_token': namespace.access_token,
+                        'access_token': voyent.auth.getLastAccessToken(),
                         'browser': browserID(),
                         'op': 'add'
                     };
@@ -3054,9 +3045,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 removeGroupMember: function (group, id, resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/groups/' + group + '/push-ids/' + id;
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/groups/' + group + '/push-ids/' + id;
                     deleteAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                         addNameValue(query, "op", "delete");
                     }, JSONRequest, $witch(function (condition) {
                         condition(NOCONTENT, resultCallback || noop);
@@ -3064,9 +3055,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 addNotifyBackURI: function (notifyBackURI, resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/browsers/' + browserID() + '/notify-back-uris/' + notifyBackURI + '?access_token=' + encodeURIComponent(namespace.access_token) + '&op=add';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/browsers/' + browserID() + '/notify-back-uris/' + notifyBackURI + '?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken()) + '&op=add';
                     var body = JSON.stringify({
-                        'access_token': namespace.access_token,
+                        'access_token': voyent.auth.getLastAccessToken(),
                         'browser': browserID(),
                         'op': 'add'
                     });
@@ -3076,9 +3067,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 removeNotifyBackURI: function (resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/browsers/' + browserID() + '/notify-back-uris';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/browsers/' + browserID() + '/notify-back-uris';
                     deleteAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                         addNameValue(query, "op", "remove");
                     }, JSONRequest, $witch(function (condition) {
                         condition(NOCONTENT, resultCallback || noop);
@@ -3086,9 +3077,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 hasNotifyBackURI: function (resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/browsers/' + browserID() + '/notify-back-uris';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/browsers/' + browserID() + '/notify-back-uris';
                     getAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                         addNameValue(query, "op", "has");
                     }, JSONRequest, $witch(function (condition) {
                         condition(NOCONTENT, function (response) {
