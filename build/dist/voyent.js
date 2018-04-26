@@ -4222,6 +4222,10 @@ function AdminService(v, keys, utils) {
     function validateRequiredRole(params, reject) {
         utils.validateParameter('role', 'The role parameter is required', params, reject);
     }
+    
+    function validateRequiredGroup(params, reject) {
+        utils.validateParameter('group', 'The group parameter is required', params, reject);
+    }
 
     function validateAndReturnRequiredEmail(params, reject) {
         var email = params.email;
@@ -5286,7 +5290,115 @@ function AdminService(v, keys, utils) {
                     reject(error);
                 });
             });
-        }
+        },
+        
+        getAllUserGroups: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/', token);
+                    
+                v.$.get(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        getUserGroupDetails: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredGroup(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/' + params.group + '/details', token);
+                    
+                v.$.get(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        createUserGroup: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredGroup(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/', token);
+                    
+                v.$.post(url, { group: params.group }).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        updateUserGroup: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredGroup(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/' + params.group.name, token);
+                    
+                v.$.put(url, { group: params.group }).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        deleteUserGroup: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredGroup(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/' + params.group, token);
+                    
+                v.$.doDelete(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
     };
 }
 function ActionService(v, utils) {
