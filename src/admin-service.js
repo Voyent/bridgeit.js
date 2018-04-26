@@ -229,6 +229,35 @@ function AdminService(v, keys, utils) {
         },
         
         /**
+         * Update an entire account
+         *
+         * @memberOf voyent.admin
+         * @alias editAccount
+         * @param {Object} params params
+         * @param {String} params.accountname The account name to update
+         * @returns Promise
+         */
+        updateTopLevelAccount: function(params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                
+                var txParam = utils.getTransactionURLParam();
+                var url = v.authAdminURL + '/'
+                           + account + '?access_token=' + token + (txParam ? '&' + txParam : '');
+                
+                v.$.put(url, {'account': params}).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve();
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        /**
          * Update an account admin
          *
          * @memberOf voyent.admin
