@@ -5742,6 +5742,48 @@ function ActionService(v, utils) {
             );
         },
 
+        /**
+         * Execute a module.
+         *
+         * @memberOf voyent.action
+         * @alias executeModule
+         * @param {Object} params params
+         * @param {String} params.id The module id, the module to be executed
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.io.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
+         * @returns {String} The resource URI
+         */
+        executeModule: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.actionURL, account, realm,
+                        'modules/' + params.id, token);
+
+                    v.$.post(url).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+
+                }
+            );
+        },
+
         getResourcePermissions: function (params) {
             params.service = 'action';
             params.path = 'actions';
