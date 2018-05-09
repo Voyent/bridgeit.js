@@ -346,6 +346,7 @@ function ActionService(v, utils) {
          * @alias executeModule
          * @param {Object} params params
          * @param {String} params.id The module id, the module to be executed
+         * @param {String} params.params Additional parameters to include in the module request
          * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
          *     will be used.
          * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
@@ -367,10 +368,15 @@ function ActionService(v, utils) {
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
                     utils.validateRequiredId(params, reject);
 
+                    var moduleParams = {};
+                    if (params.params && typeof params.params === 'object' && Object.keys(params.params).length) {
+                        moduleParams = params.params;
+                    }
+
                     var url = utils.getRealmResourceURL(v.actionURL, account, realm,
                         'modules/' + params.id, token);
 
-                    v.$.post(url).then(function (response) {
+                    v.$.post(url, moduleParams).then(function (response) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(response);
                     })['catch'](function (error) {
