@@ -4378,6 +4378,7 @@ function AdminService(v, keys, utils) {
          * @param {String} params.firstname The first name of the new administrator (required)
          * @param {String} params.lastname The last name of the new administrator (required)
          * @param {String} params.password The password of the new administrator (required)
+         * @param {String} params.roles An array of roles to grant the account owner. If not provided the user will have the `accountOwner` role.
          * @returns Promise with an access token for the new administrator
          *
          */
@@ -4401,6 +4402,7 @@ function AdminService(v, keys, utils) {
                 admin.email = validateAndReturnRequiredEmail(params, reject);
                 admin.firstname = validateAndReturnRequiredFirstname(params, reject);
                 admin.lastname = validateAndReturnRequiredLastname(params, reject);
+                admin.roles = params.roles || ['accountOwner'];
 
                 // Check for email metadata
                 // If present we need to mark the admin unconfirmed, and pass the metadata
