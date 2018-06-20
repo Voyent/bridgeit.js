@@ -442,6 +442,9 @@ function AdminService(v, keys, utils) {
         createRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
+                
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
