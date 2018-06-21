@@ -1,6 +1,6 @@
 {
     "name": "voyent.js",
-    "version": "1.0.7",
+    "version": "latest",
     "private": false,
     "scripts": {
         "start": "node start.js"
