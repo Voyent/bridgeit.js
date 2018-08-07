@@ -59,7 +59,7 @@ if (!window.voyent) {
         v.scopeURL = baseURL + '/scope';
         v.pushURL = baseURL + '/notify';
         v.cloudURL = baseURL + '/cloud';
-		v.activityURL = baseURL + '/activity';
+        v.activityURL = baseURL + '/activity';
     };
 
     /**
@@ -353,8 +353,8 @@ if (!window.voyent) {
     v.storage = StorageService(v, privateUtils);
     v.query = QueryService(v, privateUtils);
     v.device = DeviceService(v, privateUtils);
-	v.activity = ActivityService(v, privateUtils);
-	
+    v.activity = ActivityService(v, privateUtils);
+
     //aliases for backward compatibility
     v.documents = v.docs;
     v.location = v.locate;
