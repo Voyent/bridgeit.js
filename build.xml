@@ -18,6 +18,7 @@
                 <file name="auth-service.js"/>
                 <file name="admin-service.js"/>
                 <file name="action-service.js"/>
+                <file name="activity-service.js"/>
                 <file name="device-service.js"/>
                 <file name="doc-service.js"/>
                 <file name="event-hub-service.js"/>
