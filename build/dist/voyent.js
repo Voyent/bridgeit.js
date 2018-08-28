@@ -8657,6 +8657,138 @@ function ScopeService(v, utils) {
                 }
             );
         },
+        
+        /**
+         * Create or update data stored within an account scope.
+         *
+         * @memberOf voyent.scope
+         * @alias createAccountData
+         * @param {Object} params params
+         * @param {Object} params.data The object containing one or more properties to be inserted into the account scope.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
+         * @returns {String} The resource URI.
+         */
+        createAccountData: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    validateRequiredData(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
+                        'scopes/account', token);
+
+                    v.$.post(url, params.data).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response.uri);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Retrieve a single property stored in account scope or the entire account scope if no property is provided.
+         *
+         * @memberOf voyent.scope
+         * @alias getAccountData
+         * @param {Object} params params
+         * @param {String} params.property The name of the data property to retrieve from account scope. If not provided,
+         * all data for the scope will be retrieved.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
+         * @returns {Object} The scoped data.
+         */
+        getAccountData: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                    params.nostore = true;
+                    
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                    var queryParams = {};
+                    if (params.property) {
+                        queryParams[params.property] = '';
+                    }
+
+                    var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
+                        'scopes/account', token, queryParams);
+
+                    v.$.getJSON(url).then(function (data) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(data);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Delete a single property stored in account scope.
+         *
+         * @memberOf voyent.scope
+         * @alias deleteAccountData
+         * @param {Object} params params
+         * @param {String} params.property The name of the data property to delete from account scope. Required.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
+         */
+        deleteAccountData: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    validateRequiredProperty(params, reject);
+
+                    var queryParams = {};
+                    queryParams[params.property] = '';
+
+                    var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
+                        'scopes/account', token, queryParams);
+
+                    v.$.doDelete(url).then(function () {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve();
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
 
         /**
          * Create or update data stored within a user scope.
@@ -11452,7 +11584,7 @@ function PrivateUtils(services, keys) {
         v.scopeURL = baseURL + '/scope';
         v.pushURL = baseURL + '/notify';
         v.cloudURL = baseURL + '/cloud';
-		v.activityURL = baseURL + '/activity';
+        v.activityURL = baseURL + '/activity';
     };
 
     /**
@@ -11746,8 +11878,8 @@ function PrivateUtils(services, keys) {
     v.storage = StorageService(v, privateUtils);
     v.query = QueryService(v, privateUtils);
     v.device = DeviceService(v, privateUtils);
-	v.activity = ActivityService(v, privateUtils);
-	
+    v.activity = ActivityService(v, privateUtils);
+
     //aliases for backward compatibility
     v.documents = v.docs;
     v.location = v.locate;
