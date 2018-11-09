@@ -195,7 +195,7 @@ function AuthService(v, keys, utils) {
                     utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), authResponse.access_token);
                     utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), authResponse.expires_in);
                     utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), loggedInAt);
-                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                     if (params.host) {
                         utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(params.host));
                     }
@@ -250,7 +250,7 @@ function AuthService(v, keys, utils) {
             utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), params.access_token);
             utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), params.expires_in);
             utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), new Date().getTime());
-            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
             utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
             utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
         },
@@ -685,7 +685,7 @@ function AuthService(v, keys, utils) {
         getLastKnownAccount: function () {
             var accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
             if (accountCipher) {
-                return atob(accountCipher);
+                return utils.sanitizeAccountName(atob(accountCipher));
             }
         },
 

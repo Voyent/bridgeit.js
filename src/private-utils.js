@@ -59,7 +59,7 @@ function PrivateUtils(services, keys) {
         }
         if (account) {
             if (!params.nostore) {
-                setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
+                setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(sanitizeAccountName(account)));
             }
             return account;
         } else {
@@ -218,6 +218,13 @@ function PrivateUtils(services, keys) {
             return setNodeStorageItem(key, value);
         }
     }
+    
+    function sanitizeAccountName(original) {
+        if (original) {
+            return original.split(' ').join('_').replace(/[\\\/\.\"]/g, '').substring(0, 63).toLowerCase();
+        }
+        return original;
+    }
 
     function getTransactionURLParam() {
         var txId = services.getLastTransactionId();
@@ -298,6 +305,7 @@ function PrivateUtils(services, keys) {
         'getSessionStorageItem': getSessionStorageItem,
         'setSessionStorageItem': setSessionStorageItem,
         'removeSessionStorageItem': removeSessionStorageItem,
+        'sanitizeAccountName': sanitizeAccountName,
         'getTransactionURLParam': getTransactionURLParam,
         'getRealmResourceURL': getRealmResourceURL,
         'extractResponseValues': extractResponseValues,

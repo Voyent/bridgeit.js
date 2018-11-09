@@ -3436,7 +3436,7 @@ function AuthService(v, keys, utils) {
                     utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), authResponse.access_token);
                     utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), authResponse.expires_in);
                     utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), loggedInAt);
-                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                     if (params.host) {
                         utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(params.host));
                     }
@@ -3491,7 +3491,7 @@ function AuthService(v, keys, utils) {
             utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), params.access_token);
             utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), params.expires_in);
             utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), new Date().getTime());
-            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
             utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
             utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
         },
@@ -3926,7 +3926,7 @@ function AuthService(v, keys, utils) {
         getLastKnownAccount: function () {
             var accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
             if (accountCipher) {
-                return atob(accountCipher);
+                return utils.sanitizeAccountName(atob(accountCipher));
             }
         },
 
@@ -4425,7 +4425,7 @@ function AdminService(v, keys, utils) {
                 v.$.post(url, {account: account}).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
 
-                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(accountname));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(accountname)));
                     utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
                     utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa('true'));
                     if (params.host) {
@@ -4543,7 +4543,7 @@ function AdminService(v, keys, utils) {
                         utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                     }
                     if (params.realm) {
                         utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
@@ -4906,7 +4906,7 @@ function AdminService(v, keys, utils) {
                         utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                     }
                     if (params.realm) {
                         utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
@@ -10994,7 +10994,7 @@ function PrivateUtils(services, keys) {
         }
         if (account) {
             if (!params.nostore) {
-                setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
+                setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(sanitizeAccountName(account)));
             }
             return account;
         } else {
@@ -11153,6 +11153,13 @@ function PrivateUtils(services, keys) {
             return setNodeStorageItem(key, value);
         }
     }
+    
+    function sanitizeAccountName(original) {
+        if (original) {
+            return original.split(' ').join('_').replace(/[\\\/\.\"]/g, '').substring(0, 63).toLowerCase();
+        }
+        return original;
+    }
 
     function getTransactionURLParam() {
         var txId = services.getLastTransactionId();
@@ -11233,6 +11240,7 @@ function PrivateUtils(services, keys) {
         'getSessionStorageItem': getSessionStorageItem,
         'setSessionStorageItem': setSessionStorageItem,
         'removeSessionStorageItem': removeSessionStorageItem,
+        'sanitizeAccountName': sanitizeAccountName,
         'getTransactionURLParam': getTransactionURLParam,
         'getRealmResourceURL': getRealmResourceURL,
         'extractResponseValues': extractResponseValues,

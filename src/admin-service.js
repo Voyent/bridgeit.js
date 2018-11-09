@@ -209,7 +209,7 @@ function AdminService(v, keys, utils) {
                 v.$.post(url, {account: account}).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
 
-                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(accountname));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(accountname)));
                     utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
                     utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa('true'));
                     if (params.host) {
@@ -327,7 +327,7 @@ function AdminService(v, keys, utils) {
                         utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                     }
                     if (params.realm) {
                         utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
@@ -690,7 +690,7 @@ function AdminService(v, keys, utils) {
                         utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                     }
                     if (params.realm) {
                         utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
