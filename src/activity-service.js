@@ -32,7 +32,7 @@ function ActivityService(v,utils){
 
                     var txParam = utils.getTransactionURLParam();
                     var url = v.activityURL +
-                            '/' + account + '/realms/admin/billingSummary?' +
+                            '/' + account + '/realms/' + realm + '/billingSummary?' +
                             (token ? 'access_token=' + token : '') +
                             (txParam ? '&' + txParam : '') + '&year=' + params.year + "&month=" + params.month;
                     v.$.getJSON(url).then(function (data) {
