@@ -146,6 +146,56 @@ function AdminService(v, keys, utils) {
 
             });
         },
+		
+		//Get all accounts available, only works with sysadmin credentials
+        getAccounts: function(params){
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+
+                //validate
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                var url = v.sysAdminURL + '/accounts'
+                    + '?access_token=' + token;
+
+                v.$.getJSON(url).then(function (json) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(json);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+
+            });
+        },
+
+        //sysadmin billing report endpoint
+        getBillingReport:function(params){
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+
+                //validate
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realmName = utils.validateAndReturnRequiredRealmName(params, reject);
+                var url;
+                if(params.month && params.year){
+                    url = v.sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
+                        + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month;
+                }
+                else {
+                   //no month/year, just get most recent.
+                    url = v.sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
+                        + '?access_token=' + token + '&' + utils.getTransactionURLParam();
+                }
+
+                v.$.getJSON(url).then(function (json) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(json);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+
+            });
+        },
 
         /**
          * Create a new Voyent Account. After successfully creating the account, the new administrator will

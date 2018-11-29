@@ -60,6 +60,7 @@ if (!window.voyent) {
         v.pushURL = baseURL + '/notify';
         v.cloudURL = baseURL + '/cloud';
         v.activityURL = baseURL + '/activity';
+		v.sysAdminURL = baseURL + '/administration';
     };
 
     /**
