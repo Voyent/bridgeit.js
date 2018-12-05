@@ -147,15 +147,23 @@ function AdminService(v, keys, utils) {
             });
         },
 		
-		//Get all accounts available, only works with sysadmin credentials
+		/**
+         * Get all accounts on the current host.
+         *
+         * @memberOf voyent.admin
+         * @alias createAccount
+         * @param {Object} params params
+		 * @param {String} params.token The access token.
+         * @returns Promise with array of account objects.
+         *
+         */
         getAccounts: function(params){
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
 
                 //validate
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-                var url = v.sysAdminURL + '/accounts'
-                    + '?access_token=' + token;
+                var url = v.sysAdminURL + '/accounts?access_token=' + token;
 
                 v.$.getJSON(url).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
@@ -167,7 +175,20 @@ function AdminService(v, keys, utils) {
             });
         },
 
-        //sysadmin billing report endpoint
+        /**
+         * Get the billing report for a given account and realm. 
+         *
+         * @memberOf voyent.admin
+         * @alias createAccount
+         * @param {Object} params params
+         * @param {String} params.account The name of the account to get metrics from (required)
+         * @param {String} params.realm The name of the realm to get metrics from (required)
+		 * @param {String} params.token The access token.
+         * @param {String} params.year The year of the metrics to get. If not found, will result to current year (optional)
+         * @param {String} params.month The month of the metrics to get. If not found, will result to current year (optional)
+         * @returns Promise with billing report as array.
+         *
+         */
         getBillingReport:function(params){
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
