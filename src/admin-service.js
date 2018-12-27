@@ -2,7 +2,7 @@ import * as keys from 'keys'
 import * as utils from 'private-utils'
 import { authAdminURL, sysAdminURL } from 'voyent'
 import { post, put, doDelete, getJSON } from 'public-utils'
-import { updateLastActiveTimestamp } from 'auth-service'
+import { updateLastActiveTimestamp, getLastKnownRealm } from 'auth-service'
 
 function validateRequiredUser(params, reject) {
     utils.validateParameter('user', 'The user parameter is required', params, reject);
