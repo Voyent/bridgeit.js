@@ -30,3 +30,6 @@ export const scopeURL = baseURL + '/scope';
 export const pushURL = baseURL + '/notify';
 export const cloudURL = baseURL + '/cloud';
 export const metricsURL = baseURL + '/metrics';
+export const activityURL = baseURL + '/activity';
+export const sysAdminURL = baseURL + '/administration';
+

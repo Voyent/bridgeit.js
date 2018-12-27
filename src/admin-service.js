@@ -1,6 +1,6 @@
 import * as keys from 'keys'
 import * as utils from 'private-utils'
-import { authAdminURL } from 'voyent'
+import { authAdminURL, sysAdminURL } from 'voyent'
 import { post, put, doDelete, getJSON } from 'public-utils'
 import { updateLastActiveTimestamp } from 'auth-service'
 
@@ -151,6 +151,77 @@ export function getAccount(params) {
 }
 
 /**
+ * Get all accounts on the current host.
+ *
+ * @memberOf voyent.admin
+ * @alias createAccount
+ * @param {Object} params params
+ * @param {String} params.token The access token.
+ * @returns Promise with array of account objects.
+ *
+ */
+export function getAccounts(params){
+    return new Promise(function (resolve, reject) {
+        params = params ? params : {};
+
+        //validate
+        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        var url = sysAdminURL + '/accounts?access_token=' + token;
+
+        getJSON(url).then(function (json) {
+            updateLastActiveTimestamp();
+            resolve(json);
+        })['catch'](function (error) {
+            reject(error);
+        });
+
+    });
+}
+
+/**
+ * Get the billing report for a given account and realm.
+ *
+ * @memberOf voyent.admin
+ * @alias createAccount
+ * @param {Object} params params
+ * @param {String} params.account The name of the account to get metrics from (required)
+ * @param {String} params.realm The name of the realm to get metrics from (required)
+ * @param {String} params.token The access token.
+ * @param {String} params.year The year of the metrics to get. If not found, will result to current year (optional)
+ * @param {String} params.month The month of the metrics to get. If not found, will result to current year (optional)
+ * @returns Promise with billing report as array.
+ *
+ */
+export function getBillingReport(params){
+    return new Promise(function (resolve, reject) {
+        params = params ? params : {};
+
+        //validate
+        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        var account = utils.validateAndReturnRequiredAccount(params, reject);
+        var realmName = utils.validateAndReturnRequiredRealmName(params, reject);
+        var url;
+        if(params.month && params.year){
+            url = sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
+                + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month;
+        }
+        else {
+            //no month/year, just get most recent.
+            url = sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
+                + '?access_token=' + token + '&' + utils.getTransactionURLParam();
+        }
+
+        getJSON(url).then(function (json) {
+            v.auth.updateLastActiveTimestamp();
+            resolve(json);
+        })['catch'](function (error) {
+            reject(error);
+        });
+
+    });
+}
+
+/**
  * Create a new Voyent Account. After successfully creating the account, the new administrator will
  * be automatically logged in.
  *
@@ -211,7 +282,7 @@ export function createAccount(params) {
         post(url, {account: account}).then(function (json) {
             updateLastActiveTimestamp();
 
-            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(accountname));
+            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(accountname)));
             utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
             utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa('true'));
             if (params.host) {
@@ -329,7 +400,7 @@ export function confirmAccount(params){
                 utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
             }
             if (params.account) {
-                utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
             }
             if (params.realm) {
                 utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
@@ -444,6 +515,9 @@ export function updateRealm(params) {
 export function createRealm(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
+
+        // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+        params.nostore = true;
 
         var account = utils.validateAndReturnRequiredAccount(params, reject);
         var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -689,7 +763,7 @@ export function confirmRealmUser(params) {
                 utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
             }
             if (params.account) {
-                utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
             }
             if (params.realm) {
                 utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));

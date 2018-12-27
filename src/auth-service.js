@@ -57,6 +57,8 @@ function fireEvent(el, eventName, detail) {
     }
 }
 
+var connected = false;
+
 /**
  * Retrieve a new access token from the Voyent auth service.
  *
@@ -196,7 +198,7 @@ export function login(params) {
             utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), authResponse.access_token);
             utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), authResponse.expires_in);
             utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), loggedInAt);
-            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
             if (params.host) {
                 utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(params.host));
             }
@@ -251,7 +253,7 @@ export function _storeLogin(params) {
     utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), params.access_token);
     utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), params.expires_in);
     utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), new Date().getTime());
-    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
     utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
     utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
 }
@@ -314,8 +316,8 @@ export function connect(params) {
             var tokenSetAt = new Date();
             tokenSetAt.setTime(getTokenSetAtTime());
 
-            var cbId = setTimeout(connectCallback, timeout);
-            utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
+            var connectTimeoutCb = setTimeout(connectCallback, timeout);
+            utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
 
             console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + timeout / 1000 / 60 + ' mins, expiresIn: ' +
                 (getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
@@ -325,12 +327,12 @@ export function connect(params) {
             // since it will pause during sleep and then continue execution from where it left off once awake.
             // We will try and detect if the computer has been sleeping by using a continuously running
             // setInterval. If it takes longer than expected for the setInterval to execute then we will assume
-            // that the computer has been sleeping and try and refresh the token.
+            // that the computer has been sleeping and try to refresh the token.
 
             // First check if we already have a sleep timer running and if so clear it
-            var compSleepCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-            if (compSleepCb) {
-                clearTimeout(compSleepCb);
+            var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+            if (compSleepIntervalCb) {
+                clearInterval(compSleepIntervalCb);
             }
             var sleepTimeout = 10000; // Run the sleep timer every 10 seconds so it will detect sleep shortly after awakening
             var lastCheckedTime = (new Date()).getTime();
@@ -340,13 +342,15 @@ export function connect(params) {
                 var nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
                 if (currentTime > (nextExpectedTime)) {
                     // Clear the old token timer since it is not valid after computer sleep
-                    var oldCbId = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
-                    if (oldCbId) {
-                        clearTimeout(oldCbId);
+                    var oldConnectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
+                    if (oldConnectTimeoutCb) {
+                        clearTimeout(oldConnectTimeoutCb);
                         utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
                     }
                     // Try and refresh the token
-                    refreshAccessToken().catch(function(e) {});
+                    refreshAccessToken().then(function () {
+                        startTokenExpiryTimer(getExpiresIn() - timeoutPadding);
+                    }).catch(function(e) {});
                 }
                 lastCheckedTime = currentTime;
             }, sleepTimeout);
@@ -615,14 +619,14 @@ export function disconnect() {
     utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
     utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
     utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
-    var cbId = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-    if (cbId) {
-        clearTimeout(cbId);
+    var connectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
+    if (connectTimeoutCb) {
+        clearTimeout(connectTimeoutCb);
     }
     utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-    var compSleepCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-    if (compSleepCb) {
-        clearTimeout(compSleepCb);
+    var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+    if (compSleepIntervalCb) {
+        clearInterval(compSleepIntervalCb);
     }
     utils.removeSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
     console.log(new Date().toISOString() + ' voyent has disconnected');
@@ -684,7 +688,7 @@ export function isLoggedIn() {
 export function getLastKnownAccount() {
     var accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
     if (accountCipher) {
-        return atob(accountCipher);
+        return utils.sanitizeAccountName(atob(accountCipher));
     }
 }
 
