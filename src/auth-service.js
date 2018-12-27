@@ -458,7 +458,7 @@ export function connect(params) {
             startTokenExpiryTimer(callbackTimeout);
 
             if (settings.usePushService) {
-                // v.push.startPushService(settings);
+                //startPushService(settings);
             }
             connected = true;
         }
@@ -558,7 +558,7 @@ export function refreshAccessToken(isRetryAttempt) {
                 login(loginParams).then(function (authResponse) {
                     fireEvent(window, 'voyent-access-token-refreshed', getLastAccessToken());
                     if (loginParams.usePushService) {
-                        // v.push.startPushService(loginParams);
+                        //startPushService(loginParams);
                     }
                     resolve(authResponse);
                 }).catch(function (errorResponse) {

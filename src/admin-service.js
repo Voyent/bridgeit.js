@@ -212,7 +212,7 @@ export function getBillingReport(params){
         }
 
         getJSON(url).then(function (json) {
-            v.auth.updateLastActiveTimestamp();
+            updateLastActiveTimestamp();
             resolve(json);
         })['catch'](function (error) {
             reject(error);
