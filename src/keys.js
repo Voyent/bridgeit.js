@@ -1,0 +1,9 @@
+export const TRANSACTION_KEY = 'voyentTransaction';
+export const REALM_KEY = 'voyentRealm';
+export const ADMIN_KEY = 'voyentAdmin';
+export const USERNAME_KEY = 'voyentUsername';
+export const ACCOUNT_KEY = 'voyentAccount';
+export const HOST_KEY = 'voyentHost';
+export const TOKEN_KEY = 'voyentToken';
+export const TOKEN_EXPIRES_KEY = 'voyentTokenExpires';
+export const TOKEN_SET_KEY = 'voyentTokenSet';
