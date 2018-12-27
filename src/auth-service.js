@@ -13,7 +13,7 @@ const authKeys = {
 };
 
 function validateAndReturnRequiredRole(params, reject){
-    var role = params.role;
+    const role = params.role;
     if( role ){
         return role;
     }
@@ -23,7 +23,7 @@ function validateAndReturnRequiredRole(params, reject){
 }
 
 function validateAndReturnRequiredRoles(params, reject){
-    var roles = params.roles;
+    const roles = params.roles;
     if( roles ){
         return roles;
     }
@@ -33,7 +33,7 @@ function validateAndReturnRequiredRoles(params, reject){
 }
 
 function fireEvent(el, eventName, detail) {
-    var event;
+    let event;
     if ('CustomEvent' in window) {
         event = new CustomEvent(eventName, {'detail': detail});
     }
@@ -57,7 +57,7 @@ function fireEvent(el, eventName, detail) {
     }
 }
 
-var connected = false;
+let connected = false;
 
 /**
  * Retrieve a new access token from the Voyent auth service.
@@ -111,7 +111,7 @@ export function getNewAccessToken(params) {
                 reject(Error('username required for new access token'));
                 return;
             }
-            var url = authURL + '/' + encodeURI(params.account) +
+            const url = authURL + '/' + encodeURI(params.account) +
                 '/realms/' + encodeURI(params.realm) + '/token/?' + utils.getTransactionURLParam();
 
             post(url, {
@@ -182,11 +182,11 @@ export function login(params) {
             reject(Error('username required for login'));
             return;
         }
-        var txParam = utils.getTransactionURLParam();
-        var url = authURL + '/' + encodeURI(params.account) +
-            '/realms/' + (params.admin === 'true' ? 'admin' : encodeURI(params.realm)) + '/token/' + ( txParam ? ('?' + txParam) : '');
+        const txParam = utils.getTransactionURLParam();
+        const url = authURL + '/' + encodeURI(params.account) +
+            '/realms/' + (params.admin === 'true' ? 'admin' : encodeURI(params.realm)) + '/token/' + (txParam ? ('?' + txParam) : '');
 
-        var loggedInAt = new Date().getTime();
+        const loggedInAt = new Date().getTime();
         post(url, {
             strategy: 'query',
             username: params.username,
@@ -313,10 +313,10 @@ export function connect(params) {
     return new Promise(function (resolve, reject) {
 
         function startTokenExpiryTimer(timeout) {
-            var tokenSetAt = new Date();
+            const tokenSetAt = new Date();
             tokenSetAt.setTime(getTokenSetAtTime());
 
-            var connectTimeoutCb = setTimeout(connectCallback, timeout);
+            const connectTimeoutCb = setTimeout(connectCallback, timeout);
             utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
 
             console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + timeout / 1000 / 60 + ' mins, expiresIn: ' +
@@ -330,19 +330,19 @@ export function connect(params) {
             // that the computer has been sleeping and try to refresh the token.
 
             // First check if we already have a sleep timer running and if so clear it
-            var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+            const compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
             if (compSleepIntervalCb) {
                 clearInterval(compSleepIntervalCb);
             }
-            var sleepTimeout = 10000; // Run the sleep timer every 10 seconds so it will detect sleep shortly after awakening
-            var lastCheckedTime = (new Date()).getTime();
-            var computerSleepTimer = setInterval(function() {
-                var currentTime = (new Date()).getTime();
-                var timerPadding = 2500; // Set a 2.5 second buffer for the timeout as setInterval does not guarantee exact timing
-                var nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
+            const sleepTimeout = 10000; // Run the sleep timer every 10 seconds so it will detect sleep shortly after awakening
+            const lastCheckedTime = (new Date()).getTime();
+            const computerSleepTimer = setInterval(function () {
+                const currentTime = (new Date()).getTime();
+                const timerPadding = 2500; // Set a 2.5 second buffer for the timeout as setInterval does not guarantee exact timing
+                const nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
                 if (currentTime > (nextExpectedTime)) {
                     // Clear the old token timer since it is not valid after computer sleep
-                    var oldConnectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
+                    const oldConnectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
                     if (oldConnectTimeoutCb) {
                         clearTimeout(oldConnectTimeoutCb);
                         utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
@@ -350,7 +350,8 @@ export function connect(params) {
                     // Try and refresh the token
                     refreshAccessToken().then(function () {
                         startTokenExpiryTimer(getExpiresIn() - timeoutPadding);
-                    }).catch(function(e) {});
+                    }).catch(function (e) {
+                    });
                 }
                 lastCheckedTime = currentTime;
             }, sleepTimeout);
@@ -361,18 +362,18 @@ export function connect(params) {
          will automatically reset the next setTimeout call if necessary */
         function connectCallback() {
             console.log(new Date().toISOString() + ' voyent.auth.connect: callback running');
-            var connectSettings = getConnectSettings();
+            let connectSettings = getConnectSettings();
             if (!connectSettings) {
                 console.log(new Date().toISOString() + ' voyent.auth.connect: error, could not retrieve settings');
                 return;
             }
 
-            var timeoutMillis = connectSettings.connectionTimeout * 60 * 1000;
+            const timeoutMillis = connectSettings.connectionTimeout * 60 * 1000;
 
             //first check if connectionTimeout has expired
-            var now = new Date().getTime();
-            var inactiveMillis = now - getLastActiveTimestamp();
-            var millisUntilTimeoutExpires = timeoutMillis - inactiveMillis;
+            const now = new Date().getTime();
+            const inactiveMillis = now - getLastActiveTimestamp();
+            const millisUntilTimeoutExpires = timeoutMillis - inactiveMillis;
             console.log('voyent.auth.connect: getLastActiveTimestamp: ' + getLastActiveTimestamp());
             console.log('voyent.auth.connect: connection timeout ms: ' + timeoutMillis);
             console.log('voyent.auth.connect: current timestamp: ' + now);
@@ -398,7 +399,7 @@ export function connect(params) {
                 //look for the onSessionExpiry callback on the params first,
                 //as functions could be passed by reference
                 //secondly by settings, which would only be passed by name
-                var expiredCallback = params.onSessionExpiry;
+                let expiredCallback = params.onSessionExpiry;
                 if (!expiredCallback) {
                     expiredCallback = connectSettings.onSessionExpiry;
                 }
@@ -409,7 +410,7 @@ export function connect(params) {
                 //if callback if a promise, wait until the promise completes
                 //before disconnecting, otherwise, wait 500ms then disconnect
                 if (expiredCallback) {
-                    var expiredCallbackFunction;
+                    let expiredCallbackFunction;
                     if (typeof expiredCallback === 'function') {
                         expiredCallbackFunction = expiredCallback;
                     }
@@ -417,7 +418,7 @@ export function connect(params) {
                         expiredCallbackFunction = utils.findFunctionInGlobalScope(expiredCallback);
                     }
                     if (expiredCallbackFunction) {
-                        var expiredCallbackPromise = expiredCallbackFunction();
+                        const expiredCallbackPromise = expiredCallbackFunction();
                         if (expiredCallbackPromise && expiredCallbackPromise.then) {
                             expiredCallbackPromise.then(disconnect)
                                 ['catch'](disconnect);
@@ -445,7 +446,7 @@ export function connect(params) {
 
             //if the desired connection timeout is greater the token expiry
             //set the callback check for just before the token expires
-            var callbackTimeout;
+            let callbackTimeout;
             if (connectionTimeoutMillis > getTimeRemainingBeforeExpiry()) {
                 callbackTimeout = getTimeRemainingBeforeExpiry() - timeoutPadding;
             }
@@ -491,7 +492,7 @@ export function connect(params) {
 
             if (params.onSessionExpiry) {
                 if (typeof params.onSessionExpiry === 'function') {
-                    var name = utils.getFunctionName(params.onSessionExpiry);
+                    const name = utils.getFunctionName(params.onSessionExpiry);
                     if (name) {
                         settings.onSessionExpiry = name;
                     }
@@ -541,7 +542,7 @@ export function refreshAccessToken(isRetryAttempt) {
             reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
         }
         else {
-            var loginParams = getConnectSettings();
+            let loginParams = getConnectSettings();
             if (!loginParams) {
                 fireEvent(window, 'voyent-access-token-refresh-failed', {});
                 reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
@@ -619,12 +620,12 @@ export function disconnect() {
     utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
     utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
     utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
-    var connectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
+    const connectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
     if (connectTimeoutCb) {
         clearTimeout(connectTimeoutCb);
     }
     utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-    var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+    const compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
     if (compSleepIntervalCb) {
         clearInterval(compSleepIntervalCb);
     }
@@ -638,76 +639,76 @@ export function getLastAccessToken() {
 }
 
 export function getExpiresIn() {
-    var expiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
+    const expiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
     if (expiresInStr) {
         return parseInt(expiresInStr, 10);
     }
 }
 
 export function getTokenSetAtTime() {
-    var tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY));
+    const tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY));
     if (tokenSetAtStr) {
         return parseInt(tokenSetAtStr, 10);
     }
 }
 
 export function getTimeRemainingBeforeExpiry() {
-    var expiresIn = getExpiresIn();
-    var token = getLastAccessToken();
+    const expiresIn = getExpiresIn();
+    const token = getLastAccessToken();
     if (expiresIn && token) {
-        var now = new Date().getTime();
+        const now = new Date().getTime();
         return (getTokenSetAtTime() + expiresIn) - now;
     }
 }
 
 export function getConnectSettings() {
-    var settingsStr = utils.getSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
+    const settingsStr = utils.getSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
     if (settingsStr) {
         return JSON.parse(atob(settingsStr));
     }
 }
 
 export function isLoggedIn() {
-    var token = utils.getSessionStorageItem(btoa(keys.TOKEN_KEY)),
+    const token = utils.getSessionStorageItem(btoa(keys.TOKEN_KEY)),
         tokenExpiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY)),
         tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr, 10) : null,
         tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY)),
         tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
         scopeToPathCipher = utils.getSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY)),
-        scopeToPath = scopeToPathCipher ? atob(scopeToPathCipher) : '/',
-        isDev, currentPath;
+        scopeToPath = scopeToPathCipher ? atob(scopeToPathCipher) : '/';
+    let isDev, currentPath;
     if (!utils.isNode) {
         isDev = window.location.port !== '';
         currentPath = window.location.pathname;
     }
     //console.log('isLoggedIn: token=' + token + ' tokenExpiresIn=' + tokenExpiresIn + 'tokenSetAt=' + tokenSetAt + ' (new Date().getTime() < (tokenExpiresIn + tokenSetAt))=' + (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) + ' (currentPath.indexOf(scopeToPath) === 0)=' + (currentPath.indexOf(scopeToPath) === 0));
-    var result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) ) && (utils.isNode || (!utils.isNode && (isDev || currentPath.indexOf(scopeToPath) === 0)));
+    let result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) && (utils.isNode || (!utils.isNode && (isDev || currentPath.indexOf(scopeToPath) === 0)));
     return !!result;
 }
 
 export function getLastKnownAccount() {
-    var accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
+    const accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
     if (accountCipher) {
         return utils.sanitizeAccountName(atob(accountCipher));
     }
 }
 
 export function getLastKnownRealm() {
-    var realmCipher = utils.getSessionStorageItem(btoa(keys.REALM_KEY));
+    const realmCipher = utils.getSessionStorageItem(btoa(keys.REALM_KEY));
     if (realmCipher) {
         return atob(realmCipher);
     }
 }
 
 export function getLastKnownUsername() {
-    var usernameCipher = utils.getSessionStorageItem(btoa(keys.USERNAME_KEY));
+    const usernameCipher = utils.getSessionStorageItem(btoa(keys.USERNAME_KEY));
     if (usernameCipher) {
         return atob(usernameCipher);
     }
 }
 
 export function getLastKnownHost() {
-    var hostCipher = utils.getSessionStorageItem(btoa(keys.HOST_KEY));
+    const hostCipher = utils.getSessionStorageItem(btoa(keys.HOST_KEY));
     if (hostCipher) {
         return atob(hostCipher);
     }
@@ -738,14 +739,14 @@ export function registerAsNewUser(params) {
         function (resolve, reject) {
             params = params ? params : {};
 
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
             utils.validateRequiredUsername(params, reject);
             utils.validateRequiredPassword(params, reject);
 
-            var user = {
+            const user = {
                 username: params.username,
                 password: params.password
             };
@@ -763,7 +764,7 @@ export function registerAsNewUser(params) {
                 user.custom = params.custom;
             }
 
-            var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            const url = utils.getRealmResourceURL(authAdminURL, account, realm,
                 'quickuser', token);
 
             post(url, {user: user}).then(function (response) {
@@ -795,12 +796,12 @@ export function checkUserRole(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var role = validateAndReturnRequiredRole(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const role = validateAndReturnRequiredRole(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'rolecheck/', token, {roleName: role});
 
         getJSON(url).then(function (response) {
@@ -846,13 +847,13 @@ export function checkUserRoles(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var roles = validateAndReturnRequiredRoles(params, reject);
-        var username = utils.validateAndReturnRequiredUsername(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const roles = validateAndReturnRequiredRoles(params, reject);
+        const username = utils.validateAndReturnRequiredUsername(params, reject);
 
-        var payload = {
+        const payload = {
             roleBlock: [{
                 name: 'first',
                 roles: roles,
@@ -860,7 +861,7 @@ export function checkUserRoles(params) {
             }]
         };
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'users/' + username + '/rolecheck', token);
 
         post(url, payload).then(function (response) {
@@ -903,11 +904,11 @@ export function forgotPassword(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var username = utils.validateAndReturnRequiredUsername(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const username = utils.validateAndReturnRequiredUsername(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + account + '/';
+        const txParam = utils.getTransactionURLParam();
+        let url = authAdminURL + '/' + account + '/';
 
         if (params.realm) {
             url += 'realms/' + params.realm + '/users/' + username + '/emailpassword';
@@ -936,14 +937,14 @@ export function forgotPassword(params) {
  * @returns String password
  */
 export function generatePassword() {
-    var specials = '!@#%^&*_';
-    var lowercase = 'abcdefghijklmnopqrstuvwxyz';
-    var uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    var numbers = '0123456789';
-    var all = specials + lowercase + uppercase + numbers;
+    const specials = '!@#%^&*_';
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const all = specials + lowercase + uppercase + numbers;
 
     String.prototype.pick = function (min, max) {
-        var n, chars = '';
+        let n, chars = '';
 
         if (typeof max === 'undefined') {
             n = min;
@@ -951,7 +952,7 @@ export function generatePassword() {
             n = min + Math.floor(Math.random() * (max - min));
         }
 
-        for (var i = 0; i < n; i++) {
+        for (let i = 0; i < n; i++) {
             chars += this.charAt(Math.floor(Math.random() * this.length));
         }
 
@@ -959,8 +960,8 @@ export function generatePassword() {
     };
 
     String.prototype.shuffle = function () {
-        var array = this.split('');
-        var tmp, current, top = array.length;
+        const array = this.split('');
+        let tmp, current, top = array.length;
 
         if (top) while (--top) {
             current = Math.floor(Math.random() * (top + 1));

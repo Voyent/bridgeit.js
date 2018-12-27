@@ -17,7 +17,7 @@ function validateRequiredGroup(params, reject) {
 }
 
 function validateAndReturnRequiredEmail(params, reject) {
-    var email = params.email;
+    const email = params.email;
     if (email) {
         return email;
     }
@@ -27,7 +27,7 @@ function validateAndReturnRequiredEmail(params, reject) {
 }
 
 function validateAndReturnRequiredFirstname(params, reject) {
-    var firstname = params.firstname;
+    const firstname = params.firstname;
     if (firstname) {
         return firstname;
     }
@@ -37,7 +37,7 @@ function validateAndReturnRequiredFirstname(params, reject) {
 }
 
 function validateAndReturnRequiredLastname(params, reject) {
-    var lastname = params.lastname;
+    const lastname = params.lastname;
     if (lastname) {
         return lastname;
     }
@@ -59,7 +59,7 @@ function validateRequiredMetadata(params, reject) {
 }
 
 function validateAndReturnRequiredAdmin(params, reject) {
-    var admin = params.admin;
+    const admin = params.admin;
     if (admin) {
         return admin;
     }
@@ -69,7 +69,7 @@ function validateAndReturnRequiredAdmin(params, reject) {
 }
 
 function validateAndReturnRequiredOriginRealmName(params, reject) {
-    var realm = params.originRealmName;
+    let realm = params.originRealmName;
     if (realm) {
         realm = encodeURI(realm);
     }
@@ -85,7 +85,7 @@ function validateAndReturnRequiredOriginRealmName(params, reject) {
 }
 
 function validateAndReturnRequiredDestRealmName(params, reject) {
-    var realm = params.destRealmName;
+    let realm = params.destRealmName;
     if (realm) {
         realm = encodeURI(realm);
         return realm;
@@ -112,9 +112,9 @@ export function getServiceDefinitions(params) {
             params = params ? params : {};
 
             //validate
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-            var txParam = utils.getTransactionURLParam();
-            var url = authAdminURL + '/system/services/?access_token=' + token +
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const txParam = utils.getTransactionURLParam();
+            const url = authAdminURL + '/system/services/?access_token=' + token +
                 (txParam ? '&' + txParam : '');
 
             getJSON(url).then(function (json) {
@@ -133,11 +133,11 @@ export function getAccount(params) {
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + account + '?access_token=' + token +
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/' + account + '?access_token=' + token +
             (txParam ? '&' + txParam : '');
 
         getJSON(url).then(function (json) {
@@ -165,8 +165,8 @@ export function getAccounts(params){
         params = params ? params : {};
 
         //validate
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var url = sysAdminURL + '/accounts?access_token=' + token;
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const url = sysAdminURL + '/accounts?access_token=' + token;
 
         getJSON(url).then(function (json) {
             updateLastActiveTimestamp();
@@ -197,10 +197,10 @@ export function getBillingReport(params){
         params = params ? params : {};
 
         //validate
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realmName = utils.validateAndReturnRequiredRealmName(params, reject);
-        var url;
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realmName = utils.validateAndReturnRequiredRealmName(params, reject);
+        let url;
         if(params.month && params.year){
             url = sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
                 + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month;
@@ -243,16 +243,16 @@ export function createAccount(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = {admins: []};
-        var accountname = utils.validateAndReturnRequiredAccount(params, reject);
+        const account = {admins: []};
+        const accountname = utils.validateAndReturnRequiredAccount(params, reject);
         account.accountname = accountname;
 
         if (params.description) {
             account.description = params.description;
         }
 
-        var admin = {};
-        var username = utils.validateAndReturnRequiredUsername(params, reject);
+        const admin = {};
+        const username = utils.validateAndReturnRequiredUsername(params, reject);
         admin.username = username;
         utils.validateRequiredPassword(params, reject);
         admin.password = params.password;
@@ -276,9 +276,9 @@ export function createAccount(params) {
             account.custom = params.custom;
         }
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + (txParam ? '&' + txParam : '');
-        var loggedInAt = new Date().getTime();
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/' + (txParam ? '&' + txParam : '');
+        const loggedInAt = new Date().getTime();
         post(url, {account: account}).then(function (json) {
             updateLastActiveTimestamp();
 
@@ -320,11 +320,11 @@ export function updateTopLevelAccount(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/'
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/'
             + account + '?access_token=' + token + (txParam ? '&' + txParam : '');
 
         put(url, {'account': params}).then(function (response) {
@@ -359,12 +359,12 @@ export function updateAccount(params) {
             reject(Error('Admin username to update is required'));
         }
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/'
-                   + account + '/admins/' + params.username + '?access_token=' + token + (txParam ? '&' + txParam : '');
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/'
+            + account + '/admins/' + params.username + '?access_token=' + token + (txParam ? '&' + txParam : '');
 
         put(url, {'admin': params}).then(function (response) {
             updateLastActiveTimestamp();
@@ -392,8 +392,8 @@ export function confirmAccount(params){
         validateRequiredConfirmationId(params, reject);
         validateRequiredAccount(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + params.account + '/confirm' + (txParam ? '&' + txParam : '');
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/' + params.account + '/confirm' + (txParam ? '&' + txParam : '');
         post(url, {confirmationId: params.confirmationId}).then(function (json) {
             // Store the returned username, and also the param account and realm if available
             if (json.username) {
@@ -432,8 +432,8 @@ export function resendConfirmAccountEmail(params) {
         validateRequiredAccount(params, reject);
         utils.validateRequiredUsername(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/'
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/'
             + params.account + '/admins/'
             + params.username + '/resendLink'
             + (txParam ? '&' + txParam : '');
@@ -452,9 +452,9 @@ export function getRealms(params) {
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var url = authAdminURL + '/' + account + '/realms/'
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const url = authAdminURL + '/' + account + '/realms/'
             + '?access_token=' + token + '&' + utils.getTransactionURLParam();
 
         getJSON(url).then(function (json) {
@@ -474,11 +474,11 @@ export function getRealm(params) {
         // Set 'nostore' to ensure the following checks don't update our lastKnown calls
         params.nostore = true;
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             '', token);
 
         getJSON(url).then(function (json) {
@@ -495,11 +495,11 @@ export function updateRealm(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
         utils.validateRequiredRealm(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, params.realm.name,
+        const url = utils.getRealmResourceURL(authAdminURL, account, params.realm.name,
             '', token);
 
         put(url, {realm: params.realm}).then(function () {
@@ -519,13 +519,13 @@ export function createRealm(params) {
         // Set 'nostore' to ensure the following checks don't update our lastKnown calls
         params.nostore = true;
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
         utils.validateAndReturnRequiredRealmName(params, reject);
         utils.validateRequiredRealm(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + account + '/realms?access_token=' + token +
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/' + account + '/realms?access_token=' + token +
             (txParam ? '&' + txParam : '');
 
         post(url, {realm: params.realm}).then(function (json) {
@@ -542,13 +542,13 @@ export function cloneRealm(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var originRealmName = validateAndReturnRequiredOriginRealmName(params, reject);
-        var destRealmName = validateAndReturnRequiredDestRealmName(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const originRealmName = validateAndReturnRequiredOriginRealmName(params, reject);
+        const destRealmName = validateAndReturnRequiredDestRealmName(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + account + '/realms/' + originRealmName + '/clone/' +
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/' + account + '/realms/' + originRealmName + '/clone/' +
             destRealmName + '?access_token=' + token + (txParam ? '&' + txParam : '');
 
         post(url, {realm: params.realm}).then(function (json) {
@@ -568,11 +568,11 @@ export function deleteRealm(params) {
         // Set 'nostore' to ensure the following checks don't update our lastKnown calls
         params.nostore = true;
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var realmName = utils.validateAndReturnRequiredRealmName(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const realmName = utils.validateAndReturnRequiredRealmName(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realmName,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realmName,
             '', token);
 
         console.log('voyent.admin.deleteRealm() ' + url);
@@ -597,11 +597,11 @@ export function getRealmUsers(params) {
         params.nostore = true;
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'users/', token, {
                 'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                 'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -625,22 +625,22 @@ export function createRealmUser(params, fromUser) {
         // Set 'nostore' to ensure the following checks don't update our lastKnown calls
         params.nostore = true;
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
         validateRequiredUser(params, reject);
 
         // By default hit the "users" endpoint, which is used for admins
         // However if the call is from a user trying to create another user, then use the "realmUser" endpoint
-        var endpoint = 'users';
+        let endpoint = 'users';
         if (fromUser) {
             endpoint = 'realmUser';
         }
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             endpoint, token);
 
-        var toPost = {user: params.user};
+        const toPost = {user: params.user};
 
         if (params.metadata) {
             toPost.metadata = params.metadata;
@@ -667,14 +667,14 @@ export function createAnonUser(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'register', false);
 
-        var password = generatePassword();
-        var toPost = {user: {password: password}};
+        const password = generatePassword();
+        const toPost = {user: {password: password}};
 
         if (params.metadata) {
             toPost.metadata = params.metadata;
@@ -685,7 +685,7 @@ export function createAnonUser(params) {
 
         post(url, toPost).then(function (response) {
             updateLastActiveTimestamp();
-            var anonUser = {
+            const anonUser = {
                 password: password,
                 username: response.resourceLocation.substring(response.resourceLocation.lastIndexOf('/') + 1)
             };
@@ -709,10 +709,10 @@ export function createUser(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm, 'register');
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm, 'register');
 
         // Check for user data
         if (!params.user) {
@@ -752,8 +752,8 @@ export function confirmRealmUser(params) {
         validateRequiredAccount(params, reject);
         utils.validateRequiredRealm(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL
             + '/' + params.account
             + '/realms/' + params.realm
             + '/confirm' + (txParam ? '&' + txParam : '');
@@ -796,9 +796,9 @@ export function resendConfirmRealmUserEmail(params) {
         utils.validateRequiredRealm(params, reject);
         utils.validateRequiredUsername(params, reject);
 
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + params.account
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/' + params.account
             + '/realms/' + params.realm
             + '/users/' + params.username + '/invalidate?access_token=' + token
             + (txParam ? '&' + txParam : '');
@@ -818,12 +818,12 @@ export function getRealmUser(params) {
         params.nostore = true;
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var username = utils.validateAndReturnRequiredUsername(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const username = utils.validateAndReturnRequiredUsername(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'users/' + username, token);
 
         getJSON(url).then(function (json) {
@@ -840,13 +840,13 @@ export function updateRealmUser(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
         validateRequiredUser(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'users/' + params.user.username, token);
 
         put(url, {user: params.user}).then(function (response) {
@@ -865,12 +865,12 @@ export function deleteRealmUser(params) {
         // Set 'nostore' to ensure the following checks don't update our lastKnown calls
         params.nostore = true;
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
         utils.validateAndReturnRequiredUsername(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'users/' + params.username, token);
 
         doDelete(url).then(function () {
@@ -889,11 +889,11 @@ export function getRealmRoles(params) {
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'roles', token);
 
         getJSON(url).then(function (json) {
@@ -912,11 +912,11 @@ export function createRealmRole(params) {
         validateRequiredRole(params, reject);
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'roles', token);
 
         post(url, {role: params.role}).then(function (response) {
@@ -935,11 +935,11 @@ export function updateRealmRole(params) {
         validateRequiredRole(params, reject);
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'roles/' + params.role.name, token);
 
         put(url, {role: params.role}).then(function (response) {
@@ -957,11 +957,11 @@ export function deleteRealmRole(params) {
 
         validateRequiredId(params, reject);
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'roles/' + params.id, token);
 
         doDelete(url).then(function (response) {
@@ -980,11 +980,11 @@ export function getAllRealmContexts(params) {
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'contexts', token);
 
         getJSON(url).then(function (json) {
@@ -1001,11 +1001,11 @@ export function getRealmContext(params) {
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'contexts/' + params.username, token);
 
         getJSON(url).then(function (json) {
@@ -1024,11 +1024,11 @@ export function updateRealmContext(params) {
         validateRequiredRole(params, reject);
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'contexts/' + params.context.username, token);
 
         put(url, {context: params.context}).then(function (response) {
@@ -1044,14 +1044,14 @@ export function getLogs(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var query = params.query ? encodeURIComponent(JSON.stringify(params.query)) : '{}';
-        var fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';
-        var options = params.options ? encodeURIComponent(JSON.stringify(params.options)) : '{}';
+        const query = params.query ? encodeURIComponent(JSON.stringify(params.query)) : '{}';
+        const fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';
+        const options = params.options ? encodeURIComponent(JSON.stringify(params.options)) : '{}';
 
-        var url = authAdminURL + '/' + account + '/logging/?access_token=' +
+        const url = authAdminURL + '/' + account + '/logging/?access_token=' +
             token + '&query=' + query + '&fields=' + fields + '&options=' + options;
 
         getJSON(url).then(function (logs) {
@@ -1068,15 +1068,15 @@ export function getDebugLogs(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var query = params.query ? encodeURIComponent(JSON.stringify(params.query)) : '{}';
-        var fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';
-        var options = params.options ? encodeURIComponent(JSON.stringify(params.options)) : '{}';
+        const query = params.query ? encodeURIComponent(JSON.stringify(params.query)) : '{}';
+        const fields = params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : '{}';
+        const options = params.options ? encodeURIComponent(JSON.stringify(params.options)) : '{}';
 
-        var url = authAdminURL + '/' + account + '/realms/' + realm +
+        const url = authAdminURL + '/' + account + '/realms/' + realm +
             '/debugLogging/?access_token=' + token + '&query=' + query + '&fields=' + fields + '&options=' + options;
 
         getJSON(url).then(function (logs) {
@@ -1093,12 +1093,12 @@ export function createAdministrator(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var admin = validateAndReturnRequiredAdmin(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const admin = validateAndReturnRequiredAdmin(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + account + '/admins/?access_token=' + token +
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/' + account + '/admins/?access_token=' + token +
             (txParam ? '&' + txParam : '');
 
         post(url, {admin: admin}).then(function (response) {
@@ -1114,12 +1114,12 @@ export function updateAdministrator(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var admin = validateAndReturnRequiredAdmin(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const admin = validateAndReturnRequiredAdmin(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + account + '/admins/' + admin.username +
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/' + account + '/admins/' + admin.username +
             '/?access_token=' + token + (txParam ? '&' + txParam : '');
 
         put(url, {admin: admin}).then(function (response) {
@@ -1137,12 +1137,12 @@ export function deleteAdministrator(params) {
 
         utils.validateRequiredUsername(params, reject);
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-        var username = utils.validateAndReturnRequiredUsername(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const username = utils.validateAndReturnRequiredUsername(params, reject);
 
-        var txParam = utils.getTransactionURLParam();
-        var url = authAdminURL + '/' + account + '/admins/' + username + '/?access_token=' + token +
+        const txParam = utils.getTransactionURLParam();
+        const url = authAdminURL + '/' + account + '/admins/' + username + '/?access_token=' + token +
             (txParam ? '&' + txParam : '');
 
         doDelete(url).then(function (response) {
@@ -1158,11 +1158,11 @@ export function getAllUserGroups(params) {
     return new Promise(function(resolve, reject) {
         params = params ? params : {};
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'groups/', token);
 
         get(url).then(function (response) {
@@ -1180,11 +1180,11 @@ export function getUserGroupDetails(params) {
 
         validateRequiredGroup(params, reject);
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'groups/' + params.group + '/details', token);
 
         get(url).then(function (response) {
@@ -1202,11 +1202,11 @@ export function createUserGroup(params) {
 
         validateRequiredGroup(params, reject);
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'groups/', token);
 
         post(url, { group: params.group }).then(function (response) {
@@ -1224,11 +1224,11 @@ export function updateUserGroup(params) {
 
         validateRequiredGroup(params, reject);
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'groups/' + params.group.name, token);
 
         put(url, { group: params.group }).then(function (response) {
@@ -1246,11 +1246,11 @@ export function deleteUserGroup(params) {
 
         validateRequiredGroup(params, reject);
 
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealmName(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'groups/' + params.group, token);
 
         doDelete(url).then(function (response) {

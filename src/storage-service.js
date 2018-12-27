@@ -34,11 +34,11 @@ export function getMetaInfo(params){
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(storageURL, account, realm,
+        const url = utils.getRealmResourceURL(storageURL, account, realm,
             'meta', token, params.scope ? {scope: params.scope} : null);
 
 
@@ -76,15 +76,15 @@ export function uploadBlob(params){
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
         validateRequiredBlob(params, reject);
 
-        var formData = new FormData();
+        const formData = new FormData();
         formData.append('file', params.blob);
 
-        var url = utils.getRealmResourceURL(storageURL, account, realm,
+        const url = utils.getRealmResourceURL(storageURL, account, realm,
             'blobs' + (params.id ? '/' + params.id : ''), token);
 
         post(url, formData, null, true, null, params.progressCallback).then(function(response){
@@ -123,14 +123,14 @@ export function uploadFile(params){
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
         validateRequiredFile(params, reject);
 
-        var url = utils.getRealmResourceURL(storageURL, account, realm,
+        const url = utils.getRealmResourceURL(storageURL, account, realm,
             'blobs' + (params.id ? '/' + params.id : ''), token);
-        var formData = new FormData();
+        const formData = new FormData();
         formData.append('file', params.file);
 
         post(url, formData, null, true, null, params.progressCallback, params.onabort, params.onerror).then(function(response){
@@ -164,12 +164,12 @@ export function getBlob(params){
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
         utils.validateRequiredId(params, reject);
 
-        var url = utils.getRealmResourceURL(storageURL, account, realm,
+        const url = utils.getRealmResourceURL(storageURL, account, realm,
             'blobs/' + params.id, token);
 
         getBlob(url).then(function(response){
@@ -202,12 +202,12 @@ export function deleteBlob(params){
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
         utils.validateRequiredId(params, reject);
 
-        var url = utils.getRealmResourceURL(storageURL, account, realm,
+        const url = utils.getRealmResourceURL(storageURL, account, realm,
             'blobs/' + params.id, token);
 
         doDelete(url).then(function(response){

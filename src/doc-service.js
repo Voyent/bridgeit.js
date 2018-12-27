@@ -32,12 +32,12 @@ export function createDocument(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var collection = validateCollection(params);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const collection = validateCollection(params);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(docsURL, account, realm,
+            const url = utils.getRealmResourceURL(docsURL, account, realm,
                 collection + '/' + (params.id ? params.id : ''), token);
 
             post(url, params.document).then(function (response) {
@@ -76,13 +76,13 @@ export function updateDocument(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var collection = validateCollection(params);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const collection = validateCollection(params);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(docsURL, account, realm,
+            const url = utils.getRealmResourceURL(docsURL, account, realm,
                 collection + '/' + params.id, token);
 
             put(url, params.document).then(function () {
@@ -119,13 +119,13 @@ export function getDocument(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var collection = validateCollection(params);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const collection = validateCollection(params);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(docsURL, account, realm,
+            const url = utils.getRealmResourceURL(docsURL, account, realm,
                 collection + '/' + params.id, token);
 
             getJSON(url).then(function (doc) {
@@ -172,12 +172,12 @@ export function findDocuments(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var collection = validateCollection(params);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const collection = validateCollection(params);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(docsURL, account, realm,
+            const url = utils.getRealmResourceURL(docsURL, account, realm,
                 collection, token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -223,11 +223,11 @@ export function getCollections(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(docsURL, account, realm,
+            const url = utils.getRealmResourceURL(docsURL, account, realm,
                 "collections", token, {});
 
             getJSON(url).then(function (collections) {
@@ -269,13 +269,13 @@ export function deleteDocument(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var collection = validateCollection(params);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const collection = validateCollection(params);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(docsURL, account, realm,
+            const url = utils.getRealmResourceURL(docsURL, account, realm,
                 collection + '/' + params.id, token);
 
             doDelete(url).then(function (response) {

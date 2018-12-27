@@ -47,11 +47,11 @@ export function pushToNotifyBackURI(notifyBackURI, params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(cloudURL, account, realm,
+            const url = utils.getRealmResourceURL(cloudURL, account, realm,
                 'notify-back-uris/' + notifyBackURI, token);
 
             post(url, params.message).then(function (response) {
@@ -113,11 +113,11 @@ export function pushToNotifyBackURIs(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(cloudURL, account, realm,
+            const url = utils.getRealmResourceURL(cloudURL, account, realm,
                 'notify-back-uris/', token);
 
             post(url, params.message).then(function (response) {

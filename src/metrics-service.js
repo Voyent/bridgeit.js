@@ -32,11 +32,11 @@ export function findEvents(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(metricsURL, account, realm,
+            const url = utils.getRealmResourceURL(metricsURL, account, realm,
                 'events', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -76,12 +76,12 @@ export function createCustomEvent(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredEvent(params, reject);
 
-            var url = utils.getRealmResourceURL(metricsURL, account, realm,
+            const url = utils.getRealmResourceURL(metricsURL, account, realm,
                 'events', token);
 
             post(url, params.event).then(function(response){
@@ -119,11 +119,11 @@ export function getClientServerTimeGap(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(metricsURL, account, realm,
+            const url = utils.getRealmResourceURL(metricsURL, account, realm,
                 'time', token, {
                     clientTime: encodeURIComponent(new Date().toISOString())
                 });

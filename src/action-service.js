@@ -30,12 +30,12 @@ export function executeAction(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'actions/' + params.id, token, {'op': 'exec'});
 
             post(url).then(function (response) {
@@ -73,13 +73,13 @@ export function createAction(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredAction(params, reject);
 
-            var url = utils.getRealmResourceURL(actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'actions/' + params.id, token);
 
             post(url, params.action).then(function (response) {
@@ -116,13 +116,13 @@ export function updateAction(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredAction(params, reject);
 
-            var url = utils.getRealmResourceURL(actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'actions/' + params.id, token);
 
             put(url, params.action).then(function () {
@@ -158,12 +158,12 @@ export function getAction(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'actions/' + params.id, token);
 
             getJSON(url).then(function (action) {
@@ -202,11 +202,11 @@ export function findActions(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'actions/', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -246,12 +246,12 @@ export function deleteAction(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'actions/' + params.id, token);
 
             doDelete(url).then(function () {
@@ -286,11 +286,11 @@ export function getTaskGroups(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'taskGroups/', token);
 
             getJSON(url).then(function (tasksGroups) {
@@ -325,11 +325,11 @@ export function getTasks(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'tasks/', token);
 
             getJSON(url).then(function (tasks) {
@@ -366,17 +366,17 @@ export function executeModule(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var moduleParams = {};
+            let moduleParams = {};
             if (params.params && typeof params.params === 'object' && Object.keys(params.params).length) {
                 moduleParams = params.params;
             }
 
-            var url = utils.getRealmResourceURL(actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'modules/' + params.id, token);
 
             post(url, moduleParams).then(function (response) {

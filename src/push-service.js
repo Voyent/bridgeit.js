@@ -9,13 +9,13 @@ function validateRequiredCallback(params, reject) {
     utils.validateParameter('group', 'The callback parameter is required', params, reject);
 }
 
-var pushKeys = {
+const pushKeys = {
     PUSH_CALLBACKS_KEY: 'pushCallbacks'
 };
 
 function storePushListener(pushId, group, cb) {
-    var pushListeners = {};
-    var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
+    let pushListeners = {};
+    const pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
     if (pushListenersStr) {
         try {
             pushListeners = JSON.parse(pushListenersStr);
@@ -44,11 +44,11 @@ export function startPushService(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = pushURL + '/';
+            const url = pushURL + '/';
 
             function notifyBack() {
                 if (params.cloudPushURI) {
@@ -92,7 +92,7 @@ export function addPushListener(params) {
         if (ice && ice.push) {
             ice.push.createPushId(function (pushId) {
                 ice.push.addGroupMember(params.group, pushId, true, function() {
-                    var fn = utils.findFunctionInGlobalScope(params.callback);
+                    let fn = utils.findFunctionInGlobalScope(params.callback);
                     if (!fn) {
                         reject('could not find function in global scope: ' + params.callback);
                     } else {
@@ -126,15 +126,15 @@ export function removePushListener(params) {
         console.log('voyent.push.removePushListener() group: ' + params.group);
         params = params ? params : {};
         validateRequiredGroup(params, reject);
-        var pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
+        let pushListenersStr = utils.getSessionStorageItem(pushKeys.PUSH_CALLBACKS_KEY);
         if (!pushListenersStr) {
             console.error('Cannot remove push listener ' + params.group + ', missing push listener storage.');
             reject('Cannot remove push listener ' + params.group + ', missing push listener storage.');
         }
         else {
             try {
-                var pushListenerStorage = JSON.parse(pushListenersStr);
-                var listeners = pushListenerStorage[params.group];
+                const pushListenerStorage = JSON.parse(pushListenersStr);
+                let listeners = pushListenerStorage[params.group];
                 console.log('found push listeners in storage: ' + ( listeners ? JSON.stringify(listeners) : null ));
                 if (!listeners) {
                     console.error('could not find listeners for group ' + params.group);
@@ -143,9 +143,9 @@ export function removePushListener(params) {
                 }
                 if (params.callback) {
                     //remove only the listener/pushId corresponding to the provided callback
-                    var remainingListeners = [];
+                    const remainingListeners = [];
                     for (var i = 0; i < listeners.length; i++) {
-                        var listener = listeners[i];
+                        const listener = listeners[i];
                         if (listener.callback == params.callback) {
                             var pushId = listener.pushId;
                             ice.push.removeGroupMember(params.group, pushId);

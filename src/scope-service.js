@@ -34,12 +34,12 @@ export function createRealmData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredData(params, reject);
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/realm', token);
 
             post(url, params.data).then(function (response) {
@@ -78,16 +78,16 @@ export function getRealmData(params) {
             // Set 'nostore' to ensure the following checks don't update our lastKnown calls
             params.nostore = true;
 
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             if (params.property) {
                 queryParams[params.property] = '';
             }
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/realm', token, queryParams);
 
             getJSON(url).then(function (data) {
@@ -122,15 +122,15 @@ export function deleteRealmData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredProperty(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             queryParams[params.property] = '';
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/realm', token, queryParams);
 
             doDelete(url).then(function () {
@@ -164,13 +164,13 @@ export function deleteRealmScope(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var queryParams = {"_invalidate":''};
+            const queryParams = {"_invalidate": ''};
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/realm', token, queryParams);
 
             doDelete(url).then(function () {
@@ -206,12 +206,12 @@ export function createAccountData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredData(params, reject);
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/account', token);
 
             post(url, params.data).then(function (response) {
@@ -250,16 +250,16 @@ export function getAccountData(params) {
             // Set 'nostore' to ensure the following checks don't update our lastKnown calls
             params.nostore = true;
 
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             if (params.property) {
                 queryParams[params.property] = '';
             }
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/account', token, queryParams);
 
             getJSON(url).then(function (data) {
@@ -294,15 +294,15 @@ export function deleteAccountData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredProperty(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             queryParams[params.property] = '';
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/account', token, queryParams);
 
             doDelete(url).then(function () {
@@ -339,13 +339,13 @@ export function createUserData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredData(params, reject);
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/user/' + params.id, token);
 
             post(url, params.data).then(function (response) {
@@ -383,17 +383,17 @@ export function getUserData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             if (params.property) {
                 queryParams[params.property] = '';
             }
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/user/' + params.id, token, queryParams);
 
             getJSON(url).then(function (data) {
@@ -429,16 +429,16 @@ export function deleteUserData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredProperty(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             queryParams[params.property] = '';
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/user/' + params.id, token, queryParams);
 
             doDelete(url).then(function () {
@@ -473,14 +473,14 @@ export function deleteUserScope(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var queryParams = {"_invalidate":''};
+            const queryParams = {"_invalidate": ''};
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/user/' + params.id, token, queryParams);
 
             doDelete(url).then(function () {
@@ -518,13 +518,13 @@ export function createProcessData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredData(params, reject);
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/process/' + params.id, token);
 
             post(url, params.data).then(function (response) {
@@ -562,17 +562,17 @@ export function getProcessData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             if (params.property) {
                 queryParams[params.property] = '';
             }
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/process/' + params.id, token, queryParams);
 
             getJSON(url).then(function (data) {
@@ -608,16 +608,16 @@ export function deleteProcessData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredProperty(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             queryParams[params.property] = '';
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/process/' + params.id, token, queryParams);
 
             doDelete(url).then(function () {
@@ -652,14 +652,14 @@ export function deleteProcessScope(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var queryParams = {"_invalidate":''};
+            const queryParams = {"_invalidate": ''};
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/process/' + params.id, token, queryParams);
 
             doDelete(url).then(function () {
@@ -697,13 +697,13 @@ export function createTransactionData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredData(params, reject);
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/transaction/' + params.id, token);
 
             post(url, params.data).then(function (response) {
@@ -742,17 +742,17 @@ export function getTransactionData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             if (params.property) {
                 queryParams[params.property] = '';
             }
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/transaction/' + params.id, token, queryParams);
 
             getJSON(url).then(function (data) {
@@ -788,16 +788,16 @@ export function deleteTransactionData(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredProperty(params, reject);
 
-            var queryParams = {};
+            const queryParams = {};
             queryParams[params.property] = '';
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/transaction/' + params.id, token, queryParams);
 
             doDelete(url).then(function () {
@@ -832,14 +832,14 @@ export function deleteTransactionScope(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var queryParams = {"_invalidate":''};
+            const queryParams = {"_invalidate": ''};
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/transaction/' + params.id, token, queryParams);
 
             doDelete(url).then(function () {
@@ -874,12 +874,12 @@ export function touchTransactionScope(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(scopeURL, account, realm,
+            const url = utils.getRealmResourceURL(scopeURL, account, realm,
                 'scopes/transaction/' + params.id, token);
 
             put(url).then(function(){

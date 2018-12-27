@@ -11,7 +11,7 @@ export function validateRequiredRealm(params, reject) {
 }
 
 export function validateAndReturnRequiredAccessToken(params, reject) {
-    var token = params.accessToken || getLastAccessToken();
+    const token = params.accessToken || getLastAccessToken();
     if (token) {
         return token;
     }
@@ -21,7 +21,7 @@ export function validateAndReturnRequiredAccessToken(params, reject) {
 }
 
 export function validateAndReturnRequiredRealmName(params, reject) {
-    var realm = params.realmName;
+    let realm = params.realmName;
     if (realm) {
         realm = encodeURI(realm);
     } else {
@@ -38,7 +38,7 @@ export function validateAndReturnRequiredRealmName(params, reject) {
 }
 
 export function validateAndReturnRequiredRealm(params, reject) {
-    var realm = params.realm;
+    let realm = params.realm;
     if (realm) {
         realm = encodeURI(realm);
     }
@@ -57,7 +57,7 @@ export function validateAndReturnRequiredRealm(params, reject) {
 }
 
 export function validateAndReturnRequiredAccount(params, reject) {
-    var account = params.account;
+    let account = params.account;
     if (account) {
         account = encodeURI(account);
     } else {
@@ -74,7 +74,7 @@ export function validateAndReturnRequiredAccount(params, reject) {
 }
 
 export function validateAndReturnRequiredUsername(params, reject) {
-    var username = params.username;
+    let username = params.username;
     if (!username) {
         username = getLastKnownUsername();
     }
@@ -109,7 +109,7 @@ export function validateParameter(name, msg, params, reject) {
 
 //local storage container that will be used to store data in node
 //that is normally stored in the browser session or local storage
-var nodeStorage = {};
+const nodeStorage = {};
 
 export const isNode = typeof module === "object" &&
     typeof exports === "object" &&
@@ -120,7 +120,7 @@ function useLocalStorage() {
     if (!('Voyent_useLocalStorage' in window)) {
         if ('localStorage' in window) {
             try {
-                var testdate = new Date().toString();
+                const testdate = new Date().toString();
                 window.localStorage.setItem('testdate', testdate);
                 window.Voyent_useLocalStorage = window.localStorage.getItem('testdate') === testdate;
                 window.localStorage.removeItem('testdate');
@@ -136,10 +136,10 @@ function useLocalStorage() {
 }
 
 function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
+    const name = cname + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
         while (c.charAt(0) == ' ') c = c.substring(1);
         if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
     }
@@ -147,9 +147,9 @@ function getCookie(cname) {
 }
 
 function setCookie(cname, cvalue, days) {
-    var d = new Date();
+    const d = new Date();
     d.setTime(d.getTime() + ((days || 1) * 24 * 60 * 60 * 1000));
-    var expires = "expires=" + d.toUTCString();
+    const expires = "expires=" + d.toUTCString();
     document.cookie = cname + "=" + cvalue + "; " + expires;
 }
 
@@ -233,19 +233,19 @@ export function sanitizeAccountName(original) {
 }
 
 export function getTransactionURLParam() {
-    var txId = getLastTransactionId();
+    const txId = getLastTransactionId();
     return txId ? 'tx=' + txId : '';
 }
 
 export function getRealmResourceURL(servicePath, account, realm, resourcePath, token, params) {
-    var txParam = getTransactionURLParam();
-    var url = servicePath +
+    const txParam = getTransactionURLParam();
+    let url = servicePath +
         '/' + account + '/realms/' + realm + '/' + resourcePath + '?' +
         (token ? 'access_token=' + token : '') +
         (txParam ? '&' + txParam : '');
     if (params) {
-        for (var key in params) {
-            var param = params[key];
+        for (let key in params) {
+            let param = params[key];
             if (typeof param === 'object') {
                 try {
                     param = JSON.stringify(param);
@@ -272,7 +272,7 @@ export function extractResponseValues(xhr) {
 }
 
 export function getFunctionName(fn) {
-    var ret = fn.toString();
+    let ret = fn.toString();
     ret = ret.substr('function '.length);
     ret = ret.substr(0, ret.indexOf('('));
     return ret;
@@ -282,12 +282,12 @@ export function findFunctionInGlobalScope(fn) {
     if (!fn) {
         return null;
     }
-    var functionName;
+    let functionName;
     if (typeof fn === "string") {
         functionName = fn;
-        var parts = functionName.split(".");
-        var theObject = window;
-        for (var i = 0; i < parts.length; i++) {
+        const parts = functionName.split(".");
+        let theObject = window;
+        for (let i = 0; i < parts.length; i++) {
             theObject = theObject[parts[i]];
             if (!theObject) {
                 return null;

@@ -34,12 +34,12 @@ export function createMultiUserMessages(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredMessages(params, reject);
 
-            var url = utils.getRealmResourceURL(mailboxURL, account, realm,
+            const url = utils.getRealmResourceURL(mailboxURL, account, realm,
                 'mailboxes', token);
 
             post(url, params.messages).then(function (response) {
@@ -77,13 +77,13 @@ export function createMessages(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredMessages(params, reject);
             utils.validateRequiredUsername(params, reject);
 
-            var url = utils.getRealmResourceURL(mailboxURL, account, realm,
+            const url = utils.getRealmResourceURL(mailboxURL, account, realm,
                 'mailboxes/' + params.username + '/messages', token);
 
             post(url, params.messages).then(function (response) {
@@ -121,13 +121,13 @@ export function getMessage(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             utils.validateRequiredUsername(params, reject);
 
-            var url = utils.getRealmResourceURL(mailboxURL, account, realm,
+            const url = utils.getRealmResourceURL(mailboxURL, account, realm,
                 'mailboxes/' + params.username + '/messages/' + params.id, token);
 
             getJSON(url).then(function (message) {
@@ -169,12 +169,12 @@ export function findMessages(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredUsername(params, reject);
 
-            var url = utils.getRealmResourceURL(mailboxURL, account, realm,
+            const url = utils.getRealmResourceURL(mailboxURL, account, realm,
                 'mailboxes/' + params.username + '/messages' + (params.type ? ('/type/' + params.type) : ''),
                 token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
@@ -216,13 +216,13 @@ export function deleteMessage(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             utils.validateRequiredUsername(params, reject);
 
-            var url = utils.getRealmResourceURL(mailboxURL, account, realm,
+            const url = utils.getRealmResourceURL(mailboxURL, account, realm,
                 'mailboxes/' + params.username + '/messages/' + params.id, token);
 
             doDelete(url).then(function () {
@@ -264,12 +264,12 @@ export function deleteMessages(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredUsername(params, reject);
 
-            var url = utils.getRealmResourceURL(mailboxURL, account, realm,
+            const url = utils.getRealmResourceURL(mailboxURL, account, realm,
                 'mailboxes/' + params.username + '/messages' + (params.type ? ('/type/' + params.type) : ''),
                 token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
@@ -309,11 +309,11 @@ export function getConfig(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(mailboxURL, account, realm,
+            const url = utils.getRealmResourceURL(mailboxURL, account, realm,
                 'config', token);
 
             getJSON(url).then(function (config) {
@@ -348,12 +348,12 @@ export function updateConfig(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredConfig(params, reject);
 
-            var url = utils.getRealmResourceURL(mailboxURL, account, realm,
+            const url = utils.getRealmResourceURL(mailboxURL, account, realm,
                 'config', token);
 
             put(url, params.config).then(function () {

@@ -24,11 +24,11 @@ export function startDevice(params) {
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(deviceURL, account, realm,
+        const url = utils.getRealmResourceURL(deviceURL, account, realm,
             params.macAddress + '/start', token);
 
         put(url, {}).then(function () {
@@ -61,11 +61,11 @@ export function stopDevice(params) {
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(deviceURL, account, realm,
+        const url = utils.getRealmResourceURL(deviceURL, account, realm,
             params.macAddress + '/stop', token);
 
         put(url, {}).then(function () {
@@ -97,12 +97,12 @@ export function stopDevices(params) {
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
         utils.validateRequiredId(params, reject);
 
-        var url = utils.getRealmResourceURL(deviceURL, account, realm, '/stop', token);
+        const url = utils.getRealmResourceURL(deviceURL, account, realm, '/stop', token);
 
         put(url, {}).then(function () {
             updateLastActiveTimestamp();
@@ -133,11 +133,11 @@ export function getRunningDevices(params) {
         params = params ? params : {};
 
         //validate
-        var account = utils.validateAndReturnRequiredAccount(params, reject);
-        var realm = utils.validateAndReturnRequiredRealm(params, reject);
-        var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        var url = utils.getRealmResourceURL(deviceURL, account, realm, '/running', token);
+        const url = utils.getRealmResourceURL(deviceURL, account, realm, '/running', token);
 
         getJSON(url).then(function (devices) {
             updateLastActiveTimestamp();

@@ -35,12 +35,12 @@ export function createHandler(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredHandler(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'handlers/' + (params.id ? params.id : ''), token);
 
             post(url, params.handler).then(function (response) {
@@ -77,13 +77,13 @@ export function updateHandler(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredHandler(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'handlers/' + params.id, token);
 
             put(url, params.handler).then(function () {
@@ -119,12 +119,12 @@ export function getHandler(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'handlers/' + params.id, token);
 
             getJSON(url).then(function (handler) {
@@ -163,11 +163,11 @@ export function findHandlers(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'handlers/', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -207,12 +207,12 @@ export function deleteHandler(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'handlers/' + params.id, token);
 
             doDelete(url).then(function () {
@@ -249,11 +249,11 @@ export function deleteHandlers(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'handlers/', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -294,12 +294,12 @@ export function createRecognizer(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredRecognizer(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'recognizers/' + (params.id ? params.id : ''), token);
 
             post(url, params.recognizer).then(function (response) {
@@ -336,13 +336,13 @@ export function updateRecognizer(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredRecognizer(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'recognizers/' + params.id, token);
 
             put(url, params.recognizer).then(function () {
@@ -378,12 +378,12 @@ export function getRecognizer(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'recognizers/' + params.id, token);
 
             getJSON(url).then(function (recognizer) {
@@ -422,11 +422,11 @@ export function findRecognizers(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'recognizers/', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -466,12 +466,12 @@ export function deleteRecognizer(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'recognizers/' + params.id, token);
 
             doDelete(url).then(function () {
@@ -508,11 +508,11 @@ export function deleteRecognizers(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(eventhubURL, account, realm,
+            const url = utils.getRealmResourceURL(eventhubURL, account, realm,
                 'recognizers/', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},

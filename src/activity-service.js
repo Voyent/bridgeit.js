@@ -27,15 +27,15 @@ export function getMetrics(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var txParam = utils.getTransactionURLParam();
-            var url = activityURL +
-                    '/' + account + '/realms/' + realm + '/billingSummary?' +
-                    (token ? 'access_token=' + token : '') +
-                    (txParam ? '&' + txParam : '') + '&year=' + params.year + "&month=" + params.month;
+            const txParam = utils.getTransactionURLParam();
+            const url = activityURL +
+                '/' + account + '/realms/' + realm + '/billingSummary?' +
+                (token ? 'access_token=' + token : '') +
+                (txParam ? '&' + txParam : '') + '&year=' + params.year + "&month=" + params.month;
             getJSON(url).then(function (data) {
                 updateLastActiveTimestamp();
                 resolve(data);

@@ -74,12 +74,12 @@ export function createRegion(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredRegion(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'regions/' + (params.id ? params.id : ''), token);
 
             post(url, params.region).then(function (response) {
@@ -115,13 +115,13 @@ export function updateRegion(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredRegion(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'regions/' + params.id, token);
 
             put(url, params.region).then(function () {
@@ -156,12 +156,12 @@ export function deleteRegion(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'regions/' + params.id, token);
 
             doDelete(url).then(function (response) {
@@ -197,11 +197,11 @@ export function getAllRegions(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'regions', token);
 
             getJSON(url).then(function (response) {
@@ -242,11 +242,11 @@ export function findRegions(params) {
             params.nostore = true;
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'regions', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -292,12 +292,12 @@ export function createPOI(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredPOI(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'poi' + (params.id ? '/' + params.id : ''), token);
 
             post(url, params.poi).then(function (response) {
@@ -333,13 +333,13 @@ export function updatePOI(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredPOI(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'poi/' + params.id, token);
 
             put(url, params.poi).then(function () {
@@ -377,11 +377,11 @@ export function findPOIs(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'poi', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -425,12 +425,12 @@ export function deletePOI(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'poi/' + params.id, token);
 
             doDelete(url).then(function (response) {
@@ -465,11 +465,11 @@ export function getAllPOIs(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'poi', token);
 
             getJSON(url).then(function (response) {
@@ -507,11 +507,11 @@ export function findLocations(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'locations', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -555,12 +555,12 @@ export function updateLocation(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredLocation(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'locations', token);
 
             post(url, params.location).then(function (response) {
@@ -597,13 +597,13 @@ export function updateLocationCoordinates(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredLat(params, reject);
             validateRequiredLon(params, reject);
 
-            var location = {
+            const location = {
                 location: {
                     geometry: {
                         type: 'Point',
@@ -619,7 +619,7 @@ export function updateLocationCoordinates(params) {
                 location.label = params.label;
             }
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'locations', token);
 
             post(url, location).then(function (response) {
@@ -666,12 +666,12 @@ export function getLastUserLocation(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredUsername(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'locations/', token, {
                     "query": {"username": params.username},
                     "options": {"sort": {"lastUpdated": -1}, "limit": 1}
@@ -714,12 +714,12 @@ export function deleteLocation(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'locations/' + params.id, token);
 
             doDelete(url).then(function (response) {
@@ -756,11 +756,11 @@ export function deleteLocations(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'locations/', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -801,13 +801,13 @@ export function createAlertTemplate(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredAlertTemplate(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
-                      'alerts/' + (params.id ? encodeURIComponent(params.id) : ''), token);
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
+                'alerts/' + (params.id ? encodeURIComponent(params.id) : ''), token);
 
             post(url, params.alertTemplate).then(function (response) {
                 updateLastActiveTimestamp();
@@ -842,13 +842,13 @@ export function updateAlertTemplate(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredAlertTemplate(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'alerts/' + encodeURIComponent(params.id), token);
 
             put(url, params.alertTemplate).then(function () {
@@ -883,12 +883,12 @@ export function deleteAlertTemplate(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'alerts/' + encodeURIComponent(params.id), token);
 
             doDelete(url).then(function () {
@@ -929,11 +929,11 @@ export function findAlertTemplates(params) {
             params.nostore = true;
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'alerts', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -980,13 +980,13 @@ export function createAlert(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredAlert(params, reject);
             validateRequiredCoordinates(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'alerts/' + (params.id ? encodeURIComponent(params.id) : ''), token);
 
             post(url,{"alert":params.alert,"coordinates":params.coordinates}).then(function (response) {
@@ -1023,14 +1023,14 @@ export function updateAlert(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredAlert(params, reject);
             validateRequiredCoordinates(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'alerts/' + encodeURIComponent(params.id), token);
 
             put(url,{"alert":params.alert,"coordinates":params.coordinates}).then(function () {
@@ -1065,12 +1065,12 @@ export function deleteAlert(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'alerts/instances/' + encodeURIComponent(params.id), token);
 
             doDelete(url).then(function () {
@@ -1105,14 +1105,14 @@ export function updateAlertLocation(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredLocation(params, reject);
             validateRequiredAlertProperties(params, reject);
             params.location.location.type = "Feature"; //Always set the GeoJSON type.
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
                 'locations', token);
 
             post(url, params.location).then(function (response) {
@@ -1148,14 +1148,14 @@ export function updateAlertState(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             utils.validateRequiredId(params, reject);
             validateRequiredState(params, reject);
 
-            var url = utils.getRealmResourceURL(locateURL, account, realm,
-                'alerts/'+ encodeURIComponent(params.id)+'/state', token);
+            const url = utils.getRealmResourceURL(locateURL, account, realm,
+                'alerts/' + encodeURIComponent(params.id) + '/state', token);
 
             put(url, {"state":params.state}).then(function () {
                 updateLastActiveTimestamp();

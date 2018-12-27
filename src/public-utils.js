@@ -174,14 +174,14 @@ export function getResourcePermissions(params){
             params = params ? params : {};
 
             //validate
-            var account = privateUtils.validateAndReturnRequiredAccount(params, reject);
-            var realm = privateUtils.validateAndReturnRequiredRealm(params, reject);
-            var token = privateUtils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = privateUtils.validateAndReturnRequiredAccount(params, reject);
+            const realm = privateUtils.validateAndReturnRequiredRealm(params, reject);
+            const token = privateUtils.validateAndReturnRequiredAccessToken(params, reject);
             privateUtils.validateRequiredId(params, reject);
             privateUtils.validateParameter('service', 'The service parameter is required', params, reject);
             privateUtils.validateParameter('path', 'The path parameter is required', params, reject);
 
-            var serviceURL;
+            let serviceURL;
             switch(params.service){
                 case 'docs': serviceURL = v.docsURL; break;
                 case 'action': serviceURL = v.actionURL; break;
@@ -192,11 +192,11 @@ export function getResourcePermissions(params){
                 case 'locate': serviceURL = v.locateURL; break;
             }
 
-            var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);
+            const url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);
 
             getJSON(url).then(function(json){
                 updateLastActiveTimestamp();
-                var permissionsBlock;
+                let permissionsBlock;
                 if( json.directory && json.directory.length > 0 ){
                     permissionsBlock = json.directory[0];
                 }
@@ -263,21 +263,21 @@ export function updateResourcePermissions(params){
             params = params ? params : {};
 
             //validate
-            var account = privateUtils.validateAndReturnRequiredAccount(params, reject);
-            var realm = privateUtils.validateAndReturnRequiredRealm(params, reject);
-            var token = privateUtils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = privateUtils.validateAndReturnRequiredAccount(params, reject);
+            const realm = privateUtils.validateAndReturnRequiredRealm(params, reject);
+            const token = privateUtils.validateAndReturnRequiredAccessToken(params, reject);
             privateUtils.validateRequiredId(params, reject);
             privateUtils.validateParameter('permissions', 'The permissions parameter is required', params, reject);
             privateUtils.validateParameter('service', 'The service parameter is required', params, reject);
             privateUtils.validateParameter('path', 'The path parameter is required', params, reject);
 
-            var serviceURL;
+            let serviceURL;
             switch(params.service){
                 case 'docs': serviceURL = v.docsURL; break;
                 case 'action': serviceURL = v.actionURL; break;
             }
 
-            var url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);
+            const url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);
 
             put(url, params.permissions).then(function(json){
                 updateLastActiveTimestamp();
@@ -295,10 +295,10 @@ export function serializePostData(data){
 
 export function get(url, headers){
     return new Promise(function(resolve, reject) {
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('GET', url, true);
         if( headers ){
-            for( var header in headers ){
+            for(let header in headers ){
                 request.setRequestHeader(header, headers[header]);
             }
         }
@@ -324,10 +324,10 @@ export function get(url, headers){
 
 export function getJSON(url, headers){
     return new Promise(function(resolve, reject) {
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('GET', url, true);
         if( headers ){
-            for( var header in headers ){
+            for(let header in headers ){
                 request.setRequestHeader(header, headers[header]);
             }
         }
@@ -358,9 +358,9 @@ export function getJSON(url, headers){
 
 export function getBlob(url, headers){
     return new Promise(function(resolve, reject){
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         if( headers ){
-            for( var header in headers ){
+            for(let header in headers ){
                 request.setRequestHeader(header, headers[header]);
             }
         }
@@ -391,13 +391,13 @@ export function post(url, data, headers, isFormData, contentType, progressCallba
     return new Promise(function(resolve, reject) {
         console.log('sending post to ' + url);
         contentType = contentType || "application/json";
-        var request = new XMLHttpRequest();
+        const request = new XMLHttpRequest();
         request.open('POST', url, true);
         if( !isFormData ){
             request.setRequestHeader("Content-type", contentType);
         }
         if( headers ){
-            for( var header in headers ){
+            for(let header in headers ){
                 request.setRequestHeader(header, headers[header]);
             }
         }
@@ -405,7 +405,7 @@ export function post(url, data, headers, isFormData, contentType, progressCallba
             request.upload.addEventListener("progress", function(evt){
                 updateLastActiveTimestamp();
                 if (evt.lengthComputable){
-                    var percentComplete = evt.loaded / evt.total;
+                    const percentComplete = evt.loaded / evt.total;
                     progressCallback(percentComplete, request);
                 }
             }, false);
@@ -427,7 +427,7 @@ export function post(url, data, headers, isFormData, contentType, progressCallba
             if (this.readyState === 4) {
                 if (this.status >= 200 && this.status < 400) {
                     if( this.responseText ){
-                        var json = null;
+                        let json = null;
                         try{
                             json = JSON.parse(this.responseText);
                             resolve(json);
@@ -457,14 +457,14 @@ export function put(url, data, headers, isFormData, contentType){
     return new Promise(function(resolve, reject) {
         console.log('sending put to ' + url);
         contentType = contentType || "application/json";
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('PUT', url, true);
         request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         if( !isFormData ){
             request.setRequestHeader("Content-type", contentType);
         }
         if( headers ){
-            for( var header in headers ){
+            for(let header in headers ){
                 request.setRequestHeader(header, headers[header]);
             }
         }
@@ -473,7 +473,7 @@ export function put(url, data, headers, isFormData, contentType){
             if (this.readyState === 4) {
                 if (this.status >= 200 && this.status < 400) {
                     if( this.responseText ){
-                        var json = null;
+                        let json = null;
                         try{
                             json = JSON.parse(this.responseText);
                             resolve(json);
@@ -510,10 +510,10 @@ export function put(url, data, headers, isFormData, contentType){
 export function doDelete(url, headers){
     return new Promise(function(resolve, reject) {
         console.log('sending delete to ' + url);
-        var request = new XMLHttpRequest();
+        let request = new XMLHttpRequest();
         request.open('DELETE', url, true);
         if( headers ){
-            for( var header in headers ){
+            for(let header in headers ){
                 request.setRequestHeader(header, headers[header]);
             }
         }
@@ -540,14 +540,14 @@ export function doDelete(url, headers){
 
 export function newUUID()  {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
 }
 
 export function isIOS(){
-    var iDevice = ['iPad', 'iPhone', 'iPod'];
-    for (var i = 0; i < iDevice.length ; i++ ) {
+    const iDevice = ['iPad', 'iPhone', 'iPod'];
+    for (let i = 0; i < iDevice.length ; i++ ) {
         if (navigator.userAgent.indexOf(iDevice[i]) > -1) {
             return true;
         }

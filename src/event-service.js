@@ -7,10 +7,10 @@ function validateRequiredEvent(params, reject){
     utils.validateParameter('event', 'The event parameter is required', params, reject);
 }
 
-var eventArray = [];
-var eventsRunning;
-var runningIndex = 0;
-var eventIndex = 0;
+let eventArray = [];
+let eventsRunning;
+let runningIndex = 0;
+let eventIndex = 0;
 
 /**
  * Searches for events in a realm based on a query
@@ -37,11 +37,11 @@ export function findEvents(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(eventURL, account, realm,
+            const url = utils.getRealmResourceURL(eventURL, account, realm,
                 'events', token, {
                     'query': params.query ? encodeURIComponent(JSON.stringify(params.query)) : {},
                     'fields': params.fields ? encodeURIComponent(JSON.stringify(params.fields)) : {},
@@ -81,12 +81,12 @@ export function createCustomEvent(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
             validateRequiredEvent(params, reject);
 
-            var url = utils.getRealmResourceURL(eventURL, account, realm,
+            const url = utils.getRealmResourceURL(eventURL, account, realm,
                 'events', token);
 
             post(url, params.event).then(function (response) {
@@ -123,10 +123,10 @@ export function createCustomEvents(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-            var url = utils.getRealmResourceURL(eventURL, account, realm,
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const url = utils.getRealmResourceURL(eventURL, account, realm,
                 'events', token);
 
             eventArray = params.eventArray;
@@ -149,7 +149,7 @@ export function _eventRecursion(resolve, reject, url, index) {
     if (index === runningIndex) {
         setTimeout(function () {
             if (index === runningIndex) {
-                var date = new Date();
+                const date = new Date();
                 post(url, eventArray[eventIndex]).then(function (response) {
                     updateLastActiveTimestamp();
                     if (eventIndex === eventArray.length - 1) {
@@ -200,10 +200,10 @@ export function restartEvents(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
-            var url = utils.getRealmResourceURL(eventURL, account, realm,
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const url = utils.getRealmResourceURL(eventURL, account, realm,
                 'events', token);
             _eventRecursion(resolve, reject, url, runningIndex);
         }
@@ -254,11 +254,11 @@ export function getClientServerTimeGap(params) {
             params = params ? params : {};
 
             //validate
-            var account = utils.validateAndReturnRequiredAccount(params, reject);
-            var realm = utils.validateAndReturnRequiredRealm(params, reject);
-            var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-            var url = utils.getRealmResourceURL(eventURL, account, realm,
+            const url = utils.getRealmResourceURL(eventURL, account, realm,
                 'time', token, {
                     clientTime: encodeURIComponent(new Date().toISOString())
                 });
