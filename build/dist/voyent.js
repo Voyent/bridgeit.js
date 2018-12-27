@@ -2374,9 +2374,9 @@ if (!window.ice.icepush) {
                             broadcast(connectionStoppedListeners, ['connection stopped, no pushIDs registered']);
                         } else {
                             debug(logger, 'connect...');
-                            var uri = mainConfiguration.uri + mainConfiguration.account + '/realms/' + mainConfiguration.realm + '/push-ids?access_token=' + encodeURIComponent(namespace.access_token) + '&op=listen';
+                            var uri = mainConfiguration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/push-ids?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken()) + '&op=listen';
                             var body = JSON.stringify({
-                                'access_token': namespace.access_token,
+                                'access_token': voyent.auth.getLastAccessToken(),
                                 'browser': lookupCookieValue(BrowserIDName),
                                 'heartbeat': {
                                     'timestamp': heartbeatTimestamp,
@@ -2934,16 +2934,7 @@ if (!window.ice.icepush) {
         }
         var commandDispatcher = CommandDispatcher();
         register(commandDispatcher, 'error', CommandError);
-        namespace.updateToken = function(accessToken) {
-            if (accessToken) {
-                namespace.access_token = accessToken;
-            }
-        };
-        window.addEventListener('voyent-access-token-refreshed',function(e) {
-            namespace.updateToken(e.detail);
-        });
         namespace.setupPush = function(configuration, onStartup, onShutdown) {
-            namespace.updateToken(configuration.access_token);
             var apiChannel = Client(true);
             var API = {
                 register: function (pushIds, callback) {
@@ -2965,10 +2956,10 @@ if (!window.ice.icepush) {
                 },
                 deregister: delistPushIDsWithWindow,
                 createPushId: function createPushId(callback, pushIdTimeout, cloudPushIdTimeout, retries) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/push-ids?access_token=' + encodeURIComponent(namespace.access_token);
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/push-ids?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken());
                     retries = retries == null ? 3 : retries;
                     var parameters = {
-                        'access_token': namespace.access_token,
+                        'access_token': voyent.auth.getLastAccessToken(),
                         'browser':  browserID(),
                         'op': 'create'
                     };
@@ -2999,18 +2990,18 @@ if (!window.ice.icepush) {
                     }));
                 },
                 deletePushId: function (id, resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/push-ids/' + encodeURIComponent(id);
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/push-ids/' + encodeURIComponent(id);
                     deleteAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                     }, JSONRequest, $witch(function (condition) {
                         condition(NOCONTENT, resultCallback || noop);
                         condition(ServerInternalError, throwServerError);
                     }));
                 },
                 getConfiguration: function (callback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/configuration';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/configuration';
                     getAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                         addNameValue(query, "op", "get");
                     }, JSONRequest, $witch(function (condition) {
                         condition(OK, function (response) {
@@ -3024,9 +3015,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 notify: function (group, options) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/groups/' + group + '?access_token=' + encodeURIComponent(namespace.access_token) + '&op=push';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/groups/' + group + '?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken()) + '&op=push';
                     var body = JSON.stringify({
-                        'access_token': namespace.access_token,
+                        'access_token': voyent.auth.getLastAccessToken(),
                         'browser': browserID(),
                         'op': 'push',
                         'push_configuration': options
@@ -3036,9 +3027,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 addGroupMember: function (group, id, cloudEnabled, resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/groups/' + group + '/push-ids/' + id + '?access_token=' + encodeURIComponent(namespace.access_token) + '&op=add';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/groups/' + group + '/push-ids/' + id + '?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken()) + '&op=add';
                     var parameters = {
-                        'access_token': namespace.access_token,
+                        'access_token': voyent.auth.getLastAccessToken(),
                         'browser': browserID(),
                         'op': 'add'
                     };
@@ -3054,9 +3045,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 removeGroupMember: function (group, id, resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/groups/' + group + '/push-ids/' + id;
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/groups/' + group + '/push-ids/' + id;
                     deleteAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                         addNameValue(query, "op", "delete");
                     }, JSONRequest, $witch(function (condition) {
                         condition(NOCONTENT, resultCallback || noop);
@@ -3064,9 +3055,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 addNotifyBackURI: function (notifyBackURI, resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/browsers/' + browserID() + '/notify-back-uris/' + notifyBackURI + '?access_token=' + encodeURIComponent(namespace.access_token) + '&op=add';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/browsers/' + browserID() + '/notify-back-uris/' + notifyBackURI + '?access_token=' + encodeURIComponent(voyent.auth.getLastAccessToken()) + '&op=add';
                     var body = JSON.stringify({
-                        'access_token': namespace.access_token,
+                        'access_token': voyent.auth.getLastAccessToken(),
                         'browser': browserID(),
                         'op': 'add'
                     });
@@ -3076,9 +3067,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 removeNotifyBackURI: function (resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/browsers/' + browserID() + '/notify-back-uris';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/browsers/' + browserID() + '/notify-back-uris';
                     deleteAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                         addNameValue(query, "op", "remove");
                     }, JSONRequest, $witch(function (condition) {
                         condition(NOCONTENT, resultCallback || noop);
@@ -3086,9 +3077,9 @@ if (!window.ice.icepush) {
                     }));
                 },
                 hasNotifyBackURI: function (resultCallback) {
-                    var uri = configuration.uri + configuration.account + '/realms/' + configuration.realm + '/browsers/' + browserID() + '/notify-back-uris';
+                    var uri = configuration.uri + voyent.auth.getLastKnownAccount() + '/realms/' + voyent.auth.getLastKnownRealm() + '/browsers/' + browserID() + '/notify-back-uris';
                     getAsynchronously(apiChannel, uri, function (query) {
-                        addNameValue(query, "access_token", namespace.access_token);
+                        addNameValue(query, "access_token", voyent.auth.getLastAccessToken());
                         addNameValue(query, "op", "has");
                     }, JSONRequest, $witch(function (condition) {
                         condition(NOCONTENT, function (response) {
@@ -3445,7 +3436,7 @@ function AuthService(v, keys, utils) {
                     utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), authResponse.access_token);
                     utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), authResponse.expires_in);
                     utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), loggedInAt);
-                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                     if (params.host) {
                         utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(params.host));
                     }
@@ -3500,7 +3491,7 @@ function AuthService(v, keys, utils) {
             utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), params.access_token);
             utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), params.expires_in);
             utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), new Date().getTime());
-            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
             utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
             utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
         },
@@ -3563,8 +3554,8 @@ function AuthService(v, keys, utils) {
                     var tokenSetAt = new Date();
                     tokenSetAt.setTime(v.auth.getTokenSetAtTime());
 
-                    var cbId = setTimeout(connectCallback, timeout);
-                    utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
+                    var connectTimeoutCb = setTimeout(connectCallback, timeout);
+                    utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
 
                     console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + timeout / 1000 / 60 + ' mins, expiresIn: ' +
                         (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
@@ -3574,12 +3565,12 @@ function AuthService(v, keys, utils) {
                     // since it will pause during sleep and then continue execution from where it left off once awake.
                     // We will try and detect if the computer has been sleeping by using a continuously running
                     // setInterval. If it takes longer than expected for the setInterval to execute then we will assume
-                    // that the computer has been sleeping and try and refresh the token.
+                    // that the computer has been sleeping and try to refresh the token.
 
                     // First check if we already have a sleep timer running and if so clear it
-                    var compSleepCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-                    if (compSleepCb) {
-                        clearTimeout(compSleepCb);
+                    var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+                    if (compSleepIntervalCb) {
+                        clearInterval(compSleepIntervalCb);
                     }
                     var sleepTimeout = 10000; // Run the sleep timer every 10 seconds so it will detect sleep shortly after awakening
                     var lastCheckedTime = (new Date()).getTime();
@@ -3589,13 +3580,15 @@ function AuthService(v, keys, utils) {
                         var nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
                         if (currentTime > (nextExpectedTime)) {
                             // Clear the old token timer since it is not valid after computer sleep
-                            var oldCbId = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), cbId);
-                            if (oldCbId) {
-                                clearTimeout(oldCbId);
+                            var oldConnectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
+                            if (oldConnectTimeoutCb) {
+                                clearTimeout(oldConnectTimeoutCb);
                                 utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
                             }
                             // Try and refresh the token
-                            v.auth.refreshAccessToken().catch(function(e) {});
+                            v.auth.refreshAccessToken().then(function () {
+                                startTokenExpiryTimer(v.auth.getExpiresIn() - timeoutPadding);
+                            }).catch(function(e) {});
                         }
                         lastCheckedTime = currentTime;
                     }, sleepTimeout);
@@ -3864,14 +3857,14 @@ function AuthService(v, keys, utils) {
             utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
             utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
             utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
-            var cbId = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-            if (cbId) {
-                clearTimeout(cbId);
+            var connectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
+            if (connectTimeoutCb) {
+                clearTimeout(connectTimeoutCb);
             }
             utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-            var compSleepCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-            if (compSleepCb) {
-                clearTimeout(compSleepCb);
+            var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+            if (compSleepIntervalCb) {
+                clearInterval(compSleepIntervalCb);
             }
             utils.removeSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
             console.log(new Date().toISOString() + ' voyent has disconnected');
@@ -3933,7 +3926,7 @@ function AuthService(v, keys, utils) {
         getLastKnownAccount: function () {
             var accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
             if (accountCipher) {
-                return atob(accountCipher);
+                return utils.sanitizeAccountName(atob(accountCipher));
             }
         },
 
@@ -4229,6 +4222,10 @@ function AdminService(v, keys, utils) {
     function validateRequiredRole(params, reject) {
         utils.validateParameter('role', 'The role parameter is required', params, reject);
     }
+    
+    function validateRequiredGroup(params, reject) {
+        utils.validateParameter('group', 'The group parameter is required', params, reject);
+    }
 
     function validateAndReturnRequiredEmail(params, reject) {
         var email = params.email;
@@ -4365,6 +4362,56 @@ function AdminService(v, keys, utils) {
 
             });
         },
+		
+		//Get all accounts available, only works with sysadmin credentials
+        getAccounts: function(params){
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+
+                //validate
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                var url = v.sysAdminURL + '/accounts'
+                    + '?access_token=' + token;
+
+                v.$.getJSON(url).then(function (json) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(json);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+
+            });
+        },
+
+        //sysadmin billing report endpoint
+        getBillingReport:function(params){
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+
+                //validate
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realmName = utils.validateAndReturnRequiredRealmName(params, reject);
+                var url;
+                if(params.month && params.year){
+                    url = v.sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
+                        + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month;
+                }
+                else {
+                   //no month/year, just get most recent.
+                    url = v.sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
+                        + '?access_token=' + token + '&' + utils.getTransactionURLParam();
+                }
+
+                v.$.getJSON(url).then(function (json) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(json);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+
+            });
+        },
 
         /**
          * Create a new Voyent Account. After successfully creating the account, the new administrator will
@@ -4381,6 +4428,7 @@ function AdminService(v, keys, utils) {
          * @param {String} params.firstname The first name of the new administrator (required)
          * @param {String} params.lastname The last name of the new administrator (required)
          * @param {String} params.password The password of the new administrator (required)
+         * @param {String} params.roles An array of roles to grant the account owner. If not provided the user will have the `accountOwner` role.
          * @returns Promise with an access token for the new administrator
          *
          */
@@ -4404,6 +4452,7 @@ function AdminService(v, keys, utils) {
                 admin.email = validateAndReturnRequiredEmail(params, reject);
                 admin.firstname = validateAndReturnRequiredFirstname(params, reject);
                 admin.lastname = validateAndReturnRequiredLastname(params, reject);
+                admin.roles = params.roles || ['accountOwner'];
 
                 // Check for email metadata
                 // If present we need to mark the admin unconfirmed, and pass the metadata
@@ -4426,7 +4475,7 @@ function AdminService(v, keys, utils) {
                 v.$.post(url, {account: account}).then(function (json) {
                     v.auth.updateLastActiveTimestamp();
 
-                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(accountname));
+                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(accountname)));
                     utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
                     utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa('true'));
                     if (params.host) {
@@ -4448,6 +4497,35 @@ function AdminService(v, keys, utils) {
                     reject(error);
                 });
 
+            });
+        },
+        
+        /**
+         * Update an entire account
+         *
+         * @memberOf voyent.admin
+         * @alias editAccount
+         * @param {Object} params params
+         * @param {String} params.accountname The account name to update
+         * @returns Promise
+         */
+        updateTopLevelAccount: function(params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                
+                var txParam = utils.getTransactionURLParam();
+                var url = v.authAdminURL + '/'
+                           + account + '?access_token=' + token + (txParam ? '&' + txParam : '');
+                
+                v.$.put(url, {'account': params}).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve();
+                })['catch'](function (error) {
+                    reject(error);
+                });
             });
         },
         
@@ -4515,7 +4593,7 @@ function AdminService(v, keys, utils) {
                         utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                     }
                     if (params.realm) {
                         utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
@@ -4630,6 +4708,9 @@ function AdminService(v, keys, utils) {
         createRealm: function (params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
+                
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -4875,7 +4956,7 @@ function AdminService(v, keys, utils) {
                         utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(json.username));
                     }
                     if (params.account) {
-                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(params.account));
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                     }
                     if (params.realm) {
                         utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
@@ -5264,7 +5345,115 @@ function AdminService(v, keys, utils) {
                     reject(error);
                 });
             });
-        }
+        },
+        
+        getAllUserGroups: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/', token);
+                    
+                v.$.get(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        getUserGroupDetails: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredGroup(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/' + params.group + '/details', token);
+                    
+                v.$.get(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        createUserGroup: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredGroup(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/', token);
+                    
+                v.$.post(url, { group: params.group }).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        updateUserGroup: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredGroup(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/' + params.group.name, token);
+                    
+                v.$.put(url, { group: params.group }).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        deleteUserGroup: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredGroup(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'groups/' + params.group, token);
+                    
+                v.$.doDelete(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
     };
 }
 function ActionService(v, utils) {
@@ -5608,6 +5797,54 @@ function ActionService(v, utils) {
             );
         },
 
+        /**
+         * Execute a module.
+         *
+         * @memberOf voyent.action
+         * @alias executeModule
+         * @param {Object} params params
+         * @param {String} params.id The module id, the module to be executed
+         * @param {String} params.params Additional parameters to include in the module request
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         *     will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         *     will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         *     voyent.io.auth.connect() will be used
+         * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+         *     default will be used. (optional)
+         * @returns {String} The resource URI
+         */
+        executeModule: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
+
+                    var moduleParams = {};
+                    if (params.params && typeof params.params === 'object' && Object.keys(params.params).length) {
+                        moduleParams = params.params;
+                    }
+
+                    var url = utils.getRealmResourceURL(v.actionURL, account, realm,
+                        'modules/' + params.id, token);
+
+                    v.$.post(url, moduleParams).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+
+                }
+            );
+        },
+
         getResourcePermissions: function (params) {
             params.service = 'action';
             params.path = 'actions';
@@ -5621,7 +5858,54 @@ function ActionService(v, utils) {
         }
     };
 }
-function DeviceService(v, utils) {
+function ActivityService(v,utils){
+    /**
+     *
+     * Get the activity reports for a given realm.
+     *
+     * @memberOf voyent.activity
+     * @alias getMetrics
+     * @param {Object} params params
+     * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+     *     will be used.
+     * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+     *     voyent.io.auth.connect() will be used
+     * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+     *     default will be used. (optional)
+     * @param {String} params.month Month to get the activity report for.
+     * @param {String} params.year Year to get the activity report for.
+     * @returns {Object} Activity report for month/year/realm.
+     */
+
+    return {
+        getMetrics: function (params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    var url = utils.getRealmResourceURL(v.eventURL, account, realm,
+                        'events', token);
+
+                    var txParam = utils.getTransactionURLParam();
+                    var url = v.activityURL +
+                            '/' + account + '/realms/' + realm + '/billingSummary?' +
+                            (token ? 'access_token=' + token : '') +
+                            (txParam ? '&' + txParam : '') + '&year=' + params.year + "&month=" + params.month;
+                    v.$.getJSON(url).then(function (data) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(data);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        }
+    }
+}function DeviceService(v, utils) {
     return {
         /**
          * Start live reporting of a device
@@ -8423,6 +8707,138 @@ function ScopeService(v, utils) {
                 }
             );
         },
+        
+        /**
+         * Create or update data stored within an account scope.
+         *
+         * @memberOf voyent.scope
+         * @alias createAccountData
+         * @param {Object} params params
+         * @param {Object} params.data The object containing one or more properties to be inserted into the account scope.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
+         * @returns {String} The resource URI.
+         */
+        createAccountData: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    validateRequiredData(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
+                        'scopes/account', token);
+
+                    v.$.post(url, params.data).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response.uri);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Retrieve a single property stored in account scope or the entire account scope if no property is provided.
+         *
+         * @memberOf voyent.scope
+         * @alias getAccountData
+         * @param {Object} params params
+         * @param {String} params.property The name of the data property to retrieve from account scope. If not provided,
+         * all data for the scope will be retrieved.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
+         * @returns {Object} The scoped data.
+         */
+        getAccountData: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                    params.nostore = true;
+                    
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                    var queryParams = {};
+                    if (params.property) {
+                        queryParams[params.property] = '';
+                    }
+
+                    var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
+                        'scopes/account', token, queryParams);
+
+                    v.$.getJSON(url).then(function (data) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(data);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Delete a single property stored in account scope.
+         *
+         * @memberOf voyent.scope
+         * @alias deleteAccountData
+         * @param {Object} params params
+         * @param {String} params.property The name of the data property to delete from account scope. Required.
+         * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+         * will be used.
+         * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+         * will be used.
+         * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+         * voyent.auth.connect() will be used.
+         * @param {String} params.host The Voyent Services host url. If not provided, the last used Voyent host, or the
+         * default will be used.
+         */
+        deleteAccountData: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    //validate
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    validateRequiredProperty(params, reject);
+
+                    var queryParams = {};
+                    queryParams[params.property] = '';
+
+                    var url = utils.getRealmResourceURL(v.scopeURL, account, realm,
+                        'scopes/account', token, queryParams);
+
+                    v.$.doDelete(url).then(function () {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve();
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
 
         /**
          * Create or update data stored within a user scope.
@@ -10628,7 +11044,7 @@ function PrivateUtils(services, keys) {
         }
         if (account) {
             if (!params.nostore) {
-                setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
+                setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(sanitizeAccountName(account)));
             }
             return account;
         } else {
@@ -10787,6 +11203,13 @@ function PrivateUtils(services, keys) {
             return setNodeStorageItem(key, value);
         }
     }
+    
+    function sanitizeAccountName(original) {
+        if (original) {
+            return original.split(' ').join('_').replace(/[\\\/\.\"]/g, '').substring(0, 63).toLowerCase();
+        }
+        return original;
+    }
 
     function getTransactionURLParam() {
         var txId = services.getLastTransactionId();
@@ -10867,6 +11290,7 @@ function PrivateUtils(services, keys) {
         'getSessionStorageItem': getSessionStorageItem,
         'setSessionStorageItem': setSessionStorageItem,
         'removeSessionStorageItem': removeSessionStorageItem,
+        'sanitizeAccountName': sanitizeAccountName,
         'getTransactionURLParam': getTransactionURLParam,
         'getRealmResourceURL': getRealmResourceURL,
         'extractResponseValues': extractResponseValues,
@@ -11218,6 +11642,8 @@ function PrivateUtils(services, keys) {
         v.scopeURL = baseURL + '/scope';
         v.pushURL = baseURL + '/notify';
         v.cloudURL = baseURL + '/cloud';
+        v.activityURL = baseURL + '/activity';
+		v.sysAdminURL = baseURL + '/administration';
     };
 
     /**
@@ -11511,6 +11937,7 @@ function PrivateUtils(services, keys) {
     v.storage = StorageService(v, privateUtils);
     v.query = QueryService(v, privateUtils);
     v.device = DeviceService(v, privateUtils);
+    v.activity = ActivityService(v, privateUtils);
 
     //aliases for backward compatibility
     v.documents = v.docs;

@@ -1,10 +1,17 @@
 {
     "name": "voyent.js",
-    "version": "1.0.7",
-    "private": false,
+    "version": "1.0.0",
+    "description": "Voyent.js: Client API for Voyent Services",
+    "main": "build/dist/voyent.js",
     "scripts": {
-        "start": "node start.js"
+        "build": "ant"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Voyent/voyent.js/tree/VRAS"
+    },
+    "author": "ICEsoft Technologies, Inc. <voyent@icesoft.com> (https://icesoft.com/)",
+    "license": "Apache-2.0",
     "dependencies": {
         "uuid": "^1.4.1"
     },
