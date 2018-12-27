@@ -1,6 +1,6 @@
 import { isNode } from 'private-utils'
 
-export var baseURL;
+export let baseURL;
 if (isNode) {
     baseURL = 'http://dev.voyent.cloud';
 } else {
