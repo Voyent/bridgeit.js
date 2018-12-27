@@ -513,9 +513,9 @@ export function connect(params) {
             utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
         }
 
-        var timeoutPadding = 60000;
-        var settings;
-        var connectionTimeoutMillis;
+        let timeoutPadding = 60000;
+        let settings;
+        let connectionTimeoutMillis;
         initSettings();
 
         if (isLoggedIn()) {

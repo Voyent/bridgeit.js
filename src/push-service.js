@@ -123,6 +123,7 @@ export function addPushListener(params) {
  */
 export function removePushListener(params) {
     return new Promise(function (resolve, reject) {
+        let i;
         console.log('voyent.push.removePushListener() group: ' + params.group);
         params = params ? params : {};
         validateRequiredGroup(params, reject);
@@ -144,10 +145,10 @@ export function removePushListener(params) {
                 if (params.callback) {
                     //remove only the listener/pushId corresponding to the provided callback
                     const remainingListeners = [];
-                    for (var i = 0; i < listeners.length; i++) {
+                    for (let i = 0; i < listeners.length; i++) {
                         const listener = listeners[i];
                         if (listener.callback == params.callback) {
-                            var pushId = listener.pushId;
+                            let pushId = listener.pushId;
                             ice.push.removeGroupMember(params.group, pushId);
                             ice.push.deregister(pushId);
                             console.log('removed push id ' + pushId);
@@ -163,8 +164,8 @@ export function removePushListener(params) {
                     }
                 } else {
                     //remove all the listeners for the group
-                    for (var i = 0; i < listeners.length; i++) {
-                        var pushId = listeners[i].pushId;
+                    for (let i = 0; i < listeners.length; i++) {
+                        let pushId = listeners[i].pushId;
                         ice.push.removeGroupMember(params.group, pushId);
                         ice.push.deregister(pushId);
                         console.log('removed push id ' + pushId);

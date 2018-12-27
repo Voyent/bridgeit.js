@@ -2,7 +2,7 @@ import * as keys from 'keys'
 import * as utils from 'private-utils'
 import { authAdminURL, sysAdminURL } from 'voyent'
 import { post, put, doDelete, getJSON } from 'public-utils'
-import { updateLastActiveTimestamp, getLastKnownRealm } from 'auth-service'
+import { updateLastActiveTimestamp, getLastKnownRealm, generatePassword } from 'auth-service'
 
 function validateRequiredUser(params, reject) {
     utils.validateParameter('user', 'The user parameter is required', params, reject);
@@ -955,7 +955,7 @@ export function deleteRealmRole(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
-        validateRequiredId(params, reject);
+        utils.validateRequiredId(params, reject);
 
         const account = utils.validateAndReturnRequiredAccount(params, reject);
         const realm = utils.validateAndReturnRequiredRealmName(params, reject);
