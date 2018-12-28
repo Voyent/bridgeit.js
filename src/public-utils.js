@@ -1,7 +1,7 @@
-import * as privateUtils from 'private-utils'
+import * as privateUtils from './private-utils'
 import * as keys from "./keys";
-import * as v from 'voyent'
-import { updateLastActiveTimestamp } from 'auth-service'
+import * as v from './voyent'
+import { updateLastActiveTimestamp } from './auth-service'
 
 //publish some of the private utility functions
 //todo: move the functions into the public-utils.js file if indeed needed

@@ -1,7 +1,7 @@
-import * as utils from 'private-utils'
-import { post } from 'public-utils'
-import { cloudURL } from 'voyent'
-import { updateLastActiveTimestamp } from 'auth-service'
+import * as utils from './private-utils'
+import { post } from './public-utils'
+import { cloudURL } from './voyent'
+import { updateLastActiveTimestamp } from './auth-service'
 
 /**
  * Push cloud notification to a given notify-back URI.

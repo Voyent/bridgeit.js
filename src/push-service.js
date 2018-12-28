@@ -1,5 +1,5 @@
-import * as utils from 'private-utils'
-import { pushURL } from 'voyent'
+import * as utils from './private-utils'
+import { pushURL } from './voyent'
 
 function validateRequiredGroup(params, reject) {
     utils.validateParameter('group', 'The group parameter is required', params, reject);

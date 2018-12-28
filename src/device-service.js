@@ -1,7 +1,7 @@
-import * as utils from 'private-utils'
-import { put, getJSON } from 'public-utils'
-import { deviceURL } from 'voyent'
-import { updateLastActiveTimestamp } from 'auth-service'
+import * as utils from './private-utils'
+import { put, getJSON } from './public-utils'
+import { deviceURL } from './voyent'
+import { updateLastActiveTimestamp } from './auth-service'
 
 /**
  * Start live reporting of a device

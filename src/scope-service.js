@@ -1,7 +1,7 @@
-import * as utils from 'private-utils'
-import { post, put, doDelete, getJSON } from 'public-utils'
-import { scopeURL } from 'voyent'
-import { updateLastActiveTimestamp } from 'auth-service'
+import * as utils from './private-utils'
+import { post, put, doDelete, getJSON } from './public-utils'
+import { scopeURL } from './voyent'
+import { updateLastActiveTimestamp } from './auth-service'
 
 function validateRequiredProperty(params, reject){
     utils.validateParameter('property', 'The property parameter is required', params, reject);

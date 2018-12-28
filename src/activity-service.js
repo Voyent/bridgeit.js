@@ -1,7 +1,7 @@
-import * as utils from 'private-utils'
-import { activityURL } from 'voyent'
-import { getJSON} from 'public-utils'
-import { updateLastActiveTimestamp } from 'auth-service'
+import * as utils from './private-utils'
+import { activityURL } from './voyent'
+import { getJSON} from './public-utils'
+import { updateLastActiveTimestamp } from './auth-service'
 
 /**
  *

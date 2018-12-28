@@ -1,5 +1,5 @@
-import * as keys from 'keys'
-import { getLastAccessToken, getLastKnownRealm, getLastKnownAccount, getLastKnownUsername } from 'auth-service'
+import * as keys from './keys'
+import { getLastAccessToken, getLastKnownRealm, getLastKnownAccount, getLastKnownUsername } from './auth-service'
 
 //redefine function to avoid circular dependency with public-utils
 function getLastTransactionId() {

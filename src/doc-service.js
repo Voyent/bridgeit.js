@@ -1,7 +1,7 @@
-import * as utils from 'private-utils'
-import { post, put, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from 'public-utils'
-import { docsURL } from 'voyent'
-import { updateLastActiveTimestamp } from 'auth-service'
+import * as utils from './private-utils'
+import { post, put, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from './public-utils'
+import { docsURL } from './voyent'
+import { updateLastActiveTimestamp } from './auth-service'
 
 function validateCollection(params, reject) {
     return params.collection ? params.collection : 'documents';

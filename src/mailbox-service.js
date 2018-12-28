@@ -1,7 +1,7 @@
-import * as utils from 'private-utils'
-import { post, put, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from 'public-utils'
-import { mailboxURL } from 'voyent'
-import { updateLastActiveTimestamp } from 'auth-service'
+import * as utils from './private-utils'
+import { post, put, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from './public-utils'
+import { mailboxURL } from './voyent'
+import { updateLastActiveTimestamp } from './auth-service'
 
 function validateRequiredMessages(params, reject) {
     utils.validateParameter('mailbox', 'The messages parameter is required', params, reject);

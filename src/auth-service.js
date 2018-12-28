@@ -1,7 +1,7 @@
-import * as keys from 'keys'
-import * as utils from 'private-utils'
-import { authURL, authAdminURL, baseURL } from 'voyent'
-import { post, getJSON } from 'public-utils'
+import * as keys from './keys'
+import * as utils from './private-utils'
+import { authURL, authAdminURL, baseURL } from './voyent'
+import { post, getJSON } from './public-utils'
 
 const authKeys = {
     PASSWORD_KEY: 'voyentPassword',
@@ -932,7 +932,7 @@ export function forgotPassword(params) {
  * Specifically: /^[A-Za-z0-9!@#%^&*_\s]*$/
  * This can be leveraged as part of anonymous user creation
  *
- * Credit goes to http://stackoverflow.com/a/12635919
+ * Credit goes to http://stackoverflow.co./12635919
  *
  * @returns String password
  */

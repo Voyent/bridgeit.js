@@ -1,7 +1,7 @@
-import * as utils from 'private-utils'
-import { post, put, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from 'public-utils'
-import { locateURL } from 'voyent'
-import { updateLastActiveTimestamp } from 'auth-service'
+import * as utils from './private-utils'
+import { post, put, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from './public-utils'
+import { locateURL } from './voyent'
+import { updateLastActiveTimestamp } from './auth-service'
 
 
 function validateRequiredRegion(params, reject) {

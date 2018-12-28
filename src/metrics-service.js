@@ -1,7 +1,7 @@
-import * as utils from 'private-utils'
-import { post, getJSON } from 'public-utils'
-import { metricsURL } from 'voyent'
-import { updateLastActiveTimestamp } from 'auth-service'
+import * as utils from './private-utils'
+import { post, getJSON } from './public-utils'
+import { metricsURL } from './voyent'
+import { updateLastActiveTimestamp } from './auth-service'
 
 function validateRequiredEvent(params, reject){
     utils.validateParameter('event', 'The event parameter is required', params, reject);

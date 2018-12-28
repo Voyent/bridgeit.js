@@ -1,4 +1,4 @@
-import { isNode } from 'private-utils'
+import { isNode } from './private-utils'
 
 export let baseURL;
 if (isNode) {
