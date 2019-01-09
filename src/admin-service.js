@@ -1227,7 +1227,7 @@ function AdminService(v, keys, utils) {
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
-                    'groups/' + params.group.name, token);
+                    'groups/' + params.group._id, token);
                     
                 v.$.put(url, { group: params.group }).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
