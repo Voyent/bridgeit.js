@@ -32,4 +32,5 @@ export const cloudURL = baseURL + '/cloud';
 export const metricsURL = baseURL + '/metrics';
 export const activityURL = baseURL + '/activity';
 export const sysAdminURL = baseURL + '/administration';
+export const broadcastURL = baseURL + '/broadcast';
 
