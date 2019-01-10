@@ -1,12 +1,23 @@
 import * as utils from './private-utils'
-//import { broadcastURL } from './voyent'
+import { baseURL } from './voyent'
 import io from 'socket.io-client'
 import {post} from "./public-utils";
 import {updateLastActiveTimestamp} from "./auth-service";
 import Map from 'collections/map';
 
 
-var broadcastURL = 'http://0.0.0.0:33005/broadcast'
+const broadcastURL = baseURL + '/broadcast';
+const portMatcher = /\:(\d+)/;
+let ioURL;
+if (portMatcher.test(baseURL)) {
+    ioURL = baseURL.replace(portMatcher, ':3000');
+} else if (baseURL[baseURL.length - 1] == '/') {
+    ioURL = baseURL.substring(0, baseURL.length - 1) + ':3000';
+} else {
+    ioURL = baseURL + ':3000';
+}
+
+ioURL = ioURL.replace('https', 'http');
 
 function validateRequiredGroup(params, reject) {
     utils.validateParameter('group', 'The group parameter is required', params, reject);
@@ -32,8 +43,8 @@ export function startListening(params) {
 
             try {
                 let group = params.group;
-                const socket = io('http://0.0.0.0:3000/' + group, {
-                    transports: ['websocket']
+                const socket = io(ioURL + '/' + group, {
+                    transports: ['websocket']//, path: '/io'
                 });
 
                 //save group mapping
@@ -94,11 +105,17 @@ export function broadcast(params) {
     return new Promise(
         function (resolve, reject) {
             params = params ? params : {};
+
             validateRequiredGroup(params, reject);
             validateRequiredMessage(params, reject);
 
-            let url = broadcastURL;
-            post(url, params).then(function (response) {
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+            const url = utils.getRealmResourceURL(broadcastURL, account, realm, '', token);
+
+            post(url, params).then(function () {
                 updateLastActiveTimestamp();
                 resolve();
             })['catch'](function (error) {

@@ -1,14 +1,14 @@
-import { isNode } from './private-utils'
-
+// import { isNode } from './private-utils'
+//
 export let baseURL;
-if (isNode) {
-    baseURL = 'http://dev.voyent.cloud';
-} else {
+// if (isNode) {
+//     baseURL = 'http://dev.voyent.cloud';
+// } else {
     baseURL = window.location.protocol + '//' + window.location.hostname;
     if (window.location.port) {
         baseURL += ':' + window.location.port
     }
-}
+// }
 
 //remove any trailing '/'
 if (baseURL.substr(baseURL.length - 1) === '/') {
@@ -32,5 +32,4 @@ export const cloudURL = baseURL + '/cloud';
 export const metricsURL = baseURL + '/metrics';
 export const activityURL = baseURL + '/activity';
 export const sysAdminURL = baseURL + '/administration';
-export const broadcastURL = baseURL + '/broadcast';
 
