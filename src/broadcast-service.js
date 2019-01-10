@@ -89,8 +89,10 @@ export function stopListening(params) {
 
                 if (params.callback) {
                     let sock = callbacksToSockets.get(params.callback);
-                    sock.disconnect();
-                    callbacksToSockets.delete(params.callback);
+                    if (sock) {
+                        sock.disconnect();
+                        callbacksToSockets.delete(params.callback);
+                    }
                 }
 
                 resolve();
