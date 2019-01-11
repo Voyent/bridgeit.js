@@ -111,10 +111,12 @@ export function validateParameter(name, msg, params, reject) {
 //that is normally stored in the browser session or local storage
 const nodeStorage = {};
 
-export const isNode = typeof module === "object" &&
-    typeof exports === "object" &&
-    module.exports === exports &&
-    typeof global === 'object';
+export function isNode() {
+    return typeof module === "object" &&
+        typeof exports === "object" &&
+        module.exports === exports &&
+        typeof global === 'object';
+}
 
 function useLocalStorage() {
     if (!('Voyent_useLocalStorage' in window)) {
@@ -170,7 +172,7 @@ function removeNodeStorageItem(key) {
 }
 
 export function getLocalStorageItem(key) {
-    if (!isNode) {
+    if (!isNode()) {
         return useLocalStorage() ? window.localStorage.getItem(key) : getCookie(key);
     } else {
         return getNodeStorageItem(key);
@@ -178,7 +180,7 @@ export function getLocalStorageItem(key) {
 }
 
 export function getSessionStorageItem(key) {
-    if (!isNode) {
+    if (!isNode()) {
         return useLocalStorage() ? window.sessionStorage.getItem(key) : getCookie(key);
     } else {
         return getNodeStorageItem(key);
@@ -186,7 +188,7 @@ export function getSessionStorageItem(key) {
 }
 
 export function setLocalStorageItem(key, value) {
-    if (!isNode) {
+    if (!isNode()) {
         return useLocalStorage() ? window.localStorage.setItem(key, value) : setCookie(key, value);
     } else {
         return setNodeStorageItem(key, value);
@@ -194,7 +196,7 @@ export function setLocalStorageItem(key, value) {
 }
 
 export function removeSessionStorageItem(key) {
-    if (!isNode) {
+    if (!isNode()) {
         if (useLocalStorage()) {
             window.sessionStorage.removeItem(key);
         } else {
@@ -206,7 +208,7 @@ export function removeSessionStorageItem(key) {
 }
 
 export function removeLocalStorageItem(key) {
-    if (!isNode) {
+    if (!isNode()) {
         if (useLocalStorage()) {
             window.localStorage.removeItem(key);
         } else {
@@ -218,7 +220,7 @@ export function removeLocalStorageItem(key) {
 }
 
 export function setSessionStorageItem(key, value) {
-    if (!isNode) {
+    if (!isNode()) {
         return useLocalStorage() ? window.sessionStorage.setItem(key, value) : setCookie(key, value, 1);
     } else {
         return setNodeStorageItem(key, value);
