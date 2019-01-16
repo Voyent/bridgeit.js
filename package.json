@@ -13,7 +13,9 @@
     "author": "ICEsoft Technologies, Inc. <voyent@icesoft.com> (https://icesoft.com/)",
     "license": "Apache-2.0",
     "dependencies": {
-        "uuid": "^1.4.1"
+        "uuid": "^1.4.1",
+        "collections": "^1.0",
+        "socket.io-client": "^2.0"
     },
     "devDependencies": {
         "grunt": "^0.4.4",
