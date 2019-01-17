@@ -11,7 +11,7 @@ function BroadcastService(v, utils) {
             url = v.baseURL + ':3000';
         }
 
-        return url.replace('https', 'http');
+        return url;
     }
 
     function validateRequiredGroup(params, reject) {
