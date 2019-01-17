@@ -12068,6 +12068,9 @@ function BroadcastService(v, utils) {
         );
     };
 
+    /* Initialization */
+    v.configureHosts();
+
     v.action = ActionService(v, privateUtils);
     v.admin = AdminService(v, keys, privateUtils);
     v.auth = AuthService(v, keys, privateUtils);
@@ -12090,7 +12093,5 @@ function BroadcastService(v, utils) {
     v.documents = v.docs;
     v.location = v.locate;
 
-    /* Initialization */
-    v.configureHosts();
 
 })(voyent);

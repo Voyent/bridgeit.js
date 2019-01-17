@@ -339,6 +339,9 @@ if (!window.voyent) {
         );
     };
 
+    /* Initialization */
+    v.configureHosts();
+
     v.action = ActionService(v, privateUtils);
     v.admin = AdminService(v, keys, privateUtils);
     v.auth = AuthService(v, keys, privateUtils);
@@ -361,7 +364,5 @@ if (!window.voyent) {
     v.documents = v.docs;
     v.location = v.locate;
 
-    /* Initialization */
-    v.configureHosts();
 
 })(voyent);
