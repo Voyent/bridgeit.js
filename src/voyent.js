@@ -355,6 +355,7 @@ if (!window.voyent) {
     v.query = QueryService(v, privateUtils);
     v.device = DeviceService(v, privateUtils);
     v.activity = ActivityService(v, privateUtils);
+    v.broadcast = BroadcastService(v, privateUtils);
 
     //aliases for backward compatibility
     v.documents = v.docs;

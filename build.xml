@@ -31,6 +31,7 @@
                 <file name="cloud-service.js"/>
                 <file name="query-service.js"/>
                 <file name="storage-service.js"/>
+                <file name="client-broadcast-service.js"/>
                 <file name="private-utils.js"/>
                 <file name="public-utils.js"/>
                 <file name="voyent.js"/>
