@@ -11005,18 +11005,20 @@ function StorageService(v, utils) {
     return storage;
 }
 function BroadcastService(v, utils) {
-    var broadcastURL = v.baseURL + '/broadcast';
     var portMatcher = /\:(\d+)/;
-    var ioURL;
-    if (portMatcher.test(v.baseURL)) {
-        ioURL = v.baseURL.replace(portMatcher, ':3000');
-    } else if (v.baseURL[v.baseURL.length - 1] == '/') {
-        ioURL = v.baseURL.substring(0, v.baseURL.length - 1) + ':3000';
-    } else {
-        ioURL = v.baseURL + ':3000';
-    }
 
-    ioURL = ioURL.replace('https', 'http');
+    function ioURL() {
+        var url;
+        if (portMatcher.test(v.baseURL)) {
+            url = v.baseURL.replace(portMatcher, ':3000');
+        } else if (v.baseURL[v.baseURL.length - 1] == '/') {
+            url = v.baseURL.substring(0, v.baseURL.length - 1) + ':3000';
+        } else {
+            url = v.baseURL + ':3000';
+        }
+
+        return url.replace('https', 'http');
+    }
 
     function validateRequiredGroup(params, reject) {
         utils.validateParameter('group', 'The group parameter is required', params, reject);
@@ -11042,7 +11044,7 @@ function BroadcastService(v, utils) {
 
                     try {
                         var group = params.group;
-                        var socket = io(ioURL + '/' + group, {
+                        var socket = io(ioURL() + '/' + group, {
                             transports: ['websocket']//, path: '/io'
                         });
 
@@ -11114,7 +11116,7 @@ function BroadcastService(v, utils) {
                     var realm = utils.validateAndReturnRequiredRealm(params, reject);
                     var token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-                    var url = utils.getRealmResourceURL(broadcastURL, account, realm, '', token);
+                    var url = utils.getRealmResourceURL(v.broadcastURL, account, realm, '', token);
 
                     v.$.post(url, params).then(function () {
                         v.auth.updateLastActiveTimestamp();
@@ -11787,6 +11789,7 @@ function BroadcastService(v, utils) {
         v.cloudURL = baseURL + '/cloud';
         v.activityURL = baseURL + '/activity';
 		v.sysAdminURL = baseURL + '/administration';
+        v.broadcastURL = baseURL + '/broadcast';
     };
 
     /**
@@ -12065,9 +12068,6 @@ function BroadcastService(v, utils) {
         );
     };
 
-    /* Initialization */
-    v.configureHosts();
-
     v.action = ActionService(v, privateUtils);
     v.admin = AdminService(v, keys, privateUtils);
     v.auth = AuthService(v, keys, privateUtils);
@@ -12090,5 +12090,7 @@ function BroadcastService(v, utils) {
     v.documents = v.docs;
     v.location = v.locate;
 
+    /* Initialization */
+    v.configureHosts();
 
 })(voyent);
