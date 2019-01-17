@@ -11030,11 +11030,8 @@ function BroadcastService(v, utils) {
         utils.validateParameter('message', 'The callback parameter is required', params, reject);
     }
 
-    var io = require('socket.io-client');
-    var map = require('collections/map');
-
-    var callbacksToSockets = map();
-    var groupsToCallbacks = map();
+    var callbacksToSockets = Map();
+    var groupsToCallbacks = Map();
 
     return {
         startListening: function startListening(params) {
