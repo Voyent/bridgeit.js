@@ -44,7 +44,7 @@ export function startListening(params) {
             try {
                 let group = params.group;
                 const socket = io(ioURL + '/' + group, {
-                    transports: ['websocket']//, path: '/io'
+                    transports: ['websocket']
                 });
 
                 //save group mapping
@@ -57,7 +57,9 @@ export function startListening(params) {
                 //save callback mapping
                 callbacksToSockets.set(params.callback, socket);
 
-                socket.on('broadcast-event', params.callback);
+                socket.on('broadcast-event', function(message) {
+                    params.callback(JSON.parse(message));
+                });
                 resolve();
             } catch (e) {
                 reject(e);
