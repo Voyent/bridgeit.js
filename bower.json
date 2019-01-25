@@ -10,7 +10,9 @@
 		"favicon.ico",
 		".gitignore"
 	],
-	"dependencies":{},
+	"dependencies":{
+        "socket.io-client": "^2.0"
+    },
 	"devDependencies":{},
 	"keywords":[
 		"mobile",

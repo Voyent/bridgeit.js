@@ -28,6 +28,7 @@
                 <file name="metrics-service.js"/>
                 <file name="event-service.js"/>
                 <file name="push-service.js"/>
+                <file name="client-broadcast-service.js"/>
                 <file name="cloud-service.js"/>
                 <file name="query-service.js"/>
                 <file name="storage-service.js"/>
