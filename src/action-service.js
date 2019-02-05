@@ -390,6 +390,61 @@ export function executeModule(params) {
     );
 }
 
+/**
+ * Executes a module with form data.
+ *
+ * @memberOf voyent.action
+ * @alias uploadFilesToModule
+ * @param {Object} params params
+ * @param {String} params.id The module id, the module to be executed. Required.
+ * @param {Array} params.files The files to be uploaded. Required.
+ * @param {Function} params.progressCb The optional function to call on progress events. eg. cb(percentComplete, xhr){...}
+ * @param {String} params.account Voyent Services account name. If not provided, the last known Voyent Account
+ *     will be used.
+ * @param {String} params.realm The Voyent Services realm. If not provided, the last known Voyent Realm name
+ *     will be used.
+ * @param {String} params.accessToken The Voyent authentication token. If not provided, the stored token from
+ *     voyent.io.auth.connect() will be used
+ * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
+ *     default will be used. (optional)
+ * @returns {*} The response
+ */
+export function uploadFilesToModule(params) {
+    return new Promise(
+        function (resolve, reject) {
+            params = params ? params : {};
+
+            //validate
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            utils.validateRequiredId(params, reject);
+            utils.validateParameter('files', 'The files parameter is required', params, reject);
+
+            let formData = new FormData();
+            if (params.files.length) {
+                for (var i=0; i<params.files.length; i++) {
+                    formData.append('file'+(i+1), params.files[i]);
+                }
+            }
+            else {
+                return reject((Error('The files parameter is empty')));
+            }
+
+            const url = utils.getRealmResourceURL(v.actionURL, account, realm,
+                'modules/' + params.id, token);
+
+            post(url, formData, null, true, null, params.progressCb).then(function (response) {
+                updateLastActiveTimestamp();
+                resolve(response);
+            })['catch'](function (error) {
+                reject(error);
+            });
+
+        }
+    );
+}
+
 export function getResourcePermissions(params) {
     params.service = 'action';
     params.path = 'actions';
