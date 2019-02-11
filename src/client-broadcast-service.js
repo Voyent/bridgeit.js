@@ -43,7 +43,7 @@ export function startListening(params) {
 
             try {
                 let group = params.group;
-                const socket = io(ioURL + '/' + group, {
+                const socket = io(ioURL + '/' + encodeURIComponent(group), {
                     transports: ['websocket']
                 });
 
