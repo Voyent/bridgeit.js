@@ -38,7 +38,7 @@ function BroadcastService(v, utils) {
 
                     try {
                         var group = params.group;
-                        var socket = io(ioURL() + '/' + group, {
+                        var socket = io(ioURL() + '/' + encodeURIComponent(group), {
                             transports: ['websocket']
                         });
 
