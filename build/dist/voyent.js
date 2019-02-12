@@ -10206,7 +10206,8 @@ function BroadcastService(v, utils) {
                     try {
                         var group = params.group;
                         var socket = io(ioURL() + '/' + encodeURIComponent(group), {
-                            transports: ['websocket']
+                            transports: ['websocket'],
+                            rejectUnauthorized: false
                         });
 
                         groupsToCallbacks.push({'group': group, 'callback': params.callback});
