@@ -10195,9 +10195,15 @@ function BroadcastService(v, utils) {
 
     var callbacksToSockets = [];
     var groupsToCallbacks = [];
-
+    var socketManager;
     return {
         startListening: function startListening(params) {
+            if (!socketManager) {
+                socketManager = io.Manager(ioURL(), {
+                    transports: ['websocket']
+                });
+            }
+
             return new Promise(
                 function (resolve, reject) {
                     validateRequiredGroup(params, reject);
@@ -10205,11 +10211,7 @@ function BroadcastService(v, utils) {
 
                     try {
                         var group = params.group;
-                        var socket = io(ioURL(), {
-                            transports: ['websocket'],
-                            rejectUnauthorized: false,
-                            forceNew: false
-                        });
+                        var socket = socketManager.socket('/');
                         socket.on('reconnect_attempt', function() {
                             console.log('Websocket connection failed. Falling back to polling.');
                             socket.io.opts.transports = ['polling', 'websocket'];
