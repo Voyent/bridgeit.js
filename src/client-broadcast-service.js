@@ -46,6 +46,10 @@ export function startListening(params) {
                 const socket = io(ioURL + '/' + encodeURIComponent(group), {
                     transports: ['websocket']
                 });
+                socket.on('reconnect_attempt', function() {
+                    console.log('Websocket connection failed. Falling back to polling.');
+                    socket.io.opts.transports = ['polling', 'websocket'];
+                });
 
                 //save group mapping
                 let callbacks = groupsToCallbacks.get(group);
