@@ -42,6 +42,10 @@ function BroadcastService(v, utils) {
                             transports: ['websocket'],
                             rejectUnauthorized: false
                         });
+                        socket.on('reconnect_attempt', function() {
+                            console.log('Websocket connection failed. Falling back to polling.');
+                            socket.io.opts.transports = ['polling', 'websocket'];
+                        });
 
                         groupsToCallbacks.push({'group': group, 'callback': params.callback});
                         //save callback mapping
