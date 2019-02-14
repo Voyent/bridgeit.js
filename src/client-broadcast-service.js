@@ -38,13 +38,18 @@ function BroadcastService(v, utils) {
 
                     try {
                         var group = params.group;
-                        var socket = io(ioURL() + '/' + encodeURIComponent(group), {
+                        var socket = io(ioURL(), {
                             transports: ['websocket'],
-                            rejectUnauthorized: false
+                            rejectUnauthorized: false,
+                            forceNew: false
                         });
                         socket.on('reconnect_attempt', function() {
                             console.log('Websocket connection failed. Falling back to polling.');
                             socket.io.opts.transports = ['polling', 'websocket'];
+                        });
+                        //once connected let the server know that we want to use/create this room
+                        socket.on('connect', function() {
+                            socket.emit('room', group);
                         });
 
                         groupsToCallbacks.push({'group': group, 'callback': params.callback});
