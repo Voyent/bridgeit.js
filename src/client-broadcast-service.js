@@ -35,6 +35,7 @@ function BroadcastService(v, utils) {
                 socketManager = io.Manager(ioURL(), {
                     transports: ['websocket']
                 });
+                console.log('Created socket manager.');
             }
 
             return new Promise(
