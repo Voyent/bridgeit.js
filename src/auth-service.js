@@ -1,7 +1,6 @@
 import * as keys from './keys'
 import * as utils from './private-utils'
-import { authURL, authAdminURL, baseURL } from './voyent'
-import { post, getJSON } from './public-utils'
+import { authURL, authAdminURL, baseURL, post, getJSON } from './public-utils'
 
 const authKeys = {
     PASSWORD_KEY: 'voyentPassword',

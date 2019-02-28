@@ -1,6 +1,5 @@
 import * as utils from './private-utils'
-import { put, getJSON } from './public-utils'
-import { deviceURL } from './voyent'
+import { deviceURL, put, getJSON } from './public-utils'
 import { updateLastActiveTimestamp } from './auth-service'
 
 /**

@@ -1,6 +1,5 @@
 import * as utils from './private-utils'
-import { post, put, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from './public-utils'
-import { eventhubURL } from './voyent'
+import { eventhubURL, post, put, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from './public-utils'
 import { updateLastActiveTimestamp } from './auth-service'
 
 function validateRequiredHandler(params, reject) {

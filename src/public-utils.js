@@ -1,6 +1,5 @@
 import * as privateUtils from './private-utils'
 import * as keys from "./keys";
-import * as v from './voyent'
 import { updateLastActiveTimestamp } from './auth-service'
 
 //publish some of the private utility functions
@@ -11,6 +10,51 @@ export const removeLocalStorageItem = privateUtils.removeLocalStorageItem;
 export const getSessionStorageItem = privateUtils.getSessionStorageItem;
 export const setSessionStorageItem = privateUtils.setSessionStorageItem;
 export const removeSessionStorageItem = privateUtils.removeSessionStorageItem;
+
+export let baseURL, authURL, authAdminURL, locateURL, docsURL, storageURL, eventURL,
+    queryURL, actionURL, eventhubURL, mailboxURL, deviceURL, scopeURL,
+    pushURL, cloudURL, activityURL, sysAdminURL, broadcastURL;
+
+export const configureHosts = function (url) {
+    if (url) {
+        baseURL = url;
+    }
+    else {
+        if (privateUtils.isNode()) {
+            baseURL = 'http://dev.voyent.cloud';
+        }
+        else {
+            baseURL = window.location.protocol + '//' + window.location.hostname;
+            if (window.location.port) {
+                baseURL += ':' + window.location.port
+            }
+        }
+    }
+    //remove any trailing '/'
+    if (baseURL.substr(baseURL.length - 1) === '/') {
+        baseURL = baseURL.slice(0, -1);
+    }
+
+    authURL = baseURL + '/auth';
+    authAdminURL = baseURL + '/authadmin';
+    locateURL = baseURL + '/locate';
+    docsURL = baseURL + '/docs';
+    storageURL = baseURL + '/storage';
+    eventURL = baseURL + '/event';
+    queryURL = baseURL + '/query';
+    actionURL = baseURL + '/action';
+    eventhubURL = baseURL + '/eventhub';
+    mailboxURL = baseURL + '/mailbox';
+    deviceURL = baseURL + '/device';
+    scopeURL = baseURL + '/scope';
+    pushURL = baseURL + '/notify';
+    cloudURL = baseURL + '/cloud';
+    activityURL = baseURL + '/activity';
+    sysAdminURL = baseURL + '/administration';
+    broadcastURL = baseURL + '/broadcast';
+};
+
+configureHosts();
 
 
 /**
@@ -183,13 +227,13 @@ export function getResourcePermissions(params){
 
             let serviceURL;
             switch(params.service){
-                case 'docs': serviceURL = v.docsURL; break;
-                case 'action': serviceURL = v.actionURL; break;
-                case 'eventhub': serviceURL = v.eventhubURL; break;
-                case 'query': serviceURL = v.queryURL; break;
-                case 'storage': serviceURL = v.storageURL; break;
-                case 'mailbox': serviceURL = v.mailboxURL; break;
-                case 'locate': serviceURL = v.locateURL; break;
+                case 'docs': serviceURL = docsURL; break;
+                case 'action': serviceURL = actionURL; break;
+                case 'eventhub': serviceURL = eventhubURL; break;
+                case 'query': serviceURL = queryURL; break;
+                case 'storage': serviceURL = storageURL; break;
+                case 'mailbox': serviceURL = mailboxURL; break;
+                case 'locate': serviceURL = locateURL; break;
             }
 
             const url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);
@@ -273,8 +317,8 @@ export function updateResourcePermissions(params){
 
             let serviceURL;
             switch(params.service){
-                case 'docs': serviceURL = v.docsURL; break;
-                case 'action': serviceURL = v.actionURL; break;
+                case 'docs': serviceURL = docsURL; break;
+                case 'action': serviceURL = actionURL; break;
             }
 
             const url = privateUtils.getRealmResourceURL(serviceURL, account, realm, params.path + '/' + params.id + '/permissions', token);

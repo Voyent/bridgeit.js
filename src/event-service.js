@@ -1,6 +1,5 @@
 import * as utils from './private-utils'
-import { post, getJSON } from './public-utils'
-import { eventURL } from './voyent'
+import { eventURL, post, getJSON } from './public-utils'
 import { updateLastActiveTimestamp, getLastKnownAccount, getLastKnownRealm, getLastAccessToken } from './auth-service'
 
 function validateRequiredEvent(params, reject){

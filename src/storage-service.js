@@ -1,6 +1,5 @@
 import * as utils from './private-utils'
-import { post, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from './public-utils'
-import { storageURL } from './voyent'
+import { storageURL, post, doDelete, getJSON, getResourcePermissions as getServiceResourcePermissions, updateResourcePermissions as updateServiceResourcePermissions} from './public-utils'
 import { updateLastActiveTimestamp } from './auth-service'
 
 function validateRequiredBlob(params, reject){

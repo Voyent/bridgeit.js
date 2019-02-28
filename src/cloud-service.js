@@ -1,6 +1,5 @@
 import * as utils from './private-utils'
-import { post } from './public-utils'
-import { cloudURL } from './voyent'
+import { cloudURL, post } from './public-utils'
 import { updateLastActiveTimestamp } from './auth-service'
 
 /**

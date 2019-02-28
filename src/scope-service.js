@@ -1,6 +1,5 @@
 import * as utils from './private-utils'
-import { post, put, doDelete, getJSON } from './public-utils'
-import { scopeURL } from './voyent'
+import { scopeURL, post, put, doDelete, getJSON } from './public-utils'
 import { updateLastActiveTimestamp } from './auth-service'
 
 function validateRequiredProperty(params, reject){
