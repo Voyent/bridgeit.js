@@ -1,9 +1,7 @@
 import * as utils from './private-utils'
 import io from 'socket.io-client'
 import { baseURL, post } from "./public-utils";
-import {updateLastActiveTimestamp} from "./auth-service";
-import Map from 'collections/map';
-
+import { updateLastActiveTimestamp } from "./auth-service";
 
 const broadcastURL = baseURL + '/broadcast';
 const portMatcher = /\:(\d+)/;
@@ -31,8 +29,8 @@ function validateRequiredMessage(params, reject) {
 }
 
 
-let callbacksToSockets = Map();
-let groupsToCallbacks = Map();
+let callbacksToSockets = new Map();
+let groupsToCallbacks = new Map();
 
 export function startListening(params) {
     return new Promise(
