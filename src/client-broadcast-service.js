@@ -5,17 +5,21 @@ import { updateLastActiveTimestamp } from "./auth-service";
 
 const broadcastURL = baseURL + '/broadcast';
 const portMatcher = /\:(\d+)/;
-let ioURL;
-if (portMatcher.test(baseURL)) {
-    ioURL = baseURL.replace(portMatcher, ':3000');
-} else if (baseURL[baseURL.length - 1] == '/') {
-    ioURL = baseURL.substring(0, baseURL.length - 1) + ':3000';
-} else {
-    ioURL = baseURL + ':3000';
-}
 
-//ioURL = ioURL.replace('https', 'http'); commenting out for now due to error on client:
-// The page at '<URL>' was loaded over HTTPS, but requested an insecure XMLHttpRequest endpoint '<URL>'. This request has been blocked; the content must be served over HTTPS.
+function ioURL() {
+    let url;
+    if (portMatcher.test(baseURL)) {
+        url = baseURL.replace(portMatcher, ':3000');
+    }
+    else if (baseURL[baseURL.length - 1] === '/') {
+        url = baseURL.substring(0, baseURL.length - 1) + ':3000';
+    }
+    else {
+        url = baseURL + ':3000';
+    }
+
+    return url;
+}
 
 function validateRequiredGroup(params, reject) {
     utils.validateParameter('group', 'The group parameter is required', params, reject);
@@ -29,35 +33,38 @@ function validateRequiredMessage(params, reject) {
     utils.validateParameter('message', 'The callback parameter is required', params, reject);
 }
 
-
-let callbacksToSockets = new Map();
-let groupsToCallbacks = new Map();
+let callbacksToSockets = [];
+let groupsToCallbacks = [];
+let socketManager;
 
 export function startListening(params) {
+    if (!socketManager) {
+        socketManager = io.Manager(ioURL(), {
+            transports: ['websocket']
+        });
+        console.log('Created socket manager.');
+    }
+
     return new Promise(
         function (resolve, reject) {
             validateRequiredGroup(params, reject);
             validateRequiredCallback(params, reject);
 
             try {
-                let group = params.group;
-                const socket = io(ioURL + '/' + encodeURIComponent(group), {
-                    transports: ['websocket']
-                });
+                const group = params.group;
+                const socket = socketManager.socket('/');
                 socket.on('reconnect_attempt', function() {
                     console.log('Websocket connection failed. Falling back to polling.');
                     socket.io.opts.transports = ['polling', 'websocket'];
                 });
+                //once connected let the server know that we want to use/create this room
+                socket.on('connect', function() {
+                    socket.emit('room', group);
+                });
 
-                //save group mapping
-                let callbacks = groupsToCallbacks.get(group);
-                if (!callbacks) {
-                    callbacks= [];
-                }
-                callbacks.push(params.callback)
-                groupsToCallbacks.set(group, callbacks);
+                groupsToCallbacks.push({'group': group, 'callback': params.callback});
                 //save callback mapping
-                callbacksToSockets.set(params.callback, socket);
+                callbacksToSockets.push({'callback': params.callback, 'socket': socket});
 
                 socket.on('broadcast-event', function(message) {
                     params.callback(JSON.parse(message));
@@ -75,27 +82,49 @@ export function stopListening(params) {
         function (resolve, reject) {
             try {
                 if (params.group) {
-                    let callbacks = groupsToCallbacks.get(params.group);
-                    if (callbacks) {
-                        for (let i = 0, l = callbacks.length; i < l; i++) {
-                            let c = callbacks[i];
-                            let sock = callbacksToSockets.get(c);
-                            if (sock) {
-                                sock.disconnect();
+                    let remainingGroupsToCallbacks = [];
+                    for (let i = 0, l = groupsToCallbacks.length; i < l; i++) {
+                        let groupToCallback = groupsToCallbacks[i];
+                        if (groupToCallback.group === params.group) {
+                            let remainingCallbacksToSockets = [];
+                            for (let j = 0, lcs = callbacksToSockets.length; j < lcs; j++) {
+                                let callbackToSocket = callbacksToSockets[j];
+                                if (callbackToSocket.callback === groupToCallback.callback) {
+                                    try {
+                                        callbackToSocket.socket.disconnect();
+                                    } catch (ex) {
+                                        //failed to disconnect socket...continue
+                                    }
+                                } else {
+                                    remainingCallbacksToSockets.push(callbackToSocket);
+                                }
                             }
-                        }
-                        for (let i = 0, l = callbacks.length; i < l; i++) {
-                            let c = callbacks[i];
-                            callbacksToSockets.delete(c);
+                            callbacksToSockets = remainingCallbacksToSockets;
+                        } else {
+                            remainingGroupsToCallbacks.push(groupToCallback);
                         }
                     }
+                    groupsToCallbacks = remainingGroupsToCallbacks;
                 }
 
                 if (params.callback) {
-                    let sock = callbacksToSockets.get(params.callback);
-                    if (sock) {
-                        sock.disconnect();
-                        callbacksToSockets.delete(params.callback);
+                    let remainingCallbacksToSockets = [];
+                    for (let j = 0, lcs = callbacksToSockets.length; j < lcs; j++) {
+                        let callbackToSocket = callbacksToSockets[j];
+                        if (callbackToSocket.callback === params.callback) {
+                            callbackToSocket.socket.disconnect();
+                        } else {
+                            remainingCallbacksToSockets.push(callbackToSocket);
+                        }
+                        callbacksToSockets = remainingCallbacksToSockets;
+                    }
+
+                    let remainingGroupsToCallbacks = [];
+                    for (let i = 0, l = groupsToCallbacks.length; i < l; i++) {
+                        let groupToCallback = groupsToCallbacks[i];
+                        if (groupToCallback.callback !== params.callback) {
+                            remainingGroupsToCallbacks.push(groupToCallback);
+                        }
                     }
                 }
 
