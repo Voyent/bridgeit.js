@@ -15,7 +15,7 @@ if (portMatcher.test(baseURL)) {
 }
 
 //ioURL = ioURL.replace('https', 'http'); commenting out for now due to error on client:
-//The page at '<URL>' was loaded over HTTPS, but requested an insecure XMLHttpRequest endpoint '<URL>'. This request has been blocked; the content must be served over HTTPS.
+// The page at '<URL>' was loaded over HTTPS, but requested an insecure XMLHttpRequest endpoint '<URL>'. This request has been blocked; the content must be served over HTTPS.
 
 function validateRequiredGroup(params, reject) {
     utils.validateParameter('group', 'The group parameter is required', params, reject);
