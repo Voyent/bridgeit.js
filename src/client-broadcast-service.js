@@ -34,6 +34,7 @@ function BroadcastService(v, utils) {
             if (!socketManager) {
                 socketManager = io.Manager(ioURL(), {
                     transports: ['websocket', 'polling'],
+                    reconnectionAttempts: 3,
                     rememberUpgrade: true
                 });
                 console.log('Created socket manager.');
