@@ -1,7 +1,6 @@
 import * as utils from './private-utils'
-import { baseURL } from './voyent'
 import io from 'socket.io-client'
-import { post } from "./public-utils";
+import { baseURL, post } from "./public-utils";
 import { updateLastActiveTimestamp } from "./auth-service";
 
 const broadcastURL = baseURL + '/broadcast';
