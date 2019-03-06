@@ -1,17 +1,15 @@
 import * as utils from './private-utils'
 import { baseURL } from './voyent'
 import io from 'socket.io-client'
-import {post} from "./public-utils";
-import {updateLastActiveTimestamp} from "./auth-service";
-import Map from 'collections/map';
-
+import { post } from "./public-utils";
+import { updateLastActiveTimestamp } from "./auth-service";
 
 const broadcastURL = baseURL + '/broadcast';
 const portMatcher = /\:(\d+)/;
 let ioURL;
 if (portMatcher.test(baseURL)) {
     ioURL = baseURL.replace(portMatcher, ':3000');
-} else if (baseURL[baseURL.length - 1] == '/') {
+} else if (baseURL[baseURL.length - 1] === '/') {
     ioURL = baseURL.substring(0, baseURL.length - 1) + ':3000';
 } else {
     ioURL = baseURL + ':3000';
@@ -30,8 +28,8 @@ function validateRequiredMessage(params, reject) {
 }
 
 
-let callbacksToSockets = Map();
-let groupsToCallbacks = Map();
+let callbacksToSockets = new Map();
+let groupsToCallbacks = new Map();
 
 export function startListening(params) {
     return new Promise(
