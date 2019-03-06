@@ -33,7 +33,8 @@ function BroadcastService(v, utils) {
         startListening: function startListening(params) {
             if (!socketManager) {
                 socketManager = io.Manager(ioURL(), {
-                    transports: ['websocket']
+                    transports: ['websocket', 'polling'],
+                    rememberUpgrade: true
                 });
                 console.log('Created socket manager.');
             }
@@ -48,7 +49,6 @@ function BroadcastService(v, utils) {
                         var socket = socketManager.socket('/');
                         socket.on('reconnect_attempt', function() {
                             console.log('Websocket connection failed. Falling back to polling.');
-                            socket.io.opts.transports = ['polling', 'websocket'];
                         });
                         //once connected let the server know that we want to use/create this room
                         socket.on('connect', function() {
