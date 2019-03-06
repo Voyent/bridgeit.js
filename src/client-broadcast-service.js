@@ -48,8 +48,14 @@ function BroadcastService(v, utils) {
                     try {
                         var group = params.group;
                         var socket = socketManager.socket('/');
+                        socket.on('connect_error', function(error) {
+                            console.warn('Connection failed: ' + error);
+                        });
                         socket.on('reconnect_attempt', function() {
-                            console.log('Websocket connection failed. Falling back to polling.');
+                            console.info('Retrying to connect.');
+                        });
+                        socket.on('reconnect_failed', function() {
+                            console.warn('Failed to reconnect.');
                         });
                         //once connected let the server know that we want to use/create this room
                         socket.on('connect', function() {

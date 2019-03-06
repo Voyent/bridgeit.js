@@ -10200,7 +10200,9 @@ function BroadcastService(v, utils) {
         startListening: function startListening(params) {
             if (!socketManager) {
                 socketManager = io.Manager(ioURL(), {
-                    transports: ['websocket']
+                    transports: ['websocket', 'polling'],
+                    reconnectionAttempts: 3,
+                    rememberUpgrade: true
                 });
                 console.log('Created socket manager.');
             }
@@ -10213,9 +10215,14 @@ function BroadcastService(v, utils) {
                     try {
                         var group = params.group;
                         var socket = socketManager.socket('/');
+                        socket.on('connect_error', function(error) {
+                            console.warn('Connection failed: ' + error);
+                        });
                         socket.on('reconnect_attempt', function() {
-                            console.log('Websocket connection failed. Falling back to polling.');
-                            socket.io.opts.transports = ['polling', 'websocket'];
+                            console.info('Retrying to connect.');
+                        });
+                        socket.on('reconnect_failed', function() {
+                            console.warn('Failed to reconnect.');
                         });
                         //once connected let the server know that we want to use/create this room
                         socket.on('connect', function() {
