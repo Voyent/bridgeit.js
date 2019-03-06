@@ -43,6 +43,7 @@ export function startListening(params) {
                 let group = params.group;
                 const socket = io(ioURL + '/' + encodeURIComponent(group), {
                     transports: ['websocket', 'polling'],
+                    reconnectionAttempts: 3,
                     rememberUpgrade: true
                 });
                 socket.on('reconnect_attempt', function() {
