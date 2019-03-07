@@ -764,8 +764,9 @@ export const hideNotification = function(notification,ms) {
             notification.style.transform = 'translateY('+hideTranslateY+'px)';
             notification.style.webkitTransform = 'translateY('+hideTranslateY+'px)';
             setTimeout(function() {
-                if (document.getElementById(VOYENT_TOAST_CONTAINER_ID).contains(notification)) {
-                    document.getElementById(VOYENT_TOAST_CONTAINER_ID).removeChild(notification);
+                var toastContainer = document.getElementById(VOYENT_TOAST_CONTAINER_ID);
+                if (toastContainer && toastContainer.contains(notification)) {
+                    toastContainer.removeChild(notification);
                     _updateDisplayedNotifications(notification);
                 }
             },400); //transition effect is for 300ms so remove the toast from the DOM after 400ms
