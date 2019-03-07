@@ -57,6 +57,9 @@ function BroadcastService(v, utils) {
                         socket.on('reconnect_failed', function() {
                             console.warn('Failed to reconnect.');
                         });
+                        socket.on('connect_timeout', function(timeout) {
+                            console.info('Connection timed out after ' + timeout + ' seconds.');
+                        });
                         //once connected let the server know that we want to use/create this room
                         socket.on('connect', function() {
                             socket.emit('room', group);
