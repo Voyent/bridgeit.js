@@ -33,7 +33,7 @@ function BroadcastService(v, utils) {
         startListening: function startListening(params) {
             if (!socketManager) {
                 socketManager = io.Manager(ioURL(), {
-                    transports: ['websocket', 'polling'],
+                    transports: ['polling'],
                     reconnectionAttempts: 3,
                     rememberUpgrade: true
                 });
