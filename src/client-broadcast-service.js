@@ -8,12 +8,12 @@ const portMatcher = /\:(\d+)/;
 
 function ioURL() {
     var url;
-    if (portMatcher.test(v.baseURL)) {
-        url = v.baseURL.replace(portMatcher, ':3000');
-    } else if (v.baseURL[v.baseURL.length - 1] == '/') {
-        url = v.baseURL.substring(0, v.baseURL.length - 1) + ':3000';
+    if (portMatcher.test(baseURL)) {
+        url = baseURL.replace(portMatcher, ':3000');
+    } else if (baseURL[baseURL.length - 1] == '/') {
+        url = baseURL.substring(0, baseURL.length - 1) + ':3000';
     } else {
-        url = v.baseURL + ':3000';
+        url = baseURL + ':3000';
     }
 
     return url;
