@@ -5,13 +5,18 @@ import { updateLastActiveTimestamp } from "./auth-service";
 
 const broadcastURL = baseURL + '/broadcast';
 const portMatcher = /\:(\d+)/;
-let ioURL;
-if (portMatcher.test(baseURL)) {
-    ioURL = baseURL.replace(portMatcher, ':3000');
-} else if (baseURL[baseURL.length - 1] === '/') {
-    ioURL = baseURL.substring(0, baseURL.length - 1) + ':3000';
-} else {
-    ioURL = baseURL + ':3000';
+
+function ioURL() {
+    var url;
+    if (portMatcher.test(v.baseURL)) {
+        url = v.baseURL.replace(portMatcher, ':3000');
+    } else if (v.baseURL[v.baseURL.length - 1] == '/') {
+        url = v.baseURL.substring(0, v.baseURL.length - 1) + ':3000';
+    } else {
+        url = v.baseURL + ':3000';
+    }
+
+    return url;
 }
 
 function validateRequiredGroup(params, reject) {
@@ -29,8 +34,17 @@ function validateRequiredMessage(params, reject) {
 
 let callbacksToSockets = new Map();
 let groupsToCallbacks = new Map();
-
+let socketManager;
 export function startListening(params) {
+    if (!socketManager) {
+        socketManager = io.Manager(ioURL(), {
+            transports: ['websocket', 'polling'],
+            reconnectionAttempts: 3,
+            rememberUpgrade: true
+        });
+        console.log('Created socket manager.');
+    }
+
     return new Promise(
         function (resolve, reject) {
             validateRequiredGroup(params, reject);
@@ -38,13 +52,22 @@ export function startListening(params) {
 
             try {
                 let group = params.group;
-                const socket = io(ioURL + '/' + encodeURIComponent(group), {
-                    transports: ['websocket', 'polling'],
-                    reconnectionAttempts: 3,
-                    rememberUpgrade: true
+                let socket = socketManager.socket('/');
+                socket.on('connect_error', function(error) {
+                    console.warn('Connection failed: ' + error);
                 });
                 socket.on('reconnect_attempt', function() {
-                    console.log('Websocket connection failed. Falling back to polling.');
+                    console.info('Retrying to connect.');
+                });
+                socket.on('reconnect_failed', function() {
+                    console.warn('Failed to reconnect.');
+                });
+                socket.on('connect_timeout', function(timeout) {
+                    console.info('Connection timed out after ' + timeout + ' seconds.');
+                });
+                //once connected let the server know that we want to use/create this room
+                socket.on('connect', function() {
+                    socket.emit('room', group);
                 });
 
                 //save group mapping
