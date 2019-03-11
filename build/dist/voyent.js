@@ -4226,6 +4226,10 @@ function AdminService(v, keys, utils) {
     function validateRequiredGroup(params, reject) {
         utils.validateParameter('group', 'The group parameter is required', params, reject);
     }
+    
+    function validateRequiredTopic(params, reject) {
+        utils.validateParameter('topic', 'The topic parameter is required', params, reject);
+    }
 
     function validateAndReturnRequiredEmail(params, reject) {
         var email = params.email;
@@ -5466,6 +5470,114 @@ function AdminService(v, keys, utils) {
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
                     'groups/' + params.group, token);
+                    
+                v.$.doDelete(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        getAllPublicTopics: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'topics/', token);
+                
+                v.$.get(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        getPublicTopicDetails: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredTopic(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'topics/' + params.topic + '/details', token);
+                    
+                v.$.get(url).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        createPublicTopic: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredTopic(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'topics/', token);
+                    
+                v.$.post(url, { topic: params.topic }).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        updatePublicTopic: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredTopic(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'topics/' + params.topic.groupId, token);
+                    
+                v.$.put(url, { topic: params.topic }).then(function (response) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(response);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+            });
+        },
+        
+        deletePublicTopic: function(params) {
+            return new Promise(function(resolve, reject) {
+                params = params ? params : {};
+                
+                validateRequiredTopic(params, reject);
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'topics/' + params.topic, token);
                     
                 v.$.doDelete(url).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
