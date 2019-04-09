@@ -147,6 +147,28 @@ function AdminService(v, keys, utils) {
             });
         },
 		
+		getAccountSysadmin: function (params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+
+                //validate
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+                var txParam = utils.getTransactionURLParam();
+                var url = v.sysAdminURL + '/accounts/' + account + '?access_token=' + token +
+                    (txParam ? '&' + txParam : '');
+
+                v.$.getJSON(url).then(function (json) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(json.account);
+                })['catch'](function (error) {
+                    reject(error);
+                });
+
+            });
+        },
+		
 		/**
          * Get all accounts on the current host.
          *
