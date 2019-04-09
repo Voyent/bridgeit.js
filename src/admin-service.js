@@ -149,6 +149,27 @@ export function getAccount(params) {
     });
 }
 
+export function getAccountSysadmin(params) {
+    return new Promise(function (resolve, reject) {
+        params = params ? params : {};
+        //validate
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+        const txParam = utils.getTransactionURLParam();
+        const url = sysAdminURL + '/accounts/' + account + '?access_token=' + token +
+                (txParam ? '&' + txParam : '');
+
+            getJSON(url).then(function (json) {
+                updateLastActiveTimestamp();
+                resolve(json.account);
+            })['catch'](function (error) {
+                reject(error);
+            });
+
+        });
+}
+
 /**
  * Get all accounts on the current host.
  *
