@@ -28,9 +28,18 @@ function BroadcastService(v, utils) {
 
     var callbacksToSockets = [];
     var groupsToCallbacks = [];
-
+    var socketManager;
     return {
         startListening: function startListening(params) {
+            if (!socketManager) {
+                socketManager = io.Manager(ioURL(), {
+                    transports: ['websocket', 'polling'],
+                    reconnectionAttempts: 3,
+                    rememberUpgrade: true
+                });
+                console.log('Created socket manager.');
+            }
+
             return new Promise(
                 function (resolve, reject) {
                     validateRequiredGroup(params, reject);
@@ -38,8 +47,22 @@ function BroadcastService(v, utils) {
 
                     try {
                         var group = params.group;
-                        var socket = io(ioURL() + '/' + group, {
-                            transports: ['websocket']
+                        var socket = socketManager.socket('/');
+                        socket.on('connect_error', function(error) {
+                            console.warn('Connection failed: ' + error);
+                        });
+                        socket.on('reconnect_attempt', function() {
+                            console.info('Retrying to connect.');
+                        });
+                        socket.on('reconnect_failed', function() {
+                            console.warn('Failed to reconnect.');
+                        });
+                        socket.on('connect_timeout', function(timeout) {
+                            console.info('Connection timed out after ' + timeout + ' seconds.');
+                        });
+                        //once connected let the server know that we want to use/create this room
+                        socket.on('connect', function() {
+                            socket.emit('room', group);
                         });
 
                         groupsToCallbacks.push({'group': group, 'callback': params.callback});
