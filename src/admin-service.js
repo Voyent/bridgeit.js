@@ -169,7 +169,6 @@ function AdminService(v, keys, utils) {
                 })['catch'](function (error) {
                     reject(error);
                 });
-
             });
         },
 		
@@ -224,7 +223,7 @@ function AdminService(v, keys, utils) {
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realmName = utils.validateAndReturnRequiredRealmName(params, reject);
                 var url;
-                if(params.month && params.year){
+                if(params.month !== null && params.year){
                     url = v.sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
                         + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month;
                 }
