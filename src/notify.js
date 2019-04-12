@@ -1389,8 +1389,9 @@ function _setSelectedNotificationInStorage() {
  */
 function _isNotificationValid(n) {
     return !!(n && typeof n === 'object' && Object.keys(n).length &&
-             ((typeof n.detail === 'string' && n.detail.trim().length) ||
-             ((typeof n.subject === 'string' && n.subject.trim().length))));
+        ((typeof n.detail === 'string' && n.detail.trim().length) ||
+         (typeof n.subject === 'string' && n.subject.trim().length) ||
+         n.isAppUpdate));
 }
 
 /**
