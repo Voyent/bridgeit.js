@@ -297,8 +297,8 @@ export const startListening = function() {
 
     //declare push listener
     _listener = function (notification) {
-        if (!notification || typeof notification !== 'object') {
-            console.log('Notification received but ignored due to value:',notification);
+        if (!_isNotificationValid(notification)) {
+            console.log('Notification received but ignored due to value:', notification);
             return;
         }
         console.log('Notification received:',JSON.stringify(notification));
@@ -1134,11 +1134,13 @@ function _createToastChildren(toast,notification) {
     msgDiv.className = 'message';
     msgDiv.style.overflow = 'hidden';
     msgDiv.style.wordBreak = 'break-word';
-    if (config.useSubjectAsMessage || (!notification.detail && notification.subject)) {
-        msgDiv.innerHTML = notification.subject;
+    // Since we will always have one of a subject or detail ensure
+    // we always fallback to the other so a message is always displayed
+    if (notify.config.useSubjectAsMessage || (!notification.detail && notification.subject)) {
+        msgDiv.innerHTML = notification.subject.trim().length ? notification.subject : notification.detail;
     }
     else {
-        msgDiv.innerHTML = notification.detail;
+        msgDiv.innerHTML = notification.detail.trim().length ? notification.detail : notification.subject;
     }
     toast.appendChild(msgDiv);
 
@@ -1377,6 +1379,18 @@ function _setSelectedNotificationInStorage() {
     else {
         setSessionStorageItem(btoa(injectKey),btoa(JSON.stringify(selected.nid)));
     }
+}
+
+/**
+ * Returns whether the notification contains sufficient data.
+ * @param n
+ * @returns {boolean}
+ * @private
+ */
+function _isNotificationValid(n) {
+    return !!(n && typeof n === 'object' && Object.keys(n).length &&
+             ((typeof n.detail === 'string' && n.detail.trim().length) ||
+             ((typeof n.subject === 'string' && n.subject.trim().length))));
 }
 
 /**
