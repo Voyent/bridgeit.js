@@ -31,18 +31,41 @@ function validateRequiredMessage(params, reject) {
     utils.validateParameter('message', 'The callback parameter is required', params, reject);
 }
 
-
-let callbacksToSockets = new Map();
 let groupsToCallbacks = new Map();
-let socketManager;
+let socket;
 export function startListening(params) {
-    if (!socketManager) {
-        socketManager = io.Manager(ioURL(), {
+    if (!socket) {
+        let socketManager = io.Manager(ioURL(), {
             transports: ['websocket', 'polling'],
             reconnectionAttempts: 3,
             rememberUpgrade: true
         });
-        console.log('Created socket manager.');
+        socket = socketManager.socket('/');
+        console.log('Created socket.');
+        socket.on('connect_error', function(error) {
+            console.warn('Connection failed: ' + error);
+        });
+        socket.on('reconnect_attempt', function() {
+            console.info('Retrying to connect.');
+        });
+        socket.on('reconnect_failed', function() {
+            console.warn('Failed to reconnect.');
+        });
+        socket.on('connect_timeout', function(timeout) {
+            console.info('Connection timed out after ' + timeout + ' seconds.');
+        });
+        socket.on('broadcast-event', function(message) {
+            let callbacks = groupsToCallbacks.get(message.group);
+            if (callbacks) {
+                callbacks.forEach(function (c) {
+                    try {
+                        c(message.payload);
+                    } catch (ex) {
+                        console.error('Failed to invoke callback ' + c);
+                    }
+                });
+            }
+        });
     }
 
     return new Promise(
@@ -52,37 +75,17 @@ export function startListening(params) {
 
             try {
                 let group = params.group;
-                let socket = socketManager.socket('/');
-                socket.on('connect_error', function(error) {
-                    console.warn('Connection failed: ' + error);
-                });
-                socket.on('reconnect_attempt', function() {
-                    console.info('Retrying to connect.');
-                });
-                socket.on('reconnect_failed', function() {
-                    console.warn('Failed to reconnect.');
-                });
-                socket.on('connect_timeout', function(timeout) {
-                    console.info('Connection timed out after ' + timeout + ' seconds.');
-                });
-                //once connected let the server know that we want to use/create this room
+                //once connected let the server know that we want to use/create this group
                 socket.on('connect', function() {
-                    socket.emit('room', group);
+                    socket.emit('group', group);
                 });
 
-                //save group mapping
                 let callbacks = groupsToCallbacks.get(group);
                 if (!callbacks) {
-                    callbacks= [];
+                    callbacks = [];
+                    groupsToCallbacks.set(group, callbacks);
                 }
                 callbacks.push(params.callback);
-                groupsToCallbacks.set(group, callbacks);
-                //save callback mapping
-                callbacksToSockets.set(params.callback, socket);
-
-                socket.on('broadcast-event', function(message) {
-                    params.callback(JSON.parse(message));
-                });
                 resolve();
             } catch (e) {
                 reject(e);
@@ -96,27 +99,13 @@ export function stopListening(params) {
         function (resolve, reject) {
             try {
                 if (params.group) {
-                    let callbacks = groupsToCallbacks.get(params.group);
-                    if (callbacks) {
-                        for (let i = 0, l = callbacks.length; i < l; i++) {
-                            let c = callbacks[i];
-                            let sock = callbacksToSockets.get(c);
-                            if (sock) {
-                                sock.disconnect();
-                            }
+                    if (params.callback) {
+                        let callbacks = groupsToCallbacks.get(params.group);
+                        if (callbacks) {
+                            callbacks.pop(params.callback)
                         }
-                        for (let i = 0, l = callbacks.length; i < l; i++) {
-                            let c = callbacks[i];
-                            callbacksToSockets.delete(c);
-                        }
-                    }
-                }
-
-                if (params.callback) {
-                    let sock = callbacksToSockets.get(params.callback);
-                    if (sock) {
-                        sock.disconnect();
-                        callbacksToSockets.delete(params.callback);
+                    } else {
+                        groupsToCallbacks.delete(params.group);
                     }
                 }
 
