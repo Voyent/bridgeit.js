@@ -10398,13 +10398,13 @@ function BroadcastService(v, utils) {
                 function (resolve, reject) {
                     try {
                         if (params.group) {
-                            groupsToCallbacks.delete(params.group);
-                        }
-
-                        if (params.callback) {
-                            var callbacks = groupsToCallbacks.get(params.group);
-                            if (callbacks) {
-                                callbacks.pop(params.callback)
+                            if (params.callback) {
+                                var callbacks = groupsToCallbacks.get(params.group);
+                                if (callbacks) {
+                                    callbacks.pop(params.callback)
+                                }
+                            } else {
+                                groupsToCallbacks.delete(params.group);
                             }
                         }
 
