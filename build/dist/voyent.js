@@ -10354,7 +10354,7 @@ function BroadcastService(v, utils) {
                     console.info('Connection timed out after ' + timeout + ' seconds.');
                 });
                 socket.on('broadcast-event', function(message) {
-                    var callbacks = groupsToCallbacks.get(message.room);
+                    var callbacks = groupsToCallbacks.get(message.group);
                     if (callbacks) {
                         callbacks.forEach(function (c) {
                             try {
@@ -10374,7 +10374,7 @@ function BroadcastService(v, utils) {
 
                     try {
                         var group = params.group;
-                        //once connected let the server know that we want to use/create this room
+                        //once connected let the server know that we want to use/create this group
                         socket.on('connect', function() {
                             socket.emit('group', group);
                         });
