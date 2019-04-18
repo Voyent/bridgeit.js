@@ -1136,7 +1136,7 @@ function _createToastChildren(toast,notification) {
     msgDiv.style.wordBreak = 'break-word';
     // Since we will always have one of a subject or detail ensure
     // we always fallback to the other so a message is always displayed
-    if (notify.config.useSubjectAsMessage || (!notification.detail && notification.subject)) {
+    if (config.useSubjectAsMessage || (!notification.detail && notification.subject)) {
         msgDiv.innerHTML = notification.subject.trim().length ? notification.subject : notification.detail;
     }
     else {
