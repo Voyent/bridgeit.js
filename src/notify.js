@@ -286,15 +286,6 @@ export const initialize = function() {
 export const startListening = function() {
     if (_listener) { return; }
 
-    //start the push service if we haven't already
-    if (!_pushServiceStarted) {
-        _pushServiceStarted = true;
-        //join any queued push groups
-        for (let i=0; i<_queuedGroups.length; i++) {
-            joinGroup(_queuedGroups[i]);
-        }
-    }
-
     //declare push listener
     _listener = function (notification) {
         if (!_isNotificationValid(notification)) {
@@ -324,6 +315,16 @@ export const startListening = function() {
             }
         }
     };
+
+    //start the push service if we haven't already
+    if (!_pushServiceStarted) {
+        _pushServiceStarted = true;
+        //join any queued push groups
+        for (let i=0; i<_queuedGroups.length; i++) {
+            joinGroup(_queuedGroups[i]);
+        }
+    }
+
     //Add a group listener for the current user's username.
     let groupToJoin = getLastKnownUsername();
     joinGroup(groupToJoin);
