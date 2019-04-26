@@ -1,5 +1,5 @@
 import { startListening as bStartListening, stopListening as bStopListening } from './client-broadcast-service';
-import { getLastKnownUsername, isLoggedIn } from './auth-service';
+import { getLastKnownAccount, getLastKnownRealm, getLastKnownUsername, isLoggedIn } from './auth-service';
 import { executeModule } from './action-service';
 import { deleteMessages } from './mailbox-service';
 import { getSessionStorageItem, removeSessionStorageItem, setSessionStorageItem } from './public-utils';
@@ -286,7 +286,7 @@ export const initialize = function() {
 export const startListening = function() {
     if (_listener) { return; }
 
-    //declare push listener
+    // Declare push listener
     _listener = function (notification) {
         if (!_isNotificationValid(notification)) {
             console.log('Notification received but ignored due to value:', notification);
@@ -303,10 +303,10 @@ export const startListening = function() {
         _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
         displayNotification(notification);
         if (!selected) {
-            //we don't have a selected notification so set to this new one
+            // We don't have a selected notification so set to this new one
             selectNotification(notification);
-            //inject notification data into the page if they are on
-            //the relevant page and currently have no selected notification
+            // Inject notification data into the page if they are on the
+            // relevant page and currently have no selected notification
             let notificationUrl = document.createElement('a'); //use anchor tag to parse notification return URL
             notificationUrl.href = notification.url;
             if (window.location.host === notificationUrl.host &&
@@ -316,18 +316,17 @@ export const startListening = function() {
         }
     };
 
-    //start the push service if we haven't already
+    // Start the push service if we haven't already
     if (!_pushServiceStarted) {
         _pushServiceStarted = true;
-        //join any queued push groups
+        // Join any queued push groups
         for (let i=0; i<_queuedGroups.length; i++) {
             joinGroup(_queuedGroups[i]);
         }
     }
 
-    //Add a group listener for the current user's username.
-    let groupToJoin = getLastKnownUsername();
-    joinGroup(groupToJoin);
+    // Add a group listener for the current user's username
+    joinGroup(getLastKnownUsername(), true);
 };
 
 /**
@@ -346,32 +345,45 @@ export const stopListening = function() {
 /**
  * Registers a new push listener for the specified group.
  * @param group
+ * @param noScoped
  */
-export const joinGroup = function(group) {
-    if (group && typeof group === 'string' &&
-        groups.indexOf(group) === -1) {
-        //the push service is not ready so add the group to the queue so we can add it later
-        if (!_pushServiceStarted) {
-            if (_queuedGroups.indexOf(group) === -1) {
-                _queuedGroups.push(group);
+export const joinGroup = function(group, noScoped) {
+    if (group && typeof group === 'string') {
+        // Try to append a valid Account & Realm to make sure we don't receive all messages from everywhere
+        if (!noScoped && getLastKnownAccount() && getLastKnownRealm() && getLastKnownRealm() !== 'admin') {
+            // Rare but just double check that we don't already have account + realm appended
+            var acctRealm = getLastKnownAccount() + getLastKnownRealm();
+            if (group.indexOf(acctRealm, group.length - acctRealm.length) === -1) {
+                group += acctRealm;
             }
-            return;
         }
-        bStartListening({
-            'group': group,
-            'callback': _listener
-        }).then(function() {
-            //remove the group from the queue
-            let index = _queuedGroups.indexOf(group);
-            if (index > -1) {
-                _queuedGroups.splice(index,1);
+
+        // Ensure we aren't already in this group
+        if (groups.indexOf(group) === -1) {
+            // The push service is not ready so add the group to the queue so we can add it later
+            if (!_pushServiceStarted) {
+                if (_queuedGroups.indexOf(group) === -1) {
+                    _queuedGroups.push(group);
+                }
+                return;
             }
-            //add the group to our list of joined groups
-            groups.push(group);
-        }).catch(function(e) {
-            _fireEvent('message-error','Error when joining group: ' +
-                      (e.responseText || e.message || e), false);
-        });
+
+            bStartListening({
+                'group': group,
+                'callback': _listener
+            }).then(function() {
+                // Remove the group from the queue
+                let index = _queuedGroups.indexOf(group);
+                if (index > -1) {
+                    _queuedGroups.splice(index,1);
+                }
+                // Add the group to our list of joined groups
+                groups.push(group);
+            }).catch(function(e) {
+                _fireEvent('message-error','Error when joining group: ' +
+                          (e.responseText || e.message || e), false);
+            });
+        }
     }
 };
 
