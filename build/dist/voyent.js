@@ -10375,9 +10375,13 @@ function BroadcastService(v, utils) {
                     try {
                         var group = params.group;
                         //once connected let the server know that we want to use/create this group
-                        socket.on('connect', function() {
+                        if (socket.connected) {
                             socket.emit('group', group);
-                        });
+                        } else {
+                            socket.on('connect', function () {
+                                socket.emit('group', group);
+                            });
+                        }
 
                         var callbacks = groupsToCallbacks.get(group);
                         if (!callbacks) {
