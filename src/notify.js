@@ -298,8 +298,8 @@ export const startListening = function() {
         if (cancelled) {
             return;
         }
-        _addAlertToList(notification);
         _removeDuplicateNotifications(notification);
+        _addAlertToList(notification);
         queue.push(notification);
         _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
         displayNotification(notification);
