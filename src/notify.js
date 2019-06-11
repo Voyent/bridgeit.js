@@ -871,6 +871,7 @@ function _addAlertToList(notification) {
         // Copy the id into the alert record and add the alert to the list
         notification.alert._id = notification.alertId;
         alerts.push(notification.alert);
+        delete notification.alert;
     }
 }
 
