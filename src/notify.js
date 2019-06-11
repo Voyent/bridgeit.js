@@ -298,6 +298,7 @@ export const startListening = function() {
         if (cancelled) {
             return;
         }
+        _addAlertToList(notification);
         _removeDuplicateNotifications(notification);
         queue.push(notification);
         _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
@@ -480,15 +481,21 @@ export const refreshNotificationQueue = function(nid) {
     }
 };
 
+/**
+ * Tries to find an alert matching the passed id in the list and returns it.
+ * @param id
+ * @param alertsArray
+ * @returns {null|*}
+ */
 export const getAlertById = function(id, alertsArray) {
     if (!alertsArray && alerts) {
         alertsArray = alerts;
     }
 
     if (alertsArray && id) {
-        for (let alertLoop = 0; alertLoop < alertsArray.length; alertLoop++) {
-            if (alertsArray[alertLoop]._id === id) {
-                return alertsArray[alertLoop];
+        for (let i=0; i<alertsArray.length; i++) {
+            if (alertsArray[i]._id === id) {
+                return alertsArray[i];
             }
         }
     }
@@ -845,6 +852,25 @@ function _removeDuplicateNotifications(incomingNotification) {
                 return;
             }
         }
+    }
+}
+
+/**
+ * Copies the alert JSON from the notification into the local list so it is available to the client.
+ * @param notification
+ * @private
+ */
+function _addAlertToList(notification) {
+    if (notification.alertId && notification.alert) {
+        for (let i=0; i<alerts.length; i++) {
+            // Don't add the alert if it's already in the list
+            if (notification.alertId === alerts[i]._id) {
+                return;
+            }
+        }
+        // Copy the id into the alert record and add the alert to the list
+        notification.alert._id = notification.alertId;
+        alerts.push(notification.alert);
     }
 }
 
