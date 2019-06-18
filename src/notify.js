@@ -408,10 +408,9 @@ export const leaveGroup = function(group) {
 };
 
 /**
- * Fetches all the notifications and associated alerts for the user. If notifications are found then the queue
- * will be cleared on the client and repopulated with the found notifications. If an `nid` is provided then
- * the notification matching that nid will be automatically selected.
- * @param nid
+ * Fetches all the notifications and associated alerts for the user. If notifications are retrieved
+ * then the queue will be cleared on the client and repopulated with the retrieved notifications.
+ * @param nid - A notification id. If provided then the notification matching this `nid` will be automatically selected.
  */
 export const refreshNotificationQueue = function(nid) {
     if (isLoggedIn()) {
@@ -422,10 +421,17 @@ export const refreshNotificationQueue = function(nid) {
                 clearNotificationQueue(false);
                 for (let i = 0; i < notifications.length; i++) {
                     notification = notifications[i];
-                    //Ensure we don't re-add the notification to the queue in case it was received
-                    //in the browser and then they navigated from a non-browser transport.
+                    // Ensure we don't duplicate the notification in the queue in case it was received
+                    // in the browser via broadcast before the user navigated from a non-browser transport
                     existingNotification = _getNotificationByNid(notification);
-                    if (!existingNotification) {
+                    if (existingNotification) {
+                        // Select the notification if we have a matching nid
+                        if (nid && existingNotification.nid === nid) {
+                            selectNotification(existingNotification);
+                            injectNotificationData();
+                        }
+                    }
+                    else {
                         let cancelled = _fireEvent('beforeQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},true);
                         if (cancelled) {
                             continue;
@@ -446,17 +452,17 @@ export const refreshNotificationQueue = function(nid) {
                                 }
                             }
                         }
-
                         queue.push(notification);
                         _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
-                    }
-                    //Select the notification associated with the nid.
-                    if (nid && ((existingNotification && existingNotification.nid === nid) || notification.nid === nid)) {
-                        selectNotification(existingNotification || notification);
-                        injectNotificationData();
+
+                        // Select the notification if we have a matching nid
+                        if (nid && notification.nid === nid) {
+                            selectNotification(notification);
+                            injectNotificationData();
+                        }
                     }
                 }
-                //Check if we have any notifications in storage to select.
+                // If we don't have a selected notification then check if we have a notification in storage to select
                 if (!selected) {
                     try {
                         let nidFromStorage = _getSelectedNidFromStorage();
