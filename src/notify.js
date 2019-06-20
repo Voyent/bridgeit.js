@@ -1,6 +1,7 @@
 import { startListening as bStartListening, stopListening as bStopListening } from './client-broadcast-service';
 import { getLastKnownAccount, getLastKnownRealm, getLastKnownUsername, isLoggedIn } from './auth-service';
 import { executeModule } from './action-service';
+import { findAlertTemplates } from './locate-service';
 import { deleteMessages } from './mailbox-service';
 import { getSessionStorageItem, removeSessionStorageItem, setSessionStorageItem } from './public-utils';
 
@@ -299,22 +300,23 @@ export const startListening = function() {
             return;
         }
         _removeDuplicateNotifications(notification);
-        _addAlertToList(notification);
-        queue.push(notification);
-        _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
-        displayNotification(notification);
-        if (!selected) {
-            // We don't have a selected notification so set to this new one
-            selectNotification(notification);
-            // Inject notification data into the page if they are on the
-            // relevant page and currently have no selected notification
-            let notificationUrl = document.createElement('a'); //use anchor tag to parse notification return URL
-            notificationUrl.href = notification.url;
-            if (window.location.host === notificationUrl.host &&
-                window.location.pathname === notificationUrl.pathname) {
-                injectNotificationData();
+        _addAlertToList(notification).then(function() {
+            queue.push(notification);
+            _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
+            displayNotification(notification);
+            if (!selected) {
+                // We don't have a selected notification so set to this new one
+                selectNotification(notification);
+                // Inject notification data into the page if they are on the
+                // relevant page and currently have no selected notification
+                let notificationUrl = document.createElement('a'); //use anchor tag to parse notification return URL
+                notificationUrl.href = notification.url;
+                if (window.location.host === notificationUrl.host &&
+                    window.location.pathname === notificationUrl.pathname) {
+                    injectNotificationData();
+                }
             }
-        }
+        });
     };
 
     // Start the push service if we haven't already
@@ -862,23 +864,39 @@ function _removeDuplicateNotifications(incomingNotification) {
 }
 
 /**
- * Copies the alert JSON from the notification into the local list so it is available to the client.
+ * Returns a promise that fetches and adds the alert JSON associated with the notification into the local list
+ * so it is readily available. The promise resolves when the operation is finished, regardless of whether
+ * we encountered an error. This is to ensure that the notification will always be displayed to the user.
  * @param notification
+ * @returns {Promise<any>}
  * @private
  */
 function _addAlertToList(notification) {
-    if (notification.alertId && notification.alert) {
+    return new Promise(function(resolve) {
+        if (!notification.alertId) {
+            return resolve();
+        }
+        // Don't fetch the alert if it's already in the list
         for (let i=0; i<alerts.length; i++) {
-            // Don't add the alert if it's already in the list
             if (notification.alertId === alerts[i]._id) {
-                return;
+                return resolve();
             }
         }
-        // Copy the id into the alert record and add the alert to the list
-        notification.alert._id = notification.alertId;
-        alerts.push(notification.alert);
-        delete notification.alert;
-    }
+        // Fetch the alert and add it the list
+        findAlertTemplates({
+            query: {
+                '_id': notification.alertId
+            }
+        }).then(function(res) {
+            if (res && res[0]) {
+                alerts.push(res[0]);
+            }
+            resolve();
+        }).catch(function(e) {
+            console.error('Unable to retrieve alert JSON associated with notification',notification.alertId,e);
+            resolve();
+        });
+    });
 }
 
  /**
