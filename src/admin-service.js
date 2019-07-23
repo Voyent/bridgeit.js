@@ -909,6 +909,9 @@ export function linkUser(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
 
+        // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+        params.nostore = true;
+
         const account = utils.validateAndReturnRequiredAccount(params, reject);
         const realm = utils.validateAndReturnRequiredRealmName(params, reject);
         const token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -930,6 +933,9 @@ export function linkUser(params) {
 export function unlinkUser(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
+
+        // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+        params.nostore = true;
 
         const account = utils.validateAndReturnRequiredAccount(params, reject);
         const realm = utils.validateAndReturnRequiredRealmName(params, reject);
