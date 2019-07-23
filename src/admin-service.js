@@ -905,6 +905,49 @@ export function deleteRealmUser(params) {
     });
 }
 
+export function linkUser(params) {
+    return new Promise(function (resolve, reject) {
+        params = params ? params : {};
+
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        utils.validateAndReturnRequiredUsername(params, reject);
+
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'users/' + params.username + '/link', token);
+
+        post(url).then(function(res) {
+            updateLastActiveTimestamp();
+            resolve(res);
+        })['catch'](function(error) {
+            reject(error);
+        });
+    });
+}
+
+
+export function unlinkUser(params) {
+    return new Promise(function (resolve, reject) {
+        params = params ? params : {};
+
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        utils.validateAndReturnRequiredUsername(params, reject);
+
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'users/' + params.username + '/link', token);
+
+        doDelete(url).then(function() {
+            updateLastActiveTimestamp();
+            resolve();
+        })['catch'](function(error) {
+            reject(error);
+        });
+    });
+}
+
 /* Realm Roles */
 
 export function getRealmRoles(params) {
