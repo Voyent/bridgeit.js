@@ -912,6 +912,9 @@ function AdminService(v, keys, utils) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
 
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
+
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
                 var token = utils.validateAndReturnRequiredAccessToken(params, reject);
@@ -932,6 +935,9 @@ function AdminService(v, keys, utils) {
         unlinkUser: function(params) {
             return new Promise(function (resolve, reject) {
                 params = params ? params : {};
+
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
 
                 var account = utils.validateAndReturnRequiredAccount(params, reject);
                 var realm = utils.validateAndReturnRequiredRealmName(params, reject);
