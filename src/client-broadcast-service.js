@@ -26,18 +26,42 @@ function BroadcastService(v, utils) {
         utils.validateParameter('message', 'The callback parameter is required', params, reject);
     }
 
-    var callbacksToSockets = [];
-    var groupsToCallbacks = [];
-    var socketManager;
+    var groupsToCallbacks = new Map();
+    var socket;
     return {
         startListening: function startListening(params) {
-            if (!socketManager) {
-                socketManager = io.Manager(ioURL(), {
+            if (!socket) {
+                var socketManager = io.Manager(ioURL(), {
                     transports: ['websocket', 'polling'],
                     reconnectionAttempts: 3,
                     rememberUpgrade: true
                 });
-                console.log('Created socket manager.');
+                socket = socketManager.socket('/');
+                console.log('Created socket.');
+                socket.on('connect_error', function(error) {
+                    console.warn('Connection failed: ' + error);
+                });
+                socket.on('reconnect_attempt', function() {
+                    console.info('Retrying to connect.');
+                });
+                socket.on('reconnect_failed', function() {
+                    console.warn('Failed to reconnect.');
+                });
+                socket.on('connect_timeout', function(timeout) {
+                    console.info('Connection timed out after ' + timeout + ' seconds.');
+                });
+                socket.on('broadcast-event', function(message) {
+                    var callbacks = groupsToCallbacks.get(message.group);
+                    if (callbacks) {
+                        callbacks.forEach(function (c) {
+                            try {
+                                c(message.payload);
+                            } catch (ex) {
+                                console.error('Failed to invoke callback ' + c);
+                            }
+                        });
+                    }
+                });
             }
 
             return new Promise(
@@ -47,31 +71,21 @@ function BroadcastService(v, utils) {
 
                     try {
                         var group = params.group;
-                        var socket = socketManager.socket('/');
-                        socket.on('connect_error', function(error) {
-                            console.warn('Connection failed: ' + error);
-                        });
-                        socket.on('reconnect_attempt', function() {
-                            console.info('Retrying to connect.');
-                        });
-                        socket.on('reconnect_failed', function() {
-                            console.warn('Failed to reconnect.');
-                        });
-                        socket.on('connect_timeout', function(timeout) {
-                            console.info('Connection timed out after ' + timeout + ' seconds.');
-                        });
-                        //once connected let the server know that we want to use/create this room
-                        socket.on('connect', function() {
-                            socket.emit('room', group);
-                        });
+                        //once connected let the server know that we want to use/create this group
+                        if (socket.connected) {
+                            socket.emit('group', group);
+                        } else {
+                            socket.on('connect', function () {
+                                socket.emit('group', group);
+                            });
+                        }
 
-                        groupsToCallbacks.push({'group': group, 'callback': params.callback});
-                        //save callback mapping
-                        callbacksToSockets.push({'callback': params.callback, 'socket': socket});
-
-                        socket.on('broadcast-event', function(message) {
-                            params.callback(JSON.parse(message));
-                        });
+                        var callbacks = groupsToCallbacks.get(group);
+                        if (!callbacks) {
+                            callbacks = [];
+                            groupsToCallbacks.set(group, callbacks);
+                        }
+                        callbacks.push(params.callback);
                         resolve();
                     } catch (e) {
                         reject(e);
@@ -85,49 +99,13 @@ function BroadcastService(v, utils) {
                 function (resolve, reject) {
                     try {
                         if (params.group) {
-                            var remainingGroupsToCallbacks = [];
-                            for (var i = 0, l = groupsToCallbacks.length; i < l; i++) {
-                                var groupToCallback = groupsToCallbacks[i];
-                                if (groupToCallback.group == params.group) {
-                                    var remainingCallbacksToSockets = [];
-                                    for (var j = 0, lcs = callbacksToSockets.length; j < lcs; j++) {
-                                        var callbackToSocket = callbacksToSockets[j];
-                                        if (callbackToSocket.callback == groupToCallback.callback) {
-                                            try {
-                                                callbackToSocket.socket.disconnect();
-                                            } catch (ex) {
-                                                //failed to disconnect socket...continue
-                                            }
-                                        } else {
-                                            remainingCallbacksToSockets.push(callbackToSocket);
-                                        }
-                                    }
-                                    callbacksToSockets = remainingCallbacksToSockets;
-                                } else {
-                                    remainingGroupsToCallbacks.push(groupToCallback);
+                            if (params.callback) {
+                                var callbacks = groupsToCallbacks.get(params.group);
+                                if (callbacks) {
+                                    callbacks.pop(params.callback)
                                 }
-                            }
-                            groupsToCallbacks = remainingGroupsToCallbacks;
-                        }
-
-                        if (params.callback) {
-                            var remainingCallbacksToSockets = [];
-                            for (var j = 0, lcs = callbacksToSockets.length; j < lcs; j++) {
-                                var callbackToSocket = callbacksToSockets[j];
-                                if (callbackToSocket.callback == params.callback) {
-                                    callbackToSocket.socket.disconnect();
-                                } else {
-                                    remainingCallbacksToSockets.push(callbackToSocket);
-                                }
-                                callbacksToSockets = remainingCallbacksToSockets;
-                            }
-
-                            var remainingGroupsToCallbacks = [];
-                            for (var i = 0, l = groupsToCallbacks.length; i < l; i++) {
-                                var groupToCallback = groupsToCallbacks[i];
-                                if (groupToCallback.callback != params.callback) {
-                                    remainingGroupsToCallbacks.push(groupToCallback);
-                                }
+                            } else {
+                                groupsToCallbacks.delete(params.group);
                             }
                         }
 
