@@ -213,6 +213,7 @@ function AdminService(v, keys, utils) {
 		 * @param {String} params.token The access token.
          * @param {String} params.year The year of the metrics to get. If not found, will result to current year (optional)
          * @param {String} params.month The month of the metrics to get. If not found, will result to current year (optional)
+         * @param {String} params.date The day of the metrics to get, if looking for daily metrics. Begins with 1.
          * @returns Promise with billing report as array.
          *
          */
@@ -227,8 +228,14 @@ function AdminService(v, keys, utils) {
                 var realmName = utils.validateAndReturnRequiredRealmName(params, reject);
                 var url;
                 if(params.month !== null && params.year){
-                    url = v.sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
-                        + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month;
+                    if(params.date){
+                        url = v.sysAdminURL + '/' + account + '/realms/' + realmName + '/dailyBillingSummary'
+                            + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month + "&date=" + params.date;
+                    }
+                    else{
+                        url = v.sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
+                            + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month;
+                    }
                 }
                 else {
                    //no month/year, just get most recent.

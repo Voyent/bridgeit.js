@@ -1,4 +1,5 @@
 function ActivityService(v,utils){
+	
     /**
      *
      * Get the activity reports for a given realm.
@@ -14,6 +15,7 @@ function ActivityService(v,utils){
      *     default will be used. (optional)
      * @param {String} params.month Month to get the activity report for.
      * @param {String} params.year Year to get the activity report for.
+     * @param {String} params.date Day to get the activity report for, starts at 1.
      * @returns {Object} Activity report for month/year/realm.
      */
 
@@ -31,10 +33,20 @@ function ActivityService(v,utils){
                         'events', token);
 
                     var txParam = utils.getTransactionURLParam();
-                    var url = v.activityURL +
-                            '/' + account + '/realms/' + realm + '/billingSummary?' +
+                    var url;
+
+                    if(params.date){
+                        url = v.activityURL +
+                            '/' + account + '/realms/' + realm + '/dailyBillingReport?' +
                             (token ? 'access_token=' + token : '') +
-                            (txParam ? '&' + txParam : '') + '&year=' + params.year + "&month=" + params.month;
+                            (txParam ? '&' + txParam : '') + '&year=' + params.year + "&month=" + params.month + "&date=" + params.date;
+                    }
+                    else{
+                       url = v.activityURL +
+                           '/' + account + '/realms/' + realm + '/billingSummary?' +
+                           (token ? 'access_token=' + token : '') +
+                           (txParam ? '&' + txParam : '') + '&year=' + params.year + "&month=" + params.month;
+                    }
                     v.$.getJSON(url).then(function (data) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(data);
