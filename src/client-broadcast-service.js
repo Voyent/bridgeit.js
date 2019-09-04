@@ -29,6 +29,22 @@ function BroadcastService(v, utils) {
     var groupsToCallbacks = new Map();
     var socket;
     return {
+        resumeBroadcastReception: function resumeBroadcastReception() {
+            if (socket && socket.disconnected) {
+                socket.open();
+            } else {
+                console.warn('Broadcast reception is already on.');
+            }
+        },
+
+        pauseBroadcastReception: function pauseBroadcastReception() {
+            if (socket && socket.connected) {
+                socket.close();
+            } else {
+                console.warn('Broadcast reception is already off.');
+            }
+        },
+
         startListening: function startListening(params) {
             if (!socket) {
                 var socketManager = io.Manager(ioURL(), {
