@@ -144,3 +144,19 @@ export function broadcast(params) {
         }
     );
 }
+
+export function resumeBroadcastReception() {
+    if (socket && socket.disconnected) {
+        socket.open();
+    } else {
+        console.warn('Broadcast reception is already on.');
+    }
+}
+
+export function pauseBroadcastReception() {
+    if (socket && socket.connected) {
+        socket.close();
+    } else {
+        console.warn('Broadcast reception is already off.');
+    }
+}
