@@ -5124,6 +5124,54 @@ function AdminService(v, keys, utils) {
             });
         },
 
+        linkUser: function(params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                utils.validateAndReturnRequiredUsername(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'users/' + params.username + '/link', token);
+
+                v.$.post(url).then(function(res) {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve(res);
+                })['catch'](function(error) {
+                    reject(error);
+                });
+            });
+        },
+
+        unlinkUser: function(params) {
+            return new Promise(function (resolve, reject) {
+                params = params ? params : {};
+
+                // Set 'nostore' to ensure the following checks don't update our lastKnown calls
+                params.nostore = true;
+
+                var account = utils.validateAndReturnRequiredAccount(params, reject);
+                var realm = utils.validateAndReturnRequiredRealmName(params, reject);
+                var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                utils.validateAndReturnRequiredUsername(params, reject);
+
+                var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
+                    'users/' + params.username + '/link', token);
+
+                v.$.doDelete(url).then(function() {
+                    v.auth.updateLastActiveTimestamp();
+                    resolve();
+                })['catch'](function(error) {
+                    reject(error);
+                });
+            });
+        },
+
         /* Realm Roles */
 
         getRealmRoles: function (params) {
