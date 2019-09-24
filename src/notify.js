@@ -92,6 +92,13 @@ export const config = { //config options
     useSubjectAsMessage: true,
     setUseSubjectAsMessage(val) { this.useSubjectAsMessage = !!val; },
 
+    badgeUrl: '',
+    setBadgeUrl(val) {
+        if (typeof val === 'string' && val.trim()) {
+            this.badgeUrl = val;
+        }
+    },
+
     toast: { //toast notification config options
         /**
          * @property {boolean} enabled - Indicates if toast notifications should be shown.
@@ -927,6 +934,25 @@ function autoSelectNotification() {
 }
 
 /**
+ * Returns the full badge URL for the notification. Since the badge property may be
+ * the full URL or just the badge name we need to ensure we always return a full URL.
+ * @param badge
+ * @returns {string}
+ * @private
+ */
+function _getBadgeUrl(badge) {
+    if (badge.indexOf('http') === -1) {
+        if (config.badgeUrl) {
+            return config.badgeUrl + badge;
+        }
+        return '';
+    }
+    else {
+        return badge;
+    }
+}
+
+/**
  * Displays a browser native notification.
  * @param {Object} notification - The notification to display.
  * @private
@@ -943,7 +969,7 @@ function _displayNativeNotification(notification) {
     }
 
     if (typeof notification.badge === 'string' && notification.badge) {
-        opts.icon = notification.badge;
+        opts.icon = _getBadgeUrl(notification.badge);
     }
     //display the notification
     let subject = notification.subject && notification.subject.trim().length > 0 ? notification.subject : '';
@@ -1176,7 +1202,7 @@ function _createToastChildren(toast,notification) {
         iconDiv.style.float = 'left';
 
         let icon = document.createElement('img');
-        icon.src = notification.badge;
+        icon.src = _getBadgeUrl(notification.badge);
         icon.style.display = 'block';
         icon.style.height = '100%';
         icon.style.width = '100%';
