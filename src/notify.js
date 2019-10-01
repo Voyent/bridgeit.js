@@ -1,7 +1,6 @@
 import { startListening as bStartListening, stopListening as bStopListening } from './client-broadcast-service';
 import { getLastKnownAccount, getLastKnownRealm, getLastKnownUsername, isLoggedIn } from './auth-service';
 import { executeModule } from './action-service';
-import { findAlertTemplates } from './locate-service';
 import { deleteMessages } from './mailbox-service';
 import { getSessionStorageItem, removeSessionStorageItem, setSessionStorageItem } from './public-utils';
 
@@ -891,10 +890,9 @@ function _addAlertToList(notification) {
             }
         }
         // Fetch the alert and add it the list
-        findAlertTemplates({
-            query: {
-                '_id': notification.alertId
-            }
+        executeModule({
+            id: 'get-alert-family-history',
+            params: { alertIds: [ notification.alertId ] }
         }).then(function(res) {
             if (res && res[0]) {
                 alerts.push(res[0]);
