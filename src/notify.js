@@ -428,6 +428,7 @@ export const refreshNotificationQueue = function(nid) {
                 let notifications = res.messages;
                 let notification, existingNotification;
                 clearNotificationQueue(false);
+                alerts = [];
                 for (let i = 0; i < notifications.length; i++) {
                     notification = notifications[i];
                     // Ensure we don't duplicate the notification in the queue in case it was received
