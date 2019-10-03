@@ -526,7 +526,7 @@ export const getAlertById = function(id, alertsArray) {
  */
 export const safelyGetAlertById = function(id, alerts) {
     return new Promise(function(resolve) {
-        let alert = this.getAlertById(id, alerts);
+        let alert = getAlertById(id, alerts);
         if (alert) {
             resolve(alert);
             return;
