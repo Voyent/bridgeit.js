@@ -305,7 +305,7 @@ export const startListening = function() {
         if (cancelled) {
             return;
         }
-        _addAlertToList(notification).then(function() {
+        _addAlertToList(notification.alertId).then(function() {
             _removeDuplicateNotifications(notification);
             queue.push(notification);
             _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
@@ -497,7 +497,7 @@ export const refreshNotificationQueue = function(nid) {
 };
 
 /**
- * Tries to find an alert matching the passed id in the list and returns it.
+ * Tries to find an alert matching the passed id in the local list and returns it.
  * @param id
  * @param alertsArray
  * @returns {null|*}
@@ -515,6 +515,26 @@ export const getAlertById = function(id, alertsArray) {
         }
     }
     return null;
+};
+
+/**
+ * Tries to find an alert matching the passed id in the local list to return. If the alert
+ * cannot be found then we will fetch the alert, add it to the list, and then return it.
+ * @param id
+ * @param alerts
+ * @returns {Promise<*>}
+ */
+export const safelyGetAlertById = function(id, alerts) {
+    return new Promise(function(resolve) {
+        let alert = this.getAlertById(id, alerts);
+        if (alert) {
+            resolve(alert);
+            return;
+        }
+        _addAlertToList(id).then(function(alert) {
+            resolve(alert);
+        });
+    });
 };
 
 /**
@@ -871,35 +891,36 @@ function _removeDuplicateNotifications(incomingNotification) {
 }
 
 /**
- * Returns a promise that fetches and adds the alert JSON associated with the notification into the local list
+ * Returns a promise that fetches and adds the alert JSON associated with the passed alertId into the local list
  * so it is readily available. The promise resolves when the operation is finished, regardless of whether
  * we encountered an error. This is to ensure that the notification will always be displayed to the user.
- * @param notification
+ * @param alertId
  * @returns {Promise<any>}
  * @private
  */
-function _addAlertToList(notification) {
+function _addAlertToList(alertId) {
     return new Promise(function(resolve) {
-        if (!notification.alertId) {
+        if (!alertId) {
             return resolve();
         }
         // Don't fetch the alert if it's already in the list
         for (let i=0; i<alerts.length; i++) {
-            if (notification.alertId === alerts[i]._id) {
+            if (alertId === alerts[i]._id) {
                 return resolve();
             }
         }
         // Fetch the alert and add it the list
         executeModule({
             id: 'get-alert-family-history',
-            params: { alertIds: [ notification.alertId ] }
+            params: { alertIds: [ alertId ] }
         }).then(function(res) {
-            if (res && res[0]) {
-                alerts.push(res[0]);
+            let alert = (res && res[0]) || null;
+            if (alert) {
+                alerts.push(alert);
             }
-            resolve();
+            resolve(alert);
         }).catch(function(e) {
-            console.error('Unable to retrieve alert JSON associated with notification',notification.alertId,e);
+            console.error('Unable to retrieve alert JSON associated with notification', alertId, e);
             resolve();
         });
     });
