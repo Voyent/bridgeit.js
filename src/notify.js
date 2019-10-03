@@ -528,8 +528,7 @@ export const safelyGetAlertById = function(id, alerts) {
     return new Promise(function(resolve) {
         let alert = getAlertById(id, alerts);
         if (alert) {
-            resolve(alert);
-            return;
+            return resolve(alert);
         }
         _addAlertToList(id).then(function(alert) {
             resolve(alert);
@@ -901,12 +900,12 @@ function _removeDuplicateNotifications(incomingNotification) {
 function _addAlertToList(alertId) {
     return new Promise(function(resolve) {
         if (!alertId) {
-            return resolve();
+            return resolve(null);
         }
         // Don't fetch the alert if it's already in the list
         for (let i=0; i<alerts.length; i++) {
             if (alertId === alerts[i]._id) {
-                return resolve();
+                return resolve(alerts[i]);
             }
         }
         // Fetch the alert and add it the list
@@ -921,7 +920,7 @@ function _addAlertToList(alertId) {
             resolve(alert);
         }).catch(function(e) {
             console.error('Unable to retrieve alert JSON associated with notification', alertId, e);
-            resolve();
+            resolve(null);
         });
     });
 }
