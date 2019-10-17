@@ -237,6 +237,12 @@ export const config = { //config options
  * @event afterQueueUpdated
  */
 
+//Useful for setting app state based on whether notifications are returned from the `refreshNotificationQueue` request
+/**
+ * Fired after the `refreshNotificationQueue` is finished. Not cancelable.
+ * @event notificationQueueRefreshed
+ */
+
 //Useful for preventing the notification from being displayed using e.preventDefault().
 /**
  * Fired before a notification is displayed. Fires for both toast and browser native notifications.
@@ -422,7 +428,7 @@ export const leaveGroup = function(group) {
  */
 export const refreshNotificationQueue = function(nid) {
     if (isLoggedIn()) {
-        executeModule({ "id": "user-alert-details", "params": { } }).then(function(res) {
+        executeModule({ id: 'user-alert-details' }).then(function(res) {
             if (res && res.messages) {
                 let notifications = res.messages;
                 let notification, existingNotification;
@@ -471,6 +477,7 @@ export const refreshNotificationQueue = function(nid) {
                         }
                     }
                 }
+
                 // If we don't have a selected notification then check if we have a notification in storage to select
                 if (!selected) {
                     try {
@@ -488,6 +495,9 @@ export const refreshNotificationQueue = function(nid) {
                                                    (e.responseText || e.message || e), false);
                     }
                 }
+
+                // Fire an event indicating that we are done refreshing the queue
+                _fireEvent('notificationQueueRefreshed',{"queue":queue.slice(0)},false);
             }
         }).catch(function(e) {
             _fireEvent('message-error','Error trying to fetch notification: ' +
