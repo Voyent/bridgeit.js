@@ -710,7 +710,8 @@ export function createAnonUser(params) {
             updateLastActiveTimestamp();
             const anonUser = {
                 password: password,
-                username: response.resourceLocation.substring(response.resourceLocation.lastIndexOf('/') + 1)
+                username: response.resourceLocation.substring(response.resourceLocation.lastIndexOf('/') + 1),
+                deregistrationToken: response.deregistrationToken
             };
             resolve(anonUser);
         })['catch'](function (error) {
