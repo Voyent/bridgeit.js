@@ -1,6 +1,6 @@
 {
     "name": "voyent.js",
-    "version": "vrasm-1.4.0",
+    "version": "1.4.0",
     "description": "Voyent.js: Client API for Voyent Services",
     "repository": {
         "type": "git",
