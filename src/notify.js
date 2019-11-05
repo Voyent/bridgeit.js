@@ -81,7 +81,7 @@ export const config = { //config options
      * @default true
      */
     hideAfterClick: true,
-    setHideAfterClick(val) { this.hideAfterClick = !!val; },
+    setHideAfterClick: function(val) { this.hideAfterClick = !!val; },
 
     /**
      * @property {boolean} useSubjectAsMessage - Indicates whether the subject should be used as the message.
@@ -89,10 +89,10 @@ export const config = { //config options
      * @default true
      */
     useSubjectAsMessage: true,
-    setUseSubjectAsMessage(val) { this.useSubjectAsMessage = !!val; },
+    setUseSubjectAsMessage: function(val) { this.useSubjectAsMessage = !!val; },
 
     badgeUrl: '',
-    setBadgeUrl(val) {
+    setBadgeUrl: function(val) {
         if (typeof val === 'string' && val.trim()) {
             this.badgeUrl = val;
         }
@@ -104,7 +104,7 @@ export const config = { //config options
          * @default true
          */
         enabled: true,
-        setEnabled(val) { this.enabled = !!val; },
+        setEnabled: function(val) { this.enabled = !!val; },
 
         /**
          * @property {number} hideAfterMs - Time in milliseconds that the notification will be automatically
@@ -112,7 +112,7 @@ export const config = { //config options
          * @default 5000
          */
         hideAfterMs: 5000,
-        setHideAfterMs(val) {
+        setHideAfterMs: function(val) {
             if (typeof val === 'number') { this.hideAfterMs = Math.round(val); }
             else { this.hideAfterMs = 5000; }
         },
@@ -123,7 +123,7 @@ export const config = { //config options
          * @default 3
          */
         stackLimit: 3,
-        setStackLimit(val) {
+        setStackLimit: function(val) {
             if (typeof val === 'number') { this.stackLimit = Math.round(val); }
             else { this.stackLimit = 3; }
         },
@@ -134,7 +134,7 @@ export const config = { //config options
          * @default false
          */
         overwriteOld: false,
-        setOverwriteOld(val) { this.overwriteOld = !!val; },
+        setOverwriteOld: function(val) { this.overwriteOld = !!val; },
 
         /**
          * @property {string} position - Position of toast notifications on page.
@@ -142,7 +142,7 @@ export const config = { //config options
          * @default 'top-right'
          */
         position:'top-right',
-        setPosition(val) {
+        setPosition: function(val) {
             val = val.toLowerCase();
             if (['top-right','top-left','bottom-right','bottom-left'].indexOf(val) > -1) {
                 this.position = val;
@@ -155,7 +155,7 @@ export const config = { //config options
          * @default 2
          */
         spacing:2,
-        setSpacing(val) {
+        setSpacing: function(val) {
             if (typeof val === 'number') { this.spacing = Math.round(val); }
             else { this.spacing = 2; }
         },
@@ -166,7 +166,7 @@ export const config = { //config options
          * @default ''
          */
         style:'',
-        setStyle(val) { this.style = val.toString(); },
+        setStyle: function(val) { this.style = val.toString(); },
 
         close: { //toast notification close container config options
             /**
@@ -174,7 +174,7 @@ export const config = { //config options
              * @default true
              */
             enabled: false,
-            setEnabled(val) { this.enabled = !!val; },
+            setEnabled: function(val) { this.enabled = !!val; },
 
             /**
              * @property {string} style - Custom styling that is applied to the toast notification close
@@ -182,7 +182,7 @@ export const config = { //config options
              * @default ''
              */
             style:'',
-            setStyle(val) { this.style = val.toString(); },
+            setStyle: function(val) { this.style = val.toString(); },
         }
     },
 
@@ -193,7 +193,7 @@ export const config = { //config options
          * @default true
          */
         enabled: true,
-        setEnabled(val) { this.enabled = !!val; },
+        setEnabled: function(val) { this.enabled = !!val; },
 
         /**
          * @property {number} hideAfterMs - Time in milliseconds that the notification will be automatically
@@ -201,7 +201,7 @@ export const config = { //config options
          * @default -1
          */
         hideAfterMs: -1,
-        setHideAfterMs(val) {
+        setHideAfterMs: function(val) {
             if (typeof val === 'number') { this.hideAfterMs = Math.round(val); }
             else { this.hideAfterMs = -1; }
         },
