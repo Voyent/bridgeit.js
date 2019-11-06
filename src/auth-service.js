@@ -334,7 +334,7 @@ export function connect(params) {
                 clearInterval(compSleepIntervalCb);
             }
             const sleepTimeout = 10000; // Run the sleep timer every 10 seconds so it will detect sleep shortly after awakening
-            const lastCheckedTime = (new Date()).getTime();
+            let lastCheckedTime = (new Date()).getTime();
             const computerSleepTimer = setInterval(function () {
                 const currentTime = (new Date()).getTime();
                 const timerPadding = 2500; // Set a 2.5 second buffer for the timeout as setInterval does not guarantee exact timing
