@@ -301,7 +301,6 @@ export const startListening = function() {
 
     // Declare push listener
     _listener = function (notification) {
-        _adjustNotificationStructure(notification);
         if (!_isNotificationValid(notification)) {
             console.log('Notification received but ignored due to value:', notification);
             return;
@@ -1498,23 +1497,6 @@ function _setSelectedNotificationInStorage() {
     }
     else {
         setSessionStorageItem(btoa(injectKey),btoa(JSON.stringify(selected.nid)));
-    }
-}
-
-/**
- * Ensure broadcast notifications match the format as the ones fetched
- * via user-alert-details module (all properties at the top-level).
- * @param {Object} n - The notification to parse.
- * @private
- */
-function _adjustNotificationStructure(n) {
-    if (n.global) {
-        for (let key in n.global) {
-            if (n.global.hasOwnProperty(key)) {
-                n[key] = n.global[key];
-            }
-        }
-        delete n.global;
     }
 }
 
