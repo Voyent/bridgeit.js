@@ -20,14 +20,9 @@ export const configureHosts = function (url) {
         baseURL = url;
     }
     else {
-        if (privateUtils.isNode()) {
-            baseURL = 'http://dev.voyent.cloud';
-        }
-        else {
-            baseURL = window.location.protocol + '//' + window.location.hostname;
-            if (window.location.port) {
-                baseURL += ':' + window.location.port
-            }
+        baseURL = window.location.protocol + '//' + window.location.hostname;
+        if (window.location.port) {
+            baseURL += ':' + window.location.port
         }
     }
     //remove any trailing '/'

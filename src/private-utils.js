@@ -107,17 +107,6 @@ export function validateParameter(name, msg, params, reject) {
 }
 
 
-//local storage container that will be used to store data in node
-//that is normally stored in the browser session or local storage
-const nodeStorage = {};
-
-export function isNode() {
-    return typeof module === "object" &&
-        typeof exports === "object" &&
-        module.exports === exports &&
-        typeof global === 'object';
-}
-
 function useLocalStorage() {
     if (!('Voyent_useLocalStorage' in window)) {
         if ('localStorage' in window) {
@@ -159,72 +148,36 @@ function removeCookie(cname) {
     setCookie(cname, null, -1);
 }
 
-function getNodeStorageItem(key) {
-    return typeof nodeStorage[key] !== 'undefined' ? nodeStorage[key] : null;
-}
-
-function setNodeStorageItem(key, value) {
-    nodeStorage[key] = value;
-}
-
-function removeNodeStorageItem(key) {
-    delete nodeStorage[key];
-}
-
 export function getLocalStorageItem(key) {
-    if (!isNode()) {
-        return useLocalStorage() ? window.localStorage.getItem(key) : getCookie(key);
-    } else {
-        return getNodeStorageItem(key);
-    }
+    return useLocalStorage() ? window.localStorage.getItem(key) : getCookie(key);
 }
 
 export function getSessionStorageItem(key) {
-    if (!isNode()) {
-        return useLocalStorage() ? window.sessionStorage.getItem(key) : getCookie(key);
-    } else {
-        return getNodeStorageItem(key);
-    }
+    return useLocalStorage() ? window.sessionStorage.getItem(key) : getCookie(key);
 }
 
 export function setLocalStorageItem(key, value) {
-    if (!isNode()) {
-        return useLocalStorage() ? window.localStorage.setItem(key, value) : setCookie(key, value);
-    } else {
-        return setNodeStorageItem(key, value);
-    }
+    return useLocalStorage() ? window.localStorage.setItem(key, value) : setCookie(key, value);
 }
 
 export function removeSessionStorageItem(key) {
-    if (!isNode()) {
-        if (useLocalStorage()) {
-            window.sessionStorage.removeItem(key);
-        } else {
-            removeCookie(key);
-        }
+    if (useLocalStorage()) {
+        window.sessionStorage.removeItem(key);
     } else {
-        removeNodeStorageItem(key);
+        removeCookie(key);
     }
 }
 
 export function removeLocalStorageItem(key) {
-    if (!isNode()) {
-        if (useLocalStorage()) {
-            window.localStorage.removeItem(key);
-        } else {
-            removeCookie(key);
-        }
+    if (useLocalStorage()) {
+        window.localStorage.removeItem(key);
     } else {
-        removeNodeStorageItem(key);
+        removeCookie(key);
     }
 }
 
 export function setSessionStorageItem(key, value) {
-    if (!isNode()) {
-        return useLocalStorage() ? window.sessionStorage.setItem(key, value) : setCookie(key, value, 1);
-    } else {
-        return setNodeStorageItem(key, value);
-    }
+    return useLocalStorage() ? window.sessionStorage.setItem(key, value) : setCookie(key, value, 1);
 }
 
 export function sanitizeAccountName(original) {
