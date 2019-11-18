@@ -664,13 +664,13 @@ export function isLoggedIn() {
         tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
         currentMillis = new Date().getTime(),
         tokenExpiresAtMillis = tokenExpiresIn && tokenSetAt ? (tokenExpiresIn + tokenSetAt) : 0;
-    /*console.log('***** - isLoggedIn - *****\n' +
+    console.log('***** - isLoggedIn - *****\n' +
         'token = ' + token + '\n' +
         'tokenExpiresIn = ' + tokenExpiresIn + '\n' +
         'tokenSetAt = ' + tokenSetAt + '\n' +
         'tokenExpiresAtMillis = ' + tokenExpiresAtMillis + '\n' +
         'currentMillis = ' + currentMillis + '\n' +
-        'remainingMillis = ' + (tokenExpiresAtMillis - currentMillis));*/
+        'remainingMillis = ' + (tokenExpiresAtMillis - currentMillis));
     return !!(token && (currentMillis < tokenExpiresAtMillis));
 }
 
