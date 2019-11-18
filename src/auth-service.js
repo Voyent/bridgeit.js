@@ -4,7 +4,6 @@ import { authURL, authAdminURL, baseURL, post, getJSON } from './public-utils'
 
 const authKeys = {
     PASSWORD_KEY: 'voyentPassword',
-    SCOPE_TO_PATH_KEY: "voyentScopeToPath",
     CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
     RELOGIN_CB_KEY: 'voyentReloginCallback',
     LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp',
@@ -151,8 +150,6 @@ export function getNewAccessToken(params) {
  * @param {String} params.password User password (required)
  * @param {String} params.host The Voyent Services host url. If not supplied, the last used Voyent host, or the
  *     default will be used. (optional)
- * @param {String} params.scopeToPath (default '/') If set, the authentication token will be restricted to the
- *     given path, unless on localhost.
  * @returns {Promise} with the following argument:
  *      {
  *          access_token: 'xxx',
@@ -204,9 +201,6 @@ export function login(params) {
             utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
             utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
             utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa(params.admin));
-            if (params.scopeToPath) {
-                utils.setSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
-            }
             fireEvent(window, 'voyent-login-succeeded', {});
             resolve(authResponse);
         })['catch'](function (error) {
@@ -303,8 +297,6 @@ export function _storeLogin(params) {
  * @param {Function} params.onSessionExpiry Function callback to be called on session expiry. If you wish to
  *     ensure that disconnect is not called until after your onSessionExpiry callback has completed, please
  *     return a Promise from your function.
- * @param {String} params.scopeToPath (default '/') If set, the authentication token will be restricted to the
- *     given path, unless on localhost.
  * @returns Promise with service definitions
  *
  */
@@ -481,9 +473,6 @@ export function connect(params) {
                 onSessionExpiry: params.onSessionExpiry,
                 admin: params.admin
             };
-            if (params.scopeToPath) {
-                settings.scopeToPath = params.scopeToPath;
-            }
 
             //settings.connectionTimeout = 5;
 
@@ -673,16 +662,16 @@ export function isLoggedIn() {
         tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr, 10) : null,
         tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY)),
         tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
-        scopeToPathCipher = utils.getSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY)),
-        scopeToPath = scopeToPathCipher ? atob(scopeToPathCipher) : '/';
-    let isDev, currentPath;
-    if (!utils.isNode()) {
-        isDev = window.location.port !== '';
-        currentPath = window.location.pathname;
-    }
-    //console.log('isLoggedIn: token=' + token + ' tokenExpiresIn=' + tokenExpiresIn + 'tokenSetAt=' + tokenSetAt + ' (new Date().getTime() < (tokenExpiresIn + tokenSetAt))=' + (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) + ' (currentPath.indexOf(scopeToPath) === 0)=' + (currentPath.indexOf(scopeToPath) === 0));
-    let result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) && (utils.isNode() || (!utils.isNode() && (isDev || currentPath.indexOf(scopeToPath) === 0)));
-    return !!result;
+        currentMillis = new Date().getTime(),
+        tokenExpiresAtMillis = tokenExpiresIn && tokenSetAt ? (tokenExpiresIn + tokenSetAt) : 0;
+    /*console.log('***** - isLoggedIn - *****\n' +
+        'token = ' + token + '\n' +
+        'tokenExpiresIn = ' + tokenExpiresIn + '\n' +
+        'tokenSetAt = ' + tokenSetAt + '\n' +
+        'tokenExpiresAtMillis = ' + tokenExpiresAtMillis + '\n' +
+        'currentMillis = ' + currentMillis + '\n' +
+        'remainingMillis = ' + (tokenExpiresAtMillis - currentMillis));*/
+    return !!(token && (currentMillis < tokenExpiresAtMillis));
 }
 
 export function getLastKnownAccount() {
