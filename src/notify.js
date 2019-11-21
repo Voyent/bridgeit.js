@@ -340,7 +340,7 @@ export const startListening = function() {
         }
     }
     
-    joinGroup(getLastKnownUsername());
+    joinGroup(getLastKnownUsername(), true);
 };
 
 /**
@@ -360,10 +360,10 @@ export const stopListening = function() {
  * Registers a new push listener for the specified group.
  * @param group
  */
-export const joinGroup = function(group) {
+export const joinGroup = function(group, noScoped) {
     if (group && typeof group === 'string') {
         // Try to append a valid Account & Realm to make sure we don't receive all messages from everywhere
-        if (getLastKnownAccount() && getLastKnownRealm() && getLastKnownRealm() !== 'admin') {
+        if (!noScoped && getLastKnownAccount() && getLastKnownRealm() && getLastKnownRealm() !== 'admin') {
             // Rare but just double check that we don't already have account + realm appended
             var acctRealm = getLastKnownAccount() + getLastKnownRealm();
             if (group.indexOf(acctRealm, group.length - acctRealm.length) === -1) {
