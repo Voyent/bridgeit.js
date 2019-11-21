@@ -339,6 +339,8 @@ export const startListening = function() {
             joinGroup(_queuedGroups[i]);
         }
     }
+    
+    joinGroup(getLastKnownUsername());
 };
 
 /**
