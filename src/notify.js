@@ -61,6 +61,26 @@ export let alerts = [];
  */
 export let queuePosition = -1;
 
+/**
+ * @property {number} activeNotificationCount - The number of active notifications in the queue (readonly).
+ */
+let activeNotificationCount = 0;
+
+/**
+ * @property {number} activeNotificationCount - The number of ended notifications in the queue (readonly).
+ */
+let endedNotificationCount = 0;
+
+/**
+ * @property {number} activeNotificationCount - The number of unread active notifications in the queue (readonly).
+ */
+let unreadActiveNotificationCount = 0;
+
+/**
+ * @property {number} activeNotificationCount - The number of unread ended notifications in the queue (readonly).
+ */
+let unreadEndedNotificationCount = 0;
+
 export const config = { //config options
     /**
      * @property {string} autoSelectNotification - Provides options for auto selecting notifications so that
@@ -220,8 +240,20 @@ export const config = { //config options
  */
 
 /**
- * Fired after a new notification is received in the browser. Not cancelable.
- * @event notificationReceived
+ * Fired after a new broadcast notification is received in the browser. Not cancelable.
+ * @event broadcastReceived
+ */
+
+//Useful for previewing the new item being added to the queue and throwing it away before it's added using preventDefault().
+/**
+ * Fired before a received broadcast notification is added to the queue. Cancel the event to prevent the operation.
+ * @event beforeBroadcastAdded
+ */
+
+//Useful for keeping the various aspects of the app in sync, such as the queue.
+/**
+ * Fired after a received broadcast notification is added to the queue. Not cancelable.
+ * @event afterBroadcastAdded
  */
 
 //Useful for previewing the new item being added to the queue and throwing it away before it's added using preventDefault().
@@ -231,7 +263,7 @@ export const config = { //config options
  * @event beforeQueueUpdated
  */
 
-//Useful for keeping the various aspects of the app in sync (queue, notification count, etc...)
+//Useful for keeping the various aspects of the app in sync, such as the queue.
 /**
  * Fired after the queue is updated. Not cancelable.
  * @event afterQueueUpdated
@@ -305,18 +337,19 @@ export const startListening = function() {
             console.log('Notification received but ignored due to value:', notification);
             return;
         }
-        console.log('Notification received:',JSON.stringify(notification));
-        _fireEvent('notificationReceived',{"notification":notification},false);
-        let cancelled = _fireEvent('beforeQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},true);
+        console.log('Broadcast received:',JSON.stringify(notification));
+        _fireEvent('broadcastReceived',{"notification":notification},false);
+        let cancelled = _fireEvent('beforeBroadcastAdded',{"notification":notification,"queue":queue.slice(0)},true);
         if (cancelled) {
             return;
         }
         _addAlertToList(notification.alertId).then(function() {
             _removeDuplicateNotifications(notification);
             queue.push(notification);
-            _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
+            incrementNotificationCount(notification);
+            _fireEvent('afterBroadcastAdded',{"notification":notification,"queue":queue.slice(0)},false);
             displayNotification(notification);
-            if (!selected) {
+            /*if (!selected) {
                 // We don't have a selected notification so set to this new one
                 selectNotification(notification);
                 // Inject notification data into the page if they are on the
@@ -327,7 +360,7 @@ export const startListening = function() {
                     window.location.pathname === notificationUrl.pathname) {
                     injectNotificationData();
                 }
-            }
+            }*/
         });
     };
 
@@ -464,6 +497,7 @@ export const refreshNotificationQueue = function(nid) {
                             }
                         }
                         queue.push(notification);
+                        incrementNotificationCount(notification);
                         _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
 
                         // Select the notification if we have a matching nid
@@ -543,11 +577,149 @@ export const safelyGetAlertById = function(id, alerts) {
 };
 
 /**
- * Returns an integer that represents the number of notifications currently in the queue.
+ * Returns the alertFamilyState for the alert matching the passed alertId.
+ * @param alertId
+ * @returns {*}
+ */
+export const getAlertFamilyState = function(alertId) {
+    let alert = getAlertById(alertId);
+    return (alert && alert.history && alert.history[0] && alert.history[0].state) || null;
+};
+
+/**
+ * Returns the total number of notifications.
  * @returns {number} - The notification count.
  */
-export const getNotificationCount = function() {
+export const getTotalNotificationCount = function() {
     return queue.length;
+};
+
+/**
+ * Returns the number of active notifications.
+ * @returns {number}
+ */
+export const getActiveNotificationCount = function() {
+    return activeNotificationCount;
+};
+
+/**
+ * Returns the number of ended notifications.
+ * @returns {number}
+ */
+export const getEndedNotificationCount = function() {
+    return endedNotificationCount;
+};
+
+/**
+ * Returns the number of unread active notifications.
+ * @returns {number}
+ */
+export const getUnreadActiveNotificationCount = function() {
+    return unreadActiveNotificationCount;
+};
+
+/**
+ * Returns the number of unread ended notifications.
+ * @returns {number}
+ */
+export const getUnreadEndedNotificationCount = function() {
+    return unreadEndedNotificationCount;
+};
+
+/**
+ * Returns the total (active and ended) number of unread notifications.
+ * @returns {number}
+ */
+export const getTotalUnreadNotificationCount = function() {
+    return unreadActiveNotificationCount + unreadEndedNotificationCount;
+};
+
+/**
+ * Increments the notification counts relevant to the passed notification by 1.
+ * @param n
+ */
+export const incrementNotificationCount = function(n) {
+    let alertFamilyState = n && getAlertFamilyState(n.alertId);
+    if (alertFamilyState) {
+        if (alertFamilyState === 'active') {
+            activeNotificationCount++;
+            if (!n.log || !n.log.readTime) {
+                unreadActiveNotificationCount++;
+            }
+        }
+        else if (alertFamilyState === 'ended') {
+            endedNotificationCount++;
+            if (!n.log || !n.log.readTime) {
+                unreadEndedNotificationCount++;
+            }
+        }
+    }
+};
+
+/**
+ * Reduces the notification counts relevant to the passed notification by 1.
+ * @param n
+ */
+export const reduceNotificationCount = function(n) {
+    let alertFamilyState = n && getAlertFamilyState(n.alertId);
+    if (alertFamilyState) {
+        if (alertFamilyState === 'active') {
+            activeNotificationCount--;
+            if (!n.log || !n.log.readTime) {
+                unreadActiveNotificationCount--;
+            }
+        }
+        else if (alertFamilyState === 'ended') {
+            endedNotificationCount--;
+            if (!n.log || !n.log.readTime) {
+                unreadEndedNotificationCount--;
+            }
+        }
+    }
+};
+
+/**
+ * Reduces the active notification count by 1.
+ */
+export const reduceActiveNotificationCount = function() {
+    if (activeNotificationCount > 0) {
+        activeNotificationCount--;
+    }
+};
+
+/**
+ * Reduces the ended notification count by 1.
+ */
+export const reduceEndedNotificationCount = function() {
+    if (endedNotificationCount > 0) {
+        endedNotificationCount--;
+    }
+};
+
+/**
+ * Reduces the unread active notification count by 1.
+ */
+export const reduceUnreadActiveNotificationCount = function() {
+    if (unreadActiveNotificationCount > 0) {
+        unreadActiveNotificationCount--;
+    }
+};
+
+/**
+ * Reduces the unread ended notification count by 1.
+ */
+export const reduceUnreadEndedNotificationCount = function() {
+    if (unreadEndedNotificationCount > 0) {
+        unreadEndedNotificationCount--;
+    }
+};
+
+/**
+ * Resets all notification counts to 0.
+ */
+export const resetNotificationCounts = function() {
+    activeNotificationCount = endedNotificationCount = 0;
+    unreadActiveNotificationCount = unreadEndedNotificationCount = 0;
 };
 
 /**
@@ -623,6 +795,7 @@ export const removeNotification = function(notification) {
             _removeNotificationFromMailbox(queue[index][VOYENT_MAIL_QUERY_PARAMETER]);
         }
         queue.splice(index,1);
+        reduceNotificationCount(notification);
         _fireEvent('afterQueueUpdated',{"op":"del","notification":notification,"queue":queue.slice(0)},false);
         return true;
     }
@@ -647,6 +820,7 @@ export const removeNotificationAt = function(index) {
             _removeNotificationFromMailbox(notification[VOYENT_MAIL_QUERY_PARAMETER]);
         }
         queue.splice(index,1);
+        reduceNotificationCount(notification);
         _fireEvent('afterQueueUpdated',{"op":"del","notification":notification,"queue":queue.slice(0)},false);
         return true;
     }
@@ -670,6 +844,7 @@ export const removeSelectedNotification = function() {
     //remove the notification from the queue
     queue.splice(queuePosition,1);
     queuePosition = -1;
+    reduceNotificationCount(notification);
     _fireEvent('afterQueueUpdated',{"op":"del","notification":notification,"queue":queue.slice(0)},false);
     //reset the selected property
     //if we have an id it means the notification is stored in the
@@ -690,19 +865,22 @@ export const removeSelectedNotification = function() {
  */
 export const clearNotificationQueue = function(deleteFromMailbox) {
     if (!queue || queue.length === 0) {
-        return; //queue is already empty
+        return;
     }
     let cancelled = _fireEvent('beforeQueueUpdated',{"op":"clear","queue":queue.slice(0)},true);
     if (cancelled) {
         return;
     }
-    for (let i=0; i<queue.length; i++) {
-        if (deleteFromMailbox && queue[i][VOYENT_MAIL_QUERY_PARAMETER]) {
-            _removeNotificationFromMailbox(queue[i][VOYENT_MAIL_QUERY_PARAMETER]);
+    if (deleteFromMailbox) {
+        for (let i=0; i<queue.length; i++) {
+            if (queue[i][VOYENT_MAIL_QUERY_PARAMETER]) {
+                _removeNotificationFromMailbox(queue[i][VOYENT_MAIL_QUERY_PARAMETER]);
+            }
         }
     }
     queue = [];
     queuePosition = -1;
+    resetNotificationCounts();
     _fireEvent('afterQueueUpdated',{"op":"clear","queue":queue.slice(0)},false);
 };
 
@@ -841,6 +1019,8 @@ export const hideNotification = function(notification,ms) {
 //************************************************** PRIVATE API ***************************************************
 //******************************************************************************************************************
 
+let queuedAlertPromises = {};
+
 /**
  * Setup the push listener. If this the first init then we'll also install the toast container, request
  * native notification permissions, inject notifications after redirects and get saved notifications from user's
@@ -876,18 +1056,14 @@ function _setupListeners() {
  * @private
  */
 function _removeDuplicateNotifications(incomingNotification) {
-    for (let i=queue.length-1; i>=0; i--) {
-        let notificationInQueue = queue[i];
-        // Determine the zoneId of the incoming notification
-        let newNotificationZoneId = incomingNotification.affectedLocations && incomingNotification.affectedLocations[0] ?
-            incomingNotification.affectedLocations[0].properties.vras.insideZoneId : null;
-        if (newNotificationZoneId) {
-            // Add the zoneId directly to the notification so we can easily access it later
-            incomingNotification.zoneId = newNotificationZoneId;
+    if (incomingNotification.alertFamilyId && incomingNotification.zoneId) {
+        for (let i=queue.length-1; i>=0; i--) {
+            let notificationInQueue = queue[i];
             // Check if we already have a notification in the queue for this zone and remove it. Once
             // we find a match we can bail as there will only be a single notification per zone
             if (notificationInQueue.alertFamilyId === incomingNotification.alertFamilyId &&
                 notificationInQueue.zoneId === incomingNotification.zoneId) {
+                reduceNotificationCount(notificationInQueue);
                 queue.splice(i,1);
                 return;
             }
@@ -914,6 +1090,14 @@ function _addAlertToList(alertId) {
                 return resolve(alerts[i]);
             }
         }
+        // If we're already fetching the alert then skip fetching it again and pass the resolve
+        // function so the original request for the alert can resolve it with the received alert
+        if (queuedAlertPromises[alertId]) {
+            queuedAlertPromises[alertId].push(resolve);
+            return;
+        }
+        queuedAlertPromises[alertId] = [];
+
         // Fetch the alert and add it the list
         executeModule({
             id: 'get-alert-family-history',
@@ -924,6 +1108,16 @@ function _addAlertToList(alertId) {
                 alerts.push(alert);
             }
             resolve(alert);
+            // Resolve each queued `_addAlertToList` invocation that was triggered for the same alertId
+            if (queuedAlertPromises[alertId]) {
+                for (let i=0; i<queuedAlertPromises[alertId].length; i++) {
+                    // A small delay so the notifications aren't all displayed simultaneously
+                    setTimeout(function(queuedResolve) {
+                        queuedResolve(alert);
+                    }, 250, queuedAlertPromises[alertId][i]);
+                }
+                delete queuedAlertPromises[alertId];
+             }
         }).catch(function(e) {
             console.error('Unable to retrieve alert JSON associated with notification', alertId, e);
             resolve(null);
