@@ -67,17 +67,17 @@ export let queuePosition = -1;
 let activeNotificationCount = 0;
 
 /**
- * @property {number} activeNotificationCount - The number of ended notifications in the queue (readonly).
+ * @property {number} endedNotificationCount - The number of ended notifications in the queue (readonly).
  */
 let endedNotificationCount = 0;
 
 /**
- * @property {number} activeNotificationCount - The number of unread active notifications in the queue (readonly).
+ * @property {number} unreadActiveNotificationCount - The number of unread active notifications in the queue (readonly).
  */
 let unreadActiveNotificationCount = 0;
 
 /**
- * @property {number} activeNotificationCount - The number of unread ended notifications in the queue (readonly).
+ * @property {number} unreadEndedNotificationCount - The number of unread ended notifications in the queue (readonly).
  */
 let unreadEndedNotificationCount = 0;
 
@@ -664,15 +664,15 @@ export const reduceNotificationCount = function(n) {
     let alertFamilyState = n && getAlertFamilyState(n.alertId);
     if (alertFamilyState) {
         if (alertFamilyState === 'active') {
-            activeNotificationCount--;
+            reduceActiveNotificationCount();
             if (!n.log || !n.log.readTime) {
-                unreadActiveNotificationCount--;
+                reduceUnreadActiveNotificationCount();
             }
         }
         else if (alertFamilyState === 'ended') {
-            endedNotificationCount--;
+            reduceEndedNotificationCount();
             if (!n.log || !n.log.readTime) {
-                unreadEndedNotificationCount--;
+                reduceUnreadEndedNotificationCount();
             }
         }
     }
