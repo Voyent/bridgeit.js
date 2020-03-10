@@ -587,6 +587,54 @@ export const getAlertFamilyState = function(alertId) {
 };
 
 /**
+ * Returns whether the passed notification is an alert notification.
+ * @param n
+ * @returns {boolean}
+ */
+export const isAlertNotification = function(n) {
+    return !!(n && (!n.notificationType || n.notificationType === 'alert'));
+};
+
+/**
+ * Returns whether the alert family state should be used to identify the state of the
+ * passed notification. If false then the regular alert state property will be used.
+ * @param n
+ * @returns {boolean}
+ */
+const useAlertFamilyState = function(n) {
+    return !!(isAlertNotification(n) || n.notificationType === 'alertAcknowledgementGroup');
+};
+
+/**
+ * Returns whether the passed notification is considered to be active.
+ * @param n
+ * @returns {boolean}
+ */
+export const isActive = function(n) {
+    let alert = getAlertById(n.alertId);
+    let state = useAlertFamilyState(n) ?
+        getAlertFamilyState(n.alertId) :
+        (alert && alert.state);
+    return state === 'active';
+};
+
+/**
+ * Returns whether the passed notification is considered to be ended.
+ * @param n
+ * @returns {boolean}
+ */
+export const isEnded = function(n) {
+    if (useAlertFamilyState(n)) {
+        return getAlertFamilyState(n.alertId) === 'ended';
+    }
+    else {
+        let alert = getAlertById(n.alertId);
+        let state = alert && alert.state;
+        return state === 'ended' || state === 'deprecated';
+    }
+};
+
+/**
  * Returns the total number of notifications.
  * @returns {number} - The notification count.
  */
@@ -639,19 +687,16 @@ export const getTotalUnreadNotificationCount = function() {
  * @param n
  */
 export const incrementNotificationCount = function(n) {
-    let alertFamilyState = n && getAlertFamilyState(n.alertId);
-    if (alertFamilyState) {
-        if (alertFamilyState === 'active') {
-            activeNotificationCount++;
-            if (!n.log || !n.log.readTime) {
-                unreadActiveNotificationCount++;
-            }
+    if (isActive(n)) {
+        activeNotificationCount++;
+        if (!n.log || !n.log.readTime) {
+            unreadActiveNotificationCount++;
         }
-        else if (alertFamilyState === 'ended') {
-            endedNotificationCount++;
-            if (!n.log || !n.log.readTime) {
-                unreadEndedNotificationCount++;
-            }
+    }
+    else if (isEnded(n)) {
+        endedNotificationCount++;
+        if (!n.log || !n.log.readTime) {
+            unreadEndedNotificationCount++;
         }
     }
 };
@@ -661,19 +706,16 @@ export const incrementNotificationCount = function(n) {
  * @param n
  */
 export const reduceNotificationCount = function(n) {
-    let alertFamilyState = n && getAlertFamilyState(n.alertId);
-    if (alertFamilyState) {
-        if (alertFamilyState === 'active') {
-            reduceActiveNotificationCount();
-            if (!n.log || !n.log.readTime) {
-                reduceUnreadActiveNotificationCount();
-            }
+    if (isActive(n)) {
+        reduceActiveNotificationCount();
+        if (!n.log || !n.log.readTime) {
+            reduceUnreadActiveNotificationCount();
         }
-        else if (alertFamilyState === 'ended') {
-            reduceEndedNotificationCount();
-            if (!n.log || !n.log.readTime) {
-                reduceUnreadEndedNotificationCount();
-            }
+    }
+    else if (isEnded(n)) {
+        reduceEndedNotificationCount();
+        if (!n.log || !n.log.readTime) {
+            reduceUnreadEndedNotificationCount();
         }
     }
 };
