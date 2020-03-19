@@ -1,6 +1,9 @@
 import * as keys from './keys'
 import { getLastAccessToken, getLastKnownRealm, getLastKnownAccount, getLastKnownUsername } from './auth-service'
 
+// Used as backup storage when local/session storage and cookies are not available
+const localVariables = { };
+
 //redefine function to avoid circular dependency with public-utils
 function getLastTransactionId() {
     return getSessionStorageItem(btoa(keys.TRANSACTION_KEY));
@@ -106,7 +109,6 @@ export function validateParameter(name, msg, params, reject) {
     }
 }
 
-
 function useLocalStorage() {
     if (!('Voyent_useLocalStorage' in window)) {
         if ('localStorage' in window) {
@@ -118,12 +120,43 @@ function useLocalStorage() {
             } catch (e) {
                 window.Voyent_useLocalStorage = false;
             }
-        } else {
+        }
+        else {
             window.Voyent_useLocalStorage = false;
         }
-
     }
     return window.Voyent_useLocalStorage;
+}
+
+function useCookies() {
+    if (!('Voyent_useCookies' in window)) {
+        try {
+            document.cookie = 'cookietest=1';
+            window.Voyent_useCookies = document.cookie.indexOf('cookietest=') !== -1;
+            document.cookie = 'cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+        }
+        catch (e) {
+            window.Voyent_useCookies = false;
+        }
+        return window.Voyent_useCookies;
+    }
+    return window.Voyent_useCookies;
+}
+
+export function getLocalStorageItem(key) {
+    return useLocalStorage()
+        ? window.localStorage.getItem(key)
+        : useCookies()
+            ? getCookie(key)
+            : getLocalVariable(key);
+}
+
+export function getSessionStorageItem(key) {
+    return useLocalStorage()
+        ? window.sessionStorage.getItem(key)
+        : useCookies()
+            ? getCookie(key)
+            : getLocalVariable(key);
 }
 
 function getCookie(cname) {
@@ -131,10 +164,38 @@ function getCookie(cname) {
     const ca = document.cookie.split(';');
     for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1);
-        if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+        while (c.charAt(0) === ' ') c = c.substring(1);
+        if (c.indexOf(name) === 0) return c.substring(name.length, c.length);
     }
     return "";
+}
+
+function getLocalVariable(key) {
+    return localVariables[key];
+}
+
+export function setLocalStorageItem(key, value) {
+    if (useLocalStorage()) {
+        window.localStorage.setItem(key, value);
+    }
+    else if (useCookies()) {
+        setCookie(key, value);
+    }
+    else {
+        setLocalVariable(key, value);
+    }
+}
+
+export function setSessionStorageItem(key, value) {
+    if (useLocalStorage()) {
+        window.sessionStorage.setItem(key, value)
+    }
+    else if (useCookies()) {
+        setCookie(key, value, 1);
+    }
+    else {
+        setLocalVariable(key, value);
+    }
 }
 
 function setCookie(cname, cvalue, days) {
@@ -144,40 +205,40 @@ function setCookie(cname, cvalue, days) {
     document.cookie = cname + "=" + cvalue + "; " + expires;
 }
 
-function removeCookie(cname) {
-    setCookie(cname, null, -1);
-}
-
-export function getLocalStorageItem(key) {
-    return useLocalStorage() ? window.localStorage.getItem(key) : getCookie(key);
-}
-
-export function getSessionStorageItem(key) {
-    return useLocalStorage() ? window.sessionStorage.getItem(key) : getCookie(key);
-}
-
-export function setLocalStorageItem(key, value) {
-    return useLocalStorage() ? window.localStorage.setItem(key, value) : setCookie(key, value);
-}
-
-export function removeSessionStorageItem(key) {
-    if (useLocalStorage()) {
-        window.sessionStorage.removeItem(key);
-    } else {
-        removeCookie(key);
-    }
+function setLocalVariable(key, value) {
+    localVariables[key] = value;
 }
 
 export function removeLocalStorageItem(key) {
     if (useLocalStorage()) {
         window.localStorage.removeItem(key);
-    } else {
+    }
+    else if (useCookies()) {
         removeCookie(key);
+    }
+    else {
+        removeLocalVariable(key);
     }
 }
 
-export function setSessionStorageItem(key, value) {
-    return useLocalStorage() ? window.sessionStorage.setItem(key, value) : setCookie(key, value, 1);
+export function removeSessionStorageItem(key) {
+    if (useLocalStorage()) {
+        window.sessionStorage.removeItem(key);
+    }
+    else if (useCookies()) {
+        removeCookie(key);
+    }
+    else {
+        removeLocalVariable(key);
+    }
+}
+
+function removeCookie(cname) {
+    setCookie(cname, null, -1);
+}
+
+function removeLocalVariable(key) {
+    delete localVariables[key];
 }
 
 export function sanitizeAccountName(original) {
