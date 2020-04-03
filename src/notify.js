@@ -611,11 +611,15 @@ const useAlertFamilyState = function(n) {
  * @returns {boolean}
  */
 export const isActive = function(n) {
-    let alert = getAlertById(n.alertId);
-    let state = useAlertFamilyState(n) ?
-        getAlertFamilyState(n.alertId) :
-        (alert && alert.state);
-    return state === 'active';
+    if (useAlertFamilyState(n)) {
+        let alertFamilyState = getAlertFamilyState(n.alertId);
+        return alertFamilyState === 'active' || alertFamilyState === 'scheduled';
+    }
+    else {
+        let alert = getAlertById(n.alertId);
+        let alertState = alert && alert.state;
+        return alertState === 'active';
+    }
 };
 
 /**
@@ -629,8 +633,8 @@ export const isEnded = function(n) {
     }
     else {
         let alert = getAlertById(n.alertId);
-        let state = alert && alert.state;
-        return state === 'ended' || state === 'deprecated';
+        let alertState = alert && alert.state;
+        return alertState === 'ended' || alertState === 'deprecated';
     }
 };
 
