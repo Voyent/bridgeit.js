@@ -611,13 +611,16 @@ const useAlertFamilyState = function(n) {
  * @returns {boolean}
  */
 export const isActive = function(n) {
+    let alert = getAlertById(n.alertId);
+    let alertState = alert && alert.state;
     if (useAlertFamilyState(n)) {
         let alertFamilyState = getAlertFamilyState(n.alertId);
-        return alertFamilyState === 'active' || alertFamilyState === 'scheduled';
+        if (alertFamilyState === 'scheduled') {
+            return alertState === 'active';
+        }
+        return alertFamilyState === 'active';
     }
     else {
-        let alert = getAlertById(n.alertId);
-        let alertState = alert && alert.state;
         return alertState === 'active';
     }
 };
