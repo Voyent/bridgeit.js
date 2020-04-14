@@ -1,6 +1,6 @@
 import * as keys from './keys'
 import * as utils from './private-utils'
-import { authAdminURL, sysAdminURL, post, put, doDelete, getJSON } from './public-utils'
+import { authAdminURL, sysAdminURL, post, put, doDelete, get, getJSON } from './public-utils'
 import { updateLastActiveTimestamp, getLastKnownRealm, generatePassword } from './auth-service'
 
 function validateRequiredUser(params, reject) {
