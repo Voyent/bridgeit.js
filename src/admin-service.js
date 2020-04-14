@@ -15,6 +15,10 @@ function validateRequiredGroup(params, reject) {
     utils.validateParameter('group', 'The group parameter is required', params, reject);
 }
 
+function validateRequiredTopic(params, reject) {
+    utils.validateParameter('topic', 'The topic parameter is required', params, reject);
+}
+
 function validateAndReturnRequiredEmail(params, reject) {
     const email = params.email;
     if (email) {
@@ -1325,6 +1329,114 @@ export function deleteUserGroup(params) {
 
         const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'groups/' + params.group, token);
+
+        doDelete(url).then(function (response) {
+            updateLastActiveTimestamp();
+            resolve(response);
+        })['catch'](function (error) {
+            reject(error);
+        });
+    });
+}
+
+export function getAllPublicTopics(params) {
+    return new Promise(function(resolve, reject) {
+        params = params ? params : {};
+
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'topics/', token);
+
+        get(url).then(function (response) {
+            updateLastActiveTimestamp();
+            resolve(response);
+        })['catch'](function (error) {
+            reject(error);
+        });
+    });
+}
+
+export function getPublicTopicDetails(params) {
+    return new Promise(function(resolve, reject) {
+        params = params ? params : {};
+
+        validateRequiredTopic(params, reject);
+
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'topics/' + params.topic + '/details', token);
+
+        get(url).then(function (response) {
+            updateLastActiveTimestamp();
+            resolve(response);
+        })['catch'](function (error) {
+            reject(error);
+        });
+    });
+}
+
+export function createPublicTopic(params) {
+    return new Promise(function(resolve, reject) {
+        params = params ? params : {};
+
+        validateRequiredTopic(params, reject);
+
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'topics/', token);
+
+        post(url, { topic: params.topic }).then(function (response) {
+            updateLastActiveTimestamp();
+            resolve(response);
+        })['catch'](function (error) {
+            reject(error);
+        });
+    });
+}
+
+export function updatePublicTopic(params) {
+    return new Promise(function(resolve, reject) {
+        params = params ? params : {};
+
+        validateRequiredTopic(params, reject);
+
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'topics/' + params.topic.groupId, token);
+
+        put(url, { topic: params.topic }).then(function (response) {
+            updateLastActiveTimestamp();
+            resolve(response);
+        })['catch'](function (error) {
+            reject(error);
+        });
+    });
+}
+
+export function deletePublicTopic(params) {
+    return new Promise(function(resolve, reject) {
+        params = params ? params : {};
+
+        validateRequiredTopic(params, reject);
+
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'topics/' + params.topic, token);
 
         doDelete(url).then(function (response) {
             updateLastActiveTimestamp();
