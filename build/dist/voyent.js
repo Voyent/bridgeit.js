@@ -3779,19 +3779,12 @@ function AuthService(v, keys, utils) {
                     reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
                 }
                 else {
-                    var loginParams = v.auth.getConnectSettings();
+                    var loginParams = v.auth.getLoginParams();
                     if (!loginParams) {
                         fireEvent(window, 'voyent-access-token-refresh-failed', {});
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
-                        loginParams.account = atob(utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY)));
-                        loginParams.realm = atob(utils.getSessionStorageItem(btoa(keys.REALM_KEY)));
-                        loginParams.host = atob(utils.getSessionStorageItem(btoa(keys.HOST_KEY)));
-                        loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
-                        loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
-                        loginParams.suppressUpdateTimestamp = true;
-                        loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
                         console.log('voyent.auth.refreshAccessToken()');
                         v.auth.login(loginParams).then(function (authResponse) {
                             fireEvent(window, 'voyent-access-token-refreshed', v.auth.getLastAccessToken());
@@ -3819,6 +3812,22 @@ function AuthService(v, keys, utils) {
                 }
 
             });
+        },
+        
+        getLoginParams: function() {
+            var loginParams = v.auth.getConnectSettings();
+            if (!loginParams) {
+                return null;
+            }
+            
+            loginParams.account = atob(utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY)));
+            loginParams.realm = atob(utils.getSessionStorageItem(btoa(keys.REALM_KEY)));
+            loginParams.host = atob(utils.getSessionStorageItem(btoa(keys.HOST_KEY)));
+            loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
+            loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
+            loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
+            
+            return loginParams;
         },
 
         /**
