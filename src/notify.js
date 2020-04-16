@@ -1277,6 +1277,10 @@ function _displayNativeNotification(notification) {
  * @private
  */
 function _displayToastNotification(notification,isVoyentMsg) {
+    if (!config.toast.enabled) {
+        return;
+    }
+    
     //default to bottom-right for messages
     let position = 'bottom-right';
     if (!isVoyentMsg) {
