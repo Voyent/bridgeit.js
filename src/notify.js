@@ -395,9 +395,11 @@ export const stopListening = function() {
 /**
  * Registers a new push listener for the specified group.
  * @param group
+ * @param account
+ * @param realm
  */
-export const joinGroup = function(group) {
-    group = getFullGroupName(group);
+export const joinGroup = function(group, account, realm) {
+    group = getFullGroupName(group, account, realm);
     if (group) {
         // Ensure we aren't already in this group
         if (groups.indexOf(group) === -1) {
@@ -431,9 +433,11 @@ export const joinGroup = function(group) {
 /**
  * Removes the registered push listener for the specified group.
  * @param group
+ * @param account
+ * @param realm
  */
-export const leaveGroup = function(group) {
-    group = getFullGroupName(group);
+export const leaveGroup = function(group, account, realm) {
+    group = getFullGroupName(group, account, realm);
     if (group) {
         // Ensure we are actually in this group
         let index = groups.indexOf(group);
@@ -453,11 +457,13 @@ export const leaveGroup = function(group) {
  * Returns the passed group name with the account and realm scoping added. If the
  * group name cannot be formed due to insufficient data then null will be returned.
  * @param group
+ * @param account
+ * @param realm
  * @returns {string|null}
  */
-export const getFullGroupName = function(group) {
-    let account = getLastKnownAccount();
-    let realm = getLastKnownRealm();
+export const getFullGroupName = function(group, account, realm) {
+    account = account || getLastKnownAccount();
+    realm = realm || getLastKnownRealm();
     if (typeof group === 'string' && group.trim().length &&
         typeof account === 'string' && account.trim().length &&
         typeof realm === 'string' && realm.trim().length && realm !== 'admin') {
