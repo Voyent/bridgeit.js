@@ -310,16 +310,19 @@ export const config = { //config options
  */
 
 /**
- * Initialize the library. This function MUST be called to enable the library. The initialization process may
+ * Initialize the library. This function must be called to enable the library. The initialization process may
  * fire various events so we always suggest calling this after you setup any listeners of interest. Can be
  * triggered before or after logging in.
  */
 export const initialize = function() {
+    // Setup the push listener
+    startListening();
+    // Do some additional initialization
     if (!isLoggedIn()) {
-        window.addEventListener('onAfterLogin',_setupListeners);
+        window.addEventListener('onAfterLogin', _onAfterLogin);
     }
     else {
-        _setupListeners();
+        _onAfterLogin();
     }
 };
 
@@ -329,7 +332,9 @@ export const initialize = function() {
  * been called.
  */
 export const startListening = function() {
-    if (_listener) { return; }
+    if (_listener) {
+        return;
+    }
 
     // Declare push listener
     _listener = function (notification) {
@@ -372,8 +377,6 @@ export const startListening = function() {
             joinGroup(_queuedGroups[i]);
         }
     }
-    
-    joinGroup(getLastKnownUsername());
 };
 
 /**
@@ -385,8 +388,8 @@ export const stopListening = function() {
         leaveGroup(groups[i]);
     }
     _listener = null;
-    //since they explicitly stopped listening them remove the login listener as well
-    window.removeEventListener('onAfterLogin',_setupListeners);
+    // Since they explicitly stopped listening them remove the login listener as well
+    window.removeEventListener('onAfterLogin', _onAfterLogin);
 };
 
 /**
@@ -394,14 +397,8 @@ export const stopListening = function() {
  * @param group
  */
 export const joinGroup = function(group) {
-    let account = getLastKnownAccount();
-    let realm = getLastKnownRealm();
-    if (typeof group === 'string' && group.trim().length &&
-        typeof account === 'string' && account.trim().length &&
-        typeof realm === 'string' && realm.trim().length && realm !== 'admin') {
-        // Scope the group to the current account and realm
-        group = account + '_' + realm + '_' + group;
-
+    group = getFullGroupName(group);
+    if (group) {
         // Ensure we aren't already in this group
         if (groups.indexOf(group) === -1) {
             // The push service is not ready so add the group to the queue so we can add it later
@@ -436,7 +433,9 @@ export const joinGroup = function(group) {
  * @param group
  */
 export const leaveGroup = function(group) {
-    if (group && typeof group === 'string') {
+    group = getFullGroupName(group);
+    if (group) {
+        // Ensure we are actually in this group
         let index = groups.indexOf(group);
         if (index > -1) {
             bStopListening({
@@ -448,6 +447,23 @@ export const leaveGroup = function(group) {
             });
         }
     }
+};
+
+/**
+ * Returns the passed group name with the account and realm scoping added. If the
+ * group name cannot be formed due to insufficient data then null will be returned.
+ * @param group
+ * @returns {string|null}
+ */
+export const getFullGroupName = function(group) {
+    let account = getLastKnownAccount();
+    let realm = getLastKnownRealm();
+    if (typeof group === 'string' && group.trim().length &&
+        typeof account === 'string' && account.trim().length &&
+        typeof realm === 'string' && realm.trim().length && realm !== 'admin') {
+        return account + '_' + realm + '_' + group;
+    }
+    return null;
 };
 
 /**
@@ -1071,13 +1087,11 @@ export const hideNotification = function(notification,ms) {
 let queuedAlertPromises = {};
 
 /**
- * Setup the push listener. If this the first init then we'll also install the toast container, request
- * native notification permissions, inject notifications after redirects and get saved notifications from user's
+ * After the user is authenticated install the toast container and request native notification permissions.
  * mailboxes.
  * @private
  */
-function _setupListeners() {
-    startListening();
+function _onAfterLogin() {
     if (!_isInitialized) {
         //fire the initialization event if we are actively listening for notifications
         if (_listener) {

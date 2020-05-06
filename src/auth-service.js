@@ -220,7 +220,7 @@ export function login(params) {
  * @param {String} params.access_token Valid access token (required)
  * @param {String} params.expires_in Token expiry, in milliseconds (required)
  */
-export function _storeLogin(params) {
+export function storeLogin(params) {
     if (!params.access_token) {
         reject(Error('Voyent access token is required'));
         return;
