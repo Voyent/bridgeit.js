@@ -81,7 +81,7 @@ let unreadActiveNotificationCount = 0;
  */
 let unreadEndedNotificationCount = 0;
 
-export const config = { //config options
+export const config = { // Config options
     /**
      * @property {string} autoSelectNotification - Provides options for auto selecting notifications so that
      * each time a selected notification is removed a new one is selected. One of [disabled|oldest|newest].
@@ -118,13 +118,32 @@ export const config = { //config options
         }
     },
 
-    toast: { //toast notification config options
+    toast: { // Toast notification config options (applies to alert and message notifications)
         /**
-         * @property {boolean} enabled - Indicates if toast notifications should be shown.
+         * @property {boolean} enabled - Indicates whether toast notifications should be shown. If disabled then
+         *                               the alert.enabled and message.enabled properties have no effect.
          * @default true
          */
         enabled: true,
         setEnabled: function(val) { this.enabled = !!val; },
+
+        alert: { // Alert notification config
+            /**
+             * @property {boolean} enabled - Indicates whether alert toast notifications should be shown.
+             * @default true
+             */
+            enabled: true,
+            setEnabled: function(val) { this.enabled = !!val; },
+        },
+
+        message: { // `message-*` notification config
+            /**
+             * @property {boolean} enabled - Indicates whether `message-*` toast notifications should be shown.
+             * @default true
+             */
+            enabled: true,
+            setEnabled: function(val) { this.enabled = !!val; },
+        },
 
         /**
          * @property {number} hideAfterMs - Time in milliseconds that the notification will be automatically
@@ -188,7 +207,7 @@ export const config = { //config options
         style:'',
         setStyle: function(val) { this.style = val.toString(); },
 
-        close: { //toast notification close container config options
+        close: { // Toast notification close container config options
             /**
              * @property {boolean} enabled - Indicates if the close button should be shown for toast notifications.
              * @default true
@@ -206,7 +225,7 @@ export const config = { //config options
         }
     },
 
-    native: { //native/desktop notification config options
+    native: { // Native browser notification config options (applies to alert notifications only)
         /**
          * @property {boolean} enabled - Indicates if native notifications should be enabled (still must be
          * allowed by user in browser).
@@ -228,9 +247,9 @@ export const config = { //config options
     }
 };
 
-//Events
+// Events
 
-//Useful for setting config options, setting up event listeners, etc...
+// Useful for setting config options, setting up event listeners, etc...
 /**
  * Fired after the library is initialized and listening for new notifications. This is the recommended place
  * to change default configuration options if the listener is guaranteed to exist before the library loads.
@@ -244,65 +263,65 @@ export const config = { //config options
  * @event broadcastReceived
  */
 
-//Useful for previewing the new item being added to the queue and throwing it away before it's added using preventDefault().
+// Useful for previewing the new item being added to the queue and throwing it away before it's added using preventDefault().
 /**
  * Fired before a received broadcast notification is added to the queue. Cancel the event to prevent the operation.
  * @event beforeBroadcastAdded
  */
 
-//Useful for keeping the various aspects of the app in sync, such as the queue.
+// Useful for keeping the various aspects of the app in sync, such as the queue.
 /**
  * Fired after a received broadcast notification is added to the queue. Not cancelable.
  * @event afterBroadcastAdded
  */
 
-//Useful for previewing the new item being added to the queue and throwing it away before it's added using preventDefault().
+// Useful for previewing the new item being added to the queue and throwing it away before it's added using preventDefault().
 /**
  * Fired before the queue is updated. An update will be triggered when loading a queue from
  * storage or adding, removing or clearing the queue. Cancel the event to prevent the operation.
  * @event beforeQueueUpdated
  */
 
-//Useful for keeping the various aspects of the app in sync, such as the queue.
+// Useful for keeping the various aspects of the app in sync, such as the queue.
 /**
  * Fired after the queue is updated. Not cancelable.
  * @event afterQueueUpdated
  */
 
-//Useful for setting app state based on whether notifications are returned from the `refreshNotificationQueue` request
+// Useful for setting app state based on whether notifications are returned from the `refreshNotificationQueue` request
 /**
  * Fired after the `refreshNotificationQueue` is finished. Not cancelable.
  * @event notificationQueueRefreshed
  */
 
-//Useful for preventing the notification from being displayed using e.preventDefault().
+// Useful for preventing the notification from being displayed using e.preventDefault().
 /**
  * Fired before a notification is displayed. Fires for both toast and browser native notifications.
  * Cancel the event to prevent the notification from being displayed.
  * @event beforeDisplayNotification
  */
 
-//Useful for custom CSS effects/styling
+// Useful for custom CSS effects/styling
 /**
  * Fired after a notification is displayed. Fires for both toast and browser native notifications. Not cancelable.
  * @event afterDisplayNotification
  */
 
-//Useful to do custom handling on the selected notification. Especially after the asynchronous call of fetching a notification from the mailbox service.
+// Useful to do custom handling on the selected notification. Especially after the asynchronous call of fetching a notification from the mailbox service.
 /**
  * Fired after the selected property is changed. The notification returned may be null. If this event fires
  * in relation to a queue update then this event will always be fired AFTER the queue has been updated. Not cancelable.
  * @event notificationChanged
  */
 
-//Useful for custom redirecting (for apps that use custom routing).
+// Useful for custom redirecting (for apps that use custom routing).
 /**
  * Fired when a notification is clicked. Fires for both toast and browser native notifications. Cancel the
  * event to prevent the app from redirecting to the URL specified in the notification.
  * @event notificationClicked
  */
 
-//Useful for custom close behaviour or preventing the notification from closing.
+// Useful for custom close behaviour or preventing the notification from closing.
 /**
  * Fired when a notification is closed. Fires for both toast and browser native notifications. Cancel the event
  * to prevent the notification from closing automatically (toast notifications only).
@@ -353,7 +372,7 @@ export const startListening = function() {
             queue.push(notification);
             incrementNotificationCount(notification);
             _fireEvent('afterBroadcastAdded',{"notification":notification,"queue":queue.slice(0)},false);
-            displayNotification(notification);
+            displayAlertNotification(notification);
             /*if (!selected) {
                 // We don't have a selected notification so set to this new one
                 selectNotification(notification);
@@ -503,9 +522,8 @@ export const refreshNotificationQueue = function(nid) {
                             continue;
                         }
 
-                        // Check if we have a matching alert
-                        // In which case we want to store the alert for later lookup
-                        // We also want to port over any acknowledgement data to the notification itself
+                        // Check if we have a matching alert, if we do then we want to store the alert for later
+                        // lookup. We also want to port over any acknowledgement data to the notification itself
                         if (res.alerts) {
                             let matchingAlert = getAlertById(notification.alertId, res.alerts);
                             if (matchingAlert) {
@@ -535,7 +553,7 @@ export const refreshNotificationQueue = function(nid) {
                     try {
                         let nidFromStorage = _getSelectedNidFromStorage();
                         if (nidFromStorage) {
-                            //Select the notification and inject data.
+                            // Select the notification and inject data.
                             let tmpNotification = {};
                             tmpNotification[VOYENT_MAIL_QUERY_PARAMETER] = nidFromStorage;
                             selectNotification(tmpNotification);
@@ -860,8 +878,8 @@ export const removeNotification = function(notification) {
         if (cancelled) {
             return false;
         }
-        //if we have an id it means the notification is stored in the
-        //mailbox service so we will delete it from the user's mail
+        // If we have an id it means the notification is stored in the
+        // mailbox service so we will delete it from the user's mail
         if (queue[index][VOYENT_MAIL_QUERY_PARAMETER]) {
             _removeNotificationFromMailbox(queue[index][VOYENT_MAIL_QUERY_PARAMETER]);
         }
@@ -885,8 +903,8 @@ export const removeNotificationAt = function(index) {
         if (cancelled) {
            return false;
         }
-        //if we have an id it means the notification is stored in the
-        //mailbox service so we will delete it from the user's mail
+        // If we have an id it means the notification is stored in the
+        // mailbox service so we will delete it from the user's mail
         if (notification[VOYENT_MAIL_QUERY_PARAMETER]) {
             _removeNotificationFromMailbox(notification[VOYENT_MAIL_QUERY_PARAMETER]);
         }
@@ -905,21 +923,21 @@ export const removeNotificationAt = function(index) {
  */
 export const removeSelectedNotification = function() {
     if (!selected) {
-        return false; //nothing to remove
+        return false; // Nothing to remove
     }
     let notification = queue[queuePosition];
     let cancelled = _fireEvent('beforeQueueUpdated',{"op":"del","notification":notification,"queue":queue.slice(0)},true);
     if (cancelled) {
         return false;
     }
-    //remove the notification from the queue
+    // Remove the notification from the queue
     queue.splice(queuePosition,1);
     queuePosition = -1;
     reduceNotificationCount(notification);
     _fireEvent('afterQueueUpdated',{"op":"del","notification":notification,"queue":queue.slice(0)},false);
-    //reset the selected property
-    //if we have an id it means the notification is stored in the
-    //mailbox service so we will delete it from the user's mail
+    // Reset the selected property.
+    // If we have an id it means the notification is stored in the
+    // Mailbox service so we will delete it from the user's mail
     if (selected[VOYENT_MAIL_QUERY_PARAMETER]) {
         _removeNotificationFromMailbox(selected[VOYENT_MAIL_QUERY_PARAMETER]);
     }
@@ -963,10 +981,10 @@ export const redirectToNotification = function(notification) {
     if (!notification.url) {
         return;
     }
-    //save the notification to inject in session storage so it survives the redirect
+    // Save the notification to inject in session storage so it survives the redirect
     selected = notification;
     _setSelectedNotificationInStorage();
-    //redirect browser
+    // Redirect browser
     window.location.replace(notification.url);
 };
 
@@ -999,9 +1017,9 @@ export const selectNotification = function(notification) {
         }
     }
     else if (typeof notification.nid !== 'undefined') {
-        //In some cases, such as when loading a notification from storage, the object may actually
-        //be different than the one in the queue even though it refers to the same notification. In these
-        //cases we will fallback to checking the nid on the notification to look for a match.
+        // In some cases, such as when loading a notification from storage, the object may actually
+        // be different than the one in the queue even though it refers to the same notification. In these
+        // cases we will fallback to checking the nid on the notification to look for a match.
         for (i=0; i<queue.length; i++) {
             if (queue[i].nid === notification.nid &&
                 selected !== queue[i]) {
@@ -1041,17 +1059,17 @@ const _selectNotification = function(notification, index) {
 };
 
 /**
- * Displays the passed notification as a toast or browser native notification, depending on the current
- * configuration. Can be used to re-display a notification from the queue or even to display a custom
- * notification that is not part of the queue.
+ * Displays the passed alert notification as a toast or browser native notification,
+ * depending on the current configuration. Can be used to re-display a notification from
+ * the queue or even to display a custom notification that is not part of the queue.
  * @param {object} notification - The notification to display.
  */
-export const displayNotification = function (notification) {
+export const displayAlertNotification = function (notification) {
     if (config.native.enabled && window.Notification && Notification.permission === 'granted') {
         _displayNativeNotification(notification);
     }
-    else if (config.toast.enabled) {
-        _displayToastNotification(notification,false);
+    else if (config.toast.enabled && config.toast.alert.enabled) {
+        _displayToastNotification(notification, false);
     }
 };
 
@@ -1065,8 +1083,8 @@ export const hideNotification = function(notification,ms) {
         return;
     }
     setTimeout(function() {
-        if (notification.constructor === HTMLDivElement) { //toast notification
-            //hide the toast via transform and opacity changes
+        if (notification.constructor === HTMLDivElement) { // Toast notification
+            // Hide the toast via transform and opacity changes
             let position = notification.getAttribute('data-position');
             let hideTranslateY = position.indexOf('bottom') > -1 ? TOAST_Y_POS : -Math.abs(TOAST_Y_POS);
             notification.style.opacity = '0';
@@ -1078,9 +1096,9 @@ export const hideNotification = function(notification,ms) {
                     toastContainer.removeChild(notification);
                     _updateDisplayedNotifications(notification);
                 }
-            },400); //transition effect is for 300ms so remove the toast from the DOM after 400ms
+            },400); // Transition effect is for 300ms so remove the toast from the DOM after 400ms
         }
-        else if (notification.constructor === Notification) { //native notification
+        else if (notification.constructor === Notification) { // Native notification
             notification.close();
         }
     },typeof ms !== 'number' ? 0 : Math.round(ms));
@@ -1099,18 +1117,18 @@ let queuedAlertPromises = {};
  */
 function _onAfterLogin() {
     if (!_isInitialized) {
-        //fire the initialization event if we are actively listening for notifications
+        // Fire the initialization event if we are actively listening for notifications
         if (_listener) {
             _fireEvent('voyentNotifyInitialized',{"config":config},false);
             _isInitialized = true;
         }
 
-        //add our custom toast parent element to the page
-        if (config.toast.enabled && !document.getElementById(VOYENT_TOAST_CONTAINER_ID)) {
+        // Add our custom toast parent element to the page
+        if (!document.getElementById(VOYENT_TOAST_CONTAINER_ID)) {
             _createToastContainer();
         }
 
-        //check for desktop notification support and request permission
+        // Check for desktop notification support and request permission
         if (config.native.enabled && _isNewNotificationSupported()) {
             Notification.requestPermission(function(permission){});
         }
@@ -1250,7 +1268,7 @@ function _displayNativeNotification(notification) {
     if (cancelled) {
         return;
     }
-    //configure the notification options
+    // Configure the notification options
     let opts = {};
     if (!config.useSubjectAsMessage && notification.detail && notification.detail.trim().length > 0) {
         opts.body = notification.detail;
@@ -1259,10 +1277,10 @@ function _displayNativeNotification(notification) {
     if (typeof notification.badge === 'string' && notification.badge) {
         opts.icon = _getBadgeUrl(notification.badge);
     }
-    //display the notification
+    // Display the notification
     let subject = notification.subject && notification.subject.trim().length > 0 ? notification.subject : '';
     let n = new Notification(subject,opts);
-    //add onclick listener with default behaviour of redirecting
+    // Add onclick listener with default behaviour of redirecting
     n.onclick = function() {
         let cancelled = _fireEvent('notificationClicked',{"notification":notification,"native":n},true);
         if (config.hideAfterClick) {
@@ -1273,17 +1291,17 @@ function _displayNativeNotification(notification) {
         }
         redirectToNotification(notification);
     };
-    //add onclose listener
+    // Add onclose listener
     n.onclose = function() {
         _fireEvent('notificationClosed',{"notification":notification,"native":n},false);
     };
-    //add onshow listener for hiding the notifications after they are shown
+    // Add onshow listener for hiding the notifications after they are shown
     n.onshow = function() {
         _fireEvent('afterDisplayNotification',{"notification":notification,"native":n},false);
-        //We use the onshow handler for hiding the notifications because in some browsers (like Chrome)
-        //only three notifications are displayed at one time. If there are more than three notifications to show
-        //then they will be queued in the background until they have room to be displayed. We only want to start
-        //the hide timeout after they are actually shown on the page and not just added to the queue.
+        // We use the onshow handler for hiding the notifications because in some browsers (like Chrome)
+        // only three notifications are displayed at one time. If there are more than three notifications to show
+        // then they will be queued in the background until they have room to be displayed. We only want to start
+        // the hide timeout after they are actually shown on the page and not just added to the queue.
         if (config.native.hideAfterMs > 0) {
             hideNotification(n, config.native.hideAfterMs);
         }
@@ -1296,26 +1314,22 @@ function _displayNativeNotification(notification) {
  * @param isVoyentMsg - Indicates whether this is a `message-info` or `message-error` notification.
  * @private
  */
-function _displayToastNotification(notification,isVoyentMsg) {
-    if (!config.toast.enabled) {
-        return;
-    }
-    
-    //default to bottom-right for messages
+function _displayToastNotification(notification, isVoyentMsg) {
+    // Default to bottom-right for messages
     let position = 'bottom-right';
     if (!isVoyentMsg) {
         let cancelled = _fireEvent('beforeDisplayNotification',{"notification":notification},true);
         if (cancelled) {
             return;
         }
-        //since this is not a message then use the configured value
+        // Since this is not a message then use the configured value
         position = config.toast.position;
     }
-    //ensure we have the notification container in the DOM
+    // Ensure we have the notification container in the DOM
     if (!document.getElementById(VOYENT_TOAST_CONTAINER_ID)) {
         _createToastContainer();
     }
-    //setup new div for toast notification
+    // Setup new div for toast notification
     let toast = document.createElement('div');
     toast.setAttribute('data-position',position);
     if (isVoyentMsg) {
@@ -1323,19 +1337,19 @@ function _displayToastNotification(notification,isVoyentMsg) {
     }
     _createToastChildren(toast,notification);
     _setToastStyle(toast);
-    //add to DOM so we can determine the height of the notification
+    // Add to DOM so we can determine the height of the notification
     document.getElementById(VOYENT_TOAST_CONTAINER_ID).appendChild(toast);
-    //display or queue the notification depending on the stack
+    // Display or queue the notification depending on the stack
     setTimeout(function() {
-        //display toast if there is room in the stack or there is no stack limit
+        // Display toast if there is room in the stack or there is no stack limit
         if ((config.toast.stackLimit > _displayedToasts[position].length) || config.toast.stackLimit <= 0) {
             _displayToast({"notification":notification,"toast":toast});
         }
         else {
-            //since we can't add to stack, add to queue
+            // Since we can't add to stack, add to queue
             _queuedToasts[position].push({"notification":notification,"toast":toast});
             if (config.toast.overwriteOld) {
-                //replace oldest notification
+                // Replace oldest notification
                 hideNotification(_displayedToasts[position][0],0);
             }
         }
@@ -1348,30 +1362,30 @@ function _displayToastNotification(notification,isVoyentMsg) {
  */
 function _displayToast(notificationData) {
     let position = notificationData.toast.getAttribute('data-position');
-    //determine the y position where the new toast should be displayed
+    // Determine the y position where the new toast should be displayed
     let yPosition = 0;
     for (let i=0; i<_displayedToasts[position].length; i++) {
         let height = _displayedToasts[position][i].offsetHeight;
         yPosition += height+config.toast.spacing;
-        //store height for later use if we haven't already set it
+        // Store height for later use if we haven't already set it
         if (!_displayedToasts[position][i].getAttribute('data-height')) {
             _displayedToasts[position][i].setAttribute('data-height',height.toString());
         }
     }
-    //the y position will need to be negated if we are rendering the toast from the bottom of the page
+    // The y position will need to be negated if we are rendering the toast from the bottom of the page
     let trueYPosition = position.indexOf('bottom') > -1 ? (-Math.abs(yPosition)) : yPosition;
     notificationData.toast.style.opacity = 1;
     notificationData.toast.style.transform = 'translateY('+trueYPosition+'px)';
     notificationData.toast.style.webkitTransform = 'translateY('+trueYPosition+'px)';
-    notificationData.toast.setAttribute('data-translate-y',yPosition.toString()); //store absolute y position for later use
-    //store a reference to the toast
+    notificationData.toast.setAttribute('data-translate-y',yPosition.toString()); // Store absolute y position for later use
+    // Store a reference to the toast
     _displayedToasts[position].push(notificationData.toast);
-    //remove the toast from the queue
+    // Remove the toast from the queue
     let index = _queuedToasts[position].indexOf(notificationData);
     if (index > -1) {
         _queuedToasts[position].splice(index,1);
     }
-    //hide the notification after set timeout
+    // Hide the notification after set timeout
     if (config.toast.hideAfterMs > 0) {
         hideNotification(notificationData.toast,config.toast.hideAfterMs);
     }
@@ -1386,40 +1400,40 @@ function _displayToast(notificationData) {
  * @private
  */
 function _updateDisplayedNotifications(toast) {
-    //check if we need to slide any notifications up, if the last notification
-    //closed was in the last position then we don't need to slide
+    // Check if we need to slide any notifications up, if the last notification
+    // closed was in the last position then we don't need to slide
     let position = toast.getAttribute('data-position');
     let index = _displayedToasts[position].indexOf(toast);
     if (index > -1 && index !== _displayedToasts[position].length-1) {
         let isBottom = position.indexOf('bottom') > -1;
-        //slide all notifications after the one that is being removed
+        // Slide all notifications after the one that is being removed
         for (let i=index+1; i<_displayedToasts[position].length; i++) {
             let toastToSlide = _displayedToasts[position][i];
             let yPosition;
-            //account for spacing between toasts
+            // Account for spacing between toasts
             let paddingMultiplier = index === 0 ? 1 : index;
             let padding = config.toast.spacing * paddingMultiplier;
-            if (isBottom) { //slide down
+            if (isBottom) { // Slide down
                 yPosition = -parseInt(toastToSlide.getAttribute('data-translate-y')) +
                             parseInt(toast.getAttribute('data-height')) + padding;
             }
-            else { //slide up
+            else { // Slide up
                 yPosition = parseInt(toastToSlide.getAttribute('data-translate-y')) -
                             parseInt(toast.getAttribute('data-height')) - padding;
             }
             toastToSlide.style.transform = 'translateY('+yPosition+'px)';
             toastToSlide.style.webkitTransform = 'translateY('+yPosition+'px)';
-            //Always store the y position as a positive number since moving
-            //away from `top` and `bottom` is always a positive number
+            // Always store the y position as a positive number since moving
+            // away from `top` and `bottom` is always a positive number
             toastToSlide.setAttribute('data-translate-y',Math.abs(yPosition));
         }
     }
-    //keep the list of displayed toasts in sync
+    // Keep the list of displayed toasts in sync
     let toastIndex = _displayedToasts[position].indexOf(toast);
     if (toastIndex > -1) {
         _displayedToasts[position].splice(toastIndex,1);
     }
-    //display the next notification in the queue
+    // Display the next notification in the queue
     let nextToast = _queuedToasts[position][0];
     if (nextToast) {
         _displayToast(nextToast);
@@ -1452,7 +1466,7 @@ function _createToastContainer() {
  */
 function _createToastChildren(toast,notification) {
     let isVoyentMsg = toast.getAttribute('data-is-message');
-    //add close button, if enabled
+    // Add close button, if enabled
     if (config.toast.close.enabled) {
         let closeDiv = document.createElement('div');
         closeDiv.className = 'close';
@@ -1462,11 +1476,11 @@ function _createToastChildren(toast,notification) {
         closeDiv.style.cursor = 'pointer';
         closeDiv.style.marginTop = '-10px';
         closeDiv.style.marginBottom = '-10px';
-        //append user's custom styling
+        // Append user's custom styling
         closeDiv.setAttribute('style',closeDiv.getAttribute('style')+config.toast.close.style);
-        //add X character
+        // Add X character
         closeDiv.innerHTML = '&#10006;';
-        //add onclick listener with default behaviour of closing the notification, don't support events for voyent messages
+        // Add onclick listener with default behaviour of closing the notification, don't support events for voyent messages
         closeDiv.onclick = function(e) {
             // Prevent the event from bubbling so the notification onclick does not fire as well
             if (e.stopPropagation) { e.stopPropagation(); }
@@ -1480,12 +1494,12 @@ function _createToastChildren(toast,notification) {
         };
         toast.appendChild(closeDiv);
 
-        //add clear float
+        // Clear float
         let clearClose = document.createElement('div');
         clearClose.style.clear = 'both';
         toast.appendChild(clearClose);
     }
-    //add badge, if provided
+    // Add badge, if provided
     if (typeof notification.badge === 'string' && notification.badge) {
         let iconDiv = document.createElement('div');
         iconDiv.className = 'icon';
@@ -1501,7 +1515,7 @@ function _createToastChildren(toast,notification) {
         iconDiv.appendChild(icon);
         toast.appendChild(iconDiv);
     }
-    //add subject, if provided
+    // Add subject, if provided
     if (notification.subject && notification.subject.trim().length > 0 && !config.useSubjectAsMessage) {
         let titleDiv = document.createElement('div');
         titleDiv.className = 'subject';
@@ -1511,7 +1525,7 @@ function _createToastChildren(toast,notification) {
         toast.appendChild(titleDiv);
     }
 
-    //add message
+    // Add message
     let msgDiv = document.createElement('div');
     msgDiv.className = 'message';
     msgDiv.style.overflow = 'hidden';
@@ -1526,7 +1540,7 @@ function _createToastChildren(toast,notification) {
     }
     toast.appendChild(msgDiv);
 
-    //add onclick listener with default behaviour of redirecting, don't support events for voyent messages
+    // Add onclick listener with default behaviour of redirecting, don't support events for voyent messages
     if (!isVoyentMsg) {
         toast.onclick = function() {
             let cancelled = _fireEvent('notificationClicked',{"notification":notification,"toast":toast},true);
@@ -1540,7 +1554,7 @@ function _createToastChildren(toast,notification) {
         };
     }
 
-    //add clear float
+    // Add clear float
     let clearDiv = document.createElement('div');
     clearDiv.style.clear = 'left';
     toast.appendChild(clearDiv);
@@ -1552,7 +1566,7 @@ function _createToastChildren(toast,notification) {
  * @private
  */
 function _setToastStyle(toast) {
-    //default styling
+    // Default styling
     if (!toast.getAttribute('data-is-message')) {
         toast.style.cursor = 'pointer';
     }
@@ -1575,7 +1589,7 @@ function _setToastStyle(toast) {
     toast.style.zIndex = '999999';
 
     let position = toast.getAttribute('data-position');
-    //styling specific to the position configuration
+    // Styling specific to the position configuration
     switch (position) {
         case 'top-right':
             toast.style.right = '0';
@@ -1602,13 +1616,13 @@ function _setToastStyle(toast) {
             toast.style.webkitTransform = 'translateY('+TOAST_Y_POS+'px)';
             break;
         default:
-            //default to top-right
+            // Default to top-right
             toast.style.right = '0';
             toast.style.top = '0';
             toast.style.transform = 'translateY('+(-Math.abs(TOAST_Y_POS))+'px)';
             toast.style.webkitTransform = 'translateY('+(-Math.abs(TOAST_Y_POS))+'px)';
     }
-    //append user's custom styling
+    // Append user's custom styling
     toast.setAttribute('style',toast.getAttribute('style')+config.toast.style);
 }
 
@@ -1626,18 +1640,18 @@ function _injectOrClearNotficationData (doClear) {
             }
             let val = obj[key];
             if (typeof val !== 'object') {
-                //build the selector
+                // Build the selector
                 let selector = 'data-selected-' + (keys.length ? keys.join('-') + '-' + key : key);
-                //find all matching DOM elements
+                // Find all matching DOM elements
                 elements = document.querySelectorAll('['+selector+']');
-                //inject the data for each element
+                // Inject the data for each element
                 for (i=0; i<elements.length; i++) {
                     val = (selector === 'data-selected-time') ? new Date(val) : val;
                     _injectOrClearDataForType(elements[i],val,doClear);
                 }
             }
             else {
-                //we may need to inject sub properties of this object
+                // We may need to inject sub properties of this object
                 findElements(val,keys.concat([key]));
             }
         }
@@ -1657,32 +1671,32 @@ function _injectOrClearNotficationData (doClear) {
 function _injectOrClearDataForType (element,data,doClear) {
     switch (element.tagName) {
         case 'INPUT':
-            //set the input value
+            // Set the input value
             element.value = doClear ? '' : data;
             break;
         case 'SELECT':
-            //only proceed if we have an actual Array
+            // Only proceed if we have an actual Array
             if (!Array.isArray(data)) {
                 return;
             }
-            //always clear out the select of any old options
+            // Always clear out the select of any old options
             element.value = '';
             while (element.options.length) { element.remove(0); }
             if (doClear) {
-                //nothing else to do
+                // Nothing else to do
                 return;
             }
             for (let i=0; i<data.length; i++) {
-                //generate select options for array elements
+                // Generate select options for array elements
                 let opt = document.createElement("option");
-                //support objects with value and label properties
+                // Support objects with value and label properties
                 opt.value = data[i].value || data[i];
                 opt.textContent = data[i].label || data[i];
                 element.appendChild(opt);
             }
             break;
         default:
-            //for all other cases just set the text content of the element
+            // For all other cases just set the text content of the element
             element.textContent = doClear ? '' : data;
     }
 }
@@ -1701,9 +1715,9 @@ function _isNewNotificationSupported() {
     else {
         return false;
     }
-    //Special case below for Android Chrome since it doesn't currently support non-persistent notifications
-    //https://bugs.chromium.org/p/chromium/issues/detail?id=481856
-    //Eventually it would be nice to support persistent (ServiceWorkerRegistration) Notifications
+    // Special case below for Android Chrome since it doesn't currently support non-persistent notifications
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=481856
+    // Eventually it would be nice to support persistent (ServiceWorkerRegistration) Notifications
     try {
         new Notification('');
     } catch (e) {
@@ -1720,8 +1734,8 @@ function _isNewNotificationSupported() {
  * @private
  */
 function _removeNotificationFromMailbox(id) {
-    //if we have an id then this means the notification is
-    //also stored in the mailbox service so we will delete it
+    // If we have an id then this means the notification is
+    // also stored in the mailbox service so we will delete it
     let query = {}; query[VOYENT_MAIL_QUERY_PARAMETER] = id;
     deleteMessages({"username":getLastKnownUsername(),
                                  "query":query}).then(function() {
@@ -1739,8 +1753,8 @@ function _removeNotificationFromMailbox(id) {
  * @private
  */
 function _getNotificationByNid(notification) {
-    //loop backwards through the queue since it's most
-    //likely any duplicate notifications were just added
+    // Loop backwards through the queue since it's most
+    // likely any duplicate notifications were just added
     for (let i=queue.length-1; i >= 0; i--) {
         if (queue[i][VOYENT_MAIL_QUERY_PARAMETER] === notification[VOYENT_MAIL_QUERY_PARAMETER]) {
             return queue[i];
@@ -1787,68 +1801,80 @@ function _getSelectedNidFromStorage() {
     return base64Notification ? JSON.parse(atob(base64Notification)) : null;
 }
 
-//Setup message info and error listeners
+// Setup message info and error listeners
 window.addEventListener('message-info',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        console.log('message-info:',e.detail);
-        _displayToastNotification({"subject":e.detail},true);
+        console.log('message-info:', e.detail);
+        if (config.toast.enabled && config.toast.message.enabled) {
+            _displayToastNotification({"subject":e.detail},true);
+        }
     }
 });
 window.addEventListener('message-info-sticky',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        let hideMs = config.toast.hideAfterMs;
-        let hideMsNative = config.native.hideAfterMs;
-        config.toast.hideAfterMs *= 2;
-        config.native.hideAfterMs *= 2;
-        console.log('message-info-sticky:',e.detail);
-        _displayToastNotification({"subject":e.detail},true);
-        setTimeout(function() {
-            config.toast.hideAfterMs = hideMs;
-            config.native.hideAfterMs = hideMsNative;
-        },1); // Need to order after the setTimeout used deeper in the notification toast
+        console.log('message-info-sticky:', e.detail);
+        if (config.toast.enabled && config.toast.message.enabled) {
+            let hideMs = config.toast.hideAfterMs;
+            let hideMsNative = config.native.hideAfterMs;
+            config.toast.hideAfterMs *= 2;
+            config.native.hideAfterMs *= 2;
+            _displayToastNotification({"subject":e.detail},true);
+            setTimeout(function() {
+                config.toast.hideAfterMs = hideMs;
+                config.native.hideAfterMs = hideMsNative;
+            },1); // Need to order after the setTimeout used deeper in the notification toast
+        }
     }
 });
 window.addEventListener('message-success',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        let style = config.toast.style;
-        config.toast.style = style + 'background-color:#008000;';
-        console.log('message-success:',e.detail);
-        _displayToastNotification({"subject":e.detail},true);
-        config.toast.style = style;
+        console.log('message-success:', e.detail);
+        if (config.toast.enabled && config.toast.message.enabled) {
+            let style = config.toast.style;
+            config.toast.style = style + 'background-color:#008000;';
+            _displayToastNotification({"subject":e.detail},true);
+            config.toast.style = style;
+        }
     }
 });
 window.addEventListener('message-warn',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        let style = config.toast.style;
-        config.toast.style = style + 'background-color:#FF7900;';
-        console.warn('message-warn:',e.detail);
-        _displayToastNotification({"subject":e.detail},true);
-        config.toast.style = style;
+        console.warn('message-warn:', e.detail);
+        if (config.toast.enabled && config.toast.message.enabled) {
+            let style = config.toast.style;
+            config.toast.style = style + 'background-color:#FF7900;';
+            _displayToastNotification({"subject":e.detail},true);
+            config.toast.style = style;
+        }
     }
 });
 window.addEventListener('message-error',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        let style = config.toast.style;
-        config.toast.style = style + 'background-color:#C70000;';
-        console.error('message-error:',e.detail);
-        _displayToastNotification({"subject":e.detail},true);
-        config.toast.style = style;
+        console.error('message-error:', e.detail);
+        if (config.toast.enabled && config.toast.message.enabled) {
+            let style = config.toast.style;
+            config.toast.style = style + 'background-color:#C70000;';
+            _displayToastNotification({"subject":e.detail},true);
+            config.toast.style = style;
+        }
     }
 });
 window.addEventListener('message-error-sticky',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        let style = config.toast.style;
-        let hideMs = config.toast.hideAfterMs;
-        let hideMsNative = config.native.hideAfterMs;
-        config.toast.style = style + 'background-color:#C70000;';
-        config.toast.hideAfterMs *= 2;
-        config.native.hideAfterMs *= 2;
-        console.error('message-error-sticky:',e.detail);
-        _displayToastNotification({"subject":e.detail},true);
-        config.toast.style = style;
-        setTimeout(function() {
-            config.toast.hideAfterMs = hideMs;
-            config.native.hideAfterMs = hideMsNative;
-        },1); // Need to order after the setTimeout used deeper in the notification toast
+        console.error('message-error-sticky:', e.detail);
+        if (config.toast.enabled && config.toast.message.enabled) {
+            let style = config.toast.style;
+            let hideMs = config.toast.hideAfterMs;
+            let hideMsNative = config.native.hideAfterMs;
+            config.toast.style = style + 'background-color:#C70000;';
+            config.toast.hideAfterMs *= 2;
+            config.native.hideAfterMs *= 2;
+            _displayToastNotification({"subject":e.detail},true);
+            config.toast.style = style;
+            setTimeout(function() {
+                config.toast.hideAfterMs = hideMs;
+                config.native.hideAfterMs = hideMsNative;
+            },1); // Need to order after the setTimeout used deeper in the notification toast
+         }
     }
 });
