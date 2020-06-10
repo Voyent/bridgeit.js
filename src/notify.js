@@ -636,16 +636,6 @@ export const isAlertNotification = function(n) {
 };
 
 /**
- * Returns whether the alert family state should be used to identify the state of the
- * passed notification. If false then the regular alert state property will be used.
- * @param n
- * @returns {boolean}
- */
-const useAlertFamilyState = function(n) {
-    return !!(isAlertNotification(n) || n.notificationType === 'alertAcknowledgementGroup');
-};
-
-/**
  * Returns whether the passed notification is considered to be active.
  * @param n
  * @returns {boolean}
@@ -653,16 +643,11 @@ const useAlertFamilyState = function(n) {
 export const isActive = function(n) {
     let alert = getAlertById(n.alertId);
     let alertState = alert && alert.state;
-    if (useAlertFamilyState(n)) {
-        let alertFamilyState = getAlertFamilyState(n.alertId);
-        if (alertFamilyState === 'scheduled') {
-            return alertState === 'active';
-        }
-        return alertFamilyState === 'active';
-    }
-    else {
+    let alertFamilyState = getAlertFamilyState(n.alertId);
+    if (alertFamilyState === 'scheduled') {
         return alertState === 'active';
     }
+    return alertFamilyState === 'active';
 };
 
 /**
@@ -671,14 +656,7 @@ export const isActive = function(n) {
  * @returns {boolean}
  */
 export const isEnded = function(n) {
-    if (useAlertFamilyState(n)) {
-        return getAlertFamilyState(n.alertId) === 'ended';
-    }
-    else {
-        let alert = getAlertById(n.alertId);
-        let alertState = alert && alert.state;
-        return alertState === 'ended' || alertState === 'deprecated';
-    }
+    return getAlertFamilyState(n.alertId) === 'ended';
 };
 
 /**
