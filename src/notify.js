@@ -641,7 +641,7 @@ export const getAlertState = function(alertId) {
  * @param alertId
  * @returns {*}
  */
-const getLastUpdatedTime = function(alertId) {
+export const getLastUpdatedTime = function(alertId) {
     let alert = getAlertById(alertId);
     return (alert && alert.lastUpdated) || null;
 };
