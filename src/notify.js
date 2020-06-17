@@ -637,6 +637,16 @@ export const getAlertState = function(alertId) {
 };
 
 /**
+ * Returns the `lastUpdated` for the alert matching the passed alertId.
+ * @param alertId
+ * @returns {*}
+ */
+const getLastUpdatedTime = function(alertId) {
+    let alert = getAlertById(alertId);
+    return (alert && alert.lastUpdated) || null;
+};
+
+/**
  * Returns whether the passed notification is an alert notification.
  * @param n
  * @returns {boolean}
