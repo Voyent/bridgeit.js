@@ -627,6 +627,16 @@ export const getAlertFamilyState = function(alertId) {
 };
 
 /**
+ * Returns the state for the alert matching the passed alertId.
+ * @param alertId
+ * @returns {*}
+ */
+export const getAlertState = function(alertId) {
+    let alert = getAlertById(alertId);
+    return (alert && alert.state) || null;
+};
+
+/**
  * Returns whether the passed notification is an alert notification.
  * @param n
  * @returns {boolean}
