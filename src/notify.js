@@ -644,6 +644,9 @@ export const isActive = function(n) {
     let alert = getAlertById(n.alertId);
     let alertState = alert && alert.state;
     let alertFamilyState = getAlertFamilyState(n.alertId);
+    if (alert && alert.schedule && alert.schedule.recurring) {
+        return alertState === 'active';
+    }
     if (alertFamilyState === 'scheduled') {
         return alertState === 'active';
     }
@@ -656,7 +659,13 @@ export const isActive = function(n) {
  * @returns {boolean}
  */
 export const isEnded = function(n) {
-    return getAlertFamilyState(n.alertId) === 'ended';
+    let alert = getAlertById(n.alertId);
+    let alertState = alert && alert.state;
+    let alertFamilyState = getAlertFamilyState(n.alertId);
+    if (alert && alert.schedule && alert.schedule.recurring) {
+        return alertState === 'ended';
+    }
+    return alertFamilyState === 'ended';
 };
 
 /**
