@@ -1302,6 +1302,10 @@ function _displayNativeNotification(notification) {
  * @private
  */
 function _displayToastNotification(notification, isVoyentMsg) {
+    if (!config.toast.enabled) {
+        return;
+    }
+    
     // Default to bottom-right for messages
     let position = 'bottom-right';
     if (!isVoyentMsg) {
@@ -1341,6 +1345,50 @@ function _displayToastNotification(notification, isVoyentMsg) {
             }
         }
     },0);
+}
+
+/**
+ * Setup a custom "long" toast notification that stays around for twice as long as the hideAfterMs value
+ * @param notification - The notification to be displayed.
+ * @param isVoyentMsg - Indicates whether this is a `message-info` or `message-error` notification.
+ * @private
+ */
+function _displayLongToastNotification(notification,isVoyentMsg) {
+    var hideMs = config.toast.hideAfterMs;
+    var hideMsNative = config.native.hideAfterMs;
+    
+    config.toast.close.enabled = true;
+    config.toast.hideAfterMs *= 2;
+    config.native.hideAfterMs *= 2;
+    
+    _displayToastNotification(notification,isVoyentMsg);
+    
+    setTimeout(function() {
+        config.toast.hideAfterMs = hideMs;
+        config.native.hideAfterMs = hideMsNative;
+    },1); // Need to order after the setTimeout used deeper in the notification toast
+}
+
+/**
+ * Setup a custom "sticky" toast notification that never goes away and has a close button
+ * @param notification - The notification to be displayed.
+ * @param isVoyentMsg - Indicates whether this is a `message-info` or `message-error` notification.
+ * @private
+ */
+function _displayStickyToastNotification(notification,isVoyentMsg) {
+    var hideMs = config.toast.hideAfterMs;
+    var hideMsNative = config.native.hideAfterMs;
+    
+    config.toast.close.enabled = true;
+    config.toast.hideAfterMs = 0;
+    config.native.hideAfterMs = 0;
+    
+    _displayToastNotification(notification,isVoyentMsg);
+    
+    setTimeout(function() {
+        config.toast.hideAfterMs = hideMs;
+        config.native.hideAfterMs = hideMsNative;
+    },1); // Need to order after the setTimeout used deeper in the notification toast
 }
 
 /**
@@ -1791,77 +1839,86 @@ function _getSelectedNidFromStorage() {
 // Setup message info and error listeners
 window.addEventListener('message-info',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        console.log('message-info:', e.detail);
-        if (config.toast.enabled && config.toast.message.enabled) {
-            _displayToastNotification({"subject":e.detail},true);
-        }
+        console.log('message-info:',e.detail);
+        config.toast.close.enabled = false;
+        _displayToastNotification({"subject":e.detail},true);
+    }
+});
+window.addEventListener('message-info-long',function(e) {
+    if (typeof e.detail === 'string' && e.detail.trim()) {
+        console.log('message-info-long:',e.detail);
+        _displayLongToastNotification({"subject":e.detail},true);
     }
 });
 window.addEventListener('message-info-sticky',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        console.log('message-info-sticky:', e.detail);
-        if (config.toast.enabled && config.toast.message.enabled) {
-            let hideMs = config.toast.hideAfterMs;
-            let hideMsNative = config.native.hideAfterMs;
-            config.toast.hideAfterMs *= 2;
-            config.native.hideAfterMs *= 2;
-            _displayToastNotification({"subject":e.detail},true);
-            setTimeout(function() {
-                config.toast.hideAfterMs = hideMs;
-                config.native.hideAfterMs = hideMsNative;
-            },1); // Need to order after the setTimeout used deeper in the notification toast
-        }
+        console.log('message-info-sticky:',e.detail);
+        _displayStickyToastNotification({"subject":e.detail},true);
     }
 });
 window.addEventListener('message-success',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        console.log('message-success:', e.detail);
-        if (config.toast.enabled && config.toast.message.enabled) {
-            let style = config.toast.style;
-            config.toast.style = style + 'background-color:#008000;';
-            _displayToastNotification({"subject":e.detail},true);
-            config.toast.style = style;
-        }
+        let style = config.toast.style;
+        config.toast.style = style + 'background-color:#008000;';
+        config.toast.close.enabled = false;
+        console.log('message-success:',e.detail);
+        _displayToastNotification({"subject":e.detail},true);
+        config.toast.style = style;
     }
-});
+});                                     
 window.addEventListener('message-warn',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        console.warn('message-warn:', e.detail);
-        if (config.toast.enabled && config.toast.message.enabled) {
-            let style = config.toast.style;
-            config.toast.style = style + 'background-color:#FF7900;';
-            _displayToastNotification({"subject":e.detail},true);
-            config.toast.style = style;
-        }
+        let style = config.toast.style;                       
+        config.toast.style = style + 'background-color:#FF7900;';
+        config.toast.close.enabled = false;
+        console.warn('message-warn:',e.detail);
+        _displayToastNotification({"subject":e.detail},true);
+        config.toast.style = style;
+    }
+});
+window.addEventListener('message-warn-long',function(e) {
+    if (typeof e.detail === 'string' && e.detail.trim()) {
+        let style = config.toast.style;
+        config.toast.style = style + 'background-color:#FF7900;';
+        console.error('message-warn-long:',e.detail);
+        _displayLongToastNotification({"subject":e.detail},true);
+        config.toast.style = style;
+    }
+});
+window.addEventListener('message-warn-sticky',function(e) {
+    if (typeof e.detail === 'string' && e.detail.trim()) {
+        let style = config.toast.style;
+        config.toast.style = style + 'background-color:#FF7900;';
+        console.error('message-warn-sticky:',e.detail);
+        _displayStickyToastNotification({"subject":e.detail},true);
+        config.toast.style = style;
     }
 });
 window.addEventListener('message-error',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        console.error('message-error:', e.detail);
-        if (config.toast.enabled && config.toast.message.enabled) {
-            let style = config.toast.style;
-            config.toast.style = style + 'background-color:#C70000;';
-            _displayToastNotification({"subject":e.detail},true);
-            config.toast.style = style;
-        }
+        let style = config.toast.style;
+        config.toast.style = style + 'background-color:#C70000;';
+        config.toast.close.enabled = false;
+        console.error('message-error:',e.detail);
+        _displayToastNotification({"subject":e.detail},true);
+        config.toast.style = style;
+    }
+});
+window.addEventListener('message-error-long',function(e) {
+    if (typeof e.detail === 'string' && e.detail.trim()) {
+        let style = config.toast.style;
+        config.toast.style = style + 'background-color:#C70000;';
+        console.error('message-error-long:',e.detail);
+        _displayLongToastNotification({"subject":e.detail},true);
+        config.toast.style = style;
     }
 });
 window.addEventListener('message-error-sticky',function(e) {
     if (typeof e.detail === 'string' && e.detail.trim()) {
-        console.error('message-error-sticky:', e.detail);
-        if (config.toast.enabled && config.toast.message.enabled) {
-            let style = config.toast.style;
-            let hideMs = config.toast.hideAfterMs;
-            let hideMsNative = config.native.hideAfterMs;
-            config.toast.style = style + 'background-color:#C70000;';
-            config.toast.hideAfterMs *= 2;
-            config.native.hideAfterMs *= 2;
-            _displayToastNotification({"subject":e.detail},true);
-            config.toast.style = style;
-            setTimeout(function() {
-                config.toast.hideAfterMs = hideMs;
-                config.native.hideAfterMs = hideMsNative;
-            },1); // Need to order after the setTimeout used deeper in the notification toast
-         }
+        let style = config.toast.style;
+        config.toast.style = style + 'background-color:#C70000;';
+        console.error('message-error-sticky:',e.detail);
+        _displayStickyToastNotification({"subject":e.detail},true);
+        config.toast.style = style;
     }
 });
