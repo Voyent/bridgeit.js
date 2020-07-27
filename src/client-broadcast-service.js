@@ -9,11 +9,11 @@ const portMatcher = /\:(\d+)/;
 function ioURL() {
     var url;
     if (portMatcher.test(baseURL)) {
-        url = baseURL.replace(portMatcher, ':3000');
+        url = baseURL.replace(portMatcher, ':443');
     } else if (baseURL[baseURL.length - 1] == '/') {
-        url = baseURL.substring(0, baseURL.length - 1) + ':3000';
+        url = baseURL.substring(0, baseURL.length - 1) + ':443';
     } else {
-        url = baseURL + ':3000';
+        url = baseURL + ':443';
     }
 
     return url;
