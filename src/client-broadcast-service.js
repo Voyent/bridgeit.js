@@ -4,11 +4,11 @@ function BroadcastService(v, utils) {
     function ioURL() {
         var url;
         if (portMatcher.test(v.baseURL)) {
-            url = v.baseURL.replace(portMatcher, ':3000');
+            url = v.baseURL.replace(portMatcher, ':443');
         } else if (v.baseURL[v.baseURL.length - 1] == '/') {
-            url = v.baseURL.substring(0, v.baseURL.length - 1) + ':3000';
+            url = v.baseURL.substring(0, v.baseURL.length - 1) + ':443';
         } else {
-            url = v.baseURL + ':3000';
+            url = v.baseURL + ':443';
         }
 
         return url;
