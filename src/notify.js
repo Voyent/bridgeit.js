@@ -1123,20 +1123,19 @@ function _onAfterLogin() {
 }
 
 /**
- * Since we keep alert notifications in the queue across revisions, this function ensures we
- * only have a single notification in the queue for a particular alertFamilyId and zoneId.
- * http://jira.icesoft.org/browse/VRAS-546
+ * Ensure we only have a single notification in the queue for a particular `nid`.
  * @param incomingNotification
  * @private
  */
 function _removeDuplicateNotifications(incomingNotification) {
-    if (incomingNotification.alertFamilyId && incomingNotification.zoneId) {
+    if (incomingNotification.nid) {
         for (let i=queue.length-1; i>=0; i--) {
             let notificationInQueue = queue[i];
-            // Check if we already have a notification in the queue for this zone and remove it. Once
-            // we find a match we can bail as there will only be a single notification per zone
-            if (notificationInQueue.alertFamilyId === incomingNotification.alertFamilyId &&
-                notificationInQueue.zoneId === incomingNotification.zoneId) {
+            // Check if we already have a notification in the queue matching the nid and remove it.
+            // This may happen if the notification queue is refreshed just before the broadcast
+            // is received. In this case we will remove the notification from the queue and let
+            // the broadcast continue so the notification is always displayed to the user.
+            if (notificationInQueue.nid === incomingNotification.nid) {
                 reduceNotificationCount(notificationInQueue);
                 queue.splice(i,1);
                 return;
