@@ -1245,6 +1245,11 @@ function AdminService(v, keys, utils) {
 
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realm,
                     'groups/', token);
+                
+                // Add terse if requested, which will avoid getting a potentially large list of usernames
+                if (params.terse) {
+                    url += '&terse=true';
+                }
                     
                 v.$.get(url).then(function (response) {
                     v.auth.updateLastActiveTimestamp();
