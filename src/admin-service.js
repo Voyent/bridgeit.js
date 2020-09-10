@@ -1242,11 +1242,6 @@ export function getAllUserGroups(params) {
         const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'groups/', token);
         
-        // Add terse if requested, which will avoid getting a potentially large list of usernames
-        if (params.terse) {
-            url += '&terse=true';
-        }
-
         get(url).then(function (response) {
             updateLastActiveTimestamp();
             resolve(response);
