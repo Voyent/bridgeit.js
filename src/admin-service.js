@@ -1239,7 +1239,7 @@ export function getAllUserGroups(params) {
         const realm = utils.validateAndReturnRequiredRealmName(params, reject);
         const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
-        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+        let url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'groups/', token);
         
         // Add terse if requested, which will avoid getting a potentially large list of usernames
