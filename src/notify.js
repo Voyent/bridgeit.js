@@ -623,7 +623,7 @@ export const safelyGetAlertById = function(id, alerts) {
  */
 export const getAlertFamilyState = function(alertId) {
     let alert = getAlertById(alertId);
-    return (alert && alert.history && alert.history[0] && alert.history[0].state) || null;
+    return (alert && alert.latestRevision && alert.latestRevision.state) || null;
 };
 
 /**
