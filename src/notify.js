@@ -290,7 +290,7 @@ export const config = { // Config options
 
 // Useful for setting app state based on whether notifications are returned from the `refreshNotificationQueue` request
 /**
- * Fired after the `refreshNotificationQueue` is finished. Not cancelable.
+ * Fired after `refreshNotificationQueue` completes successfully but only if we got the entire list. Not cancelable.
  * @event notificationQueueRefreshed
  */
 
@@ -494,11 +494,16 @@ export const getFullGroupName = function(group, account, realm) {
 /**
  * Fetches all the notifications and associated alerts for the user. If notifications are retrieved
  * then the queue will be cleared on the client and repopulated with the retrieved notifications.
- * @param nid - A notification id. If provided then the notification matching this `nid` will be automatically selected.
+ * @param nid - A notification id. If provided then only the notification matching this `nid` will
+ *              be retrieved. The notification matching this nid will also be automatically selected.
  */
 export const refreshNotificationQueue = function(nid) {
     if (isLoggedIn()) {
-        executeModule({ id: 'user-alert-details' }).then(function(res) {
+        let params = {};
+        if (typeof nid === 'string' && nid) {
+            params.nid = nid;
+        }
+        executeModule({ id: 'user-alert-details', params: params }).then(function(res) {
             if (res && res.messages) {
                 let notifications = res.messages;
                 let notification, existingNotification;
@@ -566,8 +571,11 @@ export const refreshNotificationQueue = function(nid) {
                     }
                 }
 
-                // Fire an event indicating that we are done refreshing the queue
-                _fireEvent('notificationQueueRefreshed',{"queue":queue.slice(0)},false);
+                if (!params.nid) {
+                    // Fire an event indicating that we are done refreshing the queue but
+                    // only if we got the entire list of notifications, not just a specific nid.
+                    _fireEvent('notificationQueueRefreshed',{"queue":queue.slice(0)},false);
+                }
             }
         }).catch(function(e) {
             _fireEvent('message-error','Error trying to fetch notification: ' +
