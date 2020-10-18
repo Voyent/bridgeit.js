@@ -508,85 +508,20 @@ export const refreshNotificationQueue = function(nid) {
 export const refreshNotificationQueuePromise = function(nid) {
     return new Promise(function(resolve, reject) {
         if (isLoggedIn()) {
-            let params = {};
+            let params = { u: getLastKnownUsername() };
             if (typeof nid === 'string' && nid) {
                 params.nid = nid;
+                // If a specific notification was requested don't refresh
+                // the queue if we already have it, just select it.
+                let requestedNotification = _getNotificationByNid(params);
+                if (requestedNotification) {
+                    selectNotification(requestedNotification)
+                    return resolve();
+                }
             }
             executeModule({ id: 'user-alert-details', params: params }).then(function(res) {
-                if (res && res.messages) {
-                    let notifications = res.messages;
-                    let notification, existingNotification;
-                    clearNotificationQueue(false);
-                    alerts = [];
-                    for (let i = 0; i < notifications.length; i++) {
-                        notification = notifications[i];
-                        // Ensure we don't duplicate the notification in the queue in case it was received
-                        // in the browser via broadcast before the user navigated from a non-browser transport
-                        existingNotification = _getNotificationByNid(notification);
-                        if (existingNotification) {
-                            // Select the notification if we have a matching nid
-                            if (nid && existingNotification.nid === nid) {
-                                selectNotification(existingNotification);
-                                injectNotificationData();
-                            }
-                        }
-                        else {
-                            let cancelled = _fireEvent('beforeQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},true);
-                            if (cancelled) {
-                                continue;
-                            }
-
-                            // Check if we have a matching alert, if we do then we want to store the alert for later
-                            // lookup. We also want to port over any acknowledgement data to the notification itself
-                            if (res.alerts) {
-                                let matchingAlert = getAlertById(notification.alertId, res.alerts);
-                                if (matchingAlert) {
-                                    alerts.push(matchingAlert);
-
-                                    // Set any acknowledgement data into the notification
-                                    if (notification.zoneId &&
-                                        matchingAlert.properties && matchingAlert.properties[notification.zoneId] && matchingAlert.properties[notification.zoneId].acknowledgement) {
-                                        notification.acknowledgement = matchingAlert.properties[notification.zoneId].acknowledgement;
-                                    }
-                                }
-                            }
-                            queue.push(notification);
-                            incrementNotificationCount(notification);
-                            _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
-
-                            // Select the notification if we have a matching nid
-                            if (nid && notification.nid === nid) {
-                                selectNotification(notification);
-                                injectNotificationData();
-                            }
-                        }
-                    }
-
-                    // If we don't have a selected notification then check if we have a notification in storage to select
-                    if (!selected) {
-                        try {
-                            let nidFromStorage = _getSelectedNidFromStorage();
-                            if (nidFromStorage) {
-                                // Select the notification and inject data.
-                                let tmpNotification = {};
-                                tmpNotification[VOYENT_MAIL_QUERY_PARAMETER] = nidFromStorage;
-                                selectNotification(tmpNotification);
-                                injectNotificationData();
-                            }
-                        }
-                        catch(e) {
-                            _fireEvent('message-error','Error loading selected notification from storage: ' +
-                                                       (e.responseText || e.message || e), false);
-                        }
-                    }
-
-                    if (!params.nid) {
-                        // Fire an event indicating that we are done refreshing the queue but
-                        // only if we got the entire list of notifications, not just a specific nid.
-                        _fireEvent('notificationQueueRefreshed',{"queue":queue.slice(0)},false);
-                    }
-                    resolve();
-                }
+                loadUserAlertDetailsResponse(res, nid);
+                resolve();
             }).catch(function(e) {
                 _fireEvent('message-error','Unable to get notifications, try again later', false);
                 reject(e);
@@ -596,6 +531,85 @@ export const refreshNotificationQueuePromise = function(nid) {
             reject('user not logged in');
         }
     });
+};
+
+/**
+ * Loads the response data from the `user-alert-details` module, replacing
+ * the current queue amd alerts list with the passed response data.
+ * @param res
+ * @param nid
+ */
+export const loadUserAlertDetailsResponse = function(res, nid) {
+    if (res && res.messages) {
+        let notifications = res.messages;
+        let notification, existingNotification;
+        clearNotificationQueue(false);
+        alerts = [];
+        for (let i = 0; i < notifications.length; i++) {
+            notification = notifications[i];
+            // Ensure we don't duplicate the notification in the queue in case it was received
+            // in the browser via broadcast before the user navigated from a non-browser transport
+            existingNotification = _getNotificationByNid(notification);
+            if (existingNotification) {
+                // Select the notification if we have a matching nid
+                if (nid && existingNotification.nid === nid) {
+                    selectNotification(existingNotification);
+                    injectNotificationData();
+                }
+            }
+            else {
+                let cancelled = _fireEvent('beforeQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},true);
+                if (cancelled) {
+                    continue;
+                }
+
+                // Check if we have a matching alert, if we do then we want to store the alert for later
+                // lookup. We also want to port over any acknowledgement data to the notification itself
+                if (res.alerts) {
+                    let matchingAlert = getAlertById(notification.alertId, res.alerts);
+                    if (matchingAlert) {
+                        alerts.push(matchingAlert);
+
+                        // Set any acknowledgement data into the notification
+                        if (notification.zoneId &&
+                            matchingAlert.properties && matchingAlert.properties[notification.zoneId] && matchingAlert.properties[notification.zoneId].acknowledgement) {
+                            notification.acknowledgement = matchingAlert.properties[notification.zoneId].acknowledgement;
+                        }
+                    }
+                }
+                queue.push(notification);
+                incrementNotificationCount(notification);
+                _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
+
+                // Select the notification if we have a matching nid
+                if (nid && notification.nid === nid) {
+                    selectNotification(notification);
+                    injectNotificationData();
+                }
+            }
+        }
+
+        // If we don't have a selected notification then check if we have a notification in storage to select
+        if (!selected) {
+            try {
+                let nidFromStorage = _getSelectedNidFromStorage();
+                if (nidFromStorage) {
+                    // Select the notification and inject data.
+                    let tmpNotification = {};
+                    tmpNotification[VOYENT_MAIL_QUERY_PARAMETER] = nidFromStorage;
+                    selectNotification(tmpNotification);
+                    injectNotificationData();
+                }
+            }
+            catch(e) {
+                _fireEvent('message-error','Error loading selected notification from storage: ' +
+                    (e.responseText || e.message || e), false);
+            }
+        }
+
+        // Fire an event indicating that we are done refreshing the queue.
+        _fireEvent('notificationQueueRefreshed',{ queue: queue.slice(0), loadedNid: !nid }, false);
+    }
 };
 
 /**
