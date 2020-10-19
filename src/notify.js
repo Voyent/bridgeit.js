@@ -544,6 +544,7 @@ export const loadUserAlertDetailsResponse = function(res, nid) {
         let notifications = res.messages;
         let notification, existingNotification;
         clearNotificationQueue(false);
+        _unSelectNotification();
         alerts = [];
         for (let i = 0; i < notifications.length; i++) {
             notification = notifications[i];
@@ -968,10 +969,7 @@ export const removeSelectedNotification = function() {
     if (selected[VOYENT_MAIL_QUERY_PARAMETER]) {
         _removeNotificationFromMailbox(selected[VOYENT_MAIL_QUERY_PARAMETER]);
     }
-    selected = null;
-    _setSelectedNotificationInStorage();
-    _fireEvent('notificationChanged',{"notification":selected},false);
-    autoSelectNotification();
+    _unSelectNotification();
     return true;
 };
 
@@ -1083,6 +1081,19 @@ const _selectNotification = function(notification, index) {
     queuePosition = index;
     _setSelectedNotificationInStorage();
     _fireEvent('notificationChanged',{"notification":selected},false);
+};
+
+/**
+ * Unselects the currently selected notification.
+ * @private
+ */
+const _unSelectNotification = function() {
+    if (selected) {
+        selected = null;
+        _setSelectedNotificationInStorage();
+        _fireEvent('notificationChanged', { notification: selected }, false);
+        autoSelectNotification();
+    }
 };
 
 /**
