@@ -290,7 +290,7 @@ export const config = { // Config options
 
 // Useful for setting app state based on whether notifications are returned from the `refreshNotificationQueue` request
 /**
- * Fired after `refreshNotificationQueue` completes successfully but only if we got the entire list. Not cancelable.
+ * Fired after `refreshNotificationQueue` completes successfully. Not cancelable.
  * @event notificationQueueRefreshed
  */
 
@@ -608,7 +608,11 @@ export const loadUserAlertDetailsResponse = function(res, nid) {
         }
 
         // Fire an event indicating that we are done refreshing the queue.
-        _fireEvent('notificationQueueRefreshed',{ queue: queue.slice(0), loadedNid: !nid }, false);
+        let event = { queue: queue.slice(0) };
+        if (nid) {
+            event.nid = nid;
+        }
+        _fireEvent('notificationQueueRefreshed', event, false);
     }
 };
 
