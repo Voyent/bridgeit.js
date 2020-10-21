@@ -62,6 +62,12 @@ export let alerts = [];
 export let queuePosition = -1;
 
 /**
+ * @property {boolean} alertListUpdatePending - Whether we are currently getting
+ * the alert record for an alert notification broadcast that we received (readonly).
+ */
+export let alertListUpdatePending = false;
+
+/**
  * @property {number} activeNotificationCount - The number of active notifications in the queue (readonly).
  */
 let activeNotificationCount = 0;
@@ -367,7 +373,9 @@ export const startListening = function() {
         if (cancelled) {
             return;
         }
+        alertListUpdatePending = true;
         _addAlertToList(notification.alertId).then(function() {
+            alertListUpdatePending = false;
             _removeDuplicateNotifications(notification);
             queue.push(notification);
             incrementNotificationCount(notification);
@@ -515,10 +523,12 @@ export const refreshNotificationQueuePromise = function(nid) {
                 // the queue if we already have it, just select it.
                 let requestedNotification = _getNotificationByNid(params);
                 if (requestedNotification) {
+                    console.log('DEBUG: already have requested notification in queue, selecting it');
                     selectNotification(requestedNotification)
                     return resolve();
                 }
             }
+            console.log('DEBUG: executing user-alert-details with params:', JSON.stringify(params));
             executeModule({ id: 'user-alert-details', params: params }).then(function(res) {
                 loadUserAlertDetailsResponse(res, nid);
                 resolve();
@@ -541,6 +551,7 @@ export const refreshNotificationQueuePromise = function(nid) {
  */
 export const loadUserAlertDetailsResponse = function(res, nid) {
     if (res && res.messages) {
+        console.log('DEBUG: triggered loadUserAlertDetailsResponse');
         let notifications = res.messages;
         let notification, existingNotification;
         clearNotificationQueue(false);
@@ -584,6 +595,7 @@ export const loadUserAlertDetailsResponse = function(res, nid) {
 
                 // Select the notification if we have a matching nid
                 if (nid && notification.nid === nid) {
+                    console.log('DEBUG: selecting notification:', nid);
                     selectNotification(notification);
                     injectNotificationData();
                 }
@@ -1223,12 +1235,14 @@ function _addAlertToList(alertId) {
         queuedAlertPromises[alertId] = [];
 
         // Fetch the alert and add it the list
+        console.log('DEBUG: triggering get-alert-family-history');
         executeModule({
             id: 'get-alert-family-history',
             params: { alertIds: [ alertId ] }
         }).then(function(res) {
             let alert = (res && res[0]) || null;
             if (alert) {
+                console.log('DEBUG: get-alert-family-history -> adding alert to list with id:', alertId);
                 alerts.push(alert);
             }
             resolve(alert);
