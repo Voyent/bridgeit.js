@@ -555,7 +555,6 @@ export const loadUserAlertDetailsResponse = function(res, nid) {
         let notifications = res.messages;
         let notification, existingNotification;
         clearNotificationQueue(false);
-        _unSelectNotification();
         alerts = [];
         for (let i = 0; i < notifications.length; i++) {
             notification = notifications[i];
