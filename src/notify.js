@@ -62,6 +62,12 @@ export let alerts = [];
 export let queuePosition = -1;
 
 /**
+ * @property {boolean} alertListUpdatePending - Whether we are currently getting
+ * the alert record for an alert notification broadcast that we received (readonly).
+ */
+export let alertListUpdatePending = false;
+
+/**
  * @property {number} activeNotificationCount - The number of active notifications in the queue (readonly).
  */
 let activeNotificationCount = 0;
@@ -367,7 +373,9 @@ export const startListening = function() {
         if (cancelled) {
             return;
         }
+        alertListUpdatePending = true;
         _addAlertToList(notification.alertId).then(function() {
+            alertListUpdatePending = false;
             _removeDuplicateNotifications(notification);
             queue.push(notification);
             incrementNotificationCount(notification);
@@ -543,7 +551,7 @@ export const refreshNotificationQueuePromise = function(nid) {
  */
 export const loadUserAlertDetailsResponse = function(res, nid) {
     if (res && res.messages) {
-        console.log('DEBUG: triggered loadUserAlertDetailsResponse:', JSON.stringify(res));
+        console.log('DEBUG: triggered loadUserAlertDetailsResponse');
         let notifications = res.messages;
         let notification, existingNotification;
         clearNotificationQueue(false);
@@ -617,7 +625,6 @@ export const loadUserAlertDetailsResponse = function(res, nid) {
         if (nid) {
             event.nid = nid;
         }
-        console.log('DEBUG: firing notificationQueueRefreshed event:', JSON.stringify(event));
         _fireEvent('notificationQueueRefreshed', event, false);
     }
 };
@@ -1228,12 +1235,14 @@ function _addAlertToList(alertId) {
         queuedAlertPromises[alertId] = [];
 
         // Fetch the alert and add it the list
+        console.log('DEBUG: triggering get-alert-family-history');
         executeModule({
             id: 'get-alert-family-history',
             params: { alertIds: [ alertId ] }
         }).then(function(res) {
             let alert = (res && res[0]) || null;
             if (alert) {
+                console.log('DEBUG: get-alert-family-history -> adding alert to list with id:', alertId);
                 alerts.push(alert);
             }
             resolve(alert);
