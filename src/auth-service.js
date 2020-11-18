@@ -649,6 +649,22 @@ export function getTimeRemainingBeforeExpiry() {
     }
 }
 
+export function getLoginParams() {
+    const loginParams = getConnectSettings();
+    if (!loginParams) {
+        return null;
+    }
+    
+    loginParams.account = atob(utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY)));
+    loginParams.realm = atob(utils.getSessionStorageItem(btoa(keys.REALM_KEY)));
+    loginParams.host = atob(utils.getSessionStorageItem(btoa(keys.HOST_KEY)));
+    loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
+    loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
+    loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
+    
+    return loginParams;
+}
+
 export function getConnectSettings() {
     const settingsStr = utils.getSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
     if (settingsStr) {
