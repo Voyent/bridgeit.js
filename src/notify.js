@@ -367,7 +367,7 @@ export const startListening = function() {
             console.log('Notification received but ignored due to value:', notification);
             return;
         }
-        console.log('Broadcast received:',JSON.stringify(notification));
+        // console.log('Broadcast received:',JSON.stringify(notification));
         _fireEvent('broadcastReceived',{"notification":notification},false);
         let cancelled = _fireEvent('beforeBroadcastAdded',{"notification":notification,"queue":queue.slice(0)},true);
         if (cancelled) {
