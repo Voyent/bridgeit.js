@@ -145,10 +145,15 @@ export function getLastTransactionId() {
  *
  * @alias setCurrentRealm
  * @global
- * @param {String} realm The name of thre realm to use for future operations.
+ * @param {String} realm The name of thre realm to use for future operations. If `undefined` the current realm will be cleared
  */
 export function setCurrentRealm(realm) {
-    privateUtils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+    if (typeof realm !== 'undefined') {
+        privateUtils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+    }
+    else {
+        privateUtils.removeSessionStorageItem(btoa(keys.REALM_KEY));
+    }
 }
 
 /**
