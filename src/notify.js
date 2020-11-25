@@ -1110,6 +1110,11 @@ const _unSelectNotification = function() {
  * @param {object} notification - The notification to display.
  */
 export const displayAlertNotification = function (notification) {
+    // Abort if we don't have anything to display
+    if (!notification || (!notification.detail && !notification.subject)) {
+        return;
+    }
+    
     if (config.native.enabled && window.Notification && Notification.permission === 'granted') {
         _displayNativeNotification(notification);
     }
