@@ -430,7 +430,7 @@ export function uploadFilesToModule(params) {
                 return reject((Error('The files parameter is empty')));
             }
 
-            const url = utils.getRealmResourceURL(v.actionURL, account, realm,
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
                 'modules/' + params.id, token);
 
             post(url, formData, null, true, null, params.progressCb).then(function (response) {
@@ -443,6 +443,41 @@ export function uploadFilesToModule(params) {
         }
     );
 }
+
+/**
+ * Get preview metrics.
+ * @memberOf voyent.action
+ * @alias getPreviewMetrics
+ * @param {Object} params params
+ * @param {String} params.id The preview metrics id, the preview metrics to get (required).
+ * @param {String} params.account Voyent Services account name (optional).
+ * @param {String} params.realm The Voyent Services realm (optional).
+ * @param {String} params.accessToken The Voyent authentication token (optional).
+ * @param {String} params.host The Voyent Services host url (optional).
+ * @returns {Object} The preview metrics.
+ */
+export function getPreviewMetrics(params) {
+    return new Promise(
+        function (resolve, reject) {
+            params = params ? params : {};
+
+            const account = utils.validateAndReturnRequiredAccount(params, reject);
+            const realm = utils.validateAndReturnRequiredRealm(params, reject);
+            const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+            utils.validateRequiredId(params, reject);
+
+            const url = utils.getRealmResourceURL(actionURL, account, realm,
+                'previewMetrics/' + params.id, token);
+
+            getJSON(url).then(function (previewMetrics) {
+                updateLastActiveTimestamp();
+                resolve(previewMetrics);
+            })['catch'](function (error) {
+                reject(error);
+            });
+        }
+    );
+};
 
 export function getResourcePermissions(params) {
     params.service = 'action';
