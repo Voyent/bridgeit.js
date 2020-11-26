@@ -442,6 +442,41 @@ function ActionService(v, utils) {
             );
         },
 
+        /**
+         * Get preview metrics.
+         * @memberOf voyent.action
+         * @alias getPreviewMetrics
+         * @param {Object} params params
+         * @param {String} params.id The preview metrics id, the preview metrics to get (required).
+         * @param {String} params.account Voyent Services account name (optional).
+         * @param {String} params.realm The Voyent Services realm (optional).
+         * @param {String} params.accessToken The Voyent authentication token (optional).
+         * @param {String} params.host The Voyent Services host url (optional).
+         * @returns {Object} The preview metrics.
+         */
+        getPreviewMetrics: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.actionURL, account, realm,
+                        'previewMetrics/' + params.id, token);
+
+                    v.$.getJSON(url).then(function(previewMetrics) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(previewMetrics);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
         getResourcePermissions: function (params) {
             params.service = 'action';
             params.path = 'actions';
