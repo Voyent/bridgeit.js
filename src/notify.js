@@ -1124,6 +1124,24 @@ export const displayAlertNotification = function (notification) {
 };
 
 /**
+ * Hide all visible notifications
+ */
+export const hideAllNotifications = function() {
+    if (_queuedToasts) {
+        _hideNotifications(_queuedToasts['bottom-left']);
+        _hideNotifications(_queuedToasts['bottom-right']);
+        _hideNotifications(_queuedToasts['top-left']);
+        _hideNotifications(_queuedToasts['top-right']);
+    }
+    if (_displayedToasts) {
+        _hideNotifications(_displayedToasts['bottom-left']);
+        _hideNotifications(_displayedToasts['bottom-right']);
+        _hideNotifications(_displayedToasts['top-left']);
+        _hideNotifications(_displayedToasts['top-right']);
+    }
+};
+
+/**
  * Manually hides a notification.
  * @param {Object} notification - A toast or browser native notification reference.
  * @param {number} ms - The number of milliseconds to wait before hiding the notification.
@@ -1488,6 +1506,20 @@ function _displayToast(notificationData) {
     }
     if (!notificationData.toast.getAttribute('data-is-message')) {
         _fireEvent('afterDisplayNotification',{"notification":notificationData.notification,"toast":notificationData.toast},false);
+    }
+}
+
+/**
+ * Loop through the passed list of notifications and hide them
+ * This is meant to be used in concert with _displayedToasts and _queuedToasts
+ * @param {Array} list - The list of notifications to hide
+ * @private
+ */
+function _hideNotifications(list) {
+    if (list && list.length > 0) {
+        for (var hideLoop = 0; hideLoop < list.length; hideLoop++) {
+            hideNotification(list[hideLoop],0);
+        }
     }
 }
 
