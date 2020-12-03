@@ -6161,6 +6161,41 @@ function ActionService(v, utils) {
             );
         },
 
+        /**
+         * Get notification history.
+         * @memberOf voyent.action
+         * @alias getNotificationHistory
+         * @param {Object} params params
+         * @param {String} params.id The notification history document id, the notification history document to get (required).
+         * @param {String} params.account Voyent Services account name (optional).
+         * @param {String} params.realm The Voyent Services realm (optional).
+         * @param {String} params.accessToken The Voyent authentication token (optional).
+         * @param {String} params.host The Voyent Services host url (optional).
+         * @returns {Object} The notification history.
+         */
+        getNotificationHistory: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+
+                    var account = utils.validateAndReturnRequiredAccount(params, reject);
+                    var realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    var token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    utils.validateRequiredId(params, reject);
+
+                    var url = utils.getRealmResourceURL(v.actionURL, account, realm,
+                        'notificationHistory/' + params.id, token);
+
+                    v.$.getJSON(url).then(function(notificationHistory) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(notificationHistory);
+                    })['catch'](function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
         getResourcePermissions: function (params) {
             params.service = 'action';
             params.path = 'actions';
