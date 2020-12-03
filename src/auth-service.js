@@ -200,7 +200,12 @@ export function login(params) {
             }
             utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
             utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
-            utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa(params.admin));
+            if (params.admin) {
+                utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa(params.admin));
+            }
+            else {
+                utils.removeSessionStorageItem(btoa(keys.ADMIN_KEY));
+            }
             fireEvent(window, 'voyent-login-succeeded', {});
             resolve(authResponse);
         })['catch'](function (error) {
@@ -471,8 +476,10 @@ export function connect(params) {
                 ssl: params.ssl,
                 storeCredentials: params.storeCredentials || true,
                 onSessionExpiry: params.onSessionExpiry,
-                admin: params.admin
             };
+            if (params.admin) {
+                settings.admin = params.admin;
+            }
 
             //settings.connectionTimeout = 5;
 
@@ -530,19 +537,13 @@ export function refreshAccessToken(isRetryAttempt) {
             reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
         }
         else {
-            let loginParams = getConnectSettings();
+            let loginParams = getLoginParams();
             if (!loginParams) {
                 fireEvent(window, 'voyent-access-token-refresh-failed', {});
                 reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
             }
             else {
-                loginParams.account = atob(utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY)));
-                loginParams.realm = atob(utils.getSessionStorageItem(btoa(keys.REALM_KEY)));
-                loginParams.host = atob(utils.getSessionStorageItem(btoa(keys.HOST_KEY)));
-                loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
-                loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
                 loginParams.suppressUpdateTimestamp = true;
-                loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
                 console.log('voyent.auth.refreshAccessToken()');
                 login(loginParams).then(function (authResponse) {
                     fireEvent(window, 'voyent-access-token-refreshed', getLastAccessToken());
@@ -660,7 +661,9 @@ export function getLoginParams() {
     loginParams.host = atob(utils.getSessionStorageItem(btoa(keys.HOST_KEY)));
     loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
     loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
-    loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
+    if (utils.getSessionStorageItem(btoa(keys.ADMIN_KEY))) {
+        loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
+    }
     
     return loginParams;
 }
