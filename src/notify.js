@@ -480,7 +480,8 @@ const leavePassedGroup = function(group) {
             bStopListening({
                 'group': group
             }).then(function() {
-                groups.splice(index,1);
+                // The index may change so get it again before splicing.
+                groups.splice(groups.indexOf(group),1);
             }).catch(function(e) {
                 console.error(e);
             });
@@ -1227,6 +1228,7 @@ function addRealmChangedListener() {
             lastKnownRealm !== newRealm) {
             leaveAllGroups();
         }
+        lastKnownRealm = newRealm;
     });
 }
 
