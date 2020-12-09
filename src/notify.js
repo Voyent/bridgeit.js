@@ -465,6 +465,14 @@ export const joinGroup = function(group, account, realm) {
  */
 export const leaveGroup = function(group, account, realm) {
     group = getFullGroupName(group, account, realm);
+    leavePassedGroup(group);
+};
+
+/**
+ * Private function that allows us to remove the passed group without namespacing the group name.
+ * @param group
+ */
+const leavePassedGroup = function(group) {
     if (group) {
         // Ensure we are actually in this group
         let index = groups.indexOf(group);
@@ -1229,7 +1237,7 @@ function addRealmChangedListener() {
 function leaveAllGroups() {
     if (groups && groups.length) {
         for (let i=0; i<groups.length; i++) {
-            leaveGroup(groups[i]);
+            leavePassedGroup(groups[i]);
         }
     }
 }
