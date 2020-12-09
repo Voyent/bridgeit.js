@@ -27,6 +27,8 @@ var _isInitialized = false; // Indicates if voyentNotifyInitialized has fired.
 let _listener = null; // Reference to the push listener
 let _pushServiceStarted = false; // Flag indicating if the push service is initialized
 let _queuedGroups = []; // Groups waiting for the push service to be started before they are joined
+let queuedAlertPromises = {};
+let lastKnownRealm = '';
 
 //**************************************************************************************************************
 //************************************************* PUBLIC API *************************************************
@@ -411,9 +413,7 @@ export const startListening = function() {
  * by the library after calling this function but the other features of the library will still be available.
  */
 export const stopListening = function() {
-    for (let i=0; i<groups.length; i++) {
-        leaveGroup(groups[i]);
-    }
+    leaveAllGroups();
     _listener = null;
     // Since they explicitly stopped listening them remove the login listener as well
     window.removeEventListener('onAfterLogin', _onAfterLogin);
@@ -1176,8 +1176,6 @@ export const hideNotification = function(notification,ms) {
 //************************************************** PRIVATE API ***************************************************
 //******************************************************************************************************************
 
-let queuedAlertPromises = {};
-
 /**
  * After the user is authenticated install the toast container and request native notification permissions.
  * mailboxes.
@@ -1191,6 +1189,9 @@ function _onAfterLogin() {
             _isInitialized = true;
         }
 
+        // Add a realm changed listener to manage the groups
+        addRealmChangedListener();
+
         // Add our custom toast parent element to the page
         if (!document.getElementById(VOYENT_TOAST_CONTAINER_ID)) {
             _createToastContainer();
@@ -1199,6 +1200,36 @@ function _onAfterLogin() {
         // Check for desktop notification support and request permission
         if (config.native.enabled && _isNewNotificationSupported()) {
             Notification.requestPermission(function(permission){});
+        }
+    }
+}
+
+/**
+ * Add a listener that listens for realm changes via the `voyent-realm-changed`
+ * event. When the realm changes we will leave all the current groups. It is
+ * the app's responsibility to rejoin any groups it may have joined.
+ * @private
+ */
+function addRealmChangedListener() {
+    lastKnownRealm = getLastKnownRealm();
+    window.addEventListener('voyent-realm-changed', function(e) {
+        let newRealm = e.detail;
+        if (typeof newRealm === 'string' && newRealm.trim().length &&
+            typeof lastKnownRealm === 'string' && lastKnownRealm.trim().length &&
+            lastKnownRealm !== newRealm) {
+            leaveAllGroups();
+        }
+    });
+}
+
+/**
+ * Leaves all groups that the user belongs to.
+ * @private
+ */
+function leaveAllGroups() {
+    if (groups && groups.length) {
+        for (let i=0; i<groups.length; i++) {
+            leaveGroup(groups[i]);
         }
     }
 }
