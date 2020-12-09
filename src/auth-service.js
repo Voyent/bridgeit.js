@@ -29,31 +29,6 @@ function AuthService(v, keys, utils) {
         }
     }
 
-    function fireEvent(el, eventName, detail) {
-        var event;
-        if ('CustomEvent' in window) {
-            event = new CustomEvent(eventName, {'detail': detail});
-        }
-        else if (document.createEvent) {//IE 10 & other older browsers
-            event = document.createEvent('HTMLEvents');
-            event.initEvent(eventName, true, true);
-        }
-        else if (document.createEventObject) {// IE < 9
-            event = document.createEventObject();
-            event.eventType = eventName;
-        }
-        event.eventName = eventName;
-        if (el.dispatchEvent) {
-            el.dispatchEvent(event);
-        } else if (el.fireEvent && htmlEvents['on' + eventName]) {// IE < 9
-            el.fireEvent('on' + event.eventType, event);// can trigger only real event (e.g. 'click')
-        } else if (el[eventName]) {
-            el[eventName]();
-        } else if (el['on' + eventName]) {
-            el['on' + eventName]();
-        }
-    }
-
     return {
 
         /**
@@ -205,7 +180,7 @@ function AuthService(v, keys, utils) {
                     if (params.scopeToPath) {
                         utils.setSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
                     }
-                    fireEvent(window, 'voyent-login-succeeded', {});
+                    v._fireEvent(window, 'voyent-login-succeeded', {});
                     resolve(authResponse);
                 })['catch'](function (error) {
                     reject(error);
@@ -534,19 +509,19 @@ function AuthService(v, keys, utils) {
         refreshAccessToken: function (isRetryAttempt) {
             return new Promise(function (resolve, reject) {
                 if (!v.auth.isLoggedIn()) {
-                    fireEvent(window, 'voyent-access-token-refresh-failed', {});
+                    v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
                     reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
                 }
                 else {
                     var loginParams = v.auth.getLoginParams();
                     if (!loginParams) {
-                        fireEvent(window, 'voyent-access-token-refresh-failed', {});
+                        v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
                         console.log('voyent.auth.refreshAccessToken()');
                         v.auth.login(loginParams).then(function (authResponse) {
-                            fireEvent(window, 'voyent-access-token-refreshed', v.auth.getLastAccessToken());
+                            v._fireEvent(window, 'voyent-access-token-refreshed', v.auth.getLastAccessToken());
                             if (loginParams.usePushService) {
                                 // v.push.startPushService(loginParams);
                             }
@@ -563,7 +538,7 @@ function AuthService(v, keys, utils) {
                             }
                             else {
                                 console.log('Failed to refresh token on retry:',errorResponse);
-                                fireEvent(window, 'voyent-access-token-refresh-failed', {});
+                                v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
                                 reject(errorResponse);
                             }
                         });
