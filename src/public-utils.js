@@ -150,6 +150,7 @@ export function getLastTransactionId() {
 export function setCurrentRealm(realm) {
     if (typeof realm !== 'undefined') {
         privateUtils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
+        privateUtils.fireEvent(window, 'voyent-realm-changed', realm);
     }
     else {
         privateUtils.removeSessionStorageItem(btoa(keys.REALM_KEY));

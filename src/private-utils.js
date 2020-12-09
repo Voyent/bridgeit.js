@@ -318,3 +318,28 @@ export function findFunctionInGlobalScope(fn) {
         return fn;
     }
 }
+
+export function fireEvent(el, eventName, detail) {
+    let event;
+    if ('CustomEvent' in window) {
+        event = new CustomEvent(eventName, {'detail': detail});
+    }
+    else if (document.createEvent) {//IE 10 & other older browsers
+        event = document.createEvent('HTMLEvents');
+        event.initEvent(eventName, true, true);
+    }
+    else if (document.createEventObject) {// IE < 9
+        event = document.createEventObject();
+        event.eventType = eventName;
+    }
+    event.eventName = eventName;
+    if (el.dispatchEvent) {
+        el.dispatchEvent(event);
+    } else if (el.fireEvent && htmlEvents['on' + eventName]) {// IE < 9
+        el.fireEvent('on' + event.eventType, event);// can trigger only real event (e.g. 'click')
+    } else if (el[eventName]) {
+        el[eventName]();
+    } else if (el['on' + eventName]) {
+        el['on' + eventName]();
+    }
+}
