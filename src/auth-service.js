@@ -496,6 +496,10 @@ export function connect(params) {
         else {
             login(params).then(function (authResponse) {
                 console.log(new Date().toISOString() + ' voyent.auth.connect: received auth response');
+                // Set the username from the response so we have the exact username with proper letter casing.
+                if (authResponse.username) {
+                    params.username = authResponse.username;
+                }
                 saveCredentials();
                 initConnectCallback();
                 resolve(authResponse);
