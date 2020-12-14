@@ -32,9 +32,10 @@ export function getMetrics(params) {
 
             const txParam = utils.getTransactionURLParam();
             const url = activityURL +
-                '/' + account + '/realms/' + realm + '/billingSummary?' +
+                '/' + account + '/realms/' + realm + '/' + (params.date ? 'dailyBillingReport' : 'billingSummary') + '?' +
                 (token ? 'access_token=' + token : '') +
-                (txParam ? '&' + txParam : '') + '&year=' + params.year + "&month=" + params.month;
+                (txParam ? '&' + txParam : '') + '&year=' + params.year + "&month=" + params.month +
+                (params.date ? ('&date=' + params.date) : '');
             getJSON(url).then(function (data) {
                 updateLastActiveTimestamp();
                 resolve(data);

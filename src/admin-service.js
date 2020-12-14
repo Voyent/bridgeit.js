@@ -229,11 +229,17 @@ export function getBillingReport(params){
         const realmName = utils.validateAndReturnRequiredRealmName(params, reject);
         let url;
         if(params.month && params.year){
-            url = sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
-                + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month;
+            if(params.date){
+                url = sysAdminURL + '/' + account + '/realms/' + realmName + '/dailyBillingSummary'
+                    + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month + "&date=" + params.date;
+            }
+            else{
+                url = sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
+                    + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month;
+            }
         }
         else {
-            //no month/year, just get most recent.
+           //no month/year, just get most recent.
             url = sysAdminURL + '/' + account + '/realms/' + realmName + '/billingSummary'
                 + '?access_token=' + token + '&' + utils.getTransactionURLParam();
         }
