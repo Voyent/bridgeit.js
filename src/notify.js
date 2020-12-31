@@ -598,8 +598,10 @@ export const loadUserAlertDetailsResponse = function(res, nid) {
                 incrementNotificationCount(notification);
                 _fireEvent('afterQueueUpdated',{"op":"add","notification":notification,"queue":queue.slice(0)},false);
 
-                // Select the notification if we have a matching nid
-                if (nid && notification.nid === nid) {
+                // Select the notification if we have a matching nid or reselect the notification
+                // already selected in case its properties changed (such as `isZoneOutdated`).
+                if ((nid && notification.nid === nid) ||
+                    (!nid && selected && selected.nid && selected.nid === notification.nid)) {
                     selectNotification(notification);
                     injectNotificationData();
                 }
