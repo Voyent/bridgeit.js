@@ -927,10 +927,15 @@ export function getRecipients(params) {
         const account = utils.validateAndReturnRequiredAccount(params, reject);
         const realm = utils.validateAndReturnRequiredRealmName(params, reject);
         const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const opts = params.opts && typeof params.opts === 'object'
+            ? encodeURIComponent(JSON.stringify(params.opts))
+            : '{}';
 
         // Build the URL.
         const url = utils.getRealmResourceURL(authAdminURL, account, realm,
-            'recipients', token
+            'recipients', token, {
+                opts: opts
+            }
         );
 
         // Make the request.
