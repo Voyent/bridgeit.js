@@ -369,7 +369,7 @@ export const startListening = function() {
             console.log('Broadcast received but ignored due to value:', notification);
             return;
         }
-        console.log('Broadcast received:', JSON.stringify(notification));
+        console.log('DEBUG -> Broadcast received:', JSON.stringify(notification));
         _fireEvent('broadcastReceived',{"notification":notification},false);
         let cancelled = _fireEvent('beforeBroadcastAdded',{"notification":notification,"queue":queue.slice(0)},true);
         if (cancelled) {
@@ -442,7 +442,7 @@ export const joinGroup = function(group, account, realm) {
                 'group': group,
                 'callback': _listener
             }).then(function() {
-                console.log('Joined group:', group);
+                console.log('DEBUG -> Joined group:', group);
                 // Remove the group from the queue
                 let index = _queuedGroups.indexOf(group);
                 if (index > -1) {
@@ -537,7 +537,9 @@ export const refreshNotificationQueuePromise = function(nid) {
                     return resolve();
                 }
             }
+            console.log('DEBUG -> Refreshing notification queue...');
             executeModule({ id: 'user-alert-details', params: params }).then(function(res) {
+                console.log('DEBUG -> Notification queue results:', JSON.stringify(res));
                 loadUserAlertDetailsResponse(res, nid);
                 resolve();
             }).catch(function(e) {
