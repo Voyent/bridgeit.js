@@ -91,6 +91,13 @@ export function validateAndReturnRequiredUsername(params, reject) {
     }
 }
 
+export function validateAndReturnRequiredUser(params, reject) {
+    if (!params.user || typeof params.user !== 'object') {
+        return reject(Error('The user parameter is required'));
+    }
+    return params.user;
+}
+
 export function validateRequiredUsername(params, reject) {
     validateParameter('username', 'The username parameter is required', params, reject);
 }
