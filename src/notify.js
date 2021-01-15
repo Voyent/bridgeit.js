@@ -366,10 +366,10 @@ export const startListening = function() {
     // Declare push listener
     _listener = function (notification) {
         if (!_isNotificationValid(notification)) {
-            console.log('Notification received but ignored due to value:', notification);
+            console.log('Broadcast received but ignored due to value:', notification);
             return;
         }
-        // console.log('Broadcast received:',JSON.stringify(notification));
+        console.log('Broadcast received:', JSON.stringify(notification));
         _fireEvent('broadcastReceived',{"notification":notification},false);
         let cancelled = _fireEvent('beforeBroadcastAdded',{"notification":notification,"queue":queue.slice(0)},true);
         if (cancelled) {
@@ -442,6 +442,7 @@ export const joinGroup = function(group, account, realm) {
                 'group': group,
                 'callback': _listener
             }).then(function() {
+                console.log('Joined group:', group);
                 // Remove the group from the queue
                 let index = _queuedGroups.indexOf(group);
                 if (index > -1) {
