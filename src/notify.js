@@ -363,6 +363,8 @@ export const startListening = function() {
         return;
     }
 
+    console.log('DEBUG -> startListening triggered');
+
     // Declare push listener
     _listener = function (notification) {
         if (!_isNotificationValid(notification)) {
