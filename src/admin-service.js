@@ -702,24 +702,22 @@ export function createAnonUser(params) {
 
         const account = utils.validateAndReturnRequiredAccount(params, reject);
         const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const user = utils.validateAndReturnRequiredUser(params, reject);
 
         const url = utils.getRealmResourceURL(authAdminURL, account, realm,
             'register', false);
 
-        const password = generatePassword();
-        const toPost = {user: {password: password}};
+        user.password = generatePassword();
+        const toPost = { user: user };
 
         if (params.metadata) {
             toPost.metadata = params.metadata;
-        }
-        if (params.custom) {
-            toPost.user.custom = params.custom;
         }
 
         post(url, toPost).then(function (response) {
             updateLastActiveTimestamp();
             const anonUser = {
-                password: password,
+                password: user.password,
                 username: response.resourceLocation.substring(response.resourceLocation.lastIndexOf('/') + 1),
                 deregistrationToken: response.deregistrationToken
             };
@@ -745,21 +743,16 @@ export function createUser(params) {
 
         const account = utils.validateAndReturnRequiredAccount(params, reject);
         const realm = utils.validateAndReturnRequiredRealm(params, reject);
+        const user = utils.validateAndReturnRequiredUser(params, reject);
 
         const url = utils.getRealmResourceURL(authAdminURL, account, realm, 'register');
 
-        // Check for user data
-        if (!params.user) {
-            reject(Error('No user data to submit was found'));
-            return;
-        }
-
         // If no password is found, generate one
-        if (!params.user.password) {
-            params.user.password = generatePassword();
+        if (!user.password) {
+            user.password = generatePassword();
         }
 
-        post(url, params).then(function (response) {
+        post(url, { user: user }).then(function (response) {
             resolve(response);
         })['catch'](function (error) {
             reject(error);
