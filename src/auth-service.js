@@ -202,34 +202,38 @@ export function login(params) {
  * @param {String} params.expires_in Token expiry, in milliseconds (required)
  */
 export function storeLogin(params) {
-    if (!params.access_token) {
-        reject(Error('Voyent access token is required'));
-        return;
-    }
-    if (!params.expires_in) {
-        reject(Error('Voyent access token expiry is required'));
-        return;
-    }
-    if (!params.account) {
-        reject(Error('Voyent account is required'));
-        return;
-    }
-    if (!params.realm) {
-        reject(Error('Voyent realm is required'));
-        return;
-    }
-    if (!params.username) {
-        reject(Error('Voyent username is required'));
-        return;
-    }
-
-    updateLastActiveTimestamp();
-    utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), params.access_token);
-    utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), params.expires_in);
-    utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), new Date().getTime());
-    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
-    utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
-    utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+    return new Promise(function(resolve, reject) {
+        if (!params.access_token) {
+            reject(Error('Voyent access token is required'));
+            return;
+        }
+        if (!params.expires_in) {
+            reject(Error('Voyent access token expiry is required'));
+            return;
+        }
+        if (!params.account) {
+            reject(Error('Voyent account is required'));
+            return;
+        }
+        if (!params.realm) {
+            reject(Error('Voyent realm is required'));
+            return;
+        }
+        if (!params.username) {
+            reject(Error('Voyent username is required'));
+            return;
+        }
+    
+        updateLastActiveTimestamp();
+        utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), params.access_token);
+        utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), params.expires_in);
+        utils.setSessionStorageItem(btoa(keys.TOKEN_SET_KEY), new Date().getTime());
+        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
+        utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
+        utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+        
+        resolve();
+    });
 }
 
 /**
