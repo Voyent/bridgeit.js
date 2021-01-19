@@ -3470,6 +3470,9 @@ function AuthService(v, keys, utils) {
                 utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(utils.sanitizeAccountName(params.account)));
                 utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
                 utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+                if (params.scopeToPath) {
+                    utils.setSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
+                }
                 
                 resolve();
             });
@@ -3910,8 +3913,10 @@ function AuthService(v, keys, utils) {
                 isDev = window.location.port !== '';
                 currentPath = window.location.pathname;
             }
+            console.log("isDev " + isDev + " and currentPath=" + currentPath + " and scopeToPath=" + scopeToPath);
+            
             var result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) ) && (utils.isNode || (!utils.isNode && (isDev || currentPath.indexOf(scopeToPath) === 0)));
-            console.log('v.auth.isLoggedIn=' + result + ': token=' + token + ' tokenExpiresIn=' + tokenExpiresIn + 'tokenSetAt=' + tokenSetAt + ' (new Date().getTime() < (tokenExpiresIn + tokenSetAt))=' + (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) + ' (currentPath.indexOf(scopeToPath) === 0)=' + (currentPath.indexOf(scopeToPath) === 0));
+            //console.log('v.auth.isLoggedIn=' + result + ': token=' + token + ' tokenExpiresIn=' + tokenExpiresIn + 'tokenSetAt=' + tokenSetAt + ' (new Date().getTime() < (tokenExpiresIn + tokenSetAt))=' + (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) + ' (currentPath.indexOf(scopeToPath) === 0)=' + (currentPath.indexOf(scopeToPath) === 0));
             return !!result;
         },
 
