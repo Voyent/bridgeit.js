@@ -1342,7 +1342,7 @@ export function updateUserGroup(params) {
         const token = utils.validateAndReturnRequiredAccessToken(params, reject);
 
         const url = utils.getRealmResourceURL(authAdminURL, account, realm,
-            'groups/' + params.group.name, token);
+            'groups/' + params.group.groupId, token);
 
         put(url, { group: params.group }).then(function (response) {
             updateLastActiveTimestamp();
