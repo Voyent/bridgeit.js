@@ -665,6 +665,11 @@ export function getConnectSettings() {
 }
 
 export function isLoggedIn() {
+    if (isValidString(utils.getAppCredential('account')) &&
+        isValidString(utils.getAppCredential('realm')) &&
+        isValidString(utils.getAppCredential('token'))) {
+        return true;
+    }
     const token = utils.getSessionStorageItem(btoa(keys.TOKEN_KEY)),
         tokenExpiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY)),
         tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr, 10) : null,
@@ -672,13 +677,6 @@ export function isLoggedIn() {
         tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
         currentMillis = new Date().getTime(),
         tokenExpiresAtMillis = tokenExpiresIn && tokenSetAt ? (tokenExpiresIn + tokenSetAt) : 0;
-    /*console.log('***** - isLoggedIn - *****\n' +
-        'token = ' + token + '\n' +
-        'tokenExpiresIn = ' + tokenExpiresIn + '\n' +
-        'tokenSetAt = ' + tokenSetAt + '\n' +
-        'tokenExpiresAtMillis = ' + tokenExpiresAtMillis + '\n' +
-        'currentMillis = ' + currentMillis + '\n' +
-        'remainingMillis = ' + (tokenExpiresAtMillis - currentMillis));*/
     return !!(token && (currentMillis < tokenExpiresAtMillis));
 }
 
