@@ -661,15 +661,10 @@ export function getConnectSettings() {
 }
 
 export function isLoggedIn() {
-    if (isValidString(utils.getAppCredential('account')) &&
-        isValidString(utils.getAppCredential('realm')) &&
-        isValidString(utils.getAppCredential('token'))) {
-        return true;
-    }
-    const token = utils.getSessionStorageItem(btoa(keys.TOKEN_KEY)),
-        tokenExpiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY)),
+    const token = utils.getAppCredential('token') || utils.getSessionStorageItem(btoa(keys.TOKEN_KEY)),
+        tokenExpiresInStr = utils.getAppCredential('tokenExpiresIn') || utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY)),
         tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr, 10) : null,
-        tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY)),
+        tokenSetAtStr = utils.getAppCredential('tokenSetAt') || utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY)),
         tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
         currentMillis = new Date().getTime(),
         tokenExpiresAtMillis = tokenExpiresIn && tokenSetAt ? (tokenExpiresIn + tokenSetAt) : 0;
@@ -678,7 +673,7 @@ export function isLoggedIn() {
 
 export function getLastKnownAccount() {
     let account = utils.getAppCredential('account');
-    if (isValidString(account)) {
+    if (utils.isValidString(account)) {
         return utils.sanitizeAccountName(account)
     }
     const accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
@@ -689,7 +684,7 @@ export function getLastKnownAccount() {
 
 export function getLastKnownRealm() {
     let realm = utils.getAppCredential('realm');
-    if (isValidString(realm)) {
+    if (utils.isValidString(realm)) {
         return realm;
     }
     const realmCipher = utils.getSessionStorageItem(btoa(keys.REALM_KEY));
@@ -700,7 +695,7 @@ export function getLastKnownRealm() {
 
 export function getLastKnownUsername() {
     let username = utils.getAppCredential('username');
-    if (isValidString(username)) {
+    if (utils.isValidString(username)) {
         return username;
     }
     const usernameCipher = utils.getSessionStorageItem(btoa(keys.USERNAME_KEY));
@@ -718,14 +713,10 @@ export function getLastKnownHost() {
 
 export function getLastAccessToken() {
     let token = utils.getAppCredential('token');
-    if (isValidString(token)) {
+    if (utils.isValidString(token)) {
         return token;
     }
     return utils.getSessionStorageItem(btoa(keys.TOKEN_KEY));
-}
-
-const isValidString = function(str) {
-    return !!(str && typeof str === 'string' && str.trim().length > 0 && str !== 'undefined');
 }
 
 /**
