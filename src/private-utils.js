@@ -4,6 +4,9 @@ import { getLastAccessToken, getLastKnownRealm, getLastKnownAccount, getLastKnow
 // Used as backup storage when local/session storage and cookies are not available
 const localVariables = { };
 
+// VRAS-1506
+let appCredentials = { };
+
 //redefine function to avoid circular dependency with public-utils
 function getLastTransactionId() {
     return getSessionStorageItem(btoa(keys.TRANSACTION_KEY));
@@ -27,7 +30,8 @@ export function validateAndReturnRequiredRealmName(params, reject) {
     let realm = params.realmName;
     if (realm) {
         realm = encodeURI(realm);
-    } else {
+    }
+    else {
         realm = getLastKnownRealm();
     }
     if (realm) {
@@ -35,7 +39,8 @@ export function validateAndReturnRequiredRealmName(params, reject) {
             setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
         }
         return realm;
-    } else {
+    }
+    else {
         return reject(Error('The Voyent realm is required'));
     }
 }
@@ -63,7 +68,8 @@ export function validateAndReturnRequiredAccount(params, reject) {
     let account = params.account;
     if (account) {
         account = encodeURI(account);
-    } else {
+    }
+    else {
         account = getLastKnownAccount();
     }
     if (account) {
@@ -71,7 +77,8 @@ export function validateAndReturnRequiredAccount(params, reject) {
             setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(account));
         }
         return account;
-    } else {
+    }
+    else {
         return reject(Error('The Voyent account is required'));
     }
 }
@@ -86,7 +93,8 @@ export function validateAndReturnRequiredUsername(params, reject) {
             setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(username));
         }
         return username;
-    } else {
+    }
+    else {
         return reject(Error('The Voyent username is required'));
     }
 }
@@ -246,6 +254,16 @@ function removeCookie(cname) {
 
 function removeLocalVariable(key) {
     delete localVariables[key];
+}
+
+export function getAppCredential(credential) {
+    return appCredentials[credential];
+}
+
+export function setAppCredentials(credentials) {
+    if (credentials && typeof credentials === 'object' && Object.keys(credentials).length) {
+        appCredentials = credentials;
+    }
 }
 
 export function sanitizeAccountName(original) {
