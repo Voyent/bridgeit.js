@@ -261,9 +261,20 @@ export function getAppCredential(credential) {
 }
 
 export function setAppCredentials(credentials) {
-    if (credentials && typeof credentials === 'object' && Object.keys(credentials).length) {
+    if (credentials && typeof credentials === 'object') {
         appCredentials = credentials;
+        if (appCredentials.token) {
+            appCredentials.tokenSetAt = new Date().getTime();
+            // Default to 1 hour if a `tokenExpiresIn` value is not provided.
+            if (!appCredentials.tokenExpiresIn) {
+                appCredentials.tokenExpiresIn = 3600000;
+            }
+        }
     }
+}
+
+export function isValidString(str) {
+    return !!(str && typeof str === 'string' && str.trim().length > 0 && str !== 'undefined');
 }
 
 export function sanitizeAccountName(original) {
