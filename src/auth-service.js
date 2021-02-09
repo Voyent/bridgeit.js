@@ -613,6 +613,10 @@ export function disconnect() {
 }
 
 export function getExpiresIn() {
+    let tokenExpiresIn = utils.getAppCredential('tokenExpiresIn');
+    if (tokenExpiresIn) {
+        return tokenExpiresIn;
+    }
     const expiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
     if (expiresInStr) {
         return parseInt(expiresInStr, 10);
@@ -620,6 +624,10 @@ export function getExpiresIn() {
 }
 
 export function getTokenSetAtTime() {
+    let tokenSetAt = utils.getAppCredential('tokenSetAt');
+    if (tokenSetAt) {
+        return tokenSetAt;
+    }
     const tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY));
     if (tokenSetAtStr) {
         return parseInt(tokenSetAtStr, 10);
