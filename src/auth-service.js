@@ -233,6 +233,15 @@ export function storeLogin(params) {
 }
 
 /**
+ * Stores the passed credentials in memory. These will be used first
+ * when calling `getLast*` functions. Quick and unfortunate fix for VRAS-1506.
+ * @param credentials
+ */
+export function storeAppCredentials(credentials) {
+    utils.setAppCredentials(credentials);
+}
+
+/**
  * Connect to voyent.
  *
  * This function will connect to the Voyent voyent, and maintain the connection for the specified
@@ -603,10 +612,6 @@ export function disconnect() {
     connected = false;
 }
 
-export function getLastAccessToken() {
-    return utils.getSessionStorageItem(btoa(keys.TOKEN_KEY));
-}
-
 export function getExpiresIn() {
     const expiresInStr = utils.getSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
     if (expiresInStr) {
@@ -674,6 +679,10 @@ export function isLoggedIn() {
 }
 
 export function getLastKnownAccount() {
+    let account = utils.getAppCredential('account');
+    if (isValidString(account)) {
+        return utils.sanitizeAccountName(account)
+    }
     const accountCipher = utils.getSessionStorageItem(btoa(keys.ACCOUNT_KEY));
     if (accountCipher) {
         return utils.sanitizeAccountName(atob(accountCipher));
@@ -681,6 +690,10 @@ export function getLastKnownAccount() {
 }
 
 export function getLastKnownRealm() {
+    let realm = utils.getAppCredential('realm');
+    if (isValidString(realm)) {
+        return realm;
+    }
     const realmCipher = utils.getSessionStorageItem(btoa(keys.REALM_KEY));
     if (realmCipher) {
         return atob(realmCipher);
@@ -688,6 +701,10 @@ export function getLastKnownRealm() {
 }
 
 export function getLastKnownUsername() {
+    let username = utils.getAppCredential('username');
+    if (isValidString(username)) {
+        return username;
+    }
     const usernameCipher = utils.getSessionStorageItem(btoa(keys.USERNAME_KEY));
     if (usernameCipher) {
         return atob(usernameCipher);
@@ -699,6 +716,18 @@ export function getLastKnownHost() {
     if (hostCipher) {
         return atob(hostCipher);
     }
+}
+
+export function getLastAccessToken() {
+    let token = utils.getAppCredential('token');
+    if (isValidString(token)) {
+        return token;
+    }
+    return utils.getSessionStorageItem(btoa(keys.TOKEN_KEY));
+}
+
+const isValidString = function(str) {
+    return !!(str && typeof str === 'string' && str.trim().length > 0 && str !== 'undefined');
 }
 
 /**
