@@ -336,6 +336,7 @@ export function connect(params) {
                     refreshAccessToken().then(function () {
                         startTokenExpiryTimer(getExpiresIn() - timeoutPadding);
                     }).catch(function (e) {
+                        console.error("Refresh Access Token failed from connect", e);
                     });
                 }
                 lastCheckedTime = currentTime;
@@ -376,7 +377,9 @@ export function connect(params) {
                 if (timeoutMillis > millisUntilTimeoutExpires) {
                     refreshAccessToken().then(function () {
                         startTokenExpiryTimer(getExpiresIn() - timeoutPadding);
-                    }).catch(function(e) {});
+                    }).catch(function(e) {
+                        console.error("Refresh Access Token failed from connect callback", e);
+                    });
                 }
             } else {
                 console.log(new Date().toISOString() + ' voyent.auth.connect: timeout has expired, disconnecting..');
@@ -525,12 +528,14 @@ export function connect(params) {
 
 export function refreshAccessToken(isRetryAttempt) {
     return new Promise(function (resolve, reject) {
+        console.log("Refresh Access Token, isLoggedIn?", isLoggedIn());
         if (!isLoggedIn()) {
             fireEvent(window, 'voyent-access-token-refresh-failed', {});
             reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
         }
         else {
             let loginParams = getLoginParams();
+            console.log("Refresh Access Token, loginParams", loginParams);
             if (!loginParams) {
                 fireEvent(window, 'voyent-access-token-refresh-failed', {});
                 reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
@@ -680,6 +685,7 @@ export function isLoggedIn() {
         tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
         currentMillis = new Date().getTime(),
         tokenExpiresAtMillis = tokenExpiresIn && tokenSetAt ? (tokenExpiresIn + tokenSetAt) : 0;
+    console.log("isLoggedIn, token=" + token + " and currentMillis=" + currentMillis + " vs expires=" + tokenExpiresAtMillis);
     return !!(token && (currentMillis < tokenExpiresAtMillis));
 }
 
