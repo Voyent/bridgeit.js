@@ -4,7 +4,7 @@
     "description": "Voyent.js: Client API for Voyent Services",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Voyent/voyent.js/tree/VRASM"
+        "url": "https://github.com/Voyent/voyent.js/tree/vrasm-1.7.2"
     },
     "author": "ICEsoft Technologies, Inc. <voyent@icesoft.com> (https://icesoft.com/)",
     "license": "Apache-2.0",
