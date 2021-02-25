@@ -1,6 +1,6 @@
 {
     "name": "voyent.js",
-    "version": "1.7.2",
+    "version": "1.0.0-latest",
     "description": "Voyent.js: Client API for Voyent Services",
     "main": "build/dist/voyent.js",
     "scripts": {
