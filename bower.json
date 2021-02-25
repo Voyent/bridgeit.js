@@ -1,6 +1,6 @@
 {
 	"name": "voyent.js",
-	"version": "latest",
+	"version": "1.7.2",
 	"main": "src/voyent.js",
 	"ignore": [
 		"docs",
