@@ -973,6 +973,70 @@ export function getAdminsList(params) {
     });
 }
 
+export function getGroupsList(params) {
+    return new Promise(function (resolve, reject) {
+        params = params ? params : {};
+
+        // Set 'nostore' to ensure the following checks don't update our lastKnown calls.
+        params.nostore = true;
+
+        // Get and validate the required parameters.
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const opts = params.opts && typeof params.opts === 'object'
+            ? encodeURIComponent(JSON.stringify(params.opts))
+            : '{}';
+
+        // Build the URL.
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'groupsList', token, {
+                opts: opts
+            }
+        );
+
+        // Make the request.
+        getJSON(url).then(function (json) {
+            updateLastActiveTimestamp();
+            resolve(json);
+        })['catch'](function (error) {
+            reject(error);
+        });
+    });
+}
+
+export function getTopicsList(params) {
+    return new Promise(function (resolve, reject) {
+        params = params ? params : {};
+
+        // Set 'nostore' to ensure the following checks don't update our lastKnown calls.
+        params.nostore = true;
+
+        // Get and validate the required parameters.
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const opts = params.opts && typeof params.opts === 'object'
+            ? encodeURIComponent(JSON.stringify(params.opts))
+            : '{}';
+
+        // Build the URL.
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'topicsList', token, {
+                opts: opts
+            }
+        );
+
+        // Make the request.
+        getJSON(url).then(function (json) {
+            updateLastActiveTimestamp();
+            resolve(json);
+        })['catch'](function (error) {
+            reject(error);
+        });
+    });
+}
+
 export function linkUser(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
