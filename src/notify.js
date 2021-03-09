@@ -188,7 +188,7 @@ export const config = { // Config options
          * One of [top-right|top-left|bottom-right|bottom-left].
          * @default 'top-right'
          */
-        position:'top-right',
+        position:'bottom-right',
         setPosition: function(val) {
             val = val.toLowerCase();
             if (['top-right','top-left','bottom-right','bottom-left'].indexOf(val) > -1) {
@@ -1429,15 +1429,13 @@ function _displayToastNotification(notification, isVoyentMsg) {
         return;
     }
     
-    // Default to bottom-right for messages
-    let position = 'bottom-right';
+    // Default to bottom-right for messages if no setting is found
+    let position = config.toast.position ? config.toast.position : 'bottom-right';
     if (!isVoyentMsg) {
         let cancelled = _fireEvent('beforeDisplayNotification',{"notification":notification},true);
         if (cancelled) {
             return;
         }
-        // Since this is not a message then use the configured value
-        position = config.toast.position;
     }
     // Ensure we have the notification container in the DOM
     if (!document.getElementById(VOYENT_TOAST_CONTAINER_ID)) {
