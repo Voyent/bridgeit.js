@@ -434,7 +434,6 @@ export function getBlob(url, headers){
 
 export function post(url, data, headers, isFormData, contentType, progressCallback, onabort, onerror){
     return new Promise(function(resolve, reject) {
-        console.log('sending post to ' + url);
         contentType = contentType || "application/json";
         const request = new XMLHttpRequest();
         request.open('POST', url, true);
@@ -500,7 +499,6 @@ export function post(url, data, headers, isFormData, contentType, progressCallba
 
 export function put(url, data, headers, isFormData, contentType){
     return new Promise(function(resolve, reject) {
-        console.log('sending put to ' + url);
         contentType = contentType || "application/json";
         let request = new XMLHttpRequest();
         request.open('PUT', url, true);
@@ -554,7 +552,6 @@ export function put(url, data, headers, isFormData, contentType){
 
 export function doDelete(url, headers){
     return new Promise(function(resolve, reject) {
-        console.log('sending delete to ' + url);
         let request = new XMLHttpRequest();
         request.open('DELETE', url, true);
         if( headers ){
