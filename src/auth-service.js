@@ -323,7 +323,8 @@ export function connect(params) {
             let lastCheckedTime = (new Date()).getTime();
             const computerSleepTimer = setInterval(function () {
                 const currentTime = (new Date()).getTime();
-                const timerPadding = 2500; // Set a 2.5 second buffer for the timeout as setInterval does not guarantee exact timing
+                // Set a 60 second buffer for the timeout as setInterval does not guarantee exact timing (VRAS-1710).
+                const timerPadding = 60000;
                 const nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
                 if (currentTime > (nextExpectedTime)) {
                     // Clear the old token timer since it is not valid after computer sleep
