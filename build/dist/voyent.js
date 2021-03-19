@@ -3421,7 +3421,7 @@ function AuthService(v, keys, utils) {
                     if (params.scopeToPath) {
                         utils.setSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
                     }
-                    v._fireEvent(window, 'voyent-login-succeeded', {});
+                    v._fireEvent(window, 'voyent-login-succeeded-vras', {});
                     resolve(authResponse);
                 })['catch'](function (error) {
                     reject(error);
@@ -3764,22 +3764,22 @@ function AuthService(v, keys, utils) {
             console.log('VRAS_POLYMER: refreshAccessToken triggered');
             return new Promise(function (resolve, reject) {
                 if (!v.auth.isLoggedIn()) {
-                    console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed` because user is not logged in');
-                    v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
+                    console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed-vras` because user is not logged in');
+                    v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                     reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
                 }
                 else {
                     var loginParams = v.auth.getLoginParams();
                     if (!loginParams) {
-                        console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed` because there are no `loginParams`', loginParams);
-                        v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
+                        console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed-vras` because there are no `loginParams`', loginParams);
+                        v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
                         console.log('VRAS_POLYMER: refreshing access_token');
                         v.auth.login(loginParams).then(function (authResponse) {
                             console.log('VRAS_POLYMER: access_token successfully refreshed');
-                            v._fireEvent(window, 'voyent-access-token-refreshed', v.auth.getLastAccessToken());
+                            v._fireEvent(window, 'voyent-access-token-refreshed-vras', v.auth.getLastAccessToken());
                             if (loginParams.usePushService) {
                                 // v.push.startPushService(loginParams);
                             }
@@ -3787,7 +3787,7 @@ function AuthService(v, keys, utils) {
                         }).catch(function (errorResponse) {
                             // Try and refresh the token once more after a small timeout
                             if (!isRetryAttempt) {
-                                console.log('VRAS_POLYMER: failed to refresh token, trying again');
+                                console.log('VRAS_POLYMER: failed to refresh token, trying again', errorResponse);
                                 setTimeout(function() {
                                     v.auth.refreshAccessToken(true).then(function (response) {
                                         resolve(response);
@@ -3795,8 +3795,8 @@ function AuthService(v, keys, utils) {
                                 },2000);
                             }
                             else {
-                                console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed` because we failed to refresh token on retry');
-                                v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
+                                console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed-vras` because we failed to refresh token on retry', errorResponse);
+                                v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                                 reject(errorResponse);
                             }
                         });
@@ -12262,7 +12262,7 @@ function PrivateUtils(services, keys) {
      */
     v.setCurrentRealm = function(realm){
         privateUtils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
-        v._fireEvent(window, 'voyent-realm-changed', realm);
+        v._fireEvent(window, 'voyent-realm-changed-vras', realm);
     };
 
     /**

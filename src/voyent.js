@@ -161,7 +161,7 @@ if (!window.voyent) {
      */
     v.setCurrentRealm = function(realm){
         privateUtils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(realm));
-        v._fireEvent(window, 'voyent-realm-changed', realm);
+        v._fireEvent(window, 'voyent-realm-changed-vras', realm);
     };
 
     /**
