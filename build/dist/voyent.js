@@ -3568,6 +3568,7 @@ function AuthService(v, keys, utils) {
                                 utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
                             }
                             // Try and refresh the token
+                            console.log('VRAS_POLYMER: triggering refreshAccessToken from sleepTimer', currentTime - nextExpectedTime);
                             v.auth.refreshAccessToken().then(function () {
                                 startTokenExpiryTimer(v.auth.getExpiresIn() - timeoutPadding);
                             }).catch(function(e) {});
@@ -3608,6 +3609,7 @@ function AuthService(v, keys, utils) {
                         //if we the time remaining before expiry is less than the session timeout
                         //refresh the access token and set the timeout
                         if (timeoutMillis > millisUntilTimeoutExpires) {
+                            console.log('VRAS_POLYMER: triggering refreshAccessToken from connectCallback', timeoutMillis - millisUntilTimeoutExpires);
                             v.auth.refreshAccessToken().then(function () {
                                 startTokenExpiryTimer(v.auth.getExpiresIn() - timeoutPadding);
                             }).catch(function(e) {});
@@ -3759,20 +3761,24 @@ function AuthService(v, keys, utils) {
         },
 
         refreshAccessToken: function (isRetryAttempt) {
+            console.log('VRAS_POLYMER: refreshAccessToken triggered');
             return new Promise(function (resolve, reject) {
                 if (!v.auth.isLoggedIn()) {
+                    console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed` because user is not logged in');
                     v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
                     reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
                 }
                 else {
                     var loginParams = v.auth.getLoginParams();
                     if (!loginParams) {
+                        console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed` because there are no `loginParams`', loginParams);
                         v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
-                        console.log('voyent.auth.refreshAccessToken()');
+                        console.log('VRAS_POLYMER: refreshing access_token');
                         v.auth.login(loginParams).then(function (authResponse) {
+                            console.log('VRAS_POLYMER: access_token successfully refreshed');
                             v._fireEvent(window, 'voyent-access-token-refreshed', v.auth.getLastAccessToken());
                             if (loginParams.usePushService) {
                                 // v.push.startPushService(loginParams);
@@ -3781,7 +3787,7 @@ function AuthService(v, keys, utils) {
                         }).catch(function (errorResponse) {
                             // Try and refresh the token once more after a small timeout
                             if (!isRetryAttempt) {
-                                console.log('Failed to refresh token, trying again');
+                                console.log('VRAS_POLYMER: failed to refresh token, trying again');
                                 setTimeout(function() {
                                     v.auth.refreshAccessToken(true).then(function (response) {
                                         resolve(response);
@@ -3789,7 +3795,7 @@ function AuthService(v, keys, utils) {
                                 },2000);
                             }
                             else {
-                                console.log('Failed to refresh token on retry:',errorResponse);
+                                console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed` because we failed to refresh token on retry');
                                 v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
                                 reject(errorResponse);
                             }
@@ -3802,6 +3808,7 @@ function AuthService(v, keys, utils) {
         
         getLoginParams: function() {
             var loginParams = v.auth.getConnectSettings();
+            console.log('VRAS_POLYMER: getLoginParams1 found', loginParams);
             if (!loginParams) {
                 return null;
             }
@@ -3812,7 +3819,8 @@ function AuthService(v, keys, utils) {
             loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
             loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
             loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
-            
+
+            console.log('VRAS_POLYMER: getLoginParams2 found', loginParams);
             return loginParams;
         },
 
@@ -3915,7 +3923,7 @@ function AuthService(v, keys, utils) {
             }
             
             var result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) ) && (utils.isNode || (!utils.isNode && (isDev || currentPath.indexOf(scopeToPath) === 0)));
-            //console.log('v.auth.isLoggedIn=' + result + ': token=' + token + ' tokenExpiresIn=' + tokenExpiresIn + 'tokenSetAt=' + tokenSetAt + ' (new Date().getTime() < (tokenExpiresIn + tokenSetAt))=' + (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) + ' (currentPath.indexOf(scopeToPath) === 0)=' + (currentPath.indexOf(scopeToPath) === 0));
+            console.log('VRAS_POLYMER: v.auth.isLoggedIn=' + result + ': token=' + token + ' tokenExpiresIn=' + tokenExpiresIn + 'tokenSetAt=' + tokenSetAt + ' (new Date().getTime() < (tokenExpiresIn + tokenSetAt))=' + (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) + ' (currentPath.indexOf(scopeToPath) === 0)=' + (currentPath.indexOf(scopeToPath) === 0));
             return !!result;
         },
 
