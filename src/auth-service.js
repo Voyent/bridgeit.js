@@ -1,12 +1,12 @@
 function AuthService(v, keys, utils) {
 
     var authKeys = {
-        PASSWORD_KEY: 'voyentPassword',
-        SCOPE_TO_PATH_KEY: "voyentScopeToPath",
-        CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
-        RELOGIN_CB_KEY: 'voyentReloginCallback',
-        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp',
-        COMPUTER_SLEEP_CB_KEY: 'voyentComputerSleepCallback',
+        PASSWORD_KEY: 'voyentPassword_vras',
+        SCOPE_TO_PATH_KEY: "voyentScopeToPath_vras",
+        CONNECT_SETTINGS_KEY: 'voyentConnectSettings_vras',
+        RELOGIN_CB_KEY: 'voyentReloginCallback_vras',
+        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp_vras',
+        COMPUTER_SLEEP_CB_KEY: 'voyentComputerSleepCallback_vras',
     };
 
     function validateAndReturnRequiredRole(params, reject){

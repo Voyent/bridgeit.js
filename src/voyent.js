@@ -4,15 +4,15 @@ if (!window.voyent) {
 
 (function (v) {
     var keys = {
-        TRANSACTION_KEY: 'voyentTransaction',
-        REALM_KEY: 'voyentRealm',
-        ADMIN_KEY: 'voyentAdmin',
-        USERNAME_KEY: 'voyentUsername',
-        ACCOUNT_KEY: 'voyentAccount',
-        HOST_KEY: 'voyentHost',
-        TOKEN_KEY: 'voyentToken',
-        TOKEN_EXPIRES_KEY: 'voyentTokenExpires',
-        TOKEN_SET_KEY: 'voyentTokenSet'
+        TRANSACTION_KEY: 'voyentTransaction_vras',
+        REALM_KEY: 'voyentRealm_vras',
+        ADMIN_KEY: 'voyentAdmin_vras',
+        USERNAME_KEY: 'voyentUsername_vras',
+        ACCOUNT_KEY: 'voyentAccount_vras',
+        HOST_KEY: 'voyentHost_vras',
+        TOKEN_KEY: 'voyentToken_vras',
+        TOKEN_EXPIRES_KEY: 'voyentTokenExpires_vras',
+        TOKEN_SET_KEY: 'voyentTokenSet_vras'
     };
     
     var privateUtils = PrivateUtils(v, keys);

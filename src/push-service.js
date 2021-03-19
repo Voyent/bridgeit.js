@@ -8,7 +8,7 @@ function PushService(v, utils) {
     }
 
     var pushKeys = {
-        PUSH_CALLBACKS_KEY: 'pushCallbacks'
+        PUSH_CALLBACKS_KEY: 'pushCallbacks_vras'
     };
 
     function storePushListener(pushId, group, cb) {

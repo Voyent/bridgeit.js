@@ -3242,12 +3242,12 @@ if (!window.ice.icepush) {
 function AuthService(v, keys, utils) {
 
     var authKeys = {
-        PASSWORD_KEY: 'voyentPassword',
-        SCOPE_TO_PATH_KEY: "voyentScopeToPath",
-        CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
-        RELOGIN_CB_KEY: 'voyentReloginCallback',
-        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp',
-        COMPUTER_SLEEP_CB_KEY: 'voyentComputerSleepCallback',
+        PASSWORD_KEY: 'voyentPassword_vras',
+        SCOPE_TO_PATH_KEY: "voyentScopeToPath_vras",
+        CONNECT_SETTINGS_KEY: 'voyentConnectSettings_vras',
+        RELOGIN_CB_KEY: 'voyentReloginCallback_vras',
+        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp_vras',
+        COMPUTER_SLEEP_CB_KEY: 'voyentComputerSleepCallback_vras',
     };
 
     function validateAndReturnRequiredRole(params, reject){
@@ -10209,7 +10209,7 @@ function EventService(v, utils) {
     }
 
     var pushKeys = {
-        PUSH_CALLBACKS_KEY: 'pushCallbacks'
+        PUSH_CALLBACKS_KEY: 'pushCallbacks_vras'
     };
 
     function storePushListener(pushId, group, cb) {
@@ -12105,15 +12105,15 @@ function PrivateUtils(services, keys) {
 
 (function (v) {
     var keys = {
-        TRANSACTION_KEY: 'voyentTransaction',
-        REALM_KEY: 'voyentRealm',
-        ADMIN_KEY: 'voyentAdmin',
-        USERNAME_KEY: 'voyentUsername',
-        ACCOUNT_KEY: 'voyentAccount',
-        HOST_KEY: 'voyentHost',
-        TOKEN_KEY: 'voyentToken',
-        TOKEN_EXPIRES_KEY: 'voyentTokenExpires',
-        TOKEN_SET_KEY: 'voyentTokenSet'
+        TRANSACTION_KEY: 'voyentTransaction_vras',
+        REALM_KEY: 'voyentRealm_vras',
+        ADMIN_KEY: 'voyentAdmin_vras',
+        USERNAME_KEY: 'voyentUsername_vras',
+        ACCOUNT_KEY: 'voyentAccount_vras',
+        HOST_KEY: 'voyentHost_vras',
+        TOKEN_KEY: 'voyentToken_vras',
+        TOKEN_EXPIRES_KEY: 'voyentTokenExpires_vras',
+        TOKEN_SET_KEY: 'voyentTokenSet_vras'
     };
     
     var privateUtils = PrivateUtils(v, keys);
