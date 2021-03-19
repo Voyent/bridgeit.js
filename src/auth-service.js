@@ -327,6 +327,7 @@ export function connect(params) {
                 const timerPadding = 60000;
                 const nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
                 if (currentTime > (nextExpectedTime)) {
+                    console.log('VRAS_MITHRIL: triggering refreshAccessToken from sleepTimer', currentTime - nextExpectedTime);
                     // Clear the old token timer since it is not valid after computer sleep
                     const oldConnectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
                     if (oldConnectTimeoutCb) {
@@ -374,6 +375,7 @@ export function connect(params) {
                 //if we the time remaining before expiry is less than the session timeout
                 //refresh the access token and set the timeout
                 if (timeoutMillis > millisUntilTimeoutExpires) {
+                    console.log('VRAS_MITHRIL: triggering refreshAccessToken from connectCallback', timeoutMillis - millisUntilTimeoutExpires);
                     refreshAccessToken().then(function () {
                         startTokenExpiryTimer(getExpiresIn() - timeoutPadding);
                     }).catch(function() {});
@@ -524,21 +526,25 @@ export function connect(params) {
 }
 
 export function refreshAccessToken(isRetryAttempt) {
+    console.log('VRAS_MITHRIL: refreshAccessToken triggered');
     return new Promise(function (resolve, reject) {
         if (!isLoggedIn()) {
+            console.log('VRAS_MITHRIL: firing `voyent-access-token-refresh-failed` because user is not logged in');
             fireEvent(window, 'voyent-access-token-refresh-failed', {});
             reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
         }
         else {
             let loginParams = getLoginParams();
             if (!loginParams) {
+                console.log('VRAS_MITHRIL: firing `voyent-access-token-refresh-failed` because there are no `loginParams`', loginParams);
                 fireEvent(window, 'voyent-access-token-refresh-failed', {});
                 reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
             }
             else {
+                console.log('VRAS_MITHRIL: refreshing access_token');
                 loginParams.suppressUpdateTimestamp = true;
-                console.log('voyent.auth.refreshAccessToken()');
                 login(loginParams).then(function (authResponse) {
+                    console.log('VRAS_MITHRIL: access_token successfully refreshed');
                     fireEvent(window, 'voyent-access-token-refreshed', getLastAccessToken());
                     if (loginParams.usePushService) {
                         //startPushService(loginParams);
@@ -547,7 +553,7 @@ export function refreshAccessToken(isRetryAttempt) {
                 }).catch(function (errorResponse) {
                     // Try and refresh the token once more after a small timeout
                     if (!isRetryAttempt) {
-                        console.log('Failed to refresh token, trying again');
+                        console.log('VRAS_MITHRIL: failed to refresh token, trying again', errorResponse);
                         setTimeout(function() {
                             refreshAccessToken(true).then(function (response) {
                                 resolve(response);
@@ -555,7 +561,7 @@ export function refreshAccessToken(isRetryAttempt) {
                         },2000);
                     }
                     else {
-                        console.log('Failed to refresh token on retry:',errorResponse);
+                        console.log('VRAS_MITHRIL: firing `voyent-access-token-refresh-failed` because we failed to refresh token on retry', errorResponse);
                         fireEvent(window, 'voyent-access-token-refresh-failed', {});
                         reject(errorResponse);
                     }
@@ -650,6 +656,7 @@ export function getTimeRemainingBeforeExpiry() {
 export function getLoginParams() {
     const loginParams = getConnectSettings();
     if (!loginParams) {
+        console.log('VRAS_MITHRIL: getLoginParams1 found', loginParams);
         return null;
     }
     
@@ -661,7 +668,8 @@ export function getLoginParams() {
     if (utils.getSessionStorageItem(btoa(keys.ADMIN_KEY))) {
         loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
     }
-    
+
+    console.log('VRAS_MITHRIL: getLoginParams2 found', loginParams);
     return loginParams;
 }
 
@@ -680,6 +688,7 @@ export function isLoggedIn() {
         tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
         currentMillis = new Date().getTime(),
         tokenExpiresAtMillis = tokenExpiresIn && tokenSetAt ? (tokenExpiresIn + tokenSetAt) : 0;
+    console.log('VRAS_MITHRIL: isLoggedIn=' + !!(token && (currentMillis < tokenExpiresAtMillis)) + ': token=' + token + ' currentMillis=' + currentMillis + 'tokenExpiresAtMillis=' + tokenExpiresAtMillis + 'currentMillis-tokenExpiresAtMillis=', currentMillis-tokenExpiresAtMillis);
     return !!(token && (currentMillis < tokenExpiresAtMillis));
 }
 
