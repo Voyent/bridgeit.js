@@ -608,8 +608,6 @@ function AdminService(v, keys, utils) {
                 var url = utils.getRealmResourceURL(v.authAdminURL, account, realmName,
                     '', token);
 
-                console.log('voyent.admin.deleteRealm() ' + url);
-
                 v.$.doDelete(url).then(function () {
                     v.auth.updateLastActiveTimestamp();
                     resolve();

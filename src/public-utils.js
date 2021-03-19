@@ -101,7 +101,6 @@ function PublicUtils(utils) {
 
         post: function(url, data, headers, isFormData, contentType, progressCallback, onabort, onerror){
             return new Promise(function(resolve, reject) {
-                console.log('sending post to ' + url);
                 contentType = contentType || "application/json";
                 var request = new XMLHttpRequest();
                 request.open('POST', url, true);
@@ -167,7 +166,6 @@ function PublicUtils(utils) {
 
         put: function(url, data, headers, isFormData, contentType){
             return new Promise(function(resolve, reject) {
-                console.log('sending put to ' + url);
                 contentType = contentType || "application/json";
                 var request = new XMLHttpRequest();
                 request.open('PUT', url, true);
@@ -221,7 +219,6 @@ function PublicUtils(utils) {
 
         doDelete: function(url, headers){
             return new Promise(function(resolve, reject) {
-                console.log('sending delete to ' + url);
                 var request = new XMLHttpRequest();
                 request.open('DELETE', url, true);
                 if( headers ){
