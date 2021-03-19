@@ -546,7 +546,7 @@ function AuthService(v, keys, utils) {
                         }).catch(function (errorResponse) {
                             // Try and refresh the token once more after a small timeout
                             if (!isRetryAttempt) {
-                                console.log('VRAS_POLYMER: failed to refresh token, trying again');
+                                console.log('VRAS_POLYMER: failed to refresh token, trying again', errorResponse);
                                 setTimeout(function() {
                                     v.auth.refreshAccessToken(true).then(function (response) {
                                         resolve(response);
@@ -554,7 +554,7 @@ function AuthService(v, keys, utils) {
                                 },2000);
                             }
                             else {
-                                console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed` because we failed to refresh token on retry');
+                                console.log('VRAS_POLYMER: firing `voyent-access-token-refresh-failed` because we failed to refresh token on retry', errorResponse);
                                 v._fireEvent(window, 'voyent-access-token-refresh-failed', {});
                                 reject(errorResponse);
                             }
