@@ -405,22 +405,28 @@ export function connect(params) {
                     if (expiredCallbackFunction) {
                         const expiredCallbackPromise = expiredCallbackFunction();
                         if (expiredCallbackPromise && expiredCallbackPromise.then) {
-                            expiredCallbackPromise.then(disconnect)
-                                ['catch'](disconnect);
+                            expiredCallbackPromise.then(disconnect).catch(disconnect).finally(function() {
+                                fireEvent(window, 'voyent-inactive-timeout-reached', {});
+                            });
                         }
                         else {
-                            setTimeout(disconnect, 500);
+                            setTimeout(function() {
+                                disconnect();
+                                fireEvent(window, 'voyent-inactive-timeout-reached', {});
+                            }, 500);
                         }
                     }
                     else {
                         console.log(new Date().toISOString() + ' voyent.auth.connect: error calling onSessionExpiry callback, ' +
                             'could not find function: ' + expiredCallback);
                         disconnect();
+                        fireEvent(window, 'voyent-inactive-timeout-reached', {});
                     }
 
                 }
                 else {
                     disconnect();
+                    fireEvent(window, 'voyent-inactive-timeout-reached', {});
                 }
 
             }
