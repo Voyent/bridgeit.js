@@ -400,13 +400,13 @@ function AuthService(v, keys, utils) {
                                 var expiredCallbackPromise = expiredCallbackFunction();
                                 if (expiredCallbackPromise && expiredCallbackPromise.then) {
                                     expiredCallbackPromise.then(v.auth.disconnect).catch(v.auth.disconnect).finally(function() {
-                                        v._fireEvent(window, 'voyent-disconnected-vras', {});
+                                        v._fireEvent(window, 'voyent-inactive-timeout-reached-vras', {});
                                     });
                                 }
                                 else {
                                     setTimeout(function() {
                                         v.auth.disconnect();
-                                        v._fireEvent(window, 'voyent-disconnected-vras', {});
+                                        v._fireEvent(window, 'voyent-inactive-timeout-reached-vras', {});
                                     }, 500);
                                 }
                             }
@@ -414,13 +414,13 @@ function AuthService(v, keys, utils) {
                                 console.log(new Date().toISOString() + ' voyent.auth.connect: error calling onSessionExpiry callback, ' +
                                     'could not find function: ' + expiredCallback);
                                 v.auth.disconnect();
-                                v._fireEvent(window, 'voyent-disconnected-vras', {});
+                                v._fireEvent(window, 'voyent-inactive-timeout-reached-vras', {});
                             }
 
                         }
                         else {
                             v.auth.disconnect();
-                            v._fireEvent(window, 'voyent-disconnected-vras', {});
+                            v._fireEvent(window, 'voyent-inactive-timeout-reached-vras', {});
                         }
 
                     }
