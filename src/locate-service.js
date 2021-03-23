@@ -1204,6 +1204,44 @@ export function getAlertsList(params) {
     });
 }
 
+/**
+ * @memberOf voyent.locate
+ * @alias getTemplatesList
+ * @param {Object} params params
+ * @param {Object} params.opts 
+ */
+export function getTemplatesList(params) {
+    return new Promise(function (resolve, reject) {
+        params = params ? params : {};
+
+        // Set 'nostore' to ensure the following checks don't update our lastKnown calls.
+        params.nostore = true;
+
+        // Get and validate the required parameters.
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const opts = params.opts && typeof params.opts === 'object'
+            ? encodeURIComponent(JSON.stringify(params.opts))
+            : '{}';
+
+        // Build the URL.
+        const url = utils.getRealmResourceURL(locateURL, account, realm,
+            'templatesList', token, {
+                opts: opts
+            }
+        );
+
+        // Make the request.
+        getJSON(url).then(function (json) {
+            updateLastActiveTimestamp();
+            resolve(json);
+        })['catch'](function (error) {
+            reject(error);
+        });
+    });
+}
+
 export function getRegionResourcePermissions(params) {
     params.path = 'regions';
     return getResourcePermissions(params);
