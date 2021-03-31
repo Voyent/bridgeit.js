@@ -1973,6 +1973,10 @@ function _getSelectedNidFromStorage() {
 
 // Setup message info and error listeners
 window.addEventListener('message-info',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+        
     if (typeof e.detail === 'string' && e.detail.trim()) {
         console.log('message-info:',e.detail);
         config.toast.close.enabled = false;
@@ -1980,18 +1984,30 @@ window.addEventListener('message-info',function(e) {
     }
 });
 window.addEventListener('message-info-long',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+        
     if (typeof e.detail === 'string' && e.detail.trim()) {
         console.log('message-info-long:',e.detail);
         _displayLongToastNotification({"subject":e.detail},true);
     }
 });
 window.addEventListener('message-info-sticky',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+        
     if (typeof e.detail === 'string' && e.detail.trim()) {
         console.log('message-info-sticky:',e.detail);
         _displayStickyToastNotification({"subject":e.detail},true);
     }
 });
 window.addEventListener('message-success',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+    
     if (typeof e.detail === 'string' && e.detail.trim()) {
         let style = config.toast.style;
         config.toast.style = style + 'background-color:#008000;';
@@ -2002,6 +2018,10 @@ window.addEventListener('message-success',function(e) {
     }
 });                                     
 window.addEventListener('message-warn',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+    
     if (typeof e.detail === 'string' && e.detail.trim()) {
         let style = config.toast.style;                       
         config.toast.style = style + 'background-color:#FF7900;';
@@ -2012,6 +2032,10 @@ window.addEventListener('message-warn',function(e) {
     }
 });
 window.addEventListener('message-warn-long',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+    
     if (typeof e.detail === 'string' && e.detail.trim()) {
         let style = config.toast.style;
         config.toast.style = style + 'background-color:#FF7900;';
@@ -2021,6 +2045,10 @@ window.addEventListener('message-warn-long',function(e) {
     }
 });
 window.addEventListener('message-warn-sticky',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+    
     if (typeof e.detail === 'string' && e.detail.trim()) {
         let style = config.toast.style;
         config.toast.style = style + 'background-color:#FF7900;';
@@ -2030,6 +2058,10 @@ window.addEventListener('message-warn-sticky',function(e) {
     }
 });
 window.addEventListener('message-error',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+    
     if (typeof e.detail === 'string' && e.detail.trim()) {
         let style = config.toast.style;
         config.toast.style = style + 'background-color:#C70000;';
@@ -2040,6 +2072,10 @@ window.addEventListener('message-error',function(e) {
     }
 });
 window.addEventListener('message-error-long',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+    
     if (typeof e.detail === 'string' && e.detail.trim()) {
         let style = config.toast.style;
         config.toast.style = style + 'background-color:#C70000;';
@@ -2049,6 +2085,10 @@ window.addEventListener('message-error-long',function(e) {
     }
 });
 window.addEventListener('message-error-sticky',function(e) {
+    if (!config.toast.message.enabled) {
+        return;
+    }
+    
     if (typeof e.detail === 'string' && e.detail.trim()) {
         let style = config.toast.style;
         config.toast.style = style + 'background-color:#C70000;';
