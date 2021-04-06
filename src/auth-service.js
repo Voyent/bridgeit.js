@@ -6,10 +6,20 @@ import { fireEvent } from './private-utils'
 const authKeys = {
     PASSWORD_KEY: 'voyentPassword',
     CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
-    RELOGIN_CB_KEY: 'voyentReloginCallback',
-    LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp',
-    COMPUTER_SLEEP_CB_KEY: 'voyentComputerSleepCallback',
+    REFRESH_TOKEN_CB_KEY: 'voyentTokenRefreshCallback',
+    INACTIVITY_CB_KEY: 'voyentInactivityCallback',
+    LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp'
 };
+// How long before the token expiry that the token will be refreshed (2 minutes).
+const tokenRefreshPadding = 2 * 60 * 1000;
+// How long the user is allowed to be inactive before the session is disconnected (20 minutes).
+const inactivityTimeout = 20 * 60 * 1000;
+
+// Listeners to update the last active time stamp.
+window.onmousemove = updateLastActiveTimestamp;
+window.onclick = updateLastActiveTimestamp;
+window.onscroll = updateLastActiveTimestamp;
+window.onkeypress = updateLastActiveTimestamp;
 
 function validateAndReturnRequiredRole(params, reject){
     const role = params.role;
@@ -30,8 +40,6 @@ function validateAndReturnRequiredRoles(params, reject){
         return reject(Error('The Voyent roles parameter is required'));
     }
 }
-
-let connected = false;
 
 /**
  * Retrieve a new access token from the Voyent auth service.
@@ -246,314 +254,173 @@ export function storeAppCredentials(credentials) {
 }
 
 /**
- * Connect to voyent.
- *
- * This function will connect to the Voyent voyent, and maintain the connection for the specified
- * timeout period (default 20 minutes). By default, the Voyent push service is also activated, so the client
- * may send and receive push notifications after connecting.
- *
- * After connecting to Voyent Services, any Voyent service API may be used without needing to re-authenticate.
- * After successfully connecting an authentication will be stored in session storage and available through
- * sessionStorage.voyentToken. This authentication information will automatically be used by other Voyent API
- * calls, so the token does not be included in subsequent calls, but is available if desired.
- *
- * A simple example of connecting to the Voyent Services and then making a service call is the following:
- * @example
- * v.connect({
- *           account: 'my_account',
- *           realm: 'realmA',
- *           user: 'user',
- *           password: 'secret'})
- *   .then( function(){
- *      console.log("successfully connnected to Voyent Services");
- *   })
- *   .then( function(docs){
- *      for( var d in docs ){ ... };
- *   })
- *   .catch( function(error){
- *      console.log("error connecting to Voyent Services: " + error);
- *   });
+ * Connects to the Voyent Alert! system and maintains the session permanently as long as the user
+ * is not inactive for the time specified in the `inactivityTimeout` variable (default 20 mins).
  *
  * @memberOf voyent.auth
  * @alias connect
  * @param {Object} params params
  * @param {String} params.account Voyent Services account name
- * @param {Boolean} params.admin The client should or should not log in as an account administrator
- * @param {String} params.realm Voyent Services realm
  * @param {String} params.username User name
  * @param {String} params.password User password
- * @param {String} params.host The Voyent Services host url, defaults to api.voyent.cloud
- * @param {Boolean} params.usePushService Open and connect to the Voyent push service, default true
- * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the Voyent login will last
- *     during inactivity. Default 20 minutes.
- * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session
- *     storage. If set to false, voyent will not attempt to relogin before the session expires.
- * @param {Function} params.onSessionExpiry Function callback to be called on session expiry. If you wish to
- *     ensure that disconnect is not called until after your onSessionExpiry callback has completed, please
- *     return a Promise from your function.
+ * @param {String} [params.realm] Voyent Services realm
+ * @param {Boolean} [params.admin] The client should or should not log in as an account administrator
+ * @param {String} [params.host] The Voyent Services host url, defaults to api.voyent.cloud
  * @returns Promise with service definitions
  *
  */
 export function connect(params) {
     return new Promise(function (resolve, reject) {
 
-        function startTokenExpiryTimer(timeout) {
-            const tokenSetAt = new Date();
-            tokenSetAt.setTime(getTokenSetAtTime());
+        params = params ? params : {};
 
-            const connectTimeoutCb = setTimeout(connectCallback, timeout);
-            utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
-
-            console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + timeout / 1000 / 60 + ' mins, expiresIn: ' +
-                (getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
-                (getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins, token set at ' + tokenSetAt);
-
-            // When the computer is put to sleep our timer for the access_token refresh is no longer valid
-            // since it will pause during sleep and then continue execution from where it left off once awake.
-            // We will try and detect if the computer has been sleeping by using a continuously running
-            // setInterval. If it takes longer than expected for the setInterval to execute then we will assume
-            // that the computer has been sleeping and try to refresh the token.
-
-            // First check if we already have a sleep timer running and if so clear it
-            const compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-            if (compSleepIntervalCb) {
-                clearInterval(compSleepIntervalCb);
-            }
-            const sleepTimeout = 10000; // Run the sleep timer every 10 seconds so it will detect sleep shortly after awakening
-            let lastCheckedTime = (new Date()).getTime();
-            const computerSleepTimer = setInterval(function () {
-                const currentTime = (new Date()).getTime();
-                // Set a 60 second buffer for the timeout as setInterval does not guarantee exact timing (VRAS-1710).
-                const timerPadding = 60000;
-                const nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
-                if (currentTime > (nextExpectedTime)) {
-                    // Clear the old token timer since it is not valid after computer sleep
-                    const oldConnectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
-                    if (oldConnectTimeoutCb) {
-                        clearTimeout(oldConnectTimeoutCb);
-                        utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-                    }
-                    // Try and refresh the token
-                    refreshAccessToken().then(function () {
-                        startTokenExpiryTimer(getExpiresIn() - timeoutPadding);
-                    }).catch(function () {});
-                }
-                lastCheckedTime = currentTime;
-            }, sleepTimeout);
-            utils.setSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY), computerSleepTimer);
+        // Build and store the connection settings so we
+        // can access them when refreshing the token.
+        let settings = {
+            host: baseURL
+        };
+        if (params.admin) {
+            settings.admin = params.admin;
         }
-
-        /* The function callback set to run before the next timeout,
-         will automatically reset the next setTimeout call if necessary */
-        function connectCallback() {
-            console.log(new Date().toISOString() + ' voyent.auth.connect: callback running');
-            let connectSettings = getConnectSettings();
-            if (!connectSettings) {
-                console.log(new Date().toISOString() + ' voyent.auth.connect: error, could not retrieve settings');
-                return;
-            }
-
-            const timeoutMillis = connectSettings.connectionTimeout * 60 * 1000;
-
-            //first check if connectionTimeout has expired
-            const now = new Date().getTime();
-            const inactiveMillis = now - getLastActiveTimestamp();
-            const millisUntilTimeoutExpires = timeoutMillis - inactiveMillis;
-            console.log('voyent.auth.connect: getLastActiveTimestamp: ' + getLastActiveTimestamp());
-            console.log('voyent.auth.connect: connection timeout ms: ' + timeoutMillis);
-            console.log('voyent.auth.connect: current timestamp: ' + now);
-            console.log('voyent.auth.connect: inactive ms: ' + inactiveMillis + '(' + (inactiveMillis / 1000 / 60) + ' mins)');
-            console.log('voyent.auth.connect: ms until timeout: ' + millisUntilTimeoutExpires + '(' + (millisUntilTimeoutExpires / 1000 / 60) + ' mins)');
-
-            //if we haven't exceeded the connection timeout, reconnect
-            if (millisUntilTimeoutExpires > 0) {
-                console.log(new Date().toISOString() + ' voyent.auth.connect: timeout has not been exceeded, ' +
-                    getTimeRemainingBeforeExpiry() / 1000 / 60 + ' mins remaining before token expires, ' +
-                    millisUntilTimeoutExpires / 1000 / 60 + ' mins remaining before timeout expires');
-
-                //if we the time remaining before expiry is less than the session timeout
-                //refresh the access token and set the timeout
-                if (timeoutMillis > millisUntilTimeoutExpires) {
-                    refreshAccessToken().then(function () {
-                        startTokenExpiryTimer(getExpiresIn() - timeoutPadding);
-                    }).catch(function() {});
-                }
-            } else {
-                console.log(new Date().toISOString() + ' voyent.auth.connect: timeout has expired, disconnecting..');
-
-                //look for the onSessionExpiry callback on the params first,
-                //as functions could be passed by reference
-                //secondly by settings, which would only be passed by name
-                let expiredCallback = params.onSessionExpiry;
-                if (!expiredCallback) {
-                    expiredCallback = connectSettings.onSessionExpiry;
-                }
-
-                //if there's no onSessionExpiry, call disconnect immediately
-                //otherwise search for onSessionExpiry function, if not found
-                //call disconnect() immediately, otherwise call onSessionExpiry
-                //if callback if a promise, wait until the promise completes
-                //before disconnecting, otherwise, wait 500ms then disconnect
-                if (expiredCallback) {
-                    let expiredCallbackFunction;
-                    if (typeof expiredCallback === 'function') {
-                        expiredCallbackFunction = expiredCallback;
-                    }
-                    else if (typeof expiredCallback === 'string') {
-                        expiredCallbackFunction = utils.findFunctionInGlobalScope(expiredCallback);
-                    }
-                    if (expiredCallbackFunction) {
-                        const expiredCallbackPromise = expiredCallbackFunction();
-                        if (expiredCallbackPromise && expiredCallbackPromise.then) {
-                            expiredCallbackPromise.then(disconnect).catch(disconnect).finally(function() {
-                                fireEvent(window, 'voyent-inactive-timeout-reached', {});
-                            });
-                        }
-                        else {
-                            setTimeout(function() {
-                                disconnect();
-                                fireEvent(window, 'voyent-inactive-timeout-reached', {});
-                            }, 500);
-                        }
-                    }
-                    else {
-                        console.log(new Date().toISOString() + ' voyent.auth.connect: error calling onSessionExpiry callback, ' +
-                            'could not find function: ' + expiredCallback);
-                        disconnect();
-                        fireEvent(window, 'voyent-inactive-timeout-reached', {});
-                    }
-
-                }
-                else {
-                    disconnect();
-                    fireEvent(window, 'voyent-inactive-timeout-reached', {});
-                }
-
-            }
-        }
-
-        /* initialize the timing for the callback check */
-        function initConnectCallback() {
-
-            //if the desired connection timeout is greater the token expiry
-            //set the callback check for just before the token expires
-            let callbackTimeout;
-            if (connectionTimeoutMillis > getTimeRemainingBeforeExpiry()) {
-                callbackTimeout = getTimeRemainingBeforeExpiry() - timeoutPadding;
-            }
-            //otherwise the disired timeout is less then the token expiry
-            //so set the callback to happen just at specified timeout
-            else {
-                callbackTimeout = connectionTimeoutMillis;
-            }
-
-            startTokenExpiryTimer(callbackTimeout);
-
-            if (settings.usePushService) {
-                //startPushService(settings);
-            }
-            connected = true;
-        }
-
-        /* initialize basic settings */
-        function initSettings() {
-
-            params = params ? params : {};
-            if (!params.storeCredentials) {
-                params.storeCredentials = true;
-            }
-
-            //store connect settings
-            settings = {
-                host: baseURL,
-                usePushService: params.usePushService,
-                connectionTimeout: params.connectionTimeout || 20,
-                ssl: params.ssl,
-                storeCredentials: params.storeCredentials || true,
-                onSessionExpiry: params.onSessionExpiry,
-            };
-            if (params.admin) {
-                settings.admin = params.admin;
-            }
-
-            //settings.connectionTimeout = 5;
-
-            utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
-
-            if (params.onSessionExpiry) {
-                if (typeof params.onSessionExpiry === 'function') {
-                    const name = utils.getFunctionName(params.onSessionExpiry);
-                    if (name) {
-                        settings.onSessionExpiry = name;
-                    }
-                }
-            }
-
-
-            connectionTimeoutMillis = (settings.connectionTimeout) * 60 * 1000;
-
-        }
-
-        /* store the provided credentials */
-        function saveCredentials() {
-            utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(getLastKnownAccount()));
-            utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(getLastKnownRealm()));
-            utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(getLastKnownHost()));
-            utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
-            utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
-        }
-
-        let timeoutPadding = 60000;
-        let settings;
-        let connectionTimeoutMillis;
-        initSettings();
+        utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
         if (isLoggedIn()) {
-            initConnectCallback();
+            // Start the session timers and resolve.
+            startSessionTimers();
             resolve();
         }
         else {
             login(params).then(function (authResponse) {
-                console.log(new Date().toISOString() + ' voyent.auth.connect: received auth response');
-                // Set the username from the response so we have the exact username with proper letter casing.
+                // Set the username from the response so we have
+                // the exact username with proper letter casing.
                 if (authResponse.username) {
                     params.username = authResponse.username;
                 }
-                saveCredentials();
-                initConnectCallback();
+                // Store the credentials.
+                utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(getLastKnownAccount()));
+                utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(getLastKnownRealm()));
+                utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(getLastKnownHost()));
+                utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+                utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
+                // Start the session timers and resolve.
+                startSessionTimers();
                 resolve(authResponse);
-            })['catch'](function (error) {
+            }).catch(function (error) {
                 reject(error);
             });
         }
     });
 }
 
+/**
+ * Starts the token and inactive session timers.
+ */
+function startSessionTimers() {
+    startTokenExpiryTimer();
+    startInactiveSessionTimer();
+}
+
+/**
+ * Starts the token expiry timer. The token will be refreshed
+ * automatically `tokenRefreshPadding` ms before the expiry.
+ */
+function startTokenExpiryTimer() {
+
+    let refreshTokenAt = getTimeRemainingBeforeExpiry() - tokenRefreshPadding;
+
+    console.log('MITHRIL:', new Date().toISOString(), 'token has',
+        (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
+        (getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.',
+        'Triggering connectCallback in', (refreshTokenAt / 1000 / 60).toPrecision(4), 'mins'
+    );
+
+    const refreshTokenTimeoutCb = setTimeout(function() {
+        refreshAccessToken().then(function () {
+            startTokenExpiryTimer();
+        }).catch(function() {});
+    }, refreshTokenAt);
+    utils.setSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY), refreshTokenTimeoutCb);
+}
+
+/**
+ * Starts the inactive session timer. The session will be
+ * disconnected after `inactivityTimeout` ms of inactivity.
+ */
+function startInactiveSessionTimer() {
+
+    const inactivityTimeoutCb = setTimeout(function() {
+
+        const inactiveMillis = new Date().getTime() - getLastActiveTimestamp();
+        console.log('MITHRIL:', new Date().toISOString(), 'user has been inactive for',
+            (inactiveMillis / 1000 / 60).toPrecision(4), '/',
+            (inactivityTimeout / 1000 / 60).toPrecision(4), 'mins.'
+        );
+        disconnectSession();
+
+    }, inactivityTimeout);
+    utils.setSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY), inactivityTimeoutCb);
+}
+
+/**
+ * Removes the current inactive session timer and creates a new one if the session is
+ * still valid. If the session is no longer valid the user will be disconnected.
+ */
+function resetInactiveSessionTimer() {
+
+    const inactivityTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+    if (inactivityTimeoutCb) {
+        clearTimeout(parseInt(inactivityTimeoutCb));
+        utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+    }
+
+    // Before restarting the inactivity timer ensure the session is valid first.
+    // This catches the case where the user puts their computer to sleep with the
+    // web app open and then tries to interact with the app after returning.
+    if (getTimeRemainingBeforeExpiry() <= 0) {
+        let remainingMins = (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
+        console.log('MITHRIL: disconnecting session because it expired', remainingMins, 'mins ago.');
+        disconnectSession();
+    }
+    else {
+        startInactiveSessionTimer();
+    }
+}
+
+/**
+ * Disconnects the Voyent Alert! session and fires the `voyent-session-expired` event.
+ */
+function disconnectSession() {
+    console.log('MITHRIL: inactivity timeout has been exceeded or token has expired, disconnecting...');
+    disconnect();
+    fireEvent(window, 'voyent-session-expired', {});
+}
+
 export function refreshAccessToken(isRetryAttempt) {
+    console.log('MITHRIL: refreshAccessToken triggered');
     return new Promise(function (resolve, reject) {
         if (!isLoggedIn()) {
+            console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because user is not logged in');
             fireEvent(window, 'voyent-access-token-refresh-failed', {});
             reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
         }
         else {
             let loginParams = getLoginParams();
             if (!loginParams) {
+                console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because there are no `loginParams`', loginParams);
                 fireEvent(window, 'voyent-access-token-refresh-failed', {});
                 reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
             }
             else {
+                console.log('MITHRIL: refreshing access_token...');
                 loginParams.suppressUpdateTimestamp = true;
-                console.log('voyent.auth.refreshAccessToken()');
                 login(loginParams).then(function (authResponse) {
+                    console.log('MITHRIL: access_token successfully refreshed.');
                     fireEvent(window, 'voyent-access-token-refreshed', getLastAccessToken());
-                    if (loginParams.usePushService) {
-                        //startPushService(loginParams);
-                    }
                     resolve(authResponse);
                 }).catch(function (errorResponse) {
                     // Try and refresh the token once more after a small timeout
                     if (!isRetryAttempt) {
-                        console.log('Failed to refresh token, trying again');
+                        console.log('MITHRIL: failed to refresh token, trying again', errorResponse);
                         setTimeout(function() {
                             refreshAccessToken(true).then(function (response) {
                                 resolve(response);
@@ -561,7 +428,7 @@ export function refreshAccessToken(isRetryAttempt) {
                         },2000);
                     }
                     else {
-                        console.log('Failed to refresh token on retry:',errorResponse);
+                        console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because we failed to refresh token on retry', errorResponse);
                         fireEvent(window, 'voyent-access-token-refresh-failed', {});
                         reject(errorResponse);
                     }
@@ -608,18 +475,17 @@ export function disconnect() {
     utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
     utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
     utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
-    const connectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-    if (connectTimeoutCb) {
-        clearTimeout(connectTimeoutCb);
+    const refreshTokenTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY));
+    if (refreshTokenTimeoutCb) {
+        clearTimeout(parseInt(refreshTokenTimeoutCb));
     }
-    utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-    const compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-    if (compSleepIntervalCb) {
-        clearInterval(compSleepIntervalCb);
+    utils.removeSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY));
+    const inactivityTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+    if (inactivityTimeoutCb) {
+        clearTimeout(parseInt(inactivityTimeoutCb));
     }
-    utils.removeSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-    console.log(new Date().toISOString() + ' voyent has disconnected');
-    connected = false;
+    utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+    console.log('MITHRIL:', new Date().toISOString() + ' voyent has disconnected');
 }
 
 export function getExpiresIn() {
@@ -904,13 +770,13 @@ export function checkUserRoles(params) {
 
 
 /**
- * Update the last active timestamp for Voyent auth. This value is used
- * when checking for clients-side session timeouts.
+ * Update the last active timestamp for the session and resets the inactivity timer.
  * @memberOf voyent.auth
  * @alias updateLastActiveTimestamp
  */
 export function updateLastActiveTimestamp() {
     utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
+    resetInactiveSessionTimer();
 }
 
 /**

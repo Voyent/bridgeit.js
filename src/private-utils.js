@@ -323,38 +323,6 @@ export function extractResponseValues(xhr) {
     }
 }
 
-export function getFunctionName(fn) {
-    let ret = fn.toString();
-    ret = ret.substr('function '.length);
-    ret = ret.substr(0, ret.indexOf('('));
-    return ret;
-}
-
-export function findFunctionInGlobalScope(fn) {
-    if (!fn) {
-        return null;
-    }
-    let functionName;
-    if (typeof fn === "string") {
-        functionName = fn;
-        const parts = functionName.split(".");
-        let theObject = window;
-        for (let i = 0; i < parts.length; i++) {
-            theObject = theObject[parts[i]];
-            if (!theObject) {
-                return null;
-            }
-        }
-        if (window == theObject) {
-            return null;
-        }
-        return theObject;
-    }
-    else if (typeof fn === "function") {
-        return fn;
-    }
-}
-
 export function fireEvent(el, eventName, detail) {
     let event;
     if ('CustomEvent' in window) {
