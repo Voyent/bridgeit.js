@@ -485,7 +485,7 @@ export function disconnect() {
     utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
     window.removeEventListener('click', updateLastActiveTimestamp);
     window.removeEventListener('keypress', updateLastActiveTimestamp);
-    console.log('MITHRIL:', new Date().toISOString() + ' voyent has disconnected');
+    console.log('MITHRIL:', new Date().toISOString(), 'voyent has disconnected');
 }
 
 export function getExpiresIn() {
