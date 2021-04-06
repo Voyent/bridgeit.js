@@ -3552,8 +3552,12 @@ function AuthService(v, keys, utils) {
          * Starts the token and inactive session timers.
          */
         startSessionTimers: function() {
+            // Start the token expiry and inactive session timer.
             v.auth.startTokenExpiryTimer();
             v.auth.startInactiveSessionTimer();
+            // Listeners to update the last active time stamp.
+            window.addEventListener('click', v.auth.updateLastActiveTimestamp);
+            window.addEventListener('keypress', v.auth.updateLastActiveTimestamp);
         },
 
         /**
@@ -3715,7 +3719,7 @@ function AuthService(v, keys, utils) {
 		 *      }
          *
          */
-        disconnect: function () {
+        disconnect: function() {
             utils.removeSessionStorageItem(btoa(keys.TOKEN_KEY));
             utils.removeSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
             utils.removeSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
@@ -3726,17 +3730,19 @@ function AuthService(v, keys, utils) {
             utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
             utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
             utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
-            var connectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-            if (connectTimeoutCb) {
-                clearTimeout(connectTimeoutCb);
+            const refreshTokenTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY));
+            if (refreshTokenTimeoutCb) {
+                clearTimeout(parseInt(refreshTokenTimeoutCb));
             }
-            utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-            var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-            if (compSleepIntervalCb) {
-                clearInterval(compSleepIntervalCb);
+            utils.removeSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY));
+            const inactivityTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+            if (inactivityTimeoutCb) {
+                clearTimeout(parseInt(inactivityTimeoutCb));
             }
-            utils.removeSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-            console.log('POLYMER:', new Date().toISOString() + ' voyent has disconnected');
+            utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+            window.removeEventListener('click', v.auth.updateLastActiveTimestamp);
+            window.removeEventListener('keypress', v.auth.updateLastActiveTimestamp);
+            console.log('POLYMER:', new Date().toISOString(), 'voyent has disconnected');
         },
 
         getLastAccessToken: function () {
