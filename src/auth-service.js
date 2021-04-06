@@ -15,10 +15,6 @@ const tokenRefreshPadding = 2 * 60 * 1000;
 // How long the user is allowed to be inactive before the session is disconnected (20 minutes).
 const inactivityTimeout = 20 * 60 * 1000;
 
-// Listeners to update the last active time stamp.
-window.onclick = updateLastActiveTimestamp;
-window.onkeypress = updateLastActiveTimestamp;
-
 function validateAndReturnRequiredRole(params, reject){
     const role = params.role;
     if( role ){
@@ -314,8 +310,12 @@ export function connect(params) {
  * Starts the token and inactive session timers.
  */
 function startSessionTimers() {
+    // Start the token expiry and inactive session timer.
     startTokenExpiryTimer();
     startInactiveSessionTimer();
+    // Listeners to update the last active time stamp.
+    window.addEventListener('click', updateLastActiveTimestamp);
+    window.addEventListener('keypress', updateLastActiveTimestamp);
 }
 
 /**
@@ -483,6 +483,8 @@ export function disconnect() {
         clearTimeout(parseInt(inactivityTimeoutCb));
     }
     utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+    window.removeEventListener('click', updateLastActiveTimestamp);
+    window.removeEventListener('keypress', updateLastActiveTimestamp);
     console.log('MITHRIL:', new Date().toISOString() + ' voyent has disconnected');
 }
 
