@@ -16,9 +16,7 @@ const tokenRefreshPadding = 2 * 60 * 1000;
 const inactivityTimeout = 20 * 60 * 1000;
 
 // Listeners to update the last active time stamp.
-window.onmousemove = updateLastActiveTimestamp;
 window.onclick = updateLastActiveTimestamp;
-window.onscroll = updateLastActiveTimestamp;
 window.onkeypress = updateLastActiveTimestamp;
 
 function validateAndReturnRequiredRole(params, reject){
@@ -331,7 +329,7 @@ function startTokenExpiryTimer() {
     console.log('MITHRIL:', new Date().toISOString(), 'token has',
         (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
         (getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.',
-        'Triggering connectCallback in', (refreshTokenAt / 1000 / 60).toPrecision(4), 'mins'
+        'refreshing token in', (refreshTokenAt / 1000 / 60).toPrecision(4), 'mins.'
     );
 
     const refreshTokenTimeoutCb = setTimeout(function() {
