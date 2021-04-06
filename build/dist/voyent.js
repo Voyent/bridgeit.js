@@ -3567,7 +3567,7 @@ function AuthService(v, keys, utils) {
             console.log('POLYMER:', new Date().toISOString(), 'token has',
                 (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
                 (v.auth.getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.',
-                'Refreshing token in', (refreshTokenAt / 1000 / 60).toPrecision(4), 'mins'
+                'refreshing token in', (refreshTokenAt / 1000 / 60).toPrecision(4), 'mins.'
             );
 
             var refreshTokenTimeoutCb = setTimeout(function() {
@@ -4084,9 +4084,7 @@ function AuthService(v, keys, utils) {
     };
 
     // Listeners to update the last active time stamp.
-    window.onmousemove = voyentAuth.updateLastActiveTimestamp;
     window.onclick = voyentAuth.updateLastActiveTimestamp;
-    window.onscroll = voyentAuth.updateLastActiveTimestamp;
     window.onkeypress = voyentAuth.updateLastActiveTimestamp;
 
     return voyentAuth;
