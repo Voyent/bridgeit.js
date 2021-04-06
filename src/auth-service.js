@@ -4,10 +4,15 @@ function AuthService(v, keys, utils) {
         PASSWORD_KEY: 'voyentPassword_vras',
         SCOPE_TO_PATH_KEY: "voyentScopeToPath_vras",
         CONNECT_SETTINGS_KEY: 'voyentConnectSettings_vras',
-        RELOGIN_CB_KEY: 'voyentReloginCallback_vras',
-        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp_vras',
-        COMPUTER_SLEEP_CB_KEY: 'voyentComputerSleepCallback_vras',
+        REFRESH_TOKEN_CB_KEY: 'voyentTokenRefreshCallback',
+        INACTIVITY_CB_KEY: 'voyentInactivityCallback',
+        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp_vras'
     };
+
+    // How long before the token expiry that the token will be refreshed (2 minutes).
+    var tokenRefreshPadding = 2 * 60 * 1000;
+    // How long the user is allowed to be inactive before the session is disconnected (20 minutes).
+    var inactivityTimeout = 20 * 60 * 1000;
 
     function validateAndReturnRequiredRole(params, reject){
         var role = params.role;
@@ -29,7 +34,7 @@ function AuthService(v, keys, utils) {
         }
     }
 
-    return {
+    var voyentAuth = {
 
         /**
          * Retrieve a new access token from the Voyent auth service.
@@ -238,316 +243,179 @@ function AuthService(v, keys, utils) {
         },
 
         /**
-         * Connect to voyent.
-         *
-         * This function will connect to the Voyent voyent, and maintain the connection for the specified
-         * timeout period (default 20 minutes). By default, the Voyent push service is also activated, so the client
-         * may send and receive push notifications after connecting.
-         *
-         * After connecting to Voyent Services, any Voyent service API may be used without needing to re-authenticate.
-         * After successfully connecting an authentication will be stored in session storage and available through
-         * sessionStorage.voyentToken. This authentication information will automatically be used by other Voyent API
-         * calls, so the token does not be included in subsequent calls, but is available if desired.
-         *
-         * A simple example of connecting to the Voyent Services and then making a service call is the following:
-         * @example
-         * v.connect({
-		 *           account: 'my_account',
-		 *           realm: 'realmA',
-		 *           user: 'user',
-		 *           password: 'secret'})
-         *   .then( function(){
-		 *      console.log("successfully connnected to Voyent Services");
-		 *   })
-         *   .then( function(docs){
-		 *      for( var d in docs ){ ... };
-		 *   })
-         *   .catch( function(error){
-		 *      console.log("error connecting to Voyent Services: " + error);
-		 *   });
+         * Connects to the Voyent Alert! system and maintains the session permanently as long as the user
+         * is not inactive for the time specified in the `inactivityTimeout` variable (default 20 mins).
          *
          * @memberOf voyent.auth
          * @alias connect
          * @param {Object} params params
          * @param {String} params.account Voyent Services account name
-         * @param {Boolean} params.admin The client should or should not log in as an account administrator
-         * @param {String} params.realm Voyent Services realm
          * @param {String} params.username User name
          * @param {String} params.password User password
-         * @param {String} params.host The Voyent Services host url, defaults to api.voyent.cloud
-         * @param {Boolean} params.usePushService Open and connect to the Voyent push service, default true
-         * @param {Boolean} params.connectionTimeout The timeout duration, in minutes, that the Voyent login will last
-         *     during inactivity. Default 20 minutes.
-         * @param {Boolean} params.storeCredentials (default true) Whether to store encrypted credentials in session
-         *     storage. If set to false, voyent will not attempt to relogin before the session expires.
-         * @param {Function} params.onSessionExpiry Function callback to be called on session expiry. If you wish to
-         *     ensure that disconnect is not called until after your onSessionExpiry callback has completed, please
-         *     return a Promise from your function.
-         * @param {String} params.scopeToPath (default '/') If set, the authentication token will be restricted to the
-         *     given path, unless on localhost.
+         * @param {String} [params.realm] Voyent Services realm
+         * @param {Boolean} [params.admin] The client should or should not log in as an account administrator
+         * @param {String} [params.host] The Voyent Services host url, defaults to api.voyent.cloud
+         * @param {String} [params.scopeToPath] (default '/') If set, the authentication token will be
+         * restricted to the given path, unless on localhost.
          * @returns Promise with service definitions
          *
          */
-        connect: function (params) {
+        connect: function(params) {
             return new Promise(function (resolve, reject) {
 
-                function startTokenExpiryTimer(timeout) {
-                    var tokenSetAt = new Date();
-                    tokenSetAt.setTime(v.auth.getTokenSetAtTime());
+                params = params ? params : {};
 
-                    var connectTimeoutCb = setTimeout(connectCallback, timeout);
-                    utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
-
-                    console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + timeout / 1000 / 60 + ' mins, expiresIn: ' +
-                        (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
-                        (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60) + ' mins, token set at ' + tokenSetAt);
-
-                    // When the computer is put to sleep our timer for the access_token refresh is no longer valid
-                    // since it will pause during sleep and then continue execution from where it left off once awake.
-                    // We will try and detect if the computer has been sleeping by using a continuously running
-                    // setInterval. If it takes longer than expected for the setInterval to execute then we will assume
-                    // that the computer has been sleeping and try to refresh the token.
-
-                    // First check if we already have a sleep timer running and if so clear it
-                    var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-                    if (compSleepIntervalCb) {
-                        clearInterval(compSleepIntervalCb);
-                    }
-                    var sleepTimeout = 10000; // Run the sleep timer every 10 seconds so it will detect sleep shortly after awakening
-                    var lastCheckedTime = (new Date()).getTime();
-                    var computerSleepTimer = setInterval(function() {
-                        var currentTime = (new Date()).getTime();
-                        // Set a 60 second buffer for the timeout as setInterval does not guarantee exact timing (VRAS-1710).
-                        var timerPadding = 60000;
-                        var nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
-                        if (currentTime > (nextExpectedTime)) {
-                            // Clear the old token timer since it is not valid after computer sleep
-                            var oldConnectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
-                            if (oldConnectTimeoutCb) {
-                                clearTimeout(oldConnectTimeoutCb);
-                                utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-                            }
-                            // Try and refresh the token
-                            v.auth.refreshAccessToken().then(function () {
-                                startTokenExpiryTimer(v.auth.getExpiresIn() - timeoutPadding);
-                            }).catch(function(e) {});
-                        }
-                        lastCheckedTime = currentTime;
-                    }, sleepTimeout);
-                    utils.setSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY), computerSleepTimer);
+                // Build and store the connection settings so we
+                // can access them when refreshing the token.
+                var settings = {
+                    host: v.baseURL
+                };
+                if (params.admin) {
+                    settings.admin = params.admin;
+                }
+                if (params.scopeToPath) {
+                    settings.scopeToPath = params.scopeToPath;
                 }
 
-                /* The function callback set to run before the next timeout,
-                 will automatically reset the next setTimeout call if necessary */
-                function connectCallback() {
-                    console.log(new Date().toISOString() + ' voyent.auth.connect: callback running');
-                    var connectSettings = v.auth.getConnectSettings();
-                    if (!connectSettings) {
-                        console.log(new Date().toISOString() + ' voyent.auth.connect: error, could not retrieve settings');
-                        return;
-                    }
-
-                    var timeoutMillis = connectSettings.connectionTimeout * 60 * 1000;
-
-                    //first check if connectionTimeout has expired
-                    var now = new Date().getTime();
-                    var inactiveMillis = now - v.auth.getLastActiveTimestamp();
-                    var millisUntilTimeoutExpires = timeoutMillis - inactiveMillis;
-                    console.log('voyent.auth.connect: getLastActiveTimestamp: ' + v.auth.getLastActiveTimestamp());
-                    console.log('voyent.auth.connect: connection timeout ms: ' + timeoutMillis);
-                    console.log('voyent.auth.connect: current timestamp: ' + now);
-                    console.log('voyent.auth.connect: inactive ms: ' + inactiveMillis + '(' + (inactiveMillis / 1000 / 60) + ' mins)');
-                    console.log('voyent.auth.connect: ms until timeout: ' + millisUntilTimeoutExpires + '(' + (millisUntilTimeoutExpires / 1000 / 60) + ' mins)');
-
-                    //if we haven't exceeded the connection timeout, reconnect
-                    if (millisUntilTimeoutExpires > 0) {
-                        console.log(new Date().toISOString() + ' voyent.auth.connect: timeout has not been exceeded, ' +
-                            v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60 + ' mins remaining before token expires, ' +
-                            millisUntilTimeoutExpires / 1000 / 60 + ' mins remaining before timeout expires');
-
-                        //if we the time remaining before expiry is less than the session timeout
-                        //refresh the access token and set the timeout
-                        if (timeoutMillis > millisUntilTimeoutExpires) {
-                            v.auth.refreshAccessToken().then(function () {
-                                startTokenExpiryTimer(v.auth.getExpiresIn() - timeoutPadding);
-                            }).catch(function(e) {});
-                        }
-                    } else {
-                        console.log(new Date().toISOString() + ' voyent.auth.connect: timeout has expired, disconnecting..');
-
-                        //look for the onSessionExpiry callback on the params first,
-                        //as functions could be passed by reference
-                        //secondly by settings, which would only be passed by name
-                        var expiredCallback = params.onSessionExpiry;
-                        if (!expiredCallback) {
-                            expiredCallback = connectSettings.onSessionExpiry;
-                        }
-
-                        //if there's no onSessionExpiry, call disconnect immediately
-                        //otherwise search for onSessionExpiry function, if not found
-                        //call disconnect() immediately, otherwise call onSessionExpiry
-                        //if callback if a promise, wait until the promise completes
-                        //before disconnecting, otherwise, wait 500ms then disconnect
-                        if (expiredCallback) {
-                            var expiredCallbackFunction;
-                            if (typeof expiredCallback === 'function') {
-                                expiredCallbackFunction = expiredCallback;
-                            }
-                            else if (typeof expiredCallback === 'string') {
-                                expiredCallbackFunction = utils.findFunctionInGlobalScope(expiredCallback);
-                            }
-                            if (expiredCallbackFunction) {
-                                var expiredCallbackPromise = expiredCallbackFunction();
-                                if (expiredCallbackPromise && expiredCallbackPromise.then) {
-                                    expiredCallbackPromise.then(v.auth.disconnect).catch(v.auth.disconnect).finally(function() {
-                                        v._fireEvent(window, 'voyent-inactive-timeout-reached-vras', {});
-                                    });
-                                }
-                                else {
-                                    setTimeout(function() {
-                                        v.auth.disconnect();
-                                        v._fireEvent(window, 'voyent-inactive-timeout-reached-vras', {});
-                                    }, 500);
-                                }
-                            }
-                            else {
-                                console.log(new Date().toISOString() + ' voyent.auth.connect: error calling onSessionExpiry callback, ' +
-                                    'could not find function: ' + expiredCallback);
-                                v.auth.disconnect();
-                                v._fireEvent(window, 'voyent-inactive-timeout-reached-vras', {});
-                            }
-
-                        }
-                        else {
-                            v.auth.disconnect();
-                            v._fireEvent(window, 'voyent-inactive-timeout-reached-vras', {});
-                        }
-
-                    }
-                }
-
-                /* initialize the timing for the callback check */
-                function initConnectCallback() {
-
-                    //if the desired connection timeout is greater the token expiry
-                    //set the callback check for just before the token expires
-                    var callbackTimeout;
-                    if (connectionTimeoutMillis > v.auth.getTimeRemainingBeforeExpiry()) {
-                        callbackTimeout = v.auth.getTimeRemainingBeforeExpiry() - timeoutPadding;
-                    }
-                    //otherwise the disired timeout is less then the token expiry
-                    //so set the callback to happen just at specified timeout
-                    else {
-                        callbackTimeout = connectionTimeoutMillis;
-                    }
-
-                    startTokenExpiryTimer(callbackTimeout);
-
-                    if (settings.usePushService) {
-                        // v.push.startPushService(settings);
-                    }
-                    v.auth.connected = true;
-                }
-
-                /* initialize basic settings */
-                function initSettings() {
-
-                    params = params ? params : {};
-                    if (!params.storeCredentials) {
-                        params.storeCredentials = true;
-                    }
-
-                    //store connect settings
-                    settings = {
-                        host: v.baseURL,
-                        usePushService: params.usePushService,
-                        connectionTimeout: params.connectionTimeout || 20,
-                        ssl: params.ssl,
-                        storeCredentials: params.storeCredentials || true,
-                        onSessionExpiry: params.onSessionExpiry,
-                        admin: params.admin
-                    };
-                    if (params.scopeToPath) {
-                        settings.scopeToPath = params.scopeToPath;
-                    }
-
-                    //settings.connectionTimeout = 5;
-
-                    utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
-
-                    if (params.onSessionExpiry) {
-                        if (typeof params.onSessionExpiry === 'function') {
-                            var name = utils.getFunctionName(params.onSessionExpiry);
-                            if (name) {
-                                settings.onSessionExpiry = name;
-                            }
-                        }
-                    }
-
-
-                    connectionTimeoutMillis = (settings.connectionTimeout) * 60 * 1000;
-
-                }
-
-                /* store the provided credentials */
-                function saveCredentials() {
-                    utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(v.auth.getLastKnownAccount()));
-                    utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(v.auth.getLastKnownRealm()));
-                    utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(v.auth.getLastKnownHost()));
-                    utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
-                    utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
-                }
-
-                var timeoutPadding = 60000;
-                var settings;
-                var connectionTimeoutMillis;
-                initSettings();
+                utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
                 if (v.auth.isLoggedIn()) {
-                    initConnectCallback();
+                    // Start the session timers and resolve.
+                    v.auth.startSessionTimers();
                     resolve();
                 }
                 else {
                     v.auth.login(params).then(function (authResponse) {
-                        console.log(new Date().toISOString() + ' voyent.auth.connect: received auth response');
-                        // Set the username from the response so we have the exact username with proper letter casing.
+                        // Set the username from the response so we have
+                        // the exact username with proper letter casing.
                         if (authResponse.username) {
                             params.username = authResponse.username;
                         }
-                        saveCredentials();
-                        initConnectCallback();
+                        // Store the credentials.
+                        utils.setSessionStorageItem(btoa(keys.ACCOUNT_KEY), btoa(v.auth.getLastKnownAccount()));
+                        utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(v.auth.getLastKnownRealm()));
+                        utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(v.auth.getLastKnownHost()));
+                        utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
+                        utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
+                        // Start the session timers and resolve.
+                        v.auth.startSessionTimers();
                         resolve(authResponse);
-                    })['catch'](function (error) {
+                    }).catch(function (error) {
                         reject(error);
                     });
                 }
             });
         },
 
-        refreshAccessToken: function (isRetryAttempt) {
+        /**
+         * Starts the token and inactive session timers.
+         */
+        startSessionTimers: function() {
+            v.auth.startTokenExpiryTimer();
+            v.auth.startInactiveSessionTimer();
+        },
+
+        /**
+         * Starts the token expiry timer. The token will be refreshed
+         * automatically `tokenRefreshPadding` ms before the expiry.
+         */
+        startTokenExpiryTimer: function() {
+
+            var refreshTokenAt = v.auth.getTimeRemainingBeforeExpiry() - tokenRefreshPadding;
+
+            console.log('POLYMER:', new Date().toISOString(), 'token has',
+                (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
+                (v.auth.getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.',
+                'Refreshing token in', (refreshTokenAt / 1000 / 60).toPrecision(4), 'mins'
+            );
+
+            var refreshTokenTimeoutCb = setTimeout(function() {
+                v.auth.refreshAccessToken().then(function () {
+                    v.auth.startTokenExpiryTimer();
+                }).catch(function() {});
+            }, refreshTokenAt);
+            utils.setSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY), refreshTokenTimeoutCb);
+        },
+
+        /**
+         * Starts the inactive session timer. The session will be
+         * disconnected after `inactivityTimeout` ms of inactivity.
+         */
+        startInactiveSessionTimer: function() {
+
+            var inactivityTimeoutCb = setTimeout(function() {
+
+                var inactiveMillis = new Date().getTime() - v.auth.getLastActiveTimestamp();
+                console.log('POLYMER:', new Date().toISOString(), 'user has been inactive for',
+                    (inactiveMillis / 1000 / 60).toPrecision(4), '/',
+                    (inactivityTimeout / 1000 / 60).toPrecision(4), 'mins.'
+                );
+                v.auth.disconnectSession();
+
+            }, inactivityTimeout);
+            utils.setSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY), inactivityTimeoutCb);
+        },
+
+        /**
+         * Removes the current inactive session timer and creates a new one if the session is
+         * still valid. If the session is no longer valid the user will be disconnected.
+         */
+        resetInactiveSessionTimer: function() {
+
+            var inactivityTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+            if (inactivityTimeoutCb) {
+                clearTimeout(parseInt(inactivityTimeoutCb));
+                utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+            }
+
+            // Before restarting the inactivity timer ensure the session is valid first.
+            // This catches the case where the user puts their computer to sleep with the
+            // web app open and then tries to interact with the app after returning.
+            if (v.auth.getTimeRemainingBeforeExpiry() <= 0) {
+                var remainingMins = (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
+                console.log('POLYMER: disconnecting session because it expired', remainingMins, 'mins ago.');
+                v.auth.disconnectSession();
+            }
+            else {
+                v.auth.startInactiveSessionTimer();
+            }
+        },
+
+        /**
+         * Disconnects the Voyent Alert! session and fires the `voyent-session-expired` event.
+         */
+        disconnectSession: function() {
+            console.log('POLYMER: inactivity timeout has been exceeded or token has expired, disconnecting...');
+            v.auth.disconnect();
+            v._fireEvent(window, 'voyent-session-expired-vras', {});
+        },
+
+        refreshAccessToken: function(isRetryAttempt) {
+            console.log('POLYMER: refreshAccessToken triggered');
             return new Promise(function (resolve, reject) {
                 if (!v.auth.isLoggedIn()) {
+                    console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because user is not logged in');
                     v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                     reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
                 }
                 else {
                     var loginParams = v.auth.getLoginParams();
                     if (!loginParams) {
+                        console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because there are no `loginParams`', loginParams);
                         v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
-                        console.log('voyent.auth.refreshAccessToken()');
-                        v.auth.login(loginParams).then(function (authResponse) {
+                        console.log('POLYMER: refreshing access_token...');
+                        loginParams.suppressUpdateTimestamp = true;
+                        login(loginParams).then(function (authResponse) {
+                            console.log('POLYMER: access_token successfully refreshed.');
                             v._fireEvent(window, 'voyent-access-token-refreshed-vras', v.auth.getLastAccessToken());
-                            if (loginParams.usePushService) {
-                                // v.push.startPushService(loginParams);
-                            }
                             resolve(authResponse);
                         }).catch(function (errorResponse) {
                             // Try and refresh the token once more after a small timeout
                             if (!isRetryAttempt) {
-                                console.log('Failed to refresh token, trying again');
+                                console.log('POLYMER: failed to refresh token, trying again', errorResponse);
                                 setTimeout(function() {
                                     v.auth.refreshAccessToken(true).then(function (response) {
                                         resolve(response);
@@ -555,7 +423,7 @@ function AuthService(v, keys, utils) {
                                 },2000);
                             }
                             else {
-                                console.log('Failed to refresh token on retry:', errorResponse);
+                                console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because we failed to refresh token on retry', errorResponse);
                                 v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                                 reject(errorResponse);
                             }
@@ -627,8 +495,7 @@ function AuthService(v, keys, utils) {
                 clearInterval(compSleepIntervalCb);
             }
             utils.removeSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
-            console.log(new Date().toISOString() + ' voyent has disconnected');
-            v.auth.connected = false;
+            console.log('POLYMER:', new Date().toISOString() + ' voyent has disconnected');
         },
 
         getLastAccessToken: function () {
@@ -680,7 +547,7 @@ function AuthService(v, keys, utils) {
             }
             
             var result = token && tokenExpiresIn && tokenSetAt && (new Date().getTime() < (tokenExpiresIn + tokenSetAt) ) && (utils.isNode || (!utils.isNode && (isDev || currentPath.indexOf(scopeToPath) === 0)));
-            //console.log('v.auth.isLoggedIn=' + result + ': token=' + token + ' tokenExpiresIn=' + tokenExpiresIn + 'tokenSetAt=' + tokenSetAt + ' (new Date().getTime() < (tokenExpiresIn + tokenSetAt))=' + (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) + ' (currentPath.indexOf(scopeToPath) === 0)=' + (currentPath.indexOf(scopeToPath) === 0));
+            //console.log('POLYMER:', 'v.auth.isLoggedIn=' + result + ': token=' + token + ' tokenExpiresIn=' + tokenExpiresIn + 'tokenSetAt=' + tokenSetAt + ' (new Date().getTime() < (tokenExpiresIn + tokenSetAt))=' + (new Date().getTime() < (tokenExpiresIn + tokenSetAt)) + ' (currentPath.indexOf(scopeToPath) === 0)=' + (currentPath.indexOf(scopeToPath) === 0));
             return !!result;
         },
 
@@ -879,13 +746,13 @@ function AuthService(v, keys, utils) {
 
 
         /**
-         * Update the last active timestamp for Voyent auth. This value is used
-         * when checking for clients-side session timeouts.
+         * Update the last active timestamp for the session and resets the inactivity timer.
          * @memberOf voyent.auth
          * @alias updateLastActiveTimestamp
          */
         updateLastActiveTimestamp: function () {
             utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
+            v.auth.resetInactiveSessionTimer();
         },
 
         /**
@@ -974,4 +841,12 @@ function AuthService(v, keys, utils) {
             return (specials.pick(1) + lowercase.pick(1) + uppercase.pick(1) + all.pick(5, 10)).shuffle();
         }
     };
+
+    // Listeners to update the last active time stamp.
+    window.onmousemove = voyentAuth.updateLastActiveTimestamp;
+    window.onclick = voyentAuth.updateLastActiveTimestamp;
+    window.onscroll = voyentAuth.updateLastActiveTimestamp;
+    window.onkeypress = voyentAuth.updateLastActiveTimestamp;
+
+    return voyentAuth;
 }

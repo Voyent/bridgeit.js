@@ -1,9 +1,0 @@
-{
-    "--": "../src/",
-    "--images": "images",
-    "--builtin-classes": true,
-    "--seo": true,
-	"--title": "bridgeit.js API",
-	"--categories": "categories.json",
-	"--warnings": "-image_unused"
-}

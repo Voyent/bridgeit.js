@@ -265,38 +265,6 @@ function PrivateUtils(services, keys) {
         }
     }
 
-    function getFunctionName(fn) {
-        var ret = fn.toString();
-        ret = ret.substr('function '.length);
-        ret = ret.substr(0, ret.indexOf('('));
-        return ret;
-    }
-
-    function findFunctionInGlobalScope(fn) {
-        if (!fn) {
-            return null;
-        }
-        var functionName;
-        if (typeof fn === "string") {
-            functionName = fn;
-            var parts = functionName.split(".");
-            var theObject = window;
-            for (var i = 0; i < parts.length; i++) {
-                theObject = theObject[parts[i]];
-                if (!theObject) {
-                    return null;
-                }
-            }
-            if (window == theObject) {
-                return null;
-            }
-            return theObject;
-        }
-        else if (typeof fn === "function") {
-            return fn;
-        }
-    }
-
     return {
         'isNode': isNode,
         'getLocalStorageItem': getLocalStorageItem,
@@ -309,8 +277,6 @@ function PrivateUtils(services, keys) {
         'getTransactionURLParam': getTransactionURLParam,
         'getRealmResourceURL': getRealmResourceURL,
         'extractResponseValues': extractResponseValues,
-        'getFunctionName': getFunctionName,
-        'findFunctionInGlobalScope': findFunctionInGlobalScope,
         'validateParameter': validateParameter,
         'validateRequiredUsername': validateRequiredUsername,
         'validateRequiredPassword': validateRequiredPassword,

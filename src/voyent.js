@@ -351,7 +351,6 @@ if (!window.voyent) {
     v.scope = ScopeService(v, privateUtils);
     v.metrics = MetricsService(v, privateUtils);
     v.event = EventService(v, privateUtils);
-    v.push = PushService(v, privateUtils);
     v.cloud = CloudService(v, privateUtils);
     v.storage = StorageService(v, privateUtils);
     v.query = QueryService(v, privateUtils);
