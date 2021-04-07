@@ -356,7 +356,6 @@ export function fireEvent(el, eventName, detail) {
  * A more accurate timer utility than Javascript's built-in `setTimeout` and `setInterval`.
  * This timer loops `setTimeout` executions at the passed timeInterval but after the first
  * execution it adjusts each execution time based on the expected time using Date.now().
- * execution
  * @param timeInterval
  * @param callback
  * @param errorCallback
