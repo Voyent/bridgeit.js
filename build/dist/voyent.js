@@ -3982,6 +3982,7 @@ function AuthService(v, keys, utils) {
          */
         updateLastActiveTimestamp: function () {
             utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
+            v._fireEvent(window, 'voyent-update-last-active-timestamp-vras', {});
         },
 
         /**
