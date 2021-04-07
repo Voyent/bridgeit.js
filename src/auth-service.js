@@ -344,12 +344,12 @@ function startSessionTimer() {
             );*/
             refreshAccessToken().catch(function() {});
         }
-        else {
-            /*console.log('MITHRIL:', new Date().toISOString(), 'token has',
+        /*else {
+            console.log('MITHRIL:', new Date().toISOString(), 'token has',
                 (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
                 (getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.'
-            );*/
-        }
+            );
+        }*/
     });
     utils.setSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY), sessionTimer);
 
