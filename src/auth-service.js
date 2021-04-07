@@ -9,8 +9,8 @@ const authKeys = {
     SESSION_TIMER_KEY: 'voyentSessionTimer',
     LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp'
 };
-// How long before the token expiry that the token will be refreshed (2 minutes).
-const tokenRefreshPadding = 2 * 60 * 1000;
+// How long before the token expiry that the token will be refreshed (5 minutes).
+const tokenRefreshPadding = 5 * 60 * 1000;
 // How long the user is allowed to be inactive before the session is disconnected (20 minutes).
 const inactivityTimeout = 20 * 60 * 1000;
 // Flag to ensure we enver try to refresh the token when we already are.
@@ -336,10 +336,12 @@ function startSessionTimer() {
         }
 
         // If the session is still valid then check whether we should refresh the token.
-        let refreshTokenAt = getTokenExpiresAt() - tokenRefreshPadding;
-        let refreshTokenIn = getTimeRemainingBeforeExpiry() - tokenRefreshPadding;
+        var refreshTokenAt = getTokenExpiresAt() - tokenRefreshPadding;
         if (refreshTokenAt <= Date.now()) {
-            console.log('MITHRIL:', new Date().toISOString(), 'token is about to expire, refreshing token...',);
+            console.log('MITHRIL:', new Date().toISOString(), 'token has',
+                (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4),
+                'mins until it expires, refreshing token....'
+            );
             refreshAccessToken().catch(function() {});
         }
         else {
