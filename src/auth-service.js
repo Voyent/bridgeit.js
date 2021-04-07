@@ -321,16 +321,16 @@ function startSessionTimer() {
         // with the web app open and then tries to interact with the app after returning.
         const inactiveMillis = new Date().getTime() - getLastActiveTimestamp();
         if (getTimeRemainingBeforeExpiry() <= 0) {
-            let remainingMins = (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
-            console.log('MITHRIL:', new Date().toISOString(), 'disconnecting session because it expired', remainingMins, 'mins ago.');
+            /*let remainingMins = (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
+            console.log('MITHRIL:', new Date().toISOString(), 'disconnecting session because it expired', remainingMins, 'mins ago.');*/
             disconnectSession();
             return;
         }
         else if (inactiveMillis > inactivityTimeout) {
-            console.log('MITHRIL:', new Date().toISOString(), 'user has been inactive for',
+            /*console.log('MITHRIL:', new Date().toISOString(), 'user has been inactive for',
                 (inactiveMillis / 1000 / 60).toPrecision(4), '/',
                 (inactivityTimeout / 1000 / 60).toPrecision(4), 'mins.'
-            );
+            );*/
             disconnectSession();
             return;
         }
@@ -338,17 +338,17 @@ function startSessionTimer() {
         // If the session is still valid then check whether we should refresh the token.
         var refreshTokenAt = getTokenExpiresAt() - tokenRefreshPadding;
         if (refreshTokenAt <= Date.now()) {
-            console.log('MITHRIL:', new Date().toISOString(), 'token has',
+            /*console.log('MITHRIL:', new Date().toISOString(), 'token has',
                 (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4),
                 'mins until it expires, refreshing token....'
-            );
+            );*/
             refreshAccessToken().catch(function() {});
         }
         else {
-            console.log('MITHRIL:', new Date().toISOString(), 'token has',
+            /*console.log('MITHRIL:', new Date().toISOString(), 'token has',
                 (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
                 (getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.'
-            );
+            );*/
         }
     });
     utils.setSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY), sessionTimer);
@@ -367,14 +367,14 @@ function disconnectSession() {
 }
 
 export function refreshAccessToken(isRetryAttempt) {
-    console.log('MITHRIL: refreshAccessToken triggered');
+    // console.log('MITHRIL: refreshAccessToken triggered');
     return new Promise(function (resolve, reject) {
         if (refreshingAccessToken) {
             return resolve();
         }
         refreshingAccessToken = true;
         if (!isLoggedIn()) {
-            console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because user is not logged in');
+            // console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because user is not logged in');
             fireEvent(window, 'voyent-access-token-refresh-failed', {});
             refreshingAccessToken = false;
             reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
@@ -382,22 +382,22 @@ export function refreshAccessToken(isRetryAttempt) {
         else {
             let loginParams = getLoginParams();
             if (!loginParams) {
-                console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because there are no `loginParams`', loginParams);
+                // console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because there are no `loginParams`', loginParams);
                 fireEvent(window, 'voyent-access-token-refresh-failed', {});
                 refreshingAccessToken = false;
                 reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
             }
             else {
-                console.log('MITHRIL: refreshing access_token...');
+                // console.log('MITHRIL: refreshing access_token...');
                 loginParams.suppressUpdateTimestamp = true;
                 login(loginParams).then(function (authResponse) {
-                    console.log('MITHRIL: access_token successfully refreshed.');
+                    // console.log('MITHRIL: access_token successfully refreshed.');
                     fireEvent(window, 'voyent-access-token-refreshed', getLastAccessToken());
                     resolve(authResponse);
                 }).catch(function (errorResponse) {
                     // Try and refresh the token once more after a small timeout
                     if (!isRetryAttempt) {
-                        console.log('MITHRIL: failed to refresh token, trying again', errorResponse);
+                        // console.log('MITHRIL: failed to refresh token, trying again', errorResponse);
                         setTimeout(function() {
                             refreshAccessToken(true).then(function (response) {
                                 resolve(response);
@@ -405,7 +405,7 @@ export function refreshAccessToken(isRetryAttempt) {
                         },2000);
                     }
                     else {
-                        console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because we failed to refresh token on retry', errorResponse);
+                        // console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because we failed to refresh token on retry', errorResponse);
                         fireEvent(window, 'voyent-access-token-refresh-failed', {});
                         reject(errorResponse);
                     }
@@ -460,7 +460,7 @@ export function disconnect() {
     utils.removeSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY));
     window.removeEventListener('click', updateLastActiveTimestamp);
     window.removeEventListener('keypress', updateLastActiveTimestamp);
-    console.log('MITHRIL:', new Date().toISOString(), 'voyent has disconnected');
+    // console.log('MITHRIL:', new Date().toISOString(), 'voyent has disconnected');
 }
 
 export function getExpiresIn() {
