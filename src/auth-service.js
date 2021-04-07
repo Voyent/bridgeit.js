@@ -314,7 +314,8 @@ function startSessionTimer() {
     // Create a single timer for the token expiry and inactive session.
     // The token will be refreshed x ms before the expiry, where x = `tokenRefreshPadding`.
     // The session will be disconnected after x ms of inactivity, where x = `inactivityTimeout`.
-    const sessionTimer = new utils.Timer(60*1000, function() {
+    let timerMs = 60 * 1000; // Execute the session timer every minute.
+    const sessionTimer = new utils.Timer(timerMs, function() {
         // Check if the session has become inactive. We will also check that the session
         // is still valid to catch the case where the user puts their computer to sleep
         // with the web app open and then tries to interact with the app after returning.
@@ -344,8 +345,7 @@ function startSessionTimer() {
         else {
             console.log('MITHRIL:', new Date().toISOString(), 'token has',
                 (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
-                (getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.',
-                'refreshing token in', (refreshTokenIn / 1000 / 60).toPrecision(4), 'mins.'
+                (getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.'
             );
         }
     });
