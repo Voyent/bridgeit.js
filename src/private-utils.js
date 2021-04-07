@@ -226,6 +226,10 @@ function PrivateUtils(services, keys) {
         return original;
     }
 
+    function isFunction(func) {
+        return !!(func && typeof func === 'string');
+    }
+
     function getTransactionURLParam() {
         var txId = services.getLastTransactionId();
         return txId ? 'tx=' + txId : '';
@@ -265,6 +269,63 @@ function PrivateUtils(services, keys) {
         }
     }
 
+    /**
+     * A more accurate timer utility than Javascript's built-in `setTimeout` and `setInterval`.
+     * This timer loops `setTimeout` executions at the passed timeInterval but after the first
+     * execution it adjusts each execution time based on the expected time using Date.now().
+     * execution
+     * @param timeInterval
+     * @param callback
+     * @param errorCallback
+     * @constructor
+     */
+    function Timer(timeInterval, callback, errorCallback) {
+        let expected, timeout;
+        /**
+         * Start executing the timer. Triggered automatically on instance creation
+         * but may be triggered to restart the timer if `stop` is triggered.
+         */
+        this.start = function() {
+            // Set the expected execution time of the timer.
+            expected = Date.now() + timeInterval;
+            // Create the timeout.
+            timeout = setTimeout(run.bind(this), timeInterval);
+        };
+        /**
+         * Stop executing the timer. May be called on the timer instance.
+         */
+        this.stop = function() {
+            // Clear the timeout.
+            clearTimeout(timeout);
+            timeout = 0;
+        };
+        /**
+         * Handles running the callback continuously and adjusting
+         * each execution to be at the expected time.
+         */
+        let run = function() {
+            // How many `ms` the timeout execution was off by.
+            let timeDrift = Date.now() - expected;
+            // If the timer missed a full execution
+            // then trigger the error callback.
+            if (timeDrift > timeInterval) {
+                if (errorCallback) {
+                    errorCallback();
+                }
+            }
+            // Trigger the callback if provided.
+            if (callback) {
+                callback();
+            }
+            // Increment the expected execution time of the timer.
+            expected += timeInterval;
+            // Run the timer at the adjusted interval.
+            timeout = setTimeout(run.bind(this), timeInterval - timeDrift);
+        };
+        // Start the timer immediately.
+        this.start();
+    }
+
     return {
         'isNode': isNode,
         'getLocalStorageItem': getLocalStorageItem,
@@ -274,6 +335,7 @@ function PrivateUtils(services, keys) {
         'setSessionStorageItem': setSessionStorageItem,
         'removeSessionStorageItem': removeSessionStorageItem,
         'sanitizeAccountName': sanitizeAccountName,
+        'isFunction': isFunction,
         'getTransactionURLParam': getTransactionURLParam,
         'getRealmResourceURL': getRealmResourceURL,
         'extractResponseValues': extractResponseValues,
@@ -286,6 +348,7 @@ function PrivateUtils(services, keys) {
         'validateAndReturnRequiredRealmName': validateAndReturnRequiredRealmName,
         'validateAndReturnRequiredAccount': validateAndReturnRequiredAccount,
         'validateAndReturnRequiredAccessToken': validateAndReturnRequiredAccessToken,
-        'validateRequiredId': validateRequiredId
+        'validateRequiredId': validateRequiredId,
+        'Timer': Timer
     }
 }

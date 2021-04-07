@@ -3245,8 +3245,7 @@ function AuthService(v, keys, utils) {
         PASSWORD_KEY: 'voyentPassword_vras',
         SCOPE_TO_PATH_KEY: "voyentScopeToPath_vras",
         CONNECT_SETTINGS_KEY: 'voyentConnectSettings_vras',
-        REFRESH_TOKEN_CB_KEY: 'voyentTokenRefreshCallback',
-        INACTIVITY_CB_KEY: 'voyentInactivityCallback',
+        SESSION_TIMER_KEY: 'voyentSessionTimer_vras',
         LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp_vras'
     };
 
@@ -3254,6 +3253,8 @@ function AuthService(v, keys, utils) {
     var tokenRefreshPadding = 2 * 60 * 1000;
     // How long the user is allowed to be inactive before the session is disconnected (20 minutes).
     var inactivityTimeout = 20 * 60 * 1000;
+    // Flag to ensure we enver try to refresh the token when we already are.
+    var refreshingAccessToken = false;
 
     function validateAndReturnRequiredRole(params, reject){
         var role = params.role;
@@ -3521,8 +3522,8 @@ function AuthService(v, keys, utils) {
                 utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
                 if (v.auth.isLoggedIn()) {
-                    // Start the session timers and resolve.
-                    v.auth.startSessionTimers();
+                    // Start the session timer and resolve.
+                    v.auth.startSessionTimer();
                     resolve();
                 }
                 else {
@@ -3538,8 +3539,8 @@ function AuthService(v, keys, utils) {
                         utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(v.auth.getLastKnownHost()));
                         utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
                         utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
-                        // Start the session timers and resolve.
-                        v.auth.startSessionTimers();
+                        // Start the session timer and resolve.
+                        v.auth.startSessionTimer();
                         resolve(authResponse);
                     }).catch(function (error) {
                         reject(error);
@@ -3551,86 +3552,56 @@ function AuthService(v, keys, utils) {
         /**
          * Starts the token and inactive session timers.
          */
-        startSessionTimers: function() {
-            // Start the token expiry and inactive session timer.
-            v.auth.startTokenExpiryTimer();
-            v.auth.startInactiveSessionTimer();
-            // Listeners to update the last active time stamp.
+        startSessionTimer: function() {
+            // Create a single timer for the token expiry and inactive session.
+            // The token will be refreshed x ms before the expiry, where x = `tokenRefreshPadding`.
+            // The session will be disconnected after x ms of inactivity, where x = `inactivityTimeout`.
+            var sessionTimer = new utils.Timer(60*1000, function() {
+                // Check if the session has become inactive. We will also check that the session
+                // is still valid to catch the case where the user puts their computer to sleep
+                // with the web app open and then tries to interact with the app after returning.
+                var inactiveMillis = new Date().getTime() - v.auth.getLastActiveTimestamp();
+                if (v.auth.getTimeRemainingBeforeExpiry() <= 0) {
+                    var remainingMins = (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
+                    console.log('POLYMER:', new Date().toISOString(), 'disconnecting session because it expired', remainingMins, 'mins ago.');
+                    v.auth.disconnectSession();
+                    return;
+                }
+                else if (inactiveMillis > inactivityTimeout) {
+                    console.log('POLYMER:', new Date().toISOString(), 'user has been inactive for',
+                        (inactiveMillis / 1000 / 60).toPrecision(4), '/',
+                        (inactivityTimeout / 1000 / 60).toPrecision(4), 'mins.'
+                    );
+                    v.auth.disconnectSession();
+                    return;
+                }
+
+                // If the session is still valid then check whether we should refresh the token.
+                var refreshTokenAt = v.auth.getTokenExpiresAt() - tokenRefreshPadding;
+                var refreshTokenIn = v.auth.getTimeRemainingBeforeExpiry() - tokenRefreshPadding;
+                if (refreshTokenAt <= Date.now()) {
+                    console.log('POLYMER:', new Date().toISOString(), 'token is about to expire, refreshing token...',);
+                    v.auth.refreshAccessToken().catch(function() {});
+                }
+                else {
+                    console.log('POLYMER:', new Date().toISOString(), 'token has',
+                        (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
+                        (v.auth.getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.',
+                        'refreshing token in', (refreshTokenIn / 1000 / 60).toPrecision(4), 'mins.'
+                    );
+                }
+            });
+            utils.setSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY), sessionTimer);
+
+            // Add listeners to update the last active time stamp.
             window.addEventListener('click', v.auth.updateLastActiveTimestamp);
             window.addEventListener('keypress', v.auth.updateLastActiveTimestamp);
-        },
-
-        /**
-         * Starts the token expiry timer. The token will be refreshed
-         * automatically `tokenRefreshPadding` ms before the expiry.
-         */
-        startTokenExpiryTimer: function() {
-
-            var refreshTokenAt = v.auth.getTimeRemainingBeforeExpiry() - tokenRefreshPadding;
-
-            console.log('POLYMER:', new Date().toISOString(), 'token has',
-                (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
-                (v.auth.getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.',
-                'refreshing token in', (refreshTokenAt / 1000 / 60).toPrecision(4), 'mins.'
-            );
-
-            var refreshTokenTimeoutCb = setTimeout(function() {
-                v.auth.refreshAccessToken().then(function () {
-                    v.auth.startTokenExpiryTimer();
-                }).catch(function() {});
-            }, refreshTokenAt);
-            utils.setSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY), refreshTokenTimeoutCb);
-        },
-
-        /**
-         * Starts the inactive session timer. The session will be
-         * disconnected after `inactivityTimeout` ms of inactivity.
-         */
-        startInactiveSessionTimer: function() {
-
-            var inactivityTimeoutCb = setTimeout(function() {
-
-                var inactiveMillis = new Date().getTime() - v.auth.getLastActiveTimestamp();
-                console.log('POLYMER:', new Date().toISOString(), 'user has been inactive for',
-                    (inactiveMillis / 1000 / 60).toPrecision(4), '/',
-                    (inactivityTimeout / 1000 / 60).toPrecision(4), 'mins.'
-                );
-                v.auth.disconnectSession();
-
-            }, inactivityTimeout);
-            utils.setSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY), inactivityTimeoutCb);
-        },
-
-        /**
-         * Removes the current inactive session timer and creates a new one if the session is
-         * still valid. If the session is no longer valid the user will be disconnected.
-         */
-        resetInactiveSessionTimer: function() {
-
-            var inactivityTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
-            if (inactivityTimeoutCb) {
-                clearTimeout(parseInt(inactivityTimeoutCb));
-                utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
-            }
-
-            // Before restarting the inactivity timer ensure the session is valid first.
-            // This catches the case where the user puts their computer to sleep with the
-            // web app open and then tries to interact with the app after returning.
-            if (v.auth.getTimeRemainingBeforeExpiry() <= 0) {
-                var remainingMins = (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
-                console.log('POLYMER: disconnecting session because it expired', remainingMins, 'mins ago.');
-                v.auth.disconnectSession();
-            }
-            else {
-                v.auth.startInactiveSessionTimer();
-            }
         },
 
         /**
          * Disconnects the Voyent Alert! session and fires the `voyent-session-expired` event.
          */
         disconnectSession: function() {
-            console.log('POLYMER: inactivity timeout has been exceeded or token has expired, disconnecting...');
             v.auth.disconnect();
             v._fireEvent(window, 'voyent-session-expired-vras', {});
         },
@@ -3638,9 +3609,14 @@ function AuthService(v, keys, utils) {
         refreshAccessToken: function(isRetryAttempt) {
             console.log('POLYMER: refreshAccessToken triggered');
             return new Promise(function (resolve, reject) {
+                if (refreshingAccessToken) {
+                    return resolve();
+                }
+                refreshingAccessToken = true;
                 if (!v.auth.isLoggedIn()) {
                     console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because user is not logged in');
                     v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
+                    refreshingAccessToken = false;
                     reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
                 }
                 else {
@@ -3648,6 +3624,7 @@ function AuthService(v, keys, utils) {
                     if (!loginParams) {
                         console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because there are no `loginParams`', loginParams);
                         v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
+                        refreshingAccessToken = false;
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
@@ -3672,10 +3649,11 @@ function AuthService(v, keys, utils) {
                                 v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                                 reject(errorResponse);
                             }
+                        }).finally(function() {
+                            refreshingAccessToken = false;
                         });
                     }
                 }
-
             });
         },
         
@@ -3730,16 +3708,11 @@ function AuthService(v, keys, utils) {
             utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
             utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
             utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
-            const refreshTokenTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY));
-            if (refreshTokenTimeoutCb) {
-                clearTimeout(parseInt(refreshTokenTimeoutCb));
+            var sessionTimer = utils.getSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY));
+            if (sessionTimer && utils.isFunction(sessionTimer.stop)) {
+                sessionTimer.stop();
             }
-            utils.removeSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY));
-            const inactivityTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
-            if (inactivityTimeoutCb) {
-                clearTimeout(parseInt(inactivityTimeoutCb));
-            }
-            utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+            utils.removeSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY));
             window.removeEventListener('click', v.auth.updateLastActiveTimestamp);
             window.removeEventListener('keypress', v.auth.updateLastActiveTimestamp);
             console.log('POLYMER:', new Date().toISOString(), 'voyent has disconnected');
@@ -3764,12 +3737,20 @@ function AuthService(v, keys, utils) {
         },
 
         getTimeRemainingBeforeExpiry: function () {
+            var tokenExpiresAt = v.auth.getTokenExpiresAt();
+            if (tokenExpiresAt) {
+                return (tokenExpiresAt - Date.now());
+            }
+            return null;
+        },
+
+        getTokenExpiresAt: function() {
             var expiresIn = v.auth.getExpiresIn();
             var token = v.auth.getLastAccessToken();
             if (expiresIn && token) {
-                var now = new Date().getTime();
-                return (v.auth.getTokenSetAtTime() + expiresIn) - now;
+                return (v.auth.getTokenSetAtTime() + expiresIn);
             }
+            return null;
         },
 
         getConnectSettings: function () {
@@ -3999,7 +3980,6 @@ function AuthService(v, keys, utils) {
          */
         updateLastActiveTimestamp: function () {
             utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
-            v.auth.resetInactiveSessionTimer();
         },
 
         /**
@@ -11356,6 +11336,10 @@ function PrivateUtils(services, keys) {
         return original;
     }
 
+    function isFunction(func) {
+        return !!(func && typeof func === 'string');
+    }
+
     function getTransactionURLParam() {
         var txId = services.getLastTransactionId();
         return txId ? 'tx=' + txId : '';
@@ -11395,6 +11379,63 @@ function PrivateUtils(services, keys) {
         }
     }
 
+    /**
+     * A more accurate timer utility than Javascript's built-in `setTimeout` and `setInterval`.
+     * This timer loops `setTimeout` executions at the passed timeInterval but after the first
+     * execution it adjusts each execution time based on the expected time using Date.now().
+     * execution
+     * @param timeInterval
+     * @param callback
+     * @param errorCallback
+     * @constructor
+     */
+    function Timer(timeInterval, callback, errorCallback) {
+        let expected, timeout;
+        /**
+         * Start executing the timer. Triggered automatically on instance creation
+         * but may be triggered to restart the timer if `stop` is triggered.
+         */
+        this.start = function() {
+            // Set the expected execution time of the timer.
+            expected = Date.now() + timeInterval;
+            // Create the timeout.
+            timeout = setTimeout(run.bind(this), timeInterval);
+        };
+        /**
+         * Stop executing the timer. May be called on the timer instance.
+         */
+        this.stop = function() {
+            // Clear the timeout.
+            clearTimeout(timeout);
+            timeout = 0;
+        };
+        /**
+         * Handles running the callback continuously and adjusting
+         * each execution to be at the expected time.
+         */
+        let run = function() {
+            // How many `ms` the timeout execution was off by.
+            let timeDrift = Date.now() - expected;
+            // If the timer missed a full execution
+            // then trigger the error callback.
+            if (timeDrift > timeInterval) {
+                if (errorCallback) {
+                    errorCallback();
+                }
+            }
+            // Trigger the callback if provided.
+            if (callback) {
+                callback();
+            }
+            // Increment the expected execution time of the timer.
+            expected += timeInterval;
+            // Run the timer at the adjusted interval.
+            timeout = setTimeout(run.bind(this), timeInterval - timeDrift);
+        };
+        // Start the timer immediately.
+        this.start();
+    }
+
     return {
         'isNode': isNode,
         'getLocalStorageItem': getLocalStorageItem,
@@ -11404,6 +11445,7 @@ function PrivateUtils(services, keys) {
         'setSessionStorageItem': setSessionStorageItem,
         'removeSessionStorageItem': removeSessionStorageItem,
         'sanitizeAccountName': sanitizeAccountName,
+        'isFunction': isFunction,
         'getTransactionURLParam': getTransactionURLParam,
         'getRealmResourceURL': getRealmResourceURL,
         'extractResponseValues': extractResponseValues,
@@ -11416,7 +11458,8 @@ function PrivateUtils(services, keys) {
         'validateAndReturnRequiredRealmName': validateAndReturnRequiredRealmName,
         'validateAndReturnRequiredAccount': validateAndReturnRequiredAccount,
         'validateAndReturnRequiredAccessToken': validateAndReturnRequiredAccessToken,
-        'validateRequiredId': validateRequiredId
+        'validateRequiredId': validateRequiredId,
+        'Timer': Timer
     }
 }function PublicUtils(utils) {
     return {
