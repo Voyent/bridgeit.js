@@ -830,9 +830,5 @@ function AuthService(v, keys, utils) {
         }
     };
 
-    // Listeners to update the last active time stamp.
-    window.onclick = voyentAuth.updateLastActiveTimestamp;
-    window.onkeypress = voyentAuth.updateLastActiveTimestamp;
-
     return voyentAuth;
 }
