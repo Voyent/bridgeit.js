@@ -311,7 +311,6 @@ export function connect(params) {
  * Starts the token and inactive session timers.
  */
 function startSessionTimer() {
-
     // Create a single timer for the token expiry and inactive session.
     // The token will be refreshed x ms before the expiry, where x = `tokenRefreshPadding`.
     // The session will be disconnected after x ms of inactivity, where x = `inactivityTimeout`.

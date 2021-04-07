@@ -393,7 +393,7 @@ export function Timer(timeInterval, callback, errorCallback) {
         // then trigger the error callback.
         if (timeDrift > timeInterval) {
             if (errorCallback) {
-                errorCallback
+                errorCallback();
             }
         }
         // Trigger the callback if provided.
