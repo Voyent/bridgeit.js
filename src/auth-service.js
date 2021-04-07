@@ -345,12 +345,12 @@ function AuthService(v, keys, utils) {
                     );*/
                     v.auth.refreshAccessToken().catch(function() {});
                 }
-                else {
-                    /*console.log('POLYMER:', new Date().toISOString(), 'token has',
+                /*else {
+                    console.log('POLYMER:', new Date().toISOString(), 'token has',
                         (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
                         (v.auth.getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.'
-                    );*/
-                }
+                    );
+                }*/
             });
             utils.setSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY), sessionTimer);
 
