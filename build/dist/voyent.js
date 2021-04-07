@@ -3563,16 +3563,16 @@ function AuthService(v, keys, utils) {
                 // with the web app open and then tries to interact with the app after returning.
                 var inactiveMillis = new Date().getTime() - v.auth.getLastActiveTimestamp();
                 if (v.auth.getTimeRemainingBeforeExpiry() <= 0) {
-                    var remainingMins = (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
-                    console.log('POLYMER:', new Date().toISOString(), 'disconnecting session because it expired', remainingMins, 'mins ago.');
+                    /*var remainingMins = (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
+                    console.log('POLYMER:', new Date().toISOString(), 'disconnecting session because it expired', remainingMins, 'mins ago.');*/
                     v.auth.disconnectSession();
                     return;
                 }
                 else if (inactiveMillis > inactivityTimeout) {
-                    console.log('POLYMER:', new Date().toISOString(), 'user has been inactive for',
+                    /*console.log('POLYMER:', new Date().toISOString(), 'user has been inactive for',
                         (inactiveMillis / 1000 / 60).toPrecision(4), '/',
                         (inactivityTimeout / 1000 / 60).toPrecision(4), 'mins.'
-                    );
+                    );*/
                     v.auth.disconnectSession();
                     return;
                 }
@@ -3580,17 +3580,17 @@ function AuthService(v, keys, utils) {
                 // If the session is still valid then check whether we should refresh the token.
                 var refreshTokenAt = v.auth.getTokenExpiresAt() - tokenRefreshPadding;
                 if (refreshTokenAt <= Date.now()) {
-                    console.log('POLYMER:', new Date().toISOString(), 'token has',
+                    /*console.log('POLYMER:', new Date().toISOString(), 'token has',
                         (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4),
                         'mins until it expires, refreshing token....'
-                    );
+                    );*/
                     v.auth.refreshAccessToken().catch(function() {});
                 }
                 else {
-                    console.log('POLYMER:', new Date().toISOString(), 'token has',
+                    /*console.log('POLYMER:', new Date().toISOString(), 'token has',
                         (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
                         (v.auth.getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.'
-                    );
+                    );*/
                 }
             });
             utils.setSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY), sessionTimer);
@@ -3609,14 +3609,14 @@ function AuthService(v, keys, utils) {
         },
 
         refreshAccessToken: function(isRetryAttempt) {
-            console.log('POLYMER: refreshAccessToken triggered');
+            // console.log('POLYMER: refreshAccessToken triggered');
             return new Promise(function (resolve, reject) {
                 if (refreshingAccessToken) {
                     return resolve();
                 }
                 refreshingAccessToken = true;
                 if (!v.auth.isLoggedIn()) {
-                    console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because user is not logged in');
+                    // console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because user is not logged in');
                     v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                     refreshingAccessToken = false;
                     reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
@@ -3624,22 +3624,22 @@ function AuthService(v, keys, utils) {
                 else {
                     var loginParams = v.auth.getLoginParams();
                     if (!loginParams) {
-                        console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because there are no `loginParams`', loginParams);
+                        // console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because there are no `loginParams`', loginParams);
                         v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                         refreshingAccessToken = false;
                         reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
                     }
                     else {
-                        console.log('POLYMER: refreshing access_token...');
+                        // console.log('POLYMER: refreshing access_token...');
                         loginParams.suppressUpdateTimestamp = true;
                         login(loginParams).then(function (authResponse) {
-                            console.log('POLYMER: access_token successfully refreshed.');
+                            // console.log('POLYMER: access_token successfully refreshed.');
                             v._fireEvent(window, 'voyent-access-token-refreshed-vras', v.auth.getLastAccessToken());
                             resolve(authResponse);
                         }).catch(function (errorResponse) {
                             // Try and refresh the token once more after a small timeout
                             if (!isRetryAttempt) {
-                                console.log('POLYMER: failed to refresh token, trying again', errorResponse);
+                                // console.log('POLYMER: failed to refresh token, trying again', errorResponse);
                                 setTimeout(function() {
                                     v.auth.refreshAccessToken(true).then(function (response) {
                                         resolve(response);
@@ -3647,7 +3647,7 @@ function AuthService(v, keys, utils) {
                                 },2000);
                             }
                             else {
-                                console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because we failed to refresh token on retry', errorResponse);
+                                // console.log('POLYMER: firing `voyent-access-token-refresh-failed-vras` because we failed to refresh token on retry', errorResponse);
                                 v._fireEvent(window, 'voyent-access-token-refresh-failed-vras', {});
                                 reject(errorResponse);
                             }
@@ -3717,7 +3717,7 @@ function AuthService(v, keys, utils) {
             utils.removeSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY));
             window.removeEventListener('click', v.auth.updateLastActiveTimestamp);
             window.removeEventListener('keypress', v.auth.updateLastActiveTimestamp);
-            console.log('POLYMER:', new Date().toISOString(), 'voyent has disconnected');
+            // console.log('POLYMER:', new Date().toISOString(), 'voyent has disconnected');
         },
 
         getLastAccessToken: function () {
@@ -11385,7 +11385,6 @@ function PrivateUtils(services, keys) {
      * A more accurate timer utility than Javascript's built-in `setTimeout` and `setInterval`.
      * This timer loops `setTimeout` executions at the passed timeInterval but after the first
      * execution it adjusts each execution time based on the expected time using Date.now().
-     * execution
      * @param timeInterval
      * @param callback
      * @param errorCallback
