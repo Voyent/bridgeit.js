@@ -6,14 +6,15 @@ import { fireEvent } from './private-utils'
 const authKeys = {
     PASSWORD_KEY: 'voyentPassword',
     CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
-    REFRESH_TOKEN_CB_KEY: 'voyentTokenRefreshCallback',
-    INACTIVITY_CB_KEY: 'voyentInactivityCallback',
+    SESSION_TIMER_KEY: 'voyentSessionTimer',
     LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp'
 };
 // How long before the token expiry that the token will be refreshed (2 minutes).
 const tokenRefreshPadding = 2 * 60 * 1000;
 // How long the user is allowed to be inactive before the session is disconnected (20 minutes).
 const inactivityTimeout = 20 * 60 * 1000;
+// Flag to ensure we enver try to refresh the token when we already are.
+let refreshingAccessToken = false;
 
 function validateAndReturnRequiredRole(params, reject){
     const role = params.role;
@@ -279,8 +280,8 @@ export function connect(params) {
         utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
         if (isLoggedIn()) {
-            // Start the session timers and resolve.
-            startSessionTimers();
+            // Start the session timer and resolve.
+            startSessionTimer();
             resolve();
         }
         else {
@@ -297,7 +298,7 @@ export function connect(params) {
                 utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
                 utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
                 // Start the session timers and resolve.
-                startSessionTimers();
+                startSessionTimer();
                 resolve(authResponse);
             }).catch(function (error) {
                 reject(error);
@@ -309,86 +310,57 @@ export function connect(params) {
 /**
  * Starts the token and inactive session timers.
  */
-function startSessionTimers() {
-    // Start the token expiry and inactive session timer.
-    startTokenExpiryTimer();
-    startInactiveSessionTimer();
-    // Listeners to update the last active time stamp.
+function startSessionTimer() {
+
+    // Create a single timer for the token expiry and inactive session.
+    // The token will be refreshed x ms before the expiry, where x = `tokenRefreshPadding`.
+    // The session will be disconnected after x ms of inactivity, where x = `inactivityTimeout`.
+    const sessionTimer = new utils.Timer(60*1000, function() {
+        // Check if the session has become inactive. We will also check that the session
+        // is still valid to catch the case where the user puts their computer to sleep
+        // with the web app open and then tries to interact with the app after returning.
+        const inactiveMillis = new Date().getTime() - getLastActiveTimestamp();
+        if (getTimeRemainingBeforeExpiry() <= 0) {
+            let remainingMins = (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
+            console.log('MITHRIL:', new Date().toISOString(), 'disconnecting session because it expired', remainingMins, 'mins ago.');
+            disconnectSession();
+            return;
+        }
+        else if (inactiveMillis > inactivityTimeout) {
+            console.log('MITHRIL:', new Date().toISOString(), 'user has been inactive for',
+                (inactiveMillis / 1000 / 60).toPrecision(4), '/',
+                (inactivityTimeout / 1000 / 60).toPrecision(4), 'mins.'
+            );
+            disconnectSession();
+            return;
+        }
+
+        // If the session is still valid then check whether we should refresh the token.
+        let refreshTokenAt = getTokenExpiresAt() - tokenRefreshPadding;
+        let refreshTokenIn = getTimeRemainingBeforeExpiry() - tokenRefreshPadding;
+        if (refreshTokenAt <= Date.now()) {
+            console.log('MITHRIL:', new Date().toISOString(), 'token is about to expire, refreshing token...',);
+            refreshAccessToken().catch(function() {});
+        }
+        else {
+            console.log('MITHRIL:', new Date().toISOString(), 'token has',
+                (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
+                (getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.',
+                'refreshing token in', (refreshTokenIn / 1000 / 60).toPrecision(4), 'mins.'
+            );
+        }
+    });
+    utils.setSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY), sessionTimer);
+
+    // Add listeners to update the last active time stamp.
     window.addEventListener('click', updateLastActiveTimestamp);
     window.addEventListener('keypress', updateLastActiveTimestamp);
-}
-
-/**
- * Starts the token expiry timer. The token will be refreshed
- * automatically `tokenRefreshPadding` ms before the expiry.
- */
-function startTokenExpiryTimer() {
-
-    let refreshTokenAt = getTimeRemainingBeforeExpiry() - tokenRefreshPadding;
-
-    console.log('MITHRIL:', new Date().toISOString(), 'token has',
-        (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4), '/',
-        (getExpiresIn() / 1000 / 60).toPrecision(4), 'mins remaining.',
-        'refreshing token in', (refreshTokenAt / 1000 / 60).toPrecision(4), 'mins.'
-    );
-
-    const refreshTokenTimeoutCb = setTimeout(function() {
-        refreshAccessToken().then(function () {
-            startTokenExpiryTimer();
-        }).catch(function() {});
-    }, refreshTokenAt);
-    utils.setSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY), refreshTokenTimeoutCb);
-}
-
-/**
- * Starts the inactive session timer. The session will be
- * disconnected after `inactivityTimeout` ms of inactivity.
- */
-function startInactiveSessionTimer() {
-
-    const inactivityTimeoutCb = setTimeout(function() {
-
-        const inactiveMillis = new Date().getTime() - getLastActiveTimestamp();
-        console.log('MITHRIL:', new Date().toISOString(), 'user has been inactive for',
-            (inactiveMillis / 1000 / 60).toPrecision(4), '/',
-            (inactivityTimeout / 1000 / 60).toPrecision(4), 'mins.'
-        );
-        disconnectSession();
-
-    }, inactivityTimeout);
-    utils.setSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY), inactivityTimeoutCb);
-}
-
-/**
- * Removes the current inactive session timer and creates a new one if the session is
- * still valid. If the session is no longer valid the user will be disconnected.
- */
-function resetInactiveSessionTimer() {
-
-    const inactivityTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
-    if (inactivityTimeoutCb) {
-        clearTimeout(parseInt(inactivityTimeoutCb));
-        utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
-    }
-
-    // Before restarting the inactivity timer ensure the session is valid first.
-    // This catches the case where the user puts their computer to sleep with the
-    // web app open and then tries to interact with the app after returning.
-    if (getTimeRemainingBeforeExpiry() <= 0) {
-        let remainingMins = (getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4);
-        console.log('MITHRIL: disconnecting session because it expired', remainingMins, 'mins ago.');
-        disconnectSession();
-    }
-    else {
-        startInactiveSessionTimer();
-    }
 }
 
 /**
  * Disconnects the Voyent Alert! session and fires the `voyent-session-expired` event.
  */
 function disconnectSession() {
-    console.log('MITHRIL: inactivity timeout has been exceeded or token has expired, disconnecting...');
     disconnect();
     fireEvent(window, 'voyent-session-expired', {});
 }
@@ -396,9 +368,14 @@ function disconnectSession() {
 export function refreshAccessToken(isRetryAttempt) {
     console.log('MITHRIL: refreshAccessToken triggered');
     return new Promise(function (resolve, reject) {
+        if (refreshingAccessToken) {
+            return resolve();
+        }
+        refreshingAccessToken = true;
         if (!isLoggedIn()) {
             console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because user is not logged in');
             fireEvent(window, 'voyent-access-token-refresh-failed', {});
+            refreshingAccessToken = false;
             reject('voyent.auth.refreshAccessToken() not logged in, cant refresh token');
         }
         else {
@@ -406,6 +383,7 @@ export function refreshAccessToken(isRetryAttempt) {
             if (!loginParams) {
                 console.log('MITHRIL: firing `voyent-access-token-refresh-failed` because there are no `loginParams`', loginParams);
                 fireEvent(window, 'voyent-access-token-refresh-failed', {});
+                refreshingAccessToken = false;
                 reject('voyent.auth.refreshAccessToken() no connect settings, cant refresh token');
             }
             else {
@@ -430,10 +408,11 @@ export function refreshAccessToken(isRetryAttempt) {
                         fireEvent(window, 'voyent-access-token-refresh-failed', {});
                         reject(errorResponse);
                     }
+                }).finally(function() {
+                    refreshingAccessToken = false;
                 });
             }
         }
-
     });
 }
 
@@ -473,16 +452,11 @@ export function disconnect() {
     utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
     utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
     utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
-    const refreshTokenTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY));
-    if (refreshTokenTimeoutCb) {
-        clearTimeout(parseInt(refreshTokenTimeoutCb));
+    const sessionTimer = utils.getSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY));
+    if (sessionTimer && utils.isFunction(sessionTimer.stop)) {
+        sessionTimer.stop();
     }
-    utils.removeSessionStorageItem(btoa(authKeys.REFRESH_TOKEN_CB_KEY));
-    const inactivityTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
-    if (inactivityTimeoutCb) {
-        clearTimeout(parseInt(inactivityTimeoutCb));
-    }
-    utils.removeSessionStorageItem(btoa(authKeys.INACTIVITY_CB_KEY));
+    utils.removeSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY));
     window.removeEventListener('click', updateLastActiveTimestamp);
     window.removeEventListener('keypress', updateLastActiveTimestamp);
     console.log('MITHRIL:', new Date().toISOString(), 'voyent has disconnected');
@@ -511,12 +485,20 @@ export function getTokenSetAtTime() {
 }
 
 export function getTimeRemainingBeforeExpiry() {
+    const tokenExpiresAt = getTokenExpiresAt();
+    if (tokenExpiresAt) {
+        return (tokenExpiresAt - Date.now());
+    }
+    return null;
+}
+
+export function getTokenExpiresAt() {
     const expiresIn = getExpiresIn();
     const token = getLastAccessToken();
     if (expiresIn && token) {
-        const now = new Date().getTime();
-        return (getTokenSetAtTime() + expiresIn) - now;
+        return (getTokenSetAtTime() + expiresIn);
     }
+    return null;
 }
 
 export function getLoginParams() {
@@ -776,7 +758,6 @@ export function checkUserRoles(params) {
  */
 export function updateLastActiveTimestamp() {
     utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
-    resetInactiveSessionTimer();
 }
 
 /**

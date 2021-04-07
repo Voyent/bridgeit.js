@@ -274,7 +274,11 @@ export function setAppCredentials(credentials) {
 }
 
 export function isValidString(str) {
-    return !!(str && typeof str === 'string' && str.trim().length > 0 && str !== 'undefined');
+    return !!(str && typeof str === 'string' && str.trim().length > 0);
+}
+
+export function isFunction(func) {
+    return !!(func && typeof func === 'string');
 }
 
 export function sanitizeAccountName(original) {
@@ -346,4 +350,61 @@ export function fireEvent(el, eventName, detail) {
     } else if (el['on' + eventName]) {
         el['on' + eventName]();
     }
+}
+
+/**
+ * A more accurate timer utility than Javascript's built-in `setTimeout` and `setInterval`.
+ * This timer loops `setTimeout` executions at the passed timeInterval but after the first
+ * execution it adjusts each execution time based on the expected time using Date.now().
+ * execution
+ * @param timeInterval
+ * @param callback
+ * @param errorCallback
+ * @constructor
+ */
+export function Timer(timeInterval, callback, errorCallback) {
+    let expected, timeout;
+    /**
+     * Start executing the timer. Triggered automatically on instance creation
+     * but may be triggered to restart the timer if `stop` is triggered.
+     */
+    this.start = function() {
+        // Set the expected execution time of the timer.
+        expected = Date.now() + timeInterval;
+        // Create the timeout.
+        timeout = setTimeout(run.bind(this), timeInterval);
+    };
+    /**
+     * Stop executing the timer. May be called on the timer instance.
+     */
+    this.stop = function() {
+        // Clear the timeout.
+        clearTimeout(timeout);
+        timeout = 0;
+    };
+    /**
+     * Handles running the callback continuously and adjusting
+     * each execution to be at the expected time.
+     */
+    let run = function() {
+        // How many `ms` the timeout execution was off by.
+        let timeDrift = Date.now() - expected;
+        // If the timer missed a full execution
+        // then trigger the error callback.
+        if (timeDrift > timeInterval) {
+            if (errorCallback) {
+                errorCallback
+            }
+        }
+        // Trigger the callback if provided.
+        if (callback) {
+            callback();
+        }
+        // Increment the expected execution time of the timer.
+        expected += timeInterval;
+        // Run the timer at the adjusted interval.
+        timeout = setTimeout(run.bind(this), timeInterval - timeDrift);
+    };
+    // Start the timer immediately.
+    this.start();
 }
