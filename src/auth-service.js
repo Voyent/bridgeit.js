@@ -8,8 +8,8 @@ function AuthService(v, keys, utils) {
         LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp_vras'
     };
 
-    // How long before the token expiry that the token will be refreshed (2 minutes).
-    var tokenRefreshPadding = 2 * 60 * 1000;
+    // How long before the token expiry that the token will be refreshed (5 minutes).
+    var tokenRefreshPadding = 5 * 60 * 1000;
     // How long the user is allowed to be inactive before the session is disconnected (20 minutes).
     var inactivityTimeout = 20 * 60 * 1000;
     // Flag to ensure we enver try to refresh the token when we already are.
@@ -338,9 +338,11 @@ function AuthService(v, keys, utils) {
 
                 // If the session is still valid then check whether we should refresh the token.
                 var refreshTokenAt = v.auth.getTokenExpiresAt() - tokenRefreshPadding;
-                var refreshTokenIn = v.auth.getTimeRemainingBeforeExpiry() - tokenRefreshPadding;
                 if (refreshTokenAt <= Date.now()) {
-                    console.log('POLYMER:', new Date().toISOString(), 'token is about to expire, refreshing token...',);
+                    console.log('POLYMER:', new Date().toISOString(), 'token has',
+                        (v.auth.getTimeRemainingBeforeExpiry() / 1000 / 60).toPrecision(4),
+                        'mins until it expires, refreshing token....'
+                    );
                     v.auth.refreshAccessToken().catch(function() {});
                 }
                 else {
