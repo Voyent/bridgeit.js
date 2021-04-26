@@ -939,6 +939,37 @@ export function getRecipients(params) {
     });
 }
 
+export function createRecipient(params) {
+    return new Promise(function (resolve, reject) {
+        params = params ? params : {};
+
+        // Set 'nostore' to ensure the following checks don't update our lastKnown calls.
+        params.nostore = true;
+
+        // Get and validate the required parameters.
+        const account = utils.validateAndReturnRequiredAccount(params, reject);
+        const realm = utils.validateAndReturnRequiredRealmName(params, reject);
+        const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+        const user = utils.validateAndReturnRequiredUser(params, reject);
+
+        const url = utils.getRealmResourceURL(authAdminURL, account, realm,
+            'recipients', token
+        );
+
+        // If no password is found, generate one
+        if (!user.password) {
+            user.password = generatePassword();
+        }
+
+        post(url, { user: user }).then(function (response) {
+            updateLastActiveTimestamp();
+            resolve(response);
+        }).catch(function (error) {
+            reject(error);
+        });
+    });
+}
+
 export function getAdminsList(params) {
     return new Promise(function (resolve, reject) {
         params = params ? params : {};
