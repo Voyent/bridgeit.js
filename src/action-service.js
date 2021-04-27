@@ -531,6 +531,8 @@ export function generateAutoLoginURL(params) {
     return new Promise(
         function (resolve, reject) {
             params = params ? params : {};
+            // Ensure the passed recipient username doesn't overwrite the current user.
+            params.nostore = true;
 
             const account = utils.validateAndReturnRequiredAccount(params, reject);
             const realm = utils.validateAndReturnRequiredRealm(params, reject);

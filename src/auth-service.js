@@ -3,12 +3,6 @@ import * as utils from './private-utils'
 import { authURL, authAdminURL, baseURL, post, getJSON } from './public-utils'
 import { fireEvent } from './private-utils'
 
-const authKeys = {
-    PASSWORD_KEY: 'voyentPassword',
-    CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
-    SESSION_TIMER_KEY: 'voyentSessionTimer',
-    LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp'
-};
 // How long before the token expiry that the token will be refreshed (5 minutes).
 const tokenRefreshPadding = 5 * 60 * 1000;
 // How long the user is allowed to be inactive before the session is disconnected (20 minutes).
@@ -226,7 +220,7 @@ export function storeLogin(params) {
             reject(Error('Voyent username is required'));
             return;
         }
-    
+
         updateLastActiveTimestamp();
         utils.setSessionStorageItem(btoa(keys.TOKEN_KEY), params.access_token);
         utils.setSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY), params.expires_in);
@@ -277,7 +271,7 @@ export function connect(params) {
         if (params.admin) {
             settings.admin = params.admin;
         }
-        utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
+        utils.setSessionStorageItem(btoa(keys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
         if (isLoggedIn()) {
             // Start the session timer and resolve.
@@ -296,7 +290,7 @@ export function connect(params) {
                 utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(getLastKnownRealm()));
                 utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(getLastKnownHost()));
                 utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
-                utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
+                utils.setSessionStorageItem(btoa(keys.PASSWORD_KEY), btoa(params.password));
                 // Start the session timers and resolve.
                 startSessionTimer();
                 resolve(authResponse);
@@ -351,7 +345,7 @@ function startSessionTimer() {
             );
         }*/
     });
-    utils.setSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY), sessionTimer);
+    utils.setSessionStorageItem(btoa(keys.SESSION_TIMER_KEY), sessionTimer);
 
     // Add listeners to update the last active time stamp.
     window.addEventListener('click', updateLastActiveTimestamp);
@@ -445,19 +439,19 @@ export function refreshAccessToken(isRetryAttempt) {
 export function disconnect() {
     utils.removeSessionStorageItem(btoa(keys.TOKEN_KEY));
     utils.removeSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
-    utils.removeSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
+    utils.removeSessionStorageItem(btoa(keys.CONNECT_SETTINGS_KEY));
     utils.removeSessionStorageItem(btoa(keys.TOKEN_SET_KEY));
     utils.removeSessionStorageItem(btoa(keys.ACCOUNT_KEY));
     utils.removeSessionStorageItem(btoa(keys.REALM_KEY));
     utils.removeSessionStorageItem(btoa(keys.USERNAME_KEY));
     utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
-    utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
-    utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
-    const sessionTimer = utils.getSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY));
+    utils.removeSessionStorageItem(btoa(keys.PASSWORD_KEY));
+    utils.removeSessionStorageItem(btoa(keys.LAST_ACTIVE_TS_KEY));
+    const sessionTimer = utils.getSessionStorageItem(btoa(keys.SESSION_TIMER_KEY));
     if (sessionTimer && utils.isFunction(sessionTimer.stop)) {
         sessionTimer.stop();
     }
-    utils.removeSessionStorageItem(btoa(authKeys.SESSION_TIMER_KEY));
+    utils.removeSessionStorageItem(btoa(keys.SESSION_TIMER_KEY));
     window.removeEventListener('click', updateLastActiveTimestamp);
     window.removeEventListener('keypress', updateLastActiveTimestamp);
     // console.log('MITHRIL:', new Date().toISOString(), 'voyent has disconnected');
@@ -512,7 +506,7 @@ export function getLoginParams() {
     loginParams.realm = atob(utils.getSessionStorageItem(btoa(keys.REALM_KEY)));
     loginParams.host = atob(utils.getSessionStorageItem(btoa(keys.HOST_KEY)));
     loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
-    loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
+    loginParams.password = atob(utils.getSessionStorageItem(btoa(keys.PASSWORD_KEY)));
     if (utils.getSessionStorageItem(btoa(keys.ADMIN_KEY))) {
         loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
     }
@@ -521,7 +515,7 @@ export function getLoginParams() {
 }
 
 export function getConnectSettings() {
-    const settingsStr = utils.getSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
+    const settingsStr = utils.getSessionStorageItem(btoa(keys.CONNECT_SETTINGS_KEY));
     if (settingsStr) {
         return JSON.parse(atob(settingsStr));
     }
@@ -758,7 +752,7 @@ export function checkUserRoles(params) {
  * @alias updateLastActiveTimestamp
  */
 export function updateLastActiveTimestamp() {
-    utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
+    utils.setSessionStorageItem(btoa(keys.LAST_ACTIVE_TS_KEY), new Date().getTime());
 }
 
 /**
@@ -768,7 +762,7 @@ export function updateLastActiveTimestamp() {
  * @alias getLastActiveTimestamp
  */
 export function getLastActiveTimestamp() {
-    return utils.getSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
+    return utils.getSessionStorageItem(btoa(keys.LAST_ACTIVE_TS_KEY));
 }
 
 export function forgotPassword(params) {
