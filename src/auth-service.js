@@ -5,8 +5,8 @@ import { fireEvent } from './private-utils'
 
 // How long before the token expiry that the token will be refreshed (5 minutes).
 const tokenRefreshPadding = 5 * 60 * 1000;
-// How long the user is allowed to be inactive before the session is disconnected (20 minutes).
-const inactivityTimeout = 20 * 60 * 1000;
+// How long the user is allowed to be inactive before the session is disconnected (90 minutes).
+const inactivityTimeout = 90 * 60 * 1000;
 // Flag to ensure we enver try to refresh the token when we already are.
 let refreshingAccessToken = false;
 
