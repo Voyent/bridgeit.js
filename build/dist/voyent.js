@@ -3241,15 +3241,6 @@ if (!window.ice.icepush) {
 }
 function AuthService(v, keys, utils) {
 
-    var authKeys = {
-        PASSWORD_KEY: 'voyentPassword',
-        SCOPE_TO_PATH_KEY: "voyentScopeToPath",
-        CONNECT_SETTINGS_KEY: 'voyentConnectSettings',
-        RELOGIN_CB_KEY: 'voyentReloginCallback',
-        LAST_ACTIVE_TS_KEY: 'voyentLastActiveTimestamp',
-        COMPUTER_SLEEP_CB_KEY: 'voyentComputerSleepCallback',
-    };
-
     function validateAndReturnRequiredRole(params, reject){
         var role = params.role;
         if( role ){
@@ -3419,7 +3410,7 @@ function AuthService(v, keys, utils) {
                     utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
                     utils.setSessionStorageItem(btoa(keys.ADMIN_KEY), btoa(params.admin));
                     if (params.scopeToPath) {
-                        utils.setSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
+                        utils.setSessionStorageItem(btoa(keys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
                     }
                     v._fireEvent(window, 'voyent-login-succeeded', {});
                     resolve(authResponse);
@@ -3471,7 +3462,7 @@ function AuthService(v, keys, utils) {
                 utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(params.realm));
                 utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
                 if (params.scopeToPath) {
-                    utils.setSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
+                    utils.setSessionStorageItem(btoa(keys.SCOPE_TO_PATH_KEY), btoa(params.scopeToPath));
                 }
                 
                 resolve();
@@ -3537,7 +3528,7 @@ function AuthService(v, keys, utils) {
                     tokenSetAt.setTime(v.auth.getTokenSetAtTime());
 
                     var connectTimeoutCb = setTimeout(connectCallback, timeout);
-                    utils.setSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
+                    utils.setSessionStorageItem(btoa(keys.RELOGIN_CB_KEY), connectTimeoutCb);
 
                     console.log(new Date().toISOString() + ' voyent.auth.connect: setting next connection check to ' + timeout / 1000 / 60 + ' mins, expiresIn: ' +
                         (v.auth.getExpiresIn() / 1000 / 60) + ' mins, remaining: ' +
@@ -3550,7 +3541,7 @@ function AuthService(v, keys, utils) {
                     // that the computer has been sleeping and try to refresh the token.
 
                     // First check if we already have a sleep timer running and if so clear it
-                    var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+                    var compSleepIntervalCb = utils.getSessionStorageItem(btoa(keys.COMPUTER_SLEEP_CB_KEY));
                     if (compSleepIntervalCb) {
                         clearInterval(compSleepIntervalCb);
                     }
@@ -3562,10 +3553,10 @@ function AuthService(v, keys, utils) {
                         var nextExpectedTime = lastCheckedTime + sleepTimeout + timerPadding;
                         if (currentTime > (nextExpectedTime)) {
                             // Clear the old token timer since it is not valid after computer sleep
-                            var oldConnectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY), connectTimeoutCb);
+                            var oldConnectTimeoutCb = utils.getSessionStorageItem(btoa(keys.RELOGIN_CB_KEY), connectTimeoutCb);
                             if (oldConnectTimeoutCb) {
                                 clearTimeout(oldConnectTimeoutCb);
-                                utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
+                                utils.removeSessionStorageItem(btoa(keys.RELOGIN_CB_KEY));
                             }
                             // Try and refresh the token
                             v.auth.refreshAccessToken().then(function () {
@@ -3574,7 +3565,7 @@ function AuthService(v, keys, utils) {
                         }
                         lastCheckedTime = currentTime;
                     }, sleepTimeout);
-                    utils.setSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY), computerSleepTimer);
+                    utils.setSessionStorageItem(btoa(keys.COMPUTER_SLEEP_CB_KEY), computerSleepTimer);
                 }
 
                 /* The function callback set to run before the next timeout,
@@ -3707,7 +3698,7 @@ function AuthService(v, keys, utils) {
 
                     //settings.connectionTimeout = 5;
 
-                    utils.setSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
+                    utils.setSessionStorageItem(btoa(keys.CONNECT_SETTINGS_KEY), btoa(JSON.stringify(settings)));
 
                     if (params.onSessionExpiry) {
                         if (typeof params.onSessionExpiry === 'function') {
@@ -3729,7 +3720,7 @@ function AuthService(v, keys, utils) {
                     utils.setSessionStorageItem(btoa(keys.REALM_KEY), btoa(v.auth.getLastKnownRealm()));
                     utils.setSessionStorageItem(btoa(keys.HOST_KEY), btoa(v.auth.getLastKnownHost()));
                     utils.setSessionStorageItem(btoa(keys.USERNAME_KEY), btoa(params.username));
-                    utils.setSessionStorageItem(btoa(authKeys.PASSWORD_KEY), btoa(params.password));
+                    utils.setSessionStorageItem(btoa(keys.PASSWORD_KEY), btoa(params.password));
                 }
 
                 var timeoutPadding = 60000;
@@ -3810,7 +3801,7 @@ function AuthService(v, keys, utils) {
             loginParams.realm = atob(utils.getSessionStorageItem(btoa(keys.REALM_KEY)));
             loginParams.host = atob(utils.getSessionStorageItem(btoa(keys.HOST_KEY)));
             loginParams.username = atob(utils.getSessionStorageItem(btoa(keys.USERNAME_KEY)));
-            loginParams.password = atob(utils.getSessionStorageItem(btoa(authKeys.PASSWORD_KEY)));
+            loginParams.password = atob(utils.getSessionStorageItem(btoa(keys.PASSWORD_KEY)));
             loginParams.admin = atob(utils.getSessionStorageItem(btoa(keys.ADMIN_KEY)));
             
             return loginParams;
@@ -3844,24 +3835,24 @@ function AuthService(v, keys, utils) {
         disconnect: function () {
             utils.removeSessionStorageItem(btoa(keys.TOKEN_KEY));
             utils.removeSessionStorageItem(btoa(keys.TOKEN_EXPIRES_KEY));
-            utils.removeSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
+            utils.removeSessionStorageItem(btoa(keys.CONNECT_SETTINGS_KEY));
             utils.removeSessionStorageItem(btoa(keys.TOKEN_SET_KEY));
             utils.removeSessionStorageItem(btoa(keys.ACCOUNT_KEY));
             utils.removeSessionStorageItem(btoa(keys.REALM_KEY));
             utils.removeSessionStorageItem(btoa(keys.USERNAME_KEY));
             utils.removeSessionStorageItem(btoa(keys.HOST_KEY));
-            utils.removeSessionStorageItem(btoa(authKeys.PASSWORD_KEY));
-            utils.removeSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
-            var connectTimeoutCb = utils.getSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
+            utils.removeSessionStorageItem(btoa(keys.PASSWORD_KEY));
+            utils.removeSessionStorageItem(btoa(keys.LAST_ACTIVE_TS_KEY));
+            var connectTimeoutCb = utils.getSessionStorageItem(btoa(keys.RELOGIN_CB_KEY));
             if (connectTimeoutCb) {
                 clearTimeout(connectTimeoutCb);
             }
-            utils.removeSessionStorageItem(btoa(authKeys.RELOGIN_CB_KEY));
-            var compSleepIntervalCb = utils.getSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+            utils.removeSessionStorageItem(btoa(keys.RELOGIN_CB_KEY));
+            var compSleepIntervalCb = utils.getSessionStorageItem(btoa(keys.COMPUTER_SLEEP_CB_KEY));
             if (compSleepIntervalCb) {
                 clearInterval(compSleepIntervalCb);
             }
-            utils.removeSessionStorageItem(btoa(authKeys.COMPUTER_SLEEP_CB_KEY));
+            utils.removeSessionStorageItem(btoa(keys.COMPUTER_SLEEP_CB_KEY));
             console.log(new Date().toISOString() + ' voyent has disconnected');
             v.auth.connected = false;
         },
@@ -3894,7 +3885,7 @@ function AuthService(v, keys, utils) {
         },
 
         getConnectSettings: function () {
-            var settingsStr = utils.getSessionStorageItem(btoa(authKeys.CONNECT_SETTINGS_KEY));
+            var settingsStr = utils.getSessionStorageItem(btoa(keys.CONNECT_SETTINGS_KEY));
             if (settingsStr) {
                 return JSON.parse(atob(settingsStr));
             }
@@ -3906,7 +3897,7 @@ function AuthService(v, keys, utils) {
                 tokenExpiresIn = tokenExpiresInStr ? parseInt(tokenExpiresInStr, 10) : null,
                 tokenSetAtStr = utils.getSessionStorageItem(btoa(keys.TOKEN_SET_KEY)),
                 tokenSetAt = tokenSetAtStr ? parseInt(tokenSetAtStr, 10) : null,
-                scopeToPathCipher = utils.getSessionStorageItem(btoa(authKeys.SCOPE_TO_PATH_KEY)),
+                scopeToPathCipher = utils.getSessionStorageItem(btoa(keys.SCOPE_TO_PATH_KEY)),
                 scopeToPath = scopeToPathCipher ? atob(scopeToPathCipher) : '/',
                 isDev, currentPath;
             if (!utils.isNode) {
@@ -4120,7 +4111,7 @@ function AuthService(v, keys, utils) {
          * @alias updateLastActiveTimestamp
          */
         updateLastActiveTimestamp: function () {
-            utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
+            utils.setSessionStorageItem(btoa(keys.LAST_ACTIVE_TS_KEY), new Date().getTime());
         },
 
         /**
@@ -4130,7 +4121,7 @@ function AuthService(v, keys, utils) {
          * @alias getLastActiveTimestamp
          */
         getLastActiveTimestamp: function () {
-            return utils.getSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY));
+            return utils.getSessionStorageItem(btoa(keys.LAST_ACTIVE_TS_KEY));
         },
 
         forgotPassword: function (params) {
@@ -6176,7 +6167,49 @@ function ActionService(v, utils) {
                     v.$.getJSON(url).then(function(notificationHistory) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(notificationHistory);
-                    })['catch'](function (error) {
+                    }).catch(function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Generate an auto login URL for the passed `username` and `originalURL`.
+         * @memberOf voyent.action
+         * @alias generateAutoLoginURL
+         * @param {Object} params params
+         * @param {String} params.username The user to generate the URL for.
+         * @param {String} params.originalURL The original URL to add the login parameters to.
+         * @param {String} [params.account] Voyent Services account name.
+         * @param {String} [params.realm] The Voyent Services realm.
+         * @param {String} [params.accessToken] The Voyent authentication token.
+         * @param {String} [params.host] The Voyent Services host url.
+         * @returns {Object} The auto login URL.
+         */
+        generateAutoLoginURL: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    // Ensure the passed recipient username doesn't overwrite the current user.
+                    params.nostore = true;
+
+                    const account = utils.validateAndReturnRequiredAccount(params, reject);
+                    const realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    const username = utils.validateAndReturnRequiredUsername(params, reject);
+                    const originalURL = utils.isValidString(params.originalURL) ? params.originalURL : '';
+                    if (!originalURL) {
+                        return reject(new Error('the originalURL is required'));
+                    }
+
+                    const url = utils.getRealmResourceURL(v.actionURL, account, realm,
+                        'autoLoginURL/' + username, token);
+
+                    v.$.post(url, { originalURL: params.originalURL }).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response);
+                    }).catch(function(error) {
                         reject(error);
                     });
                 }
@@ -11595,6 +11628,10 @@ function PrivateUtils(services, keys) {
         }
     }
 
+    function isValidString(str) {
+        return !!(str && typeof str === 'string' && str.trim().length > 0);
+    }
+
 
     //local storage container that will be used to store data in node
     //that is normally stored in the browser session or local storage
@@ -11815,7 +11852,8 @@ function PrivateUtils(services, keys) {
         'validateAndReturnRequiredRealmName': validateAndReturnRequiredRealmName,
         'validateAndReturnRequiredAccount': validateAndReturnRequiredAccount,
         'validateAndReturnRequiredAccessToken': validateAndReturnRequiredAccessToken,
-        'validateRequiredId': validateRequiredId
+        'validateRequiredId': validateRequiredId,
+        'isValidString': isValidString
     }
 }function PublicUtils(utils) {
     return {
@@ -12096,18 +12134,33 @@ function PrivateUtils(services, keys) {
 }
 
 (function (v) {
+
+    let suffix = 'admin';
+    if (window.location.pathname.indexOf('client.html') > -1) {
+        suffix = 'recipient';
+    }
+    const getFullKey = function(prefix) {
+        return prefix + '_' + suffix;
+    }
+
     var keys = {
-        TRANSACTION_KEY: 'voyentTransaction',
-        REALM_KEY: 'voyentRealm',
-        ADMIN_KEY: 'voyentAdmin',
-        USERNAME_KEY: 'voyentUsername',
-        ACCOUNT_KEY: 'voyentAccount',
-        HOST_KEY: 'voyentHost',
-        TOKEN_KEY: 'voyentToken',
-        TOKEN_EXPIRES_KEY: 'voyentTokenExpires',
-        TOKEN_SET_KEY: 'voyentTokenSet'
+        TRANSACTION_KEY: getFullKey('voyentTransaction'),
+        REALM_KEY: getFullKey('voyentRealm'),
+        ADMIN_KEY: getFullKey('voyentAdmin'),
+        USERNAME_KEY: getFullKey('voyentUsername'),
+        ACCOUNT_KEY: getFullKey('voyentAccount'),
+        HOST_KEY: getFullKey('voyentHost'),
+        TOKEN_KEY: getFullKey('voyentToken'),
+        TOKEN_EXPIRES_KEY: getFullKey('voyentTokenExpires'),
+        TOKEN_SET_KEY: getFullKey('voyentTokenSet'),
+        PASSWORD_KEY: getFullKey('voyentPassword'),
+        SCOPE_TO_PATH_KEY: "voyentScopeToPath",
+        CONNECT_SETTINGS_KEY: getFullKey('voyentConnectSettings'),
+        RELOGIN_CB_KEY: getFullKey('voyentReloginCallback'),
+        LAST_ACTIVE_TS_KEY: getFullKey('voyentLastActiveTimestamp'),
+        COMPUTER_SLEEP_CB_KEY: getFullKey('voyentComputerSleepCallback')
     };
-    
+
     var privateUtils = PrivateUtils(v, keys);
     v.$ = PublicUtils(privateUtils);
 

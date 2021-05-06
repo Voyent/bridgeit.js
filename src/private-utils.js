@@ -100,6 +100,10 @@ function PrivateUtils(services, keys) {
         }
     }
 
+    function isValidString(str) {
+        return !!(str && typeof str === 'string' && str.trim().length > 0);
+    }
+
 
     //local storage container that will be used to store data in node
     //that is normally stored in the browser session or local storage
@@ -320,6 +324,7 @@ function PrivateUtils(services, keys) {
         'validateAndReturnRequiredRealmName': validateAndReturnRequiredRealmName,
         'validateAndReturnRequiredAccount': validateAndReturnRequiredAccount,
         'validateAndReturnRequiredAccessToken': validateAndReturnRequiredAccessToken,
-        'validateRequiredId': validateRequiredId
+        'validateRequiredId': validateRequiredId,
+        'isValidString': isValidString
     }
 }

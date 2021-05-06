@@ -3,18 +3,33 @@ if (!window.voyent) {
 }
 
 (function (v) {
+
+    let suffix = 'admin';
+    if (window.location.pathname.indexOf('client.html') > -1) {
+        suffix = 'recipient';
+    }
+    const getFullKey = function(prefix) {
+        return prefix + '_' + suffix;
+    }
+
     var keys = {
-        TRANSACTION_KEY: 'voyentTransaction',
-        REALM_KEY: 'voyentRealm',
-        ADMIN_KEY: 'voyentAdmin',
-        USERNAME_KEY: 'voyentUsername',
-        ACCOUNT_KEY: 'voyentAccount',
-        HOST_KEY: 'voyentHost',
-        TOKEN_KEY: 'voyentToken',
-        TOKEN_EXPIRES_KEY: 'voyentTokenExpires',
-        TOKEN_SET_KEY: 'voyentTokenSet'
+        TRANSACTION_KEY: getFullKey('voyentTransaction'),
+        REALM_KEY: getFullKey('voyentRealm'),
+        ADMIN_KEY: getFullKey('voyentAdmin'),
+        USERNAME_KEY: getFullKey('voyentUsername'),
+        ACCOUNT_KEY: getFullKey('voyentAccount'),
+        HOST_KEY: getFullKey('voyentHost'),
+        TOKEN_KEY: getFullKey('voyentToken'),
+        TOKEN_EXPIRES_KEY: getFullKey('voyentTokenExpires'),
+        TOKEN_SET_KEY: getFullKey('voyentTokenSet'),
+        PASSWORD_KEY: getFullKey('voyentPassword'),
+        SCOPE_TO_PATH_KEY: "voyentScopeToPath",
+        CONNECT_SETTINGS_KEY: getFullKey('voyentConnectSettings'),
+        RELOGIN_CB_KEY: getFullKey('voyentReloginCallback'),
+        LAST_ACTIVE_TS_KEY: getFullKey('voyentLastActiveTimestamp'),
+        COMPUTER_SLEEP_CB_KEY: getFullKey('voyentComputerSleepCallback')
     };
-    
+
     var privateUtils = PrivateUtils(v, keys);
     v.$ = PublicUtils(privateUtils);
 

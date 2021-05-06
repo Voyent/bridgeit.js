@@ -505,7 +505,49 @@ function ActionService(v, utils) {
                     v.$.getJSON(url).then(function(notificationHistory) {
                         v.auth.updateLastActiveTimestamp();
                         resolve(notificationHistory);
-                    })['catch'](function (error) {
+                    }).catch(function (error) {
+                        reject(error);
+                    });
+                }
+            );
+        },
+
+        /**
+         * Generate an auto login URL for the passed `username` and `originalURL`.
+         * @memberOf voyent.action
+         * @alias generateAutoLoginURL
+         * @param {Object} params params
+         * @param {String} params.username The user to generate the URL for.
+         * @param {String} params.originalURL The original URL to add the login parameters to.
+         * @param {String} [params.account] Voyent Services account name.
+         * @param {String} [params.realm] The Voyent Services realm.
+         * @param {String} [params.accessToken] The Voyent authentication token.
+         * @param {String} [params.host] The Voyent Services host url.
+         * @returns {Object} The auto login URL.
+         */
+        generateAutoLoginURL: function(params) {
+            return new Promise(
+                function (resolve, reject) {
+                    params = params ? params : {};
+                    // Ensure the passed recipient username doesn't overwrite the current user.
+                    params.nostore = true;
+
+                    const account = utils.validateAndReturnRequiredAccount(params, reject);
+                    const realm = utils.validateAndReturnRequiredRealm(params, reject);
+                    const token = utils.validateAndReturnRequiredAccessToken(params, reject);
+                    const username = utils.validateAndReturnRequiredUsername(params, reject);
+                    const originalURL = utils.isValidString(params.originalURL) ? params.originalURL : '';
+                    if (!originalURL) {
+                        return reject(new Error('the originalURL is required'));
+                    }
+
+                    const url = utils.getRealmResourceURL(v.actionURL, account, realm,
+                        'autoLoginURL/' + username, token);
+
+                    v.$.post(url, { originalURL: params.originalURL }).then(function (response) {
+                        v.auth.updateLastActiveTimestamp();
+                        resolve(response);
+                    }).catch(function(error) {
                         reject(error);
                     });
                 }
