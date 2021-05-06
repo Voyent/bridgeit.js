@@ -3,8 +3,8 @@ import { getLastKnownAccount, getLastKnownRealm, getLastKnownUsername, isLoggedI
 import { executeModule } from './action-service';
 import { deleteMessages } from './mailbox-service';
 import { getSessionStorageItem, removeSessionStorageItem, setSessionStorageItem } from './public-utils';
+import { VOYENT_INJECT_KEY } from './keys'
 
-const VOYENT_INJECT_KEY = 'voyentNotificationToInject';
 const VOYENT_TOAST_CONTAINER_ID = 'voyent_toast_container';
 const VOYENT_MAIL_QUERY_PARAMETER = 'nid';
 
