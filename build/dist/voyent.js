@@ -3251,8 +3251,8 @@ function AuthService(v, keys, utils) {
 
     // How long before the token expiry that the token will be refreshed (5 minutes).
     var tokenRefreshPadding = 5 * 60 * 1000;
-    // How long the user is allowed to be inactive before the session is disconnected (20 minutes).
-    var inactivityTimeout = 20 * 60 * 1000;
+    // How long the user is allowed to be inactive before the session is disconnected (90 minutes).
+    var inactivityTimeout = 90 * 60 * 1000;
     // Flag to ensure we enver try to refresh the token when we already are.
     var refreshingAccessToken = false;
 
