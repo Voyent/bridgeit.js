@@ -56,12 +56,14 @@ function BroadcastService(v, utils) {
                     reconnection: true,
                     // Never stop trying to reconnect.
                     reconnectionAttempts: Infinity,
-                    // Wait 3 seconds between reconnection attempts.
+                    // Wait 3 seconds before the initial reconnection attempt. Each attempt increases
+                    // the reconnection delay by 2x along with +/- the `randomizationFactor`.
                     reconnectionDelay: 3000,
-                    // Wait a maximum of 3 seconds between reconnection attempts. Irrelevant since `randomizationFactor` is 0.
-                    reconnectionDelayMax: 3000,
-                    // The factor to alter the `reconnectionDelay` by. Use 0 so we always try to reconnect exactly every 3 seconds.
-                    randomizationFactor: 0,
+                    // Wait a maximum of 1 minute between reconnection attempts.
+                    reconnectionDelayMax: 60000,
+                    // The +/- factor to alter the `reconnectionDelay` by. For example, the first
+                    // reconnection will be between 2500ms and 7500ms (5000*0.5 to 5000*1.5).
+                    randomizationFactor: 0.5,
                     // Wait 10 seconds for the connection to be established before aborting and retrying the connection.
                     timeout: 10000
                 });
