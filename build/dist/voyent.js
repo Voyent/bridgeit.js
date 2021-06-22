@@ -10088,7 +10088,7 @@ function EventService(v, utils) {
             if (socket && socket.disconnected) {
                 socket.open();
             } else {
-                console.warn('Broadcast reception is already on.');
+                console.warn('broadcast-legacy: Broadcast reception is already on.');
             }
         },
 
@@ -10096,30 +10096,51 @@ function EventService(v, utils) {
             if (socket && socket.connected) {
                 socket.close();
             } else {
-                console.warn('Broadcast reception is already off.');
+                console.warn('broadcast-legacy: Broadcast reception is already off.');
             }
         },
 
         startListening: function startListening(params) {
             if (!socket) {
                 var socketManager = io.Manager(ioURL(), {
+                    // Default to websocket connection but fallback to polling.
                     transports: ['websocket', 'polling'],
-                    reconnectionAttempts: 3,
-                    rememberUpgrade: true
+                    // If previously connected via websocket then try websocket immediately again if disconnected.
+                    rememberUpgrade: true,
+                    // Always try to reconnect automatically.
+                    reconnection: true,
+                    // Never stop trying to reconnect.
+                    reconnectionAttempts: Infinity,
+                    // Wait 5 seconds between reconnection attempts.
+                    reconnectionDelay: 5000,
+                    // Wait a maximum of 5 seconds between reconnection attempts. Irrelevant since `randomizationFactor` is 0.
+                    reconnectionDelayMax: 5000,
+                    // The factor to alter the `reconnectionDelay` by. Use 0 so we always try to reconnect exactly every 5 seconds.
+                    randomizationFactor: 0,
+                    // Wait 10 seconds for the connection to be established before aborting and retrying the connection.
+                    timeout: 10000
                 });
                 socket = socketManager.socket('/');
-                console.log('Created socket.');
+                socket.on('connect', function() {
+                    console.info('broadcast-legacy: Connection established.');
+                });
                 socket.on('connect_error', function(error) {
-                    console.warn('Connection failed: ' + error);
+                    console.error('broadcast-legacy: Connection failed:', error);
+                });
+                socket.on('reconnect', function(attempt) {
+                    console.info('broadcast-legacy: Reconnected on attempt #' + attempt + '.');
                 });
                 socket.on('reconnect_attempt', function() {
-                    console.info('Retrying to connect.');
+                    console.info('broadcast-legacy: Retrying connection.');
                 });
                 socket.on('reconnect_failed', function() {
-                    console.warn('Failed to reconnect.');
+                    console.warn('broadcast-legacy: Failed to reconnect.');
                 });
                 socket.on('connect_timeout', function(timeout) {
-                    console.info('Connection timed out after ' + timeout + ' seconds.');
+                    console.info('broadcast-legacy: Connection timed out after ' + timeout + 'ms.');
+                });
+                socket.on('disconnect', function(reason) {
+                    console.warn('broadcast-legacy: Disconnected because:', reason);
                 });
                 socket.on('broadcast-event', function(message) {
                     var callbacks = groupsToCallbacks.get(message.group);
@@ -10128,7 +10149,7 @@ function EventService(v, utils) {
                             try {
                                 c(message.payload);
                             } catch (ex) {
-                                console.error('Failed to invoke callback ' + c);
+                                console.error('broadcast-legacy: Failed to invoke callback ' + c);
                             }
                         });
                     }
