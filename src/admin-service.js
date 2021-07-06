@@ -228,7 +228,7 @@ export function getBillingReport(params){
         const account = utils.validateAndReturnRequiredAccount(params, reject);
         const realmName = utils.validateAndReturnRequiredRealmName(params, reject);
         let url;
-        if(params.month && params.year){
+        if(params.month !== null && params.year){
             if(params.date){
                 url = sysAdminURL + '/' + account + '/realms/' + realmName + '/dailyBillingSummary'
                     + '?access_token=' + token + '&' + utils.getTransactionURLParam()+ '&year=' + params.year + "&month=" + params.month + "&date=" + params.date;
