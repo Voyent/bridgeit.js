@@ -753,6 +753,7 @@ export function checkUserRoles(params) {
  */
 export function updateLastActiveTimestamp() {
     utils.setSessionStorageItem(btoa(keys.LAST_ACTIVE_TS_KEY), new Date().getTime());
+    fireEvent(window, 'voyent-update-last-active-timestamp', {});
 }
 
 /**
