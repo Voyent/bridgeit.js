@@ -591,7 +591,6 @@ export function isIOS() {
     const iDevice = ['iPad', 'iPhone', 'iPod'];
     for (let i = 0; i < iDevice.length ; i++ ) {
         if (navigator.userAgent.indexOf(iDevice[i]) > -1) {
-            console.log("VRAS-1850 - Found iOS in user agent, returning true", navigator.userAgent);
             return true;
         }
     }
@@ -600,11 +599,8 @@ export function isIOS() {
     // This is because the newer user agent string is like "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko)"
     // Whereas the older is "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
     // Thanks to a change in iOS around desktop browsing: https://developer.apple.com/videos/play/wwdc2019/203/
-    console.log("VRAS-1850 - Platform", navigator.platform);
-    console.log("VRAS-1850 - Touchpoints", navigator.maxTouchPoints);
     let fallbackCheck = /^Mac/.test(navigator.platform) &&
                         navigator.maxTouchPoints > 4;
-    console.log("VRAS-1850 - Fallback check for isIOS", fallbackCheck);
     
     return fallbackCheck;
 }
