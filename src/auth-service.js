@@ -733,15 +733,17 @@ function AuthService(v, keys, utils) {
             });
         },
 
-
         /**
          * Update the last active timestamp for the session and resets the inactivity timer.
+         * @param noEvent true to not fire an event
          * @memberOf voyent.auth
          * @alias updateLastActiveTimestamp
          */
-        updateLastActiveTimestamp: function () {
+        updateLastActiveTimestamp: function (noEvent) {
             utils.setSessionStorageItem(btoa(authKeys.LAST_ACTIVE_TS_KEY), new Date().getTime());
-            v._fireEvent(window, 'voyent-update-last-active-timestamp-vras', {});
+            if (!noEvent) {
+                v._fireEvent(window, 'voyent-update-last-active-timestamp-vras', {});
+            }
         },
 
         /**
