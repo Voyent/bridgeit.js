@@ -587,15 +587,22 @@ export function newUUID()  {
     });
 }
 
-export function isIOS(){
+export function isIOS() {
     const iDevice = ['iPad', 'iPhone', 'iPod'];
     for (let i = 0; i < iDevice.length ; i++ ) {
         if (navigator.userAgent.indexOf(iDevice[i]) > -1) {
             return true;
         }
     }
-
-    return false;
+    
+    // VRAS-1850 - Another approach for detecting new iPad versions (iOS 14.4+) is to use navigator.maxTouchPoints instead of the user-agent string
+    // This is because the newer user agent string is like "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+    // Whereas the older is "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
+    // Thanks to a change in iOS around desktop browsing: https://developer.apple.com/videos/play/wwdc2019/203/
+    let fallbackCheck = /^Mac/.test(navigator.platform) &&
+                        navigator.maxTouchPoints > 4;
+    
+    return fallbackCheck;
 }
 
 export function isAndroid(){
